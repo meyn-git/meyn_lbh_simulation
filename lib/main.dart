@@ -31,23 +31,4 @@ class MyHomePage extends StatelessWidget {
     );
 }
 
-class LayoutWidget extends StatefulWidget {
-  @override
-  _LayoutWidgetState createState() => _LayoutWidgetState();
-}
 
-class _LayoutWidgetState extends State<LayoutWidget> {
-  Layout layout = Layout();
-
-  _LayoutWidgetState() {
-    const interval = const Duration(milliseconds: 200);
-    Timer.periodic(interval, (Timer t) {
-      setState(() {
-        layout.processNextTimeFrame(const Duration(seconds: 1));
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => layout.asWidget(context);
-}

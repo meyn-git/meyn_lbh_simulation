@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/state_machine_widgets/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/module_cas.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/module_conveyor.dart';
@@ -79,14 +79,6 @@ class Layout implements TimeProcessor {
     ));
   }
 
-  Widget asWidget(BuildContext context) {
-    var cellRange = CellRange(cells);
-    return CustomMultiChildLayout(
-      delegate: LayoutDelegate(cells),
-      children: cellWidgets,
-    );
-  }
-
   Cell neighbouringCell(StateMachineCell cell, CardinalDirection direction) {
     Position relativePosition = cell.position.neighbour(direction);
     return cellForPosition(relativePosition);
@@ -114,12 +106,6 @@ class Layout implements TimeProcessor {
     var foundCell =
         cells.firstWhereOrNull((cell) => cell.position == positionToFind);
     return foundCell ?? EmptyCell();
-  }
-
-  List<Widget> get cellWidgets {
-    return cells
-        .map((cell) => LayoutId(id: cell, child: cell.widget))
-        .toList();
   }
 
   @override
@@ -166,28 +152,58 @@ class Layout implements TimeProcessor {
   }
 }
 
+
+class LayoutWidget extends material.StatefulWidget {
+  @override
+  _LayoutWidgetState createState() => _LayoutWidgetState();
+}
+
+class _LayoutWidgetState extends material.State<LayoutWidget> {
+  Layout layout = Layout();
+
+  _LayoutWidgetState() {
+    const interval = const Duration(milliseconds: 200);
+    Timer.periodic(interval, (Timer t) {
+      setState(() {
+        layout.processNextTimeFrame(const Duration(seconds: 1));
+      });
+    });
+  }
+
+  @override
+  material.Widget build(material.BuildContext context) => material.CustomMultiChildLayout (
+            delegate: LayoutWidgetDelegate(layout),
+            children: createChildren(layout));
+
+  static List<material.Widget> createChildren(layout) => layout.cells
+      .map<material.Widget>((cell) => material.LayoutId(id: cell, child: cell.widget))
+      .toList();
+}
+
 /// positions all the child widgets
-class LayoutDelegate extends MultiChildLayoutDelegate {
+class LayoutWidgetDelegate extends material.MultiChildLayoutDelegate {
   final List<ActiveCell> cells;
   final CellRange cellRange;
 
-  LayoutDelegate(this.cells) : cellRange = CellRange(cells);
+  LayoutWidgetDelegate(Layout layout)
+      : cells = layout.cells,
+        cellRange = CellRange(layout.cells);
 
   @override
-  void performLayout(Size size) {
+  void performLayout(material.Size size) {
     var childWidth = size.width / cellRange.width;
     var childHeight = size.height / cellRange.height;
     var childSide = min(childWidth, childHeight);
-    Size childSize = Size(childSide, childSide);
-    Offset offSet = Offset(
+    material.Size childSize = material.Size(childSide, childSide);
+    material.Offset offSet = material.Offset(
       (size.width - (childSide * cellRange.width)) / 2,
       (size.height - (childSide * cellRange.height)) / 2,
     );
     for (ActiveCell cell in cells) {
-      layoutChild(cell, BoxConstraints.tight(childSize));
+      layoutChild(cell, material.BoxConstraints.tight(childSize));
       positionChild(
           cell,
-          Offset(
+          material.Offset(
             (cell.position.x - cellRange.minX) * childSide + offSet.dx,
             (cell.position.y - cellRange.minY) * childSide + offSet.dy,
           ));
@@ -195,7 +211,7 @@ class LayoutDelegate extends MultiChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => false;
+  bool shouldRelayout(covariant material.MultiChildLayoutDelegate oldDelegate) => false;
 }
 
 class CellRange {
@@ -361,7 +377,7 @@ class Module {
 }
 
 abstract class Cell {
-  Widget get widget;
+  material.Widget get widget;
 
   /// whether a given direction can feed out modules
   bool isFeedIn(CardinalDirection inFeedDirection);
@@ -392,8 +408,8 @@ class EmptyCell extends Cell {
   factory EmptyCell() => _emptyCell;
 
   @override
-  Widget get widget => SizedBox.fromSize(
-        size: Size(20, 20),
+  material.Widget get widget => material.SizedBox.fromSize(
+        size: material.Size(20, 20),
       );
 
   @override
