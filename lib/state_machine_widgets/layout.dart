@@ -81,9 +81,9 @@ class Layout implements TimeProcessor {
 
   Widget asWidget(BuildContext context) {
     var cellRange = CellRange(cells);
-    return GridView.count(
-      crossAxisCount: cellRange.width,
-      children: _children(cellRange),
+    return CustomMultiChildLayout(
+      delegate: LayoutDelegate(cells),
+      children: cellWidgets,
     );
   }
 
@@ -91,15 +91,6 @@ class Layout implements TimeProcessor {
     Position relativePosition = cell.position.neighbour(direction);
     return cellForPosition(relativePosition);
   }
-
-  // TODO moved to cell
-  // Position findPosition(ProcessableNamedCell cell) {
-  //   String cellNameToFind = cell.name;
-  //   for (var cell in cells) {
-  //     if (cell.name == cellNameToFind) return cell.position;
-  //   }
-  //   throw Exception('Could not find a cell: ${cell.name}');
-  // }
 
   void put(ActiveCell cell) {
     checkIfPositionIsUnique(cell.position);
@@ -125,14 +116,10 @@ class Layout implements TimeProcessor {
     return foundCell ?? EmptyCell();
   }
 
-  _children(CellRange cellRange) {
-    List<Widget> children = [];
-    for (int y = cellRange.minY; y <= cellRange.maxY; y++) {
-      for (int x = cellRange.minX; x <= cellRange.maxX; x++) {
-        children.add(cellForPosition(Position(x, y)).widget);
-      }
-    }
-    return children;
+  List<Widget> get cellWidgets {
+    return cells
+        .map((cell) => LayoutId(id: cell, child: cell.widget))
+        .toList();
   }
 
   @override
@@ -177,6 +164,38 @@ class Layout implements TimeProcessor {
     // tried all directions, no success
     return null;
   }
+}
+
+/// positions all the child widgets
+class LayoutDelegate extends MultiChildLayoutDelegate {
+  final List<ActiveCell> cells;
+  final CellRange cellRange;
+
+  LayoutDelegate(this.cells) : cellRange = CellRange(cells);
+
+  @override
+  void performLayout(Size size) {
+    var childWidth = size.width / cellRange.width;
+    var childHeight = size.height / cellRange.height;
+    var childSide = min(childWidth, childHeight);
+    Size childSize = Size(childSide, childSide);
+    Offset offSet = Offset(
+      (size.width - (childSide * cellRange.width)) / 2,
+      (size.height - (childSide * cellRange.height)) / 2,
+    );
+    for (ActiveCell cell in cells) {
+      layoutChild(cell, BoxConstraints.tight(childSize));
+      positionChild(
+          cell,
+          Offset(
+            (cell.position.x - cellRange.minX) * childSide + offSet.dx,
+            (cell.position.y - cellRange.minY) * childSide + offSet.dy,
+          ));
+    }
+  }
+
+  @override
+  bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => false;
 }
 
 class CellRange {
@@ -312,9 +331,11 @@ class ModulePosition {
     StateMachineCell source,
     StateMachineCell destination,
   ) {
-    Duration outFeedDuration=source.outFeedDuration;
-    Duration inFeedDuration=destination.inFeedDuration;
-    return Duration(milliseconds:  max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
+    Duration outFeedDuration = source.outFeedDuration;
+    Duration inFeedDuration = destination.inFeedDuration;
+    return Duration(
+        milliseconds:
+            max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
   }
 }
 
