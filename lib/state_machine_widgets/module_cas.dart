@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
 import 'layout.dart';
+import 'module.dart';
 
 class ModuleCas extends StateMachineCell {
   /// the [CardinalDirection] the in and out feed is pointed towards

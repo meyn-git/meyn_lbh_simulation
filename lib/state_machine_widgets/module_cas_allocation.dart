@@ -3,6 +3,7 @@ import 'package:meyn_lbh_simulation/state_machine_widgets/module_cas.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
 import 'layout.dart';
+import 'module.dart';
 
 /// Allocates the destination of a [ModuleGroup] of a given location depending on the
 /// state of the [ModuleCas] units and transport modules between this position

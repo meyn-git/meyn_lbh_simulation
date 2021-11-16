@@ -2,6 +2,8 @@ import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
+import 'module.dart';
+
 class ModuleConveyor extends StateMachineCell {
   final CardinalDirection inFeedDirection;
 

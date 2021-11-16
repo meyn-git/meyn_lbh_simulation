@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'layout.dart';
+import 'module.dart';
 
 abstract class StateMachineCell extends ActiveCell {
   // /// where de module(s) need to go, null when there is no destination

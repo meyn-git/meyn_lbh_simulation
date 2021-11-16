@@ -3,6 +3,8 @@ import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
+import 'module.dart';
+
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
 class LoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection outFeedDirection;

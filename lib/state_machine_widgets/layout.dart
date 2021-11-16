@@ -9,6 +9,7 @@ import 'package:meyn_lbh_simulation/state_machine_widgets/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
+import 'module.dart';
 import 'module_cas_allocation.dart';
 
 class Layout implements TimeProcessor {
@@ -152,7 +153,6 @@ class Layout implements TimeProcessor {
   }
 }
 
-
 class LayoutWidget extends material.StatefulWidget {
   @override
   _LayoutWidgetState createState() => _LayoutWidgetState();
@@ -171,23 +171,42 @@ class _LayoutWidgetState extends material.State<LayoutWidget> {
   }
 
   @override
-  material.Widget build(material.BuildContext context) => material.CustomMultiChildLayout (
-            delegate: LayoutWidgetDelegate(layout),
-            children: createChildren(layout));
+  material.Widget build(material.BuildContext context) =>
+      material.CustomMultiChildLayout(
+          delegate: LayoutWidgetDelegate(layout),
+          children: createChildren(layout));
 
-  static List<material.Widget> createChildren(layout) => layout.cells
-      .map<material.Widget>((cell) => material.LayoutId(id: cell, child: cell.widget))
-      .toList();
+  static List<material.Widget> createChildren(Layout layout) {
+    List<material.Widget> children = [];
+    children.addAll(createCellWidgets(layout));
+    children.addAll(createModuleGroupWidgets(layout));
+    return children;
+  }
+
+  static List<material.Widget> createModuleGroupWidgets(Layout layout) {
+    var moduleGroupWidgets = layout.moduleGroups
+        .map<material.Widget>((moduleGroup) => material.LayoutId(
+            id: moduleGroup, child: ModuleGroupWidget(moduleGroup)))
+        .toList();
+    return moduleGroupWidgets;
+  }
+
+  static List<material.Widget> createCellWidgets(Layout layout) {
+    var cellWidgets = layout.cells
+        .map<material.Widget>(
+            (cell) => material.LayoutId(id: cell, child: cell.widget))
+        .toList();
+    return cellWidgets;
+  }
 }
 
 /// positions all the child widgets
 class LayoutWidgetDelegate extends material.MultiChildLayoutDelegate {
-  final List<ActiveCell> cells;
+final Layout layout;
   final CellRange cellRange;
 
-  LayoutWidgetDelegate(Layout layout)
-      : cells = layout.cells,
-        cellRange = CellRange(layout.cells);
+  LayoutWidgetDelegate(this.layout)
+      : cellRange = CellRange(layout.cells);
 
   @override
   void performLayout(material.Size size) {
@@ -199,19 +218,28 @@ class LayoutWidgetDelegate extends material.MultiChildLayoutDelegate {
       (size.width - (childSide * cellRange.width)) / 2,
       (size.height - (childSide * cellRange.height)) / 2,
     );
-    for (ActiveCell cell in cells) {
+    for (var cell in layout.cells) {
       layoutChild(cell, material.BoxConstraints.tight(childSize));
-      positionChild(
-          cell,
-          material.Offset(
-            (cell.position.x - cellRange.minX) * childSide + offSet.dx,
-            (cell.position.y - cellRange.minY) * childSide + offSet.dy,
-          ));
+      positionChild(cell, createCellOffset(cell.position, childSide, offSet));
+    }
+    for (var moduleGroup in layout.moduleGroups) {
+      layoutChild(moduleGroup, material.BoxConstraints.tight(childSize));
+      positionChild(moduleGroup, createCellOffset(moduleGroup.position.source.position, childSide, offSet));
     }
   }
 
+  material.Offset createCellOffset(
+      Position position, double childSide, material.Offset offSet) {
+    return material.Offset(
+      (position.x - cellRange.minX) * childSide + offSet.dx,
+      (position.y - cellRange.minY) * childSide + offSet.dy,
+    );
+  }
+
   @override
-  bool shouldRelayout(covariant material.MultiChildLayoutDelegate oldDelegate) => false;
+  bool shouldRelayout(
+          covariant material.MultiChildLayoutDelegate oldDelegate) =>
+      false;
 }
 
 class CellRange {
@@ -283,96 +311,6 @@ class Position {
       case CardinalDirection.west:
         return Position(x - 1, y);
     }
-  }
-}
-
-/// A [ModuleGroup] can be one or 2 modules that are transported together
-/// E.g. a stack of 2 modules, or 2 modules side by side
-class ModuleGroup extends TimeProcessor {
-  final Module firstModule;
-  final Module? secondModule;
-  CompassDirection doorDirection;
-  Position destination;
-  ModulePosition position;
-
-  ModuleGroup({
-    required this.firstModule,
-    this.secondModule,
-    required this.doorDirection,
-    required this.destination,
-    required this.position,
-  });
-
-  int get numberOfModules => 1 + ((secondModule == null) ? 0 : 1);
-
-  @override
-  processNextTimeFrame(Duration jump) {
-    position.processNextTimeFrame(this, jump);
-  }
-}
-
-/// A module location is either at a given position or traveling between 2 positions
-class ModulePosition {
-  StateMachineCell source;
-  StateMachineCell destination;
-  Duration remainingDuration;
-
-  ModulePosition.forCel(StateMachineCell cell)
-      : source = cell,
-        destination = cell,
-        remainingDuration = Duration.zero;
-
-  ModulePosition.betweenCells({
-    required this.source,
-    required this.destination,
-  }) : remainingDuration = findLongestDuration(source, destination);
-
-  processNextTimeFrame(ModuleGroup moduleGroup, Duration jump) {
-    if (remainingDuration > Duration.zero) {
-      remainingDuration = remainingDuration - jump;
-      if (remainingDuration <= Duration.zero) {
-        source = destination;
-      }
-    } else {
-      remainingDuration = Duration.zero;
-    }
-  }
-
-  equals(StateMachineCell cell) =>
-      source.position == cell.position &&
-      destination.position == cell.position &&
-      remainingDuration == Duration.zero;
-
-  static Duration findLongestDuration(
-    StateMachineCell source,
-    StateMachineCell destination,
-  ) {
-    Duration outFeedDuration = source.outFeedDuration;
-    Duration inFeedDuration = destination.inFeedDuration;
-    return Duration(
-        milliseconds:
-            max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
-  }
-}
-
-class Module {
-  final int sequenceNumber;
-  final int nrOfBirds;
-  DateTime? startStun;
-
-  Module({
-    required this.sequenceNumber,
-    required this.nrOfBirds,
-  });
-
-  Module get clone => Module(
-        sequenceNumber: sequenceNumber,
-        nrOfBirds: nrOfBirds,
-      );
-
-  @override
-  String toString() {
-    return 'Module{sequenceNumber: $sequenceNumber, nrOfBirds: $nrOfBirds}';
   }
 }
 
@@ -484,12 +422,6 @@ class CompassDirection {
       if (cardinalDirection.toCompassDirection().degrees == degrees) {
         return cardinalDirection;
       }
-      // if (degrees >
-      //         cardinalDirection.toCompassDirection().rotate(-error).degrees &&
-      //     degrees <
-      //         cardinalDirection.toCompassDirection().rotate(error).degrees) {
-      //   return cardinalDirection;
-      // }
     }
     return null;
   }

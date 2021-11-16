@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
+import 'module.dart';
 import 'module_cas.dart';
 
 class ModuleRotatingConveyor extends StateMachineCell {
@@ -194,9 +195,9 @@ class ModuleRotatingConveyorPainter extends material.CustomPainter {
     paint.color = material.Colors.black;
     paint.style = material.PaintingStyle.fill;
     var path = material.Path();
-    path.moveTo(size.width*0.45, size.height *0.45);
-    path.lineTo(size.width*0.55, size.height *0.45);
-    path.lineTo(size.width*0.50, size.height *0.4);
+    path.moveTo(size.width * 0.45, size.height * 0.45);
+    path.lineTo(size.width * 0.55, size.height * 0.45);
+    path.lineTo(size.width * 0.50, size.height * 0.4);
     path.close();
     canvas.drawPath(path, paint);
   }
@@ -220,7 +221,7 @@ class ModuleRotatingConveyorPainter extends material.CustomPainter {
     paint.style = material.PaintingStyle.stroke;
     canvas.drawCircle(
       material.Offset(size.width / 2, size.height / 2),
-      size.height *0.45,
+      size.height * 0.45,
       paint,
     );
     return paint;
@@ -362,10 +363,14 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
   }
 
   void turn1second(ModuleRotatingConveyor rotatingConveyor, bool clockWise) {
-    rotatingConveyor.actualDirection = rotatingConveyor.actualDirection.rotate(
-        clockWise
-            ? rotatingConveyor.degreesPerSecond
-            : -rotatingConveyor.degreesPerSecond);
+    //TODO use duration
+    var rotation = clockWise
+        ? rotatingConveyor.degreesPerSecond
+        : -rotatingConveyor.degreesPerSecond;
+    rotatingConveyor.actualDirection =
+        rotatingConveyor.actualDirection.rotate(rotation);
+    rotatingConveyor.moduleGroup!.doorDirection =
+        rotatingConveyor.moduleGroup!.doorDirection.rotate(rotation);
   }
 
   /// Determines if the turn table needs to turn clock wise our counter clock wise
