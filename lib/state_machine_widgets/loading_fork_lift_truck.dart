@@ -43,7 +43,8 @@ class LoadingForkLiftTruck extends StateMachineCell {
   bool isFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool waitingToFeedOut(CardinalDirection direction) => currentState is WaitingForEmptyConveyor;
+  bool waitingToFeedOut(CardinalDirection direction) =>
+      currentState is WaitingForEmptyConveyor;
 
   @override
   material.Widget get widget => material.Tooltip(
@@ -99,10 +100,8 @@ class LoadingForkLiftTruckPainter extends material.CustomPainter {
 class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
   GettingStackFromTruck()
       : super(
-            durationFunction: (forkLiftTruck) =>
-                forkLiftTruck.inFeedDuration,
-            nextStateFunction: (forkLiftTruck) =>
-                WaitingForEmptyConveyor());
+            durationFunction: (forkLiftTruck) => forkLiftTruck.inFeedDuration,
+            nextStateFunction: (forkLiftTruck) => WaitingForEmptyConveyor());
 
   @override
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
@@ -135,8 +134,8 @@ class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
     if (destination is! StateMachineCell) {
       throw ArgumentError("stack.destination must point to a none empty cell");
     }
-    var route = layout.findRoute(
-        source: forkLiftTruck, destination: destination);
+    var route =
+        layout.findRoute(source: forkLiftTruck, destination: destination);
     if (route == null) {
       throw ArgumentError(
           "${forkLiftTruck.name} can not reach destination: $destination in layout configuration.");
@@ -146,8 +145,7 @@ class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
 
 class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
-  State<LoadingForkLiftTruck>? nextState(
-      LoadingForkLiftTruck forkLiftTruck) {
+  State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_neighbourCanFeedIn(forkLiftTruck)) {
       return PutStackOnConveyor();
     }
@@ -164,7 +162,6 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
 /// drive backward to clear lifting spoons
 /// push button to feed in
 class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
-
   @override
   void onStart(LoadingForkLiftTruck forkLiftTruck) {
     var moduleGroup = forkLiftTruck.moduleGroup!;
@@ -176,12 +173,13 @@ class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
   }
 
   @override
-  State<LoadingForkLiftTruck>? nextState(
-      LoadingForkLiftTruck forkLiftTruck) {
+  State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_transportCompleted(forkLiftTruck)) {
       return GettingStackFromTruck();
     }
   }
 
-  bool _transportCompleted(LoadingForkLiftTruck forkLiftTruck) => forkLiftTruck.moduleGroup==null;
+  bool _transportCompleted(LoadingForkLiftTruck forkLiftTruck) =>
+      forkLiftTruck.layout.moduleGroups
+          .any((moduleGroup) => moduleGroup.position.source != forkLiftTruck);
 }
