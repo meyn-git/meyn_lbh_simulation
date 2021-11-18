@@ -1,12 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:meyn_lbh_simulation/state_machine_widgets/title_builder.dart';
 
 import 'layout.dart';
 import 'module.dart';
 
 abstract class StateMachineCell extends ActiveCell {
-  // /// where de module(s) need to go, null when there is no destination
-  // String? destination;
 
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   final int? seqNr;
@@ -24,37 +22,32 @@ abstract class StateMachineCell extends ActiveCell {
     required this.inFeedDuration,
     required this.outFeedDuration,
   })  : currentState = initialState,
-        super(layout, position);
+        super(layout, position) {
+    initialState.onStart(this);
+  }
 
   //TODO word spacing
   String get name => "${this.runtimeType.toString()}${seqNr ?? ''}";
 
-  /// This method gets called every sec to update all state machines
+  /// This method gets called with a regular time interval by the [Layout]
+  /// to update the [StateMachineCell]
   @override
-  processNextTimeFrame(Duration jump) {
-    var nextState = currentState.process(this);
+  onUpdateToNextPointInTime(Duration jump) {
+    currentState.onUpdateToNextPointInTime(this, jump);
+    var nextState = currentState.nextState(this);
     if (nextState != null) {
+      currentState.onCompleted(this);
       currentState = nextState;
+      nextState.onStart(this);
     }
   }
 
   @override
-  Widget get widget => SizedBox(
-        width: 20,
-        height: 20,
-        child: Text(toolTipText()),
-      );
+  String toString() => TitleBuilder(name)
+      .appendProperty('currentState', currentState)
+      .appendProperty('moduleGroup', moduleGroup)
+      .toString();
 
-  String toolTipText() {
-    return "$name\n"
-        "${currentState.name}"
-        "\n${currentState is DurationState ? '${(currentState as DurationState).remainingSeconds} sec' : 'Waiting'}"
-        "${moduleGroup == null ? '' : '\n${moduleGroup!.numberOfModules} modules'}"
-        "${moduleGroup == null ? '' : '\ndestination: ${(layout.cellForPosition(moduleGroup!.destination) as StateMachineCell).name}'}";
-  }
-
-  @override
-  String toString() => name;
 
   @override
   ModuleGroup? get moduleGroup => layout.moduleGroups
@@ -64,54 +57,64 @@ abstract class StateMachineCell extends ActiveCell {
 abstract class State<T extends StateMachineCell> {
   String get name => this.runtimeType.toString(); //TODO word spacing
 
-  /// returns the next state.
-  /// null when this the state remains the same
-  State? process(T stateMachine);
+  /// this method is called when the state starts
+  /// (when another [State.nextState] method returned this [State]).
+  /// You can override this method e.g. when initialization is needed
+  void onStart(T stateMachine) {}
+
+  /// All active [State]s are updated with a regular interval time to
+  /// update the state of the [ActiveCell]
+  /// You can override this method e.g.:
+  /// - when an animation is needed
+  /// - or a remaining duration needs to be calculated
+  void onUpdateToNextPointInTime(T stateMachine, Duration jump) {}
+
+  /// this method is called when the state is completed
+  /// (when [State.nextState] method returned a new [State]).
+  /// You can override this method
+  /// e.g. when you need to do something at the end of a state
+  void onCompleted(T stateMachine) {}
+
+  /// returns the next state or
+  /// returns null when the state remains the same
+  State<T>? nextState(T stateMachine);
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is State && name == other.name;
-
-  @override
-  int get hashCode => name.hashCode;
+  String toString() => name;
 }
 
 class DurationState<T extends StateMachineCell> extends State<T> {
-  final Duration Function(T) duration;
-  final State Function(T) nextState;
+  final Duration Function(T) durationFunction;
+  final State<T> Function(T) nextStateFunction;
   Duration? _remainingDuration;
-  void Function(T)? onStart;
-  void Function(T)? onCompleted;
-  bool _firstProcess = true;
 
-  DurationState({
-    required this.duration,
-    required this.nextState,
-    this.onStart,
-    this.onCompleted,
-  });
+  DurationState(
+      {required this.durationFunction, required this.nextStateFunction});
 
-  State? process(T stateMachine) {
-    if (onStart != null && _firstProcess) {
-      onStart!(stateMachine);
-      _firstProcess = false;
-    }
-    if (_remainingDuration == null) {
-      _remainingDuration = duration(stateMachine) - Duration(seconds: 1);
-    } else {
-      if (_remainingDuration == Duration.zero) {
-        resetDurationTime(stateMachine);
-        if (onCompleted != null) onCompleted!(stateMachine);
-        return nextState(stateMachine);
-      } else {
-        _remainingDuration = _remainingDuration! - Duration(seconds: 1);
-      }
+  Duration get remainingDuration => _remainingDuration ?? Duration.zero;
+
+  @override
+  void onStart(T stateMachine) {
+    _remainingDuration = durationFunction(stateMachine);
+  }
+
+  @override
+  void onUpdateToNextPointInTime(T stateMachine, Duration jump) {
+    _remainingDuration = remainingDuration - jump;
+    if (_remainingDuration! < Duration.zero) {
+      _remainingDuration = Duration.zero;
     }
   }
 
-  void resetDurationTime(T stateMachine) {
-    _remainingDuration = duration(stateMachine);
+  @override
+  State<T>? nextState(T stateMachine) {
+    if (_remainingDuration != null && _remainingDuration == Duration.zero) {
+      return nextStateFunction(stateMachine);
+    }
   }
 
-  Duration get remainingSeconds => _remainingDuration ?? Duration.zero;
+  @override
+  String toString() {
+    return '${super.name} (remaining: ${remainingDuration.inSeconds}sec)';
+  }
 }

@@ -28,34 +28,38 @@ class ModuleConveyor extends StateMachineCell {
           outFeedDuration: outFeedDuration,
         );
 
+  Cell get receivingNeighbour =>
+      layout.neighbouringCell(this, inFeedDirection.opposite);
+
+  Cell get sendingNeighbour => layout.neighbouringCell(this, inFeedDirection);
+
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
 
   @override
-  bool okToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection &&
-      (currentState is WaitingToFeedIn || currentState is FeedingIn);
+  bool waitingToFeedIn(CardinalDirection direction) =>
+      direction == inFeedDirection && currentState is WaitToFeedIn;
 
   @override
   bool isFeedOut(CardinalDirection direction) =>
       direction == inFeedDirection.opposite;
 
   @override
-  bool almostOkToFeedOut(CardinalDirection direction) => false;
+  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite &&
-      (currentState is WaitingToFeedOut || currentState is FeedingOut);
+  bool waitingToFeedOut(CardinalDirection direction) =>
+      direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
 
   @override
-  material.Widget get widget =>  material.Tooltip(
-    message: toolTipText(),
-    child: material.RotationTransition(
-      turns: material.AlwaysStoppedAnimation(inFeedDirection.opposite.toCompassDirection().degrees/360),
-            child: material.CustomPaint(painter: ModuleConveyorPainter()),
-          ),
-  );
+  material.Widget get widget => material.Tooltip(
+        message: toString(),
+        child: material.RotationTransition(
+          turns: material.AlwaysStoppedAnimation(
+              inFeedDirection.opposite.toCompassDirection().degrees / 360),
+          child: material.CustomPaint(painter: ModuleConveyorPainter()),
+        ),
+      );
 }
 
 class ModuleConveyorPainter extends material.CustomPainter {
@@ -66,13 +70,13 @@ class ModuleConveyorPainter extends material.CustomPainter {
   }
 
   void drawDirectionTriangle(material.Size size, material.Canvas canvas) {
-      var paint = material.Paint();
+    var paint = material.Paint();
     paint.color = material.Colors.black;
     paint.style = material.PaintingStyle.fill;
-    var path=material.Path();
-    path.moveTo(size.width*0.45, size.height *0.45);
-    path.lineTo(size.width*0.55, size.height *0.45);
-    path.lineTo(size.width*0.50, size.height *0.4);
+    var path = material.Path();
+    path.moveTo(size.width * 0.45, size.height * 0.45);
+    path.lineTo(size.width * 0.55, size.height * 0.45);
+    path.lineTo(size.width * 0.50, size.height * 0.4);
     path.close();
     canvas.drawPath(path, paint);
   }
@@ -97,64 +101,73 @@ class ModuleConveyorPainter extends material.CustomPainter {
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
   CheckIfEmpty()
       : super(
-            duration: (moduleConveyor) => moduleConveyor.checkIfEmptyDuration,
-            nextState: (moduleConveyor) => WaitingToFeedIn());
+            durationFunction: (moduleConveyor) =>
+                moduleConveyor.checkIfEmptyDuration,
+            nextStateFunction: (moduleConveyor) => WaitToFeedIn());
 }
 
-class WaitingToFeedIn extends State<ModuleConveyor> {
+class WaitToFeedIn extends State<ModuleConveyor> {
   @override
-  State? process(ModuleConveyor moduleConveyor) {
-    var inFeedNeighbouringCell = moduleConveyor.layout
-        .neighbouringCell(moduleConveyor, moduleConveyor.inFeedDirection);
-    bool neighbourCanFeedOut = inFeedNeighbouringCell
-        .okToFeedOut(moduleConveyor.inFeedDirection.opposite);
-    if (neighbourCanFeedOut) {
-      return FeedingIn();
+  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+    if (_moduleGroupTransportedTo(moduleConveyor)) {
+      return FeedIn();
     }
-    if (moduleConveyor.moduleGroup != null) {
-      //e.g. LoadingForkLiftTruck put a stack on conveyor
-      return WaitingToFeedOut();
-    }
+  }
+
+  bool _moduleGroupTransportedTo(ModuleConveyor moduleConveyor) {
+    return moduleConveyor.layout.moduleGroups.any(
+        (moduleGroup) => moduleGroup.position.destination == moduleConveyor);
   }
 }
 
-class FeedingIn extends DurationState<ModuleConveyor> {
-  int nrOfModulesBeingTransported = 0;
-
-  static ModuleGroup? stackBeingTransferred;
-
-  FeedingIn()
-      : super(
-          duration: (moduleConveyor) => moduleConveyor.inFeedDuration,
-          onStart: (moduleConveyor) {
-            var inFeedNeighbouringCell = moduleConveyor.layout.neighbouringCell(
-                moduleConveyor, moduleConveyor.inFeedDirection);
-            stackBeingTransferred = inFeedNeighbouringCell.moduleGroup!;
-          },
-          onCompleted: (moduleConveyor) {
-            stackBeingTransferred!.position = ModulePosition.forCel(
-                moduleConveyor); // TODO change to transition
-          },
-          nextState: (moduleConveyor) => WaitingToFeedOut(),
-        );
-}
-
-class WaitingToFeedOut extends State<ModuleConveyor> {
+class FeedIn extends State<ModuleConveyor> {
   @override
-  State? process(ModuleConveyor moduleConveyor) {
-    var outFeedNeighbouringCell = moduleConveyor.layout.neighbouringCell(
-        moduleConveyor, moduleConveyor.inFeedDirection.opposite);
-    bool neighbourCanFeedIn =
-        outFeedNeighbouringCell.okToFeedIn(moduleConveyor.inFeedDirection);
-    if (neighbourCanFeedIn) {
-      return FeedingOut();
+  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+    if (_transportCompleted(moduleConveyor)) {
+      return WaitToFeedOut();
     }
   }
+
+  bool _transportCompleted(ModuleConveyor moduleConveyor) =>
+      moduleConveyor.moduleGroup != null;
 }
 
-class FeedingOut extends DurationState<ModuleConveyor> {
-  FeedingOut()
-      : super(
-            duration: (moduleConveyor) => moduleConveyor.outFeedDuration,
-            nextState: (moduleConveyor) => WaitingToFeedIn());
+class WaitToFeedOut extends State<ModuleConveyor> {
+  @override
+  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+    if (_neighbourCanFeedIn(moduleConveyor) &&
+        !_moduleGroupAtDestination(moduleConveyor)) {
+      return FeedOut();
+    }
+  }
+
+  bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
+      moduleConveyor.moduleGroup!.destination == moduleConveyor;
+
+  _neighbourCanFeedIn(ModuleConveyor moduleConveyor) =>
+      moduleConveyor.receivingNeighbour
+          .waitingToFeedIn(moduleConveyor.inFeedDirection);
+}
+
+class FeedOut extends State<ModuleConveyor> {
+  ModuleGroup? transportedModuleGroup;
+
+  @override
+  void onStart(ModuleConveyor moduleConveyor) {
+    transportedModuleGroup = moduleConveyor.moduleGroup;
+    transportedModuleGroup!.position = ModulePosition.betweenCells(
+        source: moduleConveyor,
+        destination: moduleConveyor.receivingNeighbour as StateMachineCell);
+  }
+
+  @override
+  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+    if (_transportCompleted(moduleConveyor)) {
+      return WaitToFeedIn();
+    }
+  }
+
+  bool _transportCompleted(ModuleConveyor moduleConveyor) =>
+      transportedModuleGroup != null &&
+      transportedModuleGroup!.position.source != moduleConveyor;
 }

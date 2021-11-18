@@ -15,7 +15,7 @@ import 'module_cas_allocation.dart';
 class Layout implements TimeProcessor {
   final List<ActiveCell> cells = [];
   final List<ModuleGroup> moduleGroups = [];
-  int secondsSinceStart = 1;
+  Duration durationSinceStart = Duration.zero;
   int moduleSequenceNumber = 0;
 
   Layout() {
@@ -24,7 +24,7 @@ class Layout implements TimeProcessor {
         position: Position(2, 1),
         outFeedDirection: CardinalDirection.east,
         createModuleGroup: () => ModuleGroup(
-              destination: Position(3, 1),
+              destination: this.cellForPosition(Position(3, 1)) as StateMachineCell,
               doorDirection: CardinalDirection.north.toCompassDirection(),
               position: ModulePosition.forCel(
                   this.cellForPosition(Position(2, 1)) as StateMachineCell),
@@ -60,7 +60,7 @@ class Layout implements TimeProcessor {
         position: Position(3, 2),
         seqNr: 1,
         inAndOutFeedDirection: CardinalDirection.east,
-        moduleDestinationAfterStunning: Position(4, 3)));
+        moduleDestinationPositionAfterStunning: Position(4, 3)));
     put(ModuleRotatingConveyor(
       layout: this,
       position: Position(4, 2),
@@ -109,14 +109,15 @@ class Layout implements TimeProcessor {
     return foundCell ?? EmptyCell();
   }
 
+  /// Updates all the [ActiveCell]s and [ModuleGroup]s
   @override
-  processNextTimeFrame(Duration jump) {
-    secondsSinceStart++;
+  onUpdateToNextPointInTime(Duration jump) {
+    durationSinceStart = durationSinceStart + jump;
     cells.forEach((cell) {
-      cell.processNextTimeFrame(jump);
+      cell.onUpdateToNextPointInTime(jump);
     });
     moduleGroups.forEach((moduleGroup) {
-      moduleGroup.processNextTimeFrame(jump);
+      moduleGroup.onUpdateToNextPointInTime(jump);
     });
   }
 
@@ -165,7 +166,7 @@ class _LayoutWidgetState extends material.State<LayoutWidget> {
     const interval = const Duration(milliseconds: 200);
     Timer.periodic(interval, (Timer t) {
       setState(() {
-        layout.processNextTimeFrame(const Duration(seconds: 1));
+        layout.onUpdateToNextPointInTime(const Duration(seconds: 1));
       });
     });
   }
@@ -178,8 +179,8 @@ class _LayoutWidgetState extends material.State<LayoutWidget> {
 
   static List<material.Widget> createChildren(Layout layout) {
     List<material.Widget> children = [];
-    children.addAll(createCellWidgets(layout));
     children.addAll(createModuleGroupWidgets(layout));
+    children.addAll(createCellWidgets(layout));
     return children;
   }
 
@@ -200,46 +201,88 @@ class _LayoutWidgetState extends material.State<LayoutWidget> {
   }
 }
 
-/// positions all the child widgets
+/// Sizes (lets the children do their layout in given [material.BoxConstraints])
+/// and positions all the child widgets ([Cell]s and [ModuleGroup]s)
+/// within the given [LayoutWidget] size
 class LayoutWidgetDelegate extends material.MultiChildLayoutDelegate {
-final Layout layout;
+  final Layout layout;
   final CellRange cellRange;
 
-  LayoutWidgetDelegate(this.layout)
-      : cellRange = CellRange(layout.cells);
+  LayoutWidgetDelegate(this.layout) : cellRange = CellRange(layout.cells);
 
   @override
-  void performLayout(material.Size size) {
-    var childWidth = size.width / cellRange.width;
-    var childHeight = size.height / cellRange.height;
-    var childSide = min(childWidth, childHeight);
-    material.Size childSize = material.Size(childSide, childSide);
-    material.Offset offSet = material.Offset(
-      (size.width - (childSide * cellRange.width)) / 2,
-      (size.height - (childSide * cellRange.height)) / 2,
-    );
-    for (var cell in layout.cells) {
-      layoutChild(cell, material.BoxConstraints.tight(childSize));
-      positionChild(cell, createCellOffset(cell.position, childSide, offSet));
-    }
+  void performLayout(material.Size layoutSize) {
+    var childSize = _childSize(layoutSize);
+    var childOffset = _offsetForAllChildren(layoutSize, childSize);
+    _layoutAndPositionModuleGroups(childSize, childOffset);
+    //positioning cells last so they are on top so that the tooltips work
+    _layoutAndPositionCells(childSize, childOffset);
+  }
+
+  void _layoutAndPositionModuleGroups(
+      material.Size childSize, material.Offset childOffset) {
     for (var moduleGroup in layout.moduleGroups) {
       layoutChild(moduleGroup, material.BoxConstraints.tight(childSize));
-      positionChild(moduleGroup, createCellOffset(moduleGroup.position.source.position, childSide, offSet));
+      var moduleGroupOffSet =
+          _createModuleGroupOffset(moduleGroup, childSize, childOffset);
+      positionChild(moduleGroup, moduleGroupOffSet);
     }
   }
 
-  material.Offset createCellOffset(
-      Position position, double childSide, material.Offset offSet) {
+  void _layoutAndPositionCells(
+      material.Size childSize, material.Offset childOffset) {
+    for (var cell in layout.cells) {
+      layoutChild(cell, material.BoxConstraints.tight(childSize));
+      var cellOffset = _createCellOffset(cell.position, childSize, childOffset);
+      positionChild(cell, cellOffset);
+    }
+  }
+
+  material.Offset _offsetForAllChildren(
+      material.Size layoutSize, material.Size childSize) {
+    var offSet = material.Offset(
+      (layoutSize.width - (childSize.width * cellRange.width)) / 2,
+      (layoutSize.height - (childSize.height * cellRange.height)) / 2,
+    );
+    return offSet;
+  }
+
+  material.Size _childSize(material.Size layoutSize) {
+    var childWidth = layoutSize.width / cellRange.width;
+    var childHeight = layoutSize.height / cellRange.height;
+    var childSide = min(childWidth, childHeight);
+    return material.Size(childSide, childSide);
+  }
+
+  material.Offset _createModuleGroupOffset(ModuleGroup moduleGroup,
+      material.Size childSize, material.Offset offSet) {
+    var source = moduleGroup.position.source;
+    var sourceOffset = _createCellOffset(source.position, childSize, offSet);
+    var destination = moduleGroup.position.destination;
+    var destinationOffset =
+        _createCellOffset(destination.position, childSize, offSet);
+    var percentageCompleted = moduleGroup.position.percentageCompleted;
+    var moduleGroupOffSet = material.Offset(
+      ((destinationOffset.dx - sourceOffset.dx) * percentageCompleted) +
+          sourceOffset.dx,
+      ((destinationOffset.dy - sourceOffset.dy) * percentageCompleted) +
+          sourceOffset.dy,
+    );
+    return moduleGroupOffSet;
+  }
+
+  material.Offset _createCellOffset(
+      Position position, material.Size childSize, material.Offset offSet) {
     return material.Offset(
-      (position.x - cellRange.minX) * childSide + offSet.dx,
-      (position.y - cellRange.minY) * childSide + offSet.dy,
+      (position.x - cellRange.minX) * childSize.width + offSet.dx,
+      (position.y - cellRange.minY) * childSize.height + offSet.dy,
     );
   }
 
   @override
   bool shouldRelayout(
           covariant material.MultiChildLayoutDelegate oldDelegate) =>
-      false;
+      true;
 }
 
 class CellRange {
@@ -320,17 +363,19 @@ abstract class Cell {
   /// whether a given direction can feed out modules
   bool isFeedIn(CardinalDirection inFeedDirection);
 
-  /// waiting to feed in module(s) from the preceding transport system
-  bool okToFeedIn(CardinalDirection inFeedDirection);
+  /// waiting to feed in a [ModuleGroup] from the preceding transport system
+  /// e.g.: when a [StateMachineCell] is in WaitToFeedIn
+  bool waitingToFeedIn(CardinalDirection inFeedDirection);
 
   /// whether a given direction can feed out modules
   bool isFeedOut(CardinalDirection outFeedDirection);
 
   /// used to request to turn the turn table to this position in advance.
-  bool almostOkToFeedOut(CardinalDirection outFeedDirection);
+  bool almostWaitingToFeedOut(CardinalDirection outFeedDirection);
 
   /// module(s) waiting to feed out to next transport system
-  bool okToFeedOut(CardinalDirection outFeedDirection);
+  /// e.g. when a [StateMachineCell] is WaitToFeedOut
+  bool waitingToFeedOut(CardinalDirection outFeedDirection);
 
   /// to be increased with [nrOfModules] when the StateMachine has fed out
   int nrOfModulesMoved = 0;
@@ -351,13 +396,13 @@ class EmptyCell extends Cell {
       );
 
   @override
-  bool almostOkToFeedOut(CardinalDirection direction) => false;
+  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedIn(CardinalDirection direction) => false;
+  bool waitingToFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedOut(CardinalDirection direction) => false;
+  bool waitingToFeedOut(CardinalDirection direction) => false;
 
   @override
   bool isFeedIn(CardinalDirection direction) => false;
@@ -448,7 +493,7 @@ class CompassDirection {
 
 abstract class TimeProcessor {
   /// method to change the state of the object to the next point in time
-  processNextTimeFrame(Duration jump);
+  onUpdateToNextPointInTime(Duration jump);
 }
 
 abstract class ActiveCell extends Cell implements TimeProcessor {
@@ -476,7 +521,7 @@ class Route extends DelegatingList<StateMachineCell> {
   ///    - the [ModuleCas] that is most ready to receive a module will get the highest
   ///      score when routes of equal length are competing (see .3, .2, .1).
   double get casNewStackScore {
-    if (_stackOnRoute()) {
+    if (_moduleGroupGoingTo(cas)) {
       return 0;
     }
 
@@ -491,16 +536,15 @@ class Route extends DelegatingList<StateMachineCell> {
     }
   }
 
-  bool _stackOnRoute() => this.any((celOnRoute) =>
-      celOnRoute.moduleGroup != null &&
-      celOnRoute.moduleGroup!.destination == cas.position);
+  bool _moduleGroupGoingTo(ModuleCas cas) => cas.layout.moduleGroups
+      .any((moduleGroup) => moduleGroup.destination == cas);
 
-  bool get casIsOkToFeedIn => cas.okToFeedIn(cas.inAndOutFeedDirection);
+  bool get casIsOkToFeedIn => cas.waitingToFeedIn(cas.inAndOutFeedDirection);
 
-  bool get casIsOkToFeedOut => cas.okToFeedOut(cas.inAndOutFeedDirection);
+  bool get casIsOkToFeedOut => cas.waitingToFeedOut(cas.inAndOutFeedDirection);
 
   bool get casIsAlmostOkToFeedOut =>
-      cas.almostOkToFeedOut(cas.inAndOutFeedDirection);
+      cas.almostWaitingToFeedOut(cas.inAndOutFeedDirection);
 
   ModuleCas get cas {
     var destination = last;

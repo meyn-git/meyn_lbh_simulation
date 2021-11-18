@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
+import 'package:meyn_lbh_simulation/state_machine_widgets/title_builder.dart';
 
 import 'layout.dart';
 
@@ -12,7 +13,7 @@ class ModuleGroup extends TimeProcessor {
   final Module firstModule;
   final Module? secondModule;
   CompassDirection doorDirection;
-  Position destination;
+  StateMachineCell destination;
   ModulePosition position;
 
   ModuleGroup({
@@ -26,31 +27,45 @@ class ModuleGroup extends TimeProcessor {
   int get numberOfModules => 1 + ((secondModule == null) ? 0 : 1);
 
   @override
-  processNextTimeFrame(Duration jump) {
+  onUpdateToNextPointInTime(Duration jump) {
     position.processNextTimeFrame(this, jump);
   }
 
   @override
-  String toString() {
-    return 'ModuleGroup{\n  firstModule: $firstModule, \n  secondModule: $secondModule,\n   doorDirection: $doorDirection,\n   destination: $destination,\n   position: $position}';
-  }
+  String toString() => TitleBuilder('ModuleGroup')
+      .appendProperty('doorDirection', doorDirection)
+      .appendProperty('destination', destination.name)
+      //.appendProperty('position', position) removed because its obvious
+      .appendProperty('firstModule', firstModule)
+      .appendProperty('secondModule', secondModule)
+      .toString();
 }
 
 /// A module location is either at a given position or traveling between 2 positions
 class ModulePosition {
   StateMachineCell source;
   StateMachineCell destination;
-  Duration remainingDuration;
+  late Duration duration;
+  late Duration remainingDuration;
 
   ModulePosition.forCel(StateMachineCell cell)
       : source = cell,
         destination = cell,
+        duration = Duration.zero,
         remainingDuration = Duration.zero;
 
-  ModulePosition.betweenCells({
-    required this.source,
-    required this.destination,
-  }) : remainingDuration = findLongestDuration(source, destination);
+  ModulePosition.betweenCells(
+      {required this.source, required this.destination, Duration? duration}) {
+    this.duration = duration ?? findLongestDuration(source, destination);
+    remainingDuration = this.duration;
+  }
+
+  /// 0  =  0% of transportation is completed
+  /// 0.5= 50% of transportation is completed
+  /// 1  =100% of transportation is completed
+  double get percentageCompleted => duration == Duration.zero
+      ? 1
+      : 1 - remainingDuration.inMilliseconds / duration.inMilliseconds;
 
   processNextTimeFrame(ModuleGroup moduleGroup, Duration jump) {
     if (remainingDuration > Duration.zero) {
@@ -81,29 +96,40 @@ class ModulePosition {
 
   @override
   String toString() {
-    return "ModulePosition{source: $source${source == destination ? '' : ' , destination: $destination, remainingDuration: $remainingDuration'}}";
+    if (source == destination ) {
+      return TitleBuilder('ModulePosition')
+          .appendProperty('at',  source.name)
+          .toString();
+    } else {
+      return TitleBuilder('ModulePosition')
+          .appendProperty('source', source.name)
+          .appendProperty('destination', destination.name)
+          .appendProperty('remainingDuration', remainingDuration)
+          .toString();
+    }
   }
 }
 
 class Module {
   final int sequenceNumber;
   final int nrOfBirds;
+  DateTime? loadedOnSystem;
   DateTime? startStun;
+  DateTime? startUnloadBirds;
 
   Module({
     required this.sequenceNumber,
     required this.nrOfBirds,
   });
 
-  // Module get clone => Module(
-  //       sequenceNumber: sequenceNumber,
-  //       nrOfBirds: nrOfBirds,
-  //     );
-
   @override
-  String toString() {
-    return 'Module{sequenceNumber: $sequenceNumber, nrOfBirds: $nrOfBirds}';
-  }
+  String toString() => TitleBuilder('Module')
+      .appendProperty('sequenceNumber', sequenceNumber)
+      .appendProperty('nrOfBirds', nrOfBirds)
+      .appendProperty('loadedOnSystem', loadedOnSystem)
+      .appendProperty('startStun', startStun)
+      .appendProperty('startUnloadBirds', startUnloadBirds)
+      .toString();
 }
 
 class ModuleGroupWidget extends StatelessWidget {
@@ -113,12 +139,9 @@ class ModuleGroupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: moduleGroup.toString(),
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(moduleGroup.doorDirection.degrees / 360),
-        child: CustomPaint(painter: ModuleConveyorPainter()),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(moduleGroup.doorDirection.degrees / 360),
+      child: CustomPaint(painter: ModuleConveyorPainter()),
     );
   }
 }

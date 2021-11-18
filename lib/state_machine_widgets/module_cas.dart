@@ -10,7 +10,7 @@ class ModuleCas extends StateMachineCell {
   final CasRecipe recipe;
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
-  final Position moduleDestinationAfterStunning;
+  final Position moduleDestinationPositionAfterStunning;
 
   ModuleCas({
     required Layout layout,
@@ -28,76 +28,87 @@ class ModuleCas extends StateMachineCell {
     this.openSlideDoorDuration = const Duration(seconds: 3),
     Duration inFeedDuration = const Duration(seconds: 14),
     Duration outFeedDuration = const Duration(seconds: 14),
-    required this.moduleDestinationAfterStunning,
+    required this.moduleDestinationPositionAfterStunning,
   }) : super(
-          layout: layout,
-          position: position,
-          seqNr: seqNr,
-          initialState: WaitingToFeedIn(),
-          inFeedDuration: inFeedDuration,
-          outFeedDuration: outFeedDuration,
-        );
+    layout: layout,
+    position: position,
+    seqNr: seqNr,
+    initialState: WaitToFeedIn(),
+    inFeedDuration: inFeedDuration,
+    outFeedDuration: outFeedDuration,
+  );
+
+  StateMachineCell get neighbour =>
+      layout.neighbouringCell(this, inAndOutFeedDirection) as StateMachineCell;
 
   @override
   bool isFeedIn(CardinalDirection direction) =>
       direction == inAndOutFeedDirection;
 
   @override
-  bool okToFeedIn(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection &&
-      (currentState is WaitingToFeedIn || currentState is FeedingIn);
+  bool waitingToFeedIn(CardinalDirection direction) =>
+      direction == inAndOutFeedDirection && currentState is WaitToFeedIn;
 
   @override
   bool isFeedOut(CardinalDirection direction) =>
       direction == inAndOutFeedDirection;
 
   @override
-  bool almostOkToFeedOut(CardinalDirection direction) =>
+  bool almostWaitingToFeedOut(CardinalDirection direction) =>
       currentState is ExhaustStage;
 
   @override
-  bool okToFeedOut(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection &&
-      (currentState is WaitingToFeedOut || currentState is FeedingOut);
+  bool waitingToFeedOut(CardinalDirection direction) =>
+      direction == inAndOutFeedDirection && currentState is WaitToFeedOut;
+
+  StateMachineCell get moduleDestinationAfterStunning =>
+      layout.cellForPosition(
+          moduleDestinationPositionAfterStunning) as StateMachineCell;
 
   @override
-  material.Widget get widget =>  material.Tooltip(
-    message: toolTipText(),
-    child: material.RotationTransition(
-      turns: material.AlwaysStoppedAnimation(inAndOutFeedDirection.toCompassDirection().degrees/360),
-      child: material.CustomPaint(painter: ModuleCasPainter()),
-    ),
-  );
+  material.Widget get widget =>
+      material.Tooltip(
+        message: toString(),
+        child: material.RotationTransition(
+          turns: material.AlwaysStoppedAnimation(
+              inAndOutFeedDirection
+                  .toCompassDirection()
+                  .degrees / 360),
+          child: material.CustomPaint(painter: ModuleCasPainter()),
+        ),
+      );
+
 }
 
 class ModuleCasPainter extends material.CustomPainter {
   @override
   void paint(material.Canvas canvas, material.Size size) {
     drawRectangle(canvas, size);
-    drawInFeedTriangle( canvas, size);
+    drawInFeedTriangle(canvas, size);
     drawOutFeedTriangle(canvas, size);
     drawAirIntakes(canvas, size);
   }
 
-  void drawInFeedTriangle( material.Canvas canvas,material.Size size) {
+  void drawInFeedTriangle(material.Canvas canvas, material.Size size) {
     var paint = material.Paint();
     paint.color = material.Colors.black;
     paint.style = material.PaintingStyle.fill;
-    var path=material.Path();
-    path.moveTo(size.width*0.45, size.height *0.55);
-    path.lineTo(size.width*0.55, size.height *0.55);
-    path.lineTo(size.width*0.50, size.height *0.6);
+    var path = material.Path();
+    path.moveTo(size.width * 0.45, size.height * 0.55);
+    path.lineTo(size.width * 0.55, size.height * 0.55);
+    path.lineTo(size.width * 0.50, size.height * 0.6);
     path.close();
     canvas.drawPath(path, paint);
   }
-  void drawOutFeedTriangle( material.Canvas canvas, material.Size size) {
+
+  void drawOutFeedTriangle(material.Canvas canvas, material.Size size) {
     var paint = material.Paint();
     paint.color = material.Colors.black;
     paint.style = material.PaintingStyle.fill;
-    var path=material.Path();
-    path.moveTo(size.width*0.45, size.height *0.45);
-    path.lineTo(size.width*0.55, size.height *0.45);
-    path.lineTo(size.width*0.50, size.height *0.4);
+    var path = material.Path();
+    path.moveTo(size.width * 0.45, size.height * 0.45);
+    path.lineTo(size.width * 0.55, size.height * 0.45);
+    path.lineTo(size.width * 0.50, size.height * 0.4);
     path.close();
     canvas.drawPath(path, paint);
   }
@@ -120,10 +131,12 @@ class ModuleCasPainter extends material.CustomPainter {
     paint.color = material.Colors.black;
     paint.style = material.PaintingStyle.stroke;
     canvas.drawRect(
-        material.Rect.fromLTWH(size.width * 0.2, size.height * 0.2,size.width * 0.1, size.height * 0.2),
+        material.Rect.fromLTWH(size.width * 0.2, size.height * 0.2,
+            size.width * 0.1, size.height * 0.2),
         paint);
     canvas.drawRect(
-        material.Rect.fromLTWH(size.width * 0.2, size.height * 0.6,size.width * 0.1, size.height * 0.2),
+        material.Rect.fromLTWH(size.width * 0.2, size.height * 0.6,
+            size.width * 0.1, size.height * 0.2),
         paint);
     return paint;
   }
@@ -139,43 +152,33 @@ class CasRecipe {
   const CasRecipe(this.stunStageDurations, this.exhaustDuration);
 }
 
-class WaitingToFeedIn extends State<ModuleCas> {
+class WaitToFeedIn extends State<ModuleCas> {
   @override
-  State? process(ModuleCas cas) {
-    var inFeedNeighbouringCell =
-        cas.layout.neighbouringCell(cas, cas.inAndOutFeedDirection);
-    bool neighbourCanFeedOut =
-        inFeedNeighbouringCell.okToFeedOut(cas.inAndOutFeedDirection.opposite);
-    if (neighbourCanFeedOut) {
-      return FeedingIn();
+  State<ModuleCas>? nextState(ModuleCas cas) {
+    if (_moduleGroupTransportedTo(cas)) {
+      return FeedIn();
     }
   }
+
+  bool _moduleGroupTransportedTo(ModuleCas cas) =>
+      cas.layout.moduleGroups
+          .any((moduleGroup) => moduleGroup.position.destination == cas);
 }
 
-class FeedingIn extends DurationState<ModuleCas> {
-  int nrOfModulesBeingTransported = 0;
-
-  static ModuleGroup? stackBeingTransferred;
-
-  FeedingIn()
-      : super(
-          duration: (cas) => cas.inFeedDuration,
-          onStart: (cas) {
-            var inFeedNeighbouringCell =
-                cas.layout.neighbouringCell(cas, cas.inAndOutFeedDirection);
-            stackBeingTransferred = inFeedNeighbouringCell.moduleGroup!;
-          },
-          onCompleted: (moduleConveyor) {
-            stackBeingTransferred!.position =
-                ModulePosition.forCel(moduleConveyor);
-          },
-          nextState: (moduleConveyor) => WaitingForStart(),
-        );
-}
-
-class WaitingForStart extends State<ModuleCas> {
+class FeedIn extends State<ModuleCas> {
   @override
-  State? process(ModuleCas cas) {
+  State<ModuleCas>? nextState(ModuleCas cas) {
+    if (_transportCompleted(cas)) {
+      return WaitForStart();
+    }
+  }
+
+  bool _transportCompleted(ModuleCas cas) => cas.moduleGroup != null;
+}
+
+class WaitForStart extends State<ModuleCas> {
+  @override
+  State<ModuleCas>? nextState(ModuleCas moduleCas) {
     //TODO wait for start from
     return CloseSlideDoor();
   }
@@ -184,9 +187,9 @@ class WaitingForStart extends State<ModuleCas> {
 class CloseSlideDoor extends DurationState<ModuleCas> {
   CloseSlideDoor()
       : super(
-          duration: (cas) => cas.closeSlideDoorDuration,
-          nextState: (cas) => StunStage(1),
-        );
+    durationFunction: (cas) => cas.closeSlideDoorDuration,
+    nextStateFunction: (cas) => StunStage(1),
+  );
 }
 
 class StunStage extends DurationState<ModuleCas> {
@@ -194,10 +197,10 @@ class StunStage extends DurationState<ModuleCas> {
 
   StunStage(this.stageNumber)
       : super(
-            duration: (cas) => findDuration(cas),
-            nextState: (cas) => findNextStage(cas, stageNumber));
+      durationFunction: (cas) => findDuration(cas),
+      nextStateFunction: (cas) => findNextStage(cas, stageNumber));
 
-  static State findNextStage(ModuleCas cas, int currentStageNumber) {
+  static State<ModuleCas> findNextStage(ModuleCas cas, int currentStageNumber) {
     if (currentStageNumber >= numberOfStages(cas)) {
       return ExhaustStage();
     } else {
@@ -219,45 +222,61 @@ class StunStage extends DurationState<ModuleCas> {
     }
     throw Exception('Unknown StunStage duration');
   }
+
+  @override
+  String toString() => '$name (remaining: ${remainingDuration.inSeconds}sec)';
 }
 
 class ExhaustStage extends DurationState<ModuleCas> {
   ExhaustStage()
       : super(
-            duration: (cas) => cas.recipe.exhaustDuration,
-            onCompleted: (cas) {
-              cas.moduleGroup!.destination = cas.moduleDestinationAfterStunning;
-            },
-            nextState: (cas) => OpenSlideDoor());
+      durationFunction: (cas) => cas.recipe.exhaustDuration,
+      nextStateFunction: (cas) => OpenSlideDoor());
 
-  static int numberOfStages(ModuleCas cas) =>
-      cas.recipe.stunStageDurations.length;
+  @override
+  void onCompleted(ModuleCas cas) {
+    cas.moduleGroup!.destination = cas.moduleDestinationAfterStunning;
+  }
 }
 
 class OpenSlideDoor extends DurationState<ModuleCas> {
   OpenSlideDoor()
       : super(
-          duration: (cas) => cas.openSlideDoorDuration,
-          nextState: (cas) => WaitingToFeedOut(),
-        );
+    durationFunction: (cas) => cas.openSlideDoorDuration,
+    nextStateFunction: (cas) => WaitToFeedOut(),
+  );
 }
 
-class WaitingToFeedOut extends State<ModuleCas> {
+class WaitToFeedOut extends State<ModuleCas> {
   @override
-  State? process(ModuleCas cas) {
-    var outFeedNeighbouringCell =
-        cas.layout.neighbouringCell(cas, cas.inAndOutFeedDirection.opposite);
-    bool neighbourCanFeedIn =
-        outFeedNeighbouringCell.okToFeedIn(cas.inAndOutFeedDirection);
-    if (neighbourCanFeedIn) {
-      return FeedingOut();
+  State<ModuleCas>? nextState(ModuleCas cas) {
+    if (_neighbourOkToFeedIn(cas)) {
+      return FeedOut();
     }
   }
+
+  bool _neighbourOkToFeedIn(ModuleCas cas) =>
+      cas.neighbour.waitingToFeedIn(cas.inAndOutFeedDirection.opposite);
 }
 
-class FeedingOut extends DurationState<ModuleCas> {
-  FeedingOut()
-      : super(
-            duration: (cas) => cas.outFeedDuration,
-            nextState: (cas) => WaitingToFeedIn());
+class FeedOut extends State<ModuleCas> {
+  ModuleGroup? transportedModuleGroup;
+
+  @override
+  void onStart(ModuleCas cas) {
+    transportedModuleGroup = cas.moduleGroup;
+    transportedModuleGroup!.position =
+        ModulePosition.betweenCells(source: cas, destination: cas.neighbour);
+  }
+
+  @override
+  State<ModuleCas>? nextState(ModuleCas cas) {
+    if (_transportCompleted(cas)) {
+      return WaitToFeedIn();
+    }
+  }
+
+  bool _transportCompleted(ModuleCas cas) =>
+      transportedModuleGroup != null &&
+          transportedModuleGroup!.position.source != cas;
 }

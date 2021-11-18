@@ -23,7 +23,7 @@ class ModuleCasAllocation extends ActiveCell {
   String get name => "${this.runtimeType.toString()}";
 
   @override
-  bool almostOkToFeedOut(CardinalDirection direction) => false;
+  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
   bool isFeedIn(CardinalDirection direction) => false;
@@ -32,20 +32,20 @@ class ModuleCasAllocation extends ActiveCell {
   bool isFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedIn(CardinalDirection direction) => false;
+  bool waitingToFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedOut(CardinalDirection direction) => false;
+  bool waitingToFeedOut(CardinalDirection direction) => false;
 
   @override
-  processNextTimeFrame(Duration jump) {
+  onUpdateToNextPointInTime(Duration jump) {
     Route? route = findRouteWithHighestWaitingForStackScore();
     if (route != null) {
       var cellToAllocate = layout.cellForPosition(positionToAllocate);
       if (cellToAllocate is StateMachineCell) {
         var moduleGroupToAllocate = cellToAllocate.moduleGroup;
         if (moduleGroupToAllocate != null) {
-          moduleGroupToAllocate.destination = route.cas.position;
+          moduleGroupToAllocate.destination = route.cas;
         }
       }
     }

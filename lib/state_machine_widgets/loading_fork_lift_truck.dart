@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
 import 'module.dart';
@@ -28,29 +27,32 @@ class LoadingForkLiftTruck extends StateMachineCell {
             inFeedDuration: gettingStackFromTruckDuration,
             outFeedDuration: putStackOnConveyorDuration);
 
+  get receivingNeighbour =>
+      layout.neighbouringCell(this, outFeedDirection) as StateMachineCell;
+
   @override
-  bool almostOkToFeedOut(CardinalDirection direction) => false;
+  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
   bool isFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedIn(CardinalDirection direction) => false;
+  bool waitingToFeedIn(CardinalDirection direction) => false;
 
   @override
   bool isFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool okToFeedOut(CardinalDirection direction) => false;
+  bool waitingToFeedOut(CardinalDirection direction) => currentState is WaitingForEmptyConveyor;
 
   @override
   material.Widget get widget => material.Tooltip(
-    message: toolTipText(),
-    child: material.RotationTransition(
-      turns: material.AlwaysStoppedAnimation(paintDirection.degrees/360),
-      child: material.CustomPaint(painter: LoadingForkLiftTruckPainter()),
-    ),
-  );
+        message: toString(),
+        child: material.RotationTransition(
+          turns: material.AlwaysStoppedAnimation(paintDirection.degrees / 360),
+          child: material.CustomPaint(painter: LoadingForkLiftTruckPainter()),
+        ),
+      );
 
   CompassDirection get paintDirection {
     if (currentState is GettingStackFromTruck) {
@@ -64,29 +66,28 @@ class LoadingForkLiftTruck extends StateMachineCell {
 class LoadingForkLiftTruckPainter extends material.CustomPainter {
   @override
   void paint(material.Canvas canvas, material.Size size) {
-     var paint = material.Paint();
+    var paint = material.Paint();
     paint.color = material.Colors.black;
     paint.style = material.PaintingStyle.stroke;
-    var path=material.Path();
+    var path = material.Path();
 
-    path.moveTo(size.width*0.30, size.height *0.90);
-    path.lineTo(size.width*0.30, size.height *0.50);
-    path.lineTo(size.width*0.35, size.height *0.50);
-     path.lineTo(size.width*0.35, size.height *0.10);
-     path.lineTo(size.width*0.40, size.height *0.10);
-     path.lineTo(size.width*0.40, size.height *0.50);
-     path.lineTo(size.width*0.60, size.height *0.50);
-     path.lineTo(size.width*0.60, size.height *0.10);
-     path.lineTo(size.width*0.65, size.height *0.10);
-     path.lineTo(size.width*0.65, size.height *0.50);
-     path.lineTo(size.width*0.70, size.height *0.50);
-     path.lineTo(size.width*0.70, size.height *0.90);
-     path.quadraticBezierTo(
-         size.width / 2, size.height, size.width*0.3, size.height * 0.9);
+    path.moveTo(size.width * 0.30, size.height * 0.90);
+    path.lineTo(size.width * 0.30, size.height * 0.50);
+    path.lineTo(size.width * 0.35, size.height * 0.50);
+    path.lineTo(size.width * 0.35, size.height * 0.10);
+    path.lineTo(size.width * 0.40, size.height * 0.10);
+    path.lineTo(size.width * 0.40, size.height * 0.50);
+    path.lineTo(size.width * 0.60, size.height * 0.50);
+    path.lineTo(size.width * 0.60, size.height * 0.10);
+    path.lineTo(size.width * 0.65, size.height * 0.10);
+    path.lineTo(size.width * 0.65, size.height * 0.50);
+    path.lineTo(size.width * 0.70, size.height * 0.50);
+    path.lineTo(size.width * 0.70, size.height * 0.90);
+    path.quadraticBezierTo(
+        size.width / 2, size.height, size.width * 0.3, size.height * 0.9);
     path.close();
     canvas.drawPath(path, paint);
   }
-
 
   @override
   bool shouldRepaint(covariant material.CustomPainter oldDelegate) => true;
@@ -98,20 +99,22 @@ class LoadingForkLiftTruckPainter extends material.CustomPainter {
 class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
   GettingStackFromTruck()
       : super(
-            duration: (loadingForkLiftTruck) =>
+            durationFunction: (loadingForkLiftTruck) =>
                 loadingForkLiftTruck.inFeedDuration,
-            onCompleted: (loadingForkLiftTruck) {
-              var newModuleGroup = loadingForkLiftTruck.createModuleGroup();
-              _verifyDirections(
-                loadingForkLiftTruck,
-                loadingForkLiftTruck.outFeedDirection,
-                newModuleGroup.doorDirection.toCardinalDirection()!,
-              );
-              _verifyDestination(
-                  loadingForkLiftTruck, newModuleGroup.destination);
-              loadingForkLiftTruck.layout.moduleGroups.add(newModuleGroup);
-            },
-            nextState: (loadingForkLiftTruck) => WaitingForEmptyConveyor());
+            nextStateFunction: (loadingForkLiftTruck) =>
+                WaitingForEmptyConveyor());
+
+  @override
+  void onCompleted(LoadingForkLiftTruck loadingForkLiftTruck) {
+    var newModuleGroup = loadingForkLiftTruck.createModuleGroup();
+    _verifyDirections(
+      loadingForkLiftTruck,
+      loadingForkLiftTruck.outFeedDirection,
+      newModuleGroup.doorDirection.toCardinalDirection()!,
+    );
+    _verifyDestination(loadingForkLiftTruck, newModuleGroup.destination);
+    loadingForkLiftTruck.layout.moduleGroups.add(newModuleGroup);
+  }
 
   static _verifyDirections(
     LoadingForkLiftTruck loadingForkLiftTruck,
@@ -126,10 +129,9 @@ class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
 
   static void _verifyDestination(
     LoadingForkLiftTruck loadingForkLiftTruck,
-    Position destinationPosition,
+    StateMachineCell destination,
   ) {
     var layout = loadingForkLiftTruck.layout;
-    var destination = layout.cellForPosition(destinationPosition);
     if (destination is! StateMachineCell) {
       throw ArgumentError("stack.destination must point to a none empty cell");
     }
@@ -137,21 +139,23 @@ class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
         source: loadingForkLiftTruck, destination: destination);
     if (route == null) {
       throw ArgumentError(
-          "${loadingForkLiftTruck.name} can not reach destination: $destinationPosition in layout configuration.");
+          "${loadingForkLiftTruck.name} can not reach destination: $destination in layout configuration.");
     }
   }
 }
 
 class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
-  State? process(LoadingForkLiftTruck loadingForkLiftTruck) {
-    var outFeedNeighbouringCell = loadingForkLiftTruck.layout.neighbouringCell(
-        loadingForkLiftTruck, loadingForkLiftTruck.outFeedDirection);
-    bool neighbourCanFeedIn = outFeedNeighbouringCell
-        .okToFeedIn(loadingForkLiftTruck.outFeedDirection.opposite);
-    if (neighbourCanFeedIn) {
+  State<LoadingForkLiftTruck>? nextState(
+      LoadingForkLiftTruck loadingForkLiftTruck) {
+    if (_neighbourCanFeedIn(loadingForkLiftTruck)) {
       return PutStackOnConveyor();
     }
+  }
+
+  bool _neighbourCanFeedIn(LoadingForkLiftTruck loadingForkLiftTruck) {
+    return loadingForkLiftTruck.receivingNeighbour
+        .waitingToFeedIn(loadingForkLiftTruck.outFeedDirection.opposite);
   }
 }
 
@@ -159,22 +163,27 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
 /// lower stack on in feed conveyor and adjust when needed
 /// drive backward to clear lifting spoons
 /// push button to feed in
-class PutStackOnConveyor extends DurationState<LoadingForkLiftTruck> {
-  PutStackOnConveyor()
-      : super(
-            duration: (loadingForkLiftTruck) =>
-                loadingForkLiftTruck.outFeedDuration,
-            onCompleted: (loadingForkLiftTruck) {
-              var neighbour = loadingForkLiftTruck.layout.neighbouringCell(
-                  loadingForkLiftTruck, loadingForkLiftTruck.outFeedDirection);
-              if (neighbour is ModuleConveyor) {
-                var moduleGroup = loadingForkLiftTruck.moduleGroup;
-                moduleGroup!.position = ModulePosition.forCel(
-                    neighbour); //TODO change to transition
-              } else {
-                throw ArgumentError(
-                    'The layout configuration must have a ModuleConveyor ${loadingForkLiftTruck.outFeedDirection} of ${loadingForkLiftTruck.name}');
-              }
-            },
-            nextState: (loadingForkLiftTruck) => GettingStackFromTruck());
+class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
+  ModuleGroup? transportedModuleGroup;
+
+  @override
+  void onStart(LoadingForkLiftTruck loadingForkLiftTruck) {
+    transportedModuleGroup = loadingForkLiftTruck.moduleGroup!;
+    transportedModuleGroup!.position = ModulePosition.betweenCells(
+        source: loadingForkLiftTruck,
+        destination: loadingForkLiftTruck.receivingNeighbour,
+        duration: loadingForkLiftTruck.outFeedDuration);
+  }
+
+  @override
+  State<LoadingForkLiftTruck>? nextState(
+      LoadingForkLiftTruck loadingForkLiftTruck) {
+    if (_transportCompleted(loadingForkLiftTruck)) {
+      return GettingStackFromTruck();
+    }
+  }
+
+  bool _transportCompleted(LoadingForkLiftTruck loadingForkLiftTruck) =>
+      transportedModuleGroup != null &&
+      transportedModuleGroup!.position.source != loadingForkLiftTruck;
 }

@@ -6,26 +6,26 @@ import 'module.dart';
 import 'module_cas.dart';
 
 class ModuleRotatingConveyor extends StateMachineCell {
-  CompassDirection actualDirection;
+  CompassDirection currentDirection;
   final double degreesPerSecond;
   final CardinalDirection? defaultPositionWhenIdle;
 
   /// Note that you can note rotate more than 180 degrees left or right
   /// from the home position (in order to protect the cables)
   final CardinalDirection homingDirection;
-  Map<CardinalDirection, Duration> neighboursAreAlmostOkToFeedOutDurations = {
+  Map<CardinalDirection, Duration> neighboursAlmostWaitingToFeedOutDurations = {
     CardinalDirection.north: Duration.zero,
     CardinalDirection.east: Duration.zero,
     CardinalDirection.south: Duration.zero,
     CardinalDirection.west: Duration.zero,
   };
-  Map<CardinalDirection, Duration> neighboursAreOkToFeedOutDurations = {
+  Map<CardinalDirection, Duration> neighboursWaitingToFeedOutDurations = {
     CardinalDirection.north: Duration.zero,
     CardinalDirection.east: Duration.zero,
     CardinalDirection.south: Duration.zero,
     CardinalDirection.west: Duration.zero,
   };
-  Map<CardinalDirection, Duration> neighboursAreOkToFeedInDurations = {
+  Map<CardinalDirection, Duration> neighboursWaitingToFeedInDurations = {
     CardinalDirection.north: Duration.zero,
     CardinalDirection.east: Duration.zero,
     CardinalDirection.south: Duration.zero,
@@ -44,7 +44,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
     required this.homingDirection,
     Duration inFeedDuration = const Duration(seconds: 12),
     Duration outFeedDuration = const Duration(seconds: 12),
-  })  : actualDirection = calculateBeginPosition(defaultPositionWhenIdle),
+  })  : currentDirection = calculateBeginPosition(defaultPositionWhenIdle),
         super(
           layout: layout,
           position: position,
@@ -54,13 +54,13 @@ class ModuleRotatingConveyor extends StateMachineCell {
           outFeedDuration: outFeedDuration,
         );
 
-  processNextTimeFrame(Duration jump) {
+  onUpdateToNextPointInTime(Duration jump) {
     increaseNeighboursWaitingDurations(jump);
-    super.processNextTimeFrame(jump);
+    super.onUpdateToNextPointInTime(jump);
   }
 
   @override
-  bool almostOkToFeedOut(CardinalDirection direction) => false;
+  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
   bool isFeedIn(CardinalDirection direction) {
@@ -72,21 +72,24 @@ class ModuleRotatingConveyor extends StateMachineCell {
   }
 
   @override
-  bool okToFeedIn(CardinalDirection direction) {
-    var neighbour = layout.neighbouringCell(this, direction);
-    var neighbourOkToFeedOut = neighbour.okToFeedOut(direction.opposite);
-    if (neighbourOkToFeedOut == false) {
-      return false;
-    }
-    var moduleGroupToTransport = neighbour.moduleGroup;
-    if (moduleGroupToTransport == null) {
-      return false;
-    } else {
-      var destination =
-          layout.cellForPosition(moduleGroupToTransport.destination)
-              as StateMachineCell;
-      return layout.findRoute(source: this, destination: destination) != null;
-    }
+  bool waitingToFeedIn(CardinalDirection direction) {
+    // var neighbour = layout.neighbouringCell(this, direction);
+    // var neighbourWaitingToFeedOut = neighbour.waitingToFeedOut(direction.opposite);
+    // if (neighbourWaitingToFeedOut == false) {
+    //   return false;
+    // }
+    // var moduleGroupToTransport = neighbour.moduleGroup;
+    // if (moduleGroupToTransport == null) {
+    //   return false;
+    // } else {
+    //   var destination =
+    //       layout.cellForPosition(moduleGroupToTransport.destination)
+    //           as StateMachineCell;
+    //   return layout.findRoute(source: this, destination: destination) != null;
+    // }
+
+    return direction == currentDirection.toCardinalDirection() &&
+        direction == bestInFeedDirection;
   }
 
   @override
@@ -99,29 +102,30 @@ class ModuleRotatingConveyor extends StateMachineCell {
   }
 
   @override
-  bool okToFeedOut(CardinalDirection direction) =>
-      direction == actualDirection.toCardinalDirection() && moduleGroup != null;
+  bool waitingToFeedOut(CardinalDirection direction) =>
+      direction == currentDirection.toCardinalDirection() &&
+      moduleGroup != null;
 
   void increaseNeighboursWaitingDurations(Duration jump) {
     CardinalDirection.values.forEach((direction) {
       var neighbour = layout.neighbouringCell(this, direction);
-      if (neighbour.almostOkToFeedOut(direction.opposite)) {
-        neighboursAreAlmostOkToFeedOutDurations[direction] = noMoreThan1Hour(
-            neighboursAreAlmostOkToFeedOutDurations[direction]! + jump);
+      if (neighbour.almostWaitingToFeedOut(direction.opposite)) {
+        neighboursAlmostWaitingToFeedOutDurations[direction] = noMoreThan1Hour(
+            neighboursAlmostWaitingToFeedOutDurations[direction]! + jump);
       } else {
-        neighboursAreAlmostOkToFeedOutDurations[direction] = Duration.zero;
+        neighboursAlmostWaitingToFeedOutDurations[direction] = Duration.zero;
       }
-      if (neighbour.okToFeedOut(direction.opposite)) {
-        neighboursAreOkToFeedOutDurations[direction] = noMoreThan1Hour(
-            neighboursAreOkToFeedOutDurations[direction]! + jump);
+      if (neighbour.waitingToFeedOut(direction.opposite)) {
+        neighboursWaitingToFeedOutDurations[direction] = noMoreThan1Hour(
+            neighboursWaitingToFeedOutDurations[direction]! + jump);
       } else {
-        neighboursAreOkToFeedOutDurations[direction] = Duration.zero;
+        neighboursWaitingToFeedOutDurations[direction] = Duration.zero;
       }
-      if (neighbour.okToFeedIn(direction.opposite)) {
-        neighboursAreOkToFeedInDurations[direction] = noMoreThan1Hour(
-            neighboursAreOkToFeedInDurations[direction]! + jump);
+      if (neighbour.waitingToFeedIn(direction.opposite)) {
+        neighboursWaitingToFeedInDurations[direction] = noMoreThan1Hour(
+            neighboursWaitingToFeedInDurations[direction]! + jump);
       } else {
-        neighboursAreOkToFeedInDurations[direction] = Duration.zero;
+        neighboursWaitingToFeedInDurations[direction] = Duration.zero;
       }
     });
   }
@@ -155,13 +159,13 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
   }
 
-  @override
-  String toolTipText() => "$name\n"
-      "${currentState.name}"
-      "\n${currentState is DurationState ? '${(currentState as DurationState).remainingSeconds} sec' : 'waiting'}"
-      "\nrotation :$actualDirection"
-      "${moduleGroup == null ? '' : '\n${moduleGroup!.numberOfModules} modules'}"
-      "${moduleGroup == null ? '' : '\ndestination: ${(layout.cellForPosition(moduleGroup!.destination) as StateMachineCell).name}'}";
+  // @override
+  // String toolTipText() => "$name\n"
+  //     "${currentState.name}"
+  //     "\n${currentState is DurationState ? '${(currentState as DurationState).remainingDuration} sec' : 'waiting'}"
+  //     "\nrotation :$actualDirection"
+  //     "${moduleGroup == null ? '' : '\n${moduleGroup!.numberOfModules} modules'}"
+  //     "${moduleGroup == null ? '' : '\ndestination: ${(layout.cellForPosition(moduleGroup!.destination) as StateMachineCell).name}'}";
 
   Duration noMoreThan1Hour(Duration duration) {
     const max = const Duration(hours: 1);
@@ -172,11 +176,49 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
   }
 
+  /// returns the best direction to feed in from
+  /// returns null when there is no outcome
+  CardinalDirection? get bestInFeedDirection {
+    CardinalDirection? longestWaitingCasNeighbourOkToFeedOut =
+        longestWaitingNeighbour(neighboursWaitingToFeedOutDurations,
+            neighbourMustBeCASUnit: true);
+    if (longestWaitingCasNeighbourOkToFeedOut != null) {
+      return longestWaitingCasNeighbourOkToFeedOut;
+    }
+
+    CardinalDirection? longestWaitingCasNeighbourAlmostOkToFeedOut =
+        longestWaitingNeighbour(neighboursAlmostWaitingToFeedOutDurations,
+            neighbourMustBeCASUnit: true);
+    if (longestWaitingCasNeighbourAlmostOkToFeedOut != null) {
+      return longestWaitingCasNeighbourAlmostOkToFeedOut;
+    }
+
+    CardinalDirection? longestWaitingNeighbourOkToFeedOut =
+        longestWaitingNeighbour(neighboursWaitingToFeedOutDurations);
+    if (longestWaitingNeighbourOkToFeedOut != null) {
+      return longestWaitingNeighbourOkToFeedOut;
+    }
+
+    CardinalDirection? longestWaitingNeighbourAlmostOkToFeedOut =
+        longestWaitingNeighbour(neighboursAlmostWaitingToFeedOutDurations);
+    if (longestWaitingNeighbourAlmostOkToFeedOut != null) {
+      return longestWaitingNeighbourAlmostOkToFeedOut;
+    }
+
+    if (defaultPositionWhenIdle != null) {
+      return defaultPositionWhenIdle!;
+    }
+
+    //stay where we are
+    return null;
+  }
+
   @override
   material.Widget get widget => material.Tooltip(
-        message: toolTipText(),
+        message: toString(),
         child: material.RotationTransition(
-          turns: material.AlwaysStoppedAnimation(actualDirection.degrees / 360),
+          turns:
+              material.AlwaysStoppedAnimation(currentDirection.degrees / 360),
           child: material.CustomPaint(painter: ModuleRotatingConveyorPainter()),
         ),
       );
@@ -233,26 +275,32 @@ class ModuleRotatingConveyorPainter extends material.CustomPainter {
 
 class TurnToFeedIn extends State<ModuleRotatingConveyor> {
   @override
-  State<StateMachineCell>? process(ModuleRotatingConveyor rotatingConveyor) {
-    var goToDirection = feedInDirection(rotatingConveyor);
-    if (goToDirection != null) {
-      if (_doneTurning(rotatingConveyor, goToDirection)) {
-        // Go to next state when neighbour is waiting to feed out
-        if (rotatingConveyor.okToFeedIn(goToDirection)) {
-          return FeedingIn();
-        }
-      } else {
-        bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
-        turn1second(rotatingConveyor, clockWise);
+  void onUpdateToNextPointInTime(
+      ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+    var bestInFeedDirection = rotatingConveyor.bestInFeedDirection;
+    if (bestInFeedDirection != null) {
+      var currentDirection =
+          rotatingConveyor.currentDirection.toCardinalDirection();
+      if (currentDirection != bestInFeedDirection) {
+        turn(rotatingConveyor, bestInFeedDirection, jump);
       }
     }
-
-    // todo: show degrees in statemachine (state.toString???)
   }
 
-  void turn1second(ModuleRotatingConveyor rotatingConveyor, bool clockWise) {
-    rotatingConveyor.actualDirection = rotatingConveyor.actualDirection.rotate(
-        clockWise
+  @override
+  State<ModuleRotatingConveyor>? nextState(
+      ModuleRotatingConveyor rotatingConveyor) {
+    if (_moduleGroupTransportedTo(rotatingConveyor)) {
+      return FeedIn();
+    }
+  }
+
+  void turn(ModuleRotatingConveyor rotatingConveyor,
+      CardinalDirection goToDirection, Duration jump) {
+    bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
+
+    rotatingConveyor.currentDirection = rotatingConveyor.currentDirection
+        .rotate(clockWise
             ? rotatingConveyor.degreesPerSecond
             : -rotatingConveyor.degreesPerSecond);
   }
@@ -262,7 +310,7 @@ class TurnToFeedIn extends State<ModuleRotatingConveyor> {
       CardinalDirection goToDirection) {
     // TODO make sure the table does not rotate over stopper using: var stopperDirection = ModuleRotatingConveyor.homingPosition.opposite;
     // TODO make sure the feed out direction is correct depending neighbour: e.g. Cell.requiredDoorDirectionToFeedIn
-    var actualDirection = rotatingConveyor.actualDirection;
+    var actualDirection = rotatingConveyor.currentDirection;
     var clockWiseDistance = actualDirection
         .clockWiseDistanceInDegrees(goToDirection.toCompassDirection());
     var counterClockWiseDistance = actualDirection
@@ -272,103 +320,96 @@ class TurnToFeedIn extends State<ModuleRotatingConveyor> {
     return clockWise;
   }
 
-  bool _doneTurning(ModuleRotatingConveyor rotatingConveyor,
-          CardinalDirection goToDirection) =>
-      rotatingConveyor.actualDirection.toCardinalDirection() == goToDirection;
-
-  CardinalDirection? feedInDirection(ModuleRotatingConveyor rotatingConveyor) {
-    CardinalDirection? longestWaitingCasNeighbourOkToFeedOut =
-        rotatingConveyor.longestWaitingNeighbour(
-            rotatingConveyor.neighboursAreOkToFeedOutDurations,
-            neighbourMustBeCASUnit: true);
-    if (longestWaitingCasNeighbourOkToFeedOut != null) {
-      return longestWaitingCasNeighbourOkToFeedOut;
-    }
-
-    CardinalDirection? longestWaitingCasNeighbourAlmostOkToFeedOut =
-        rotatingConveyor.longestWaitingNeighbour(
-            rotatingConveyor.neighboursAreAlmostOkToFeedOutDurations,
-            neighbourMustBeCASUnit: true);
-    if (longestWaitingCasNeighbourAlmostOkToFeedOut != null) {
-      return longestWaitingCasNeighbourAlmostOkToFeedOut;
-    }
-
-    CardinalDirection? longestWaitingNeighbourOkToFeedOut =
-        rotatingConveyor.longestWaitingNeighbour(
-            rotatingConveyor.neighboursAreOkToFeedOutDurations);
-    if (longestWaitingNeighbourOkToFeedOut != null) {
-      return longestWaitingNeighbourOkToFeedOut;
-    }
-
-    CardinalDirection? longestWaitingNeighbourAlmostOkToFeedOut =
-        rotatingConveyor.longestWaitingNeighbour(
-            rotatingConveyor.neighboursAreAlmostOkToFeedOutDurations);
-    if (longestWaitingNeighbourAlmostOkToFeedOut != null) {
-      return longestWaitingNeighbourAlmostOkToFeedOut;
-    }
-
-    if (rotatingConveyor.defaultPositionWhenIdle != null) {
-      return rotatingConveyor.defaultPositionWhenIdle!;
-    }
-
-    //stay where we are
-    return null;
-  }
+  bool _moduleGroupTransportedTo(ModuleRotatingConveyor rotatingConveyor) =>
+      rotatingConveyor.layout.moduleGroups.any((moduleGroup) =>
+          moduleGroup.position.destination == rotatingConveyor);
 }
 
-class FeedingIn extends DurationState<ModuleRotatingConveyor> {
-  int nrOfModulesBeingTransported = 0;
+class FeedIn extends State<ModuleRotatingConveyor> {
+  // ModuleGroup? transportedModuleGroup;
+  //
+  // @override
+  // void onStart(ModuleRotatingConveyor rotatingConveyor) {
+  //   var inFeedDirection = _inFeedDirection(rotatingConveyor);
+  //   if (inFeedDirection != null) {
+  //     StateMachineCell sendingNeighbour =
+  //         _sendingNeighbour(rotatingConveyor, inFeedDirection);
+  //     transportedModuleGroup = sendingNeighbour.moduleGroup!;
+  //     //!TODO! maybe we need to lookup in layout.moduleGroups  for a moduleGroup bing in transported to this
+  //   }
+  // }
+  //
+  // StateMachineCell _sendingNeighbour(ModuleRotatingConveyor rotatingConveyor,
+  //     CardinalDirection inFeedDirection) {
+  //   var sendingNeighbour = rotatingConveyor.layout.neighbouringCell(
+  //       rotatingConveyor, inFeedDirection) as StateMachineCell;
+  //   return sendingNeighbour;
+  // }
+  //
+  // CardinalDirection? _inFeedDirection(ModuleRotatingConveyor rotatingConveyor) {
+  //   return rotatingConveyor.currentDirection.toCardinalDirection();
+  // }
+  //
+  // @override
+  // State<ModuleRotatingConveyor>? nextState(
+  //     ModuleRotatingConveyor rotatingConveyor) {
+  //   if (_transportCompleted(rotatingConveyor)) {
+  //     return TurnToFeedOut();
+  //   }
+  // }
+  //
+  // bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>
+  //     transportedModuleGroup != null &&
+  //     transportedModuleGroup!.position.source == rotatingConveyor;
 
-  static ModuleGroup? moduleGroupToTransport;
+  @override
+  State<ModuleRotatingConveyor>? nextState(
+      ModuleRotatingConveyor rotatingConveyor) {
+    if (_transportCompleted(rotatingConveyor)) {
+      return TurnToFeedOut();
+    }
+  }
 
-  FeedingIn()
-      : super(
-          duration: (rotatingConveyor) => rotatingConveyor.inFeedDuration,
-          onStart: (rotatingConveyor) {
-            var direction =
-                rotatingConveyor.actualDirection.toCardinalDirection();
-            if (direction != null) {
-              var inFeedNeighbouringCell = rotatingConveyor.layout
-                      .neighbouringCell(rotatingConveyor, direction)
-                  as StateMachineCell;
-              moduleGroupToTransport = inFeedNeighbouringCell.moduleGroup!;
-              //TODO moduleGroupToTransport.position=ModulePosition.betweenCells(source: inFeedNeighbouringCell, destination: rotatingConveyor);
-            }
-          },
-          onCompleted: (rotatingConveyor) {
-            moduleGroupToTransport!.position =
-                ModulePosition.forCel(rotatingConveyor);
-
-            /// TODO change to transition
-          },
-          nextState: (rotatingConveyor) => TurnToFeedOut(),
-        );
+  bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>
+      rotatingConveyor.moduleGroup != null;
 }
 
 class TurnToFeedOut extends State<ModuleRotatingConveyor> {
+  bool goToNextState = false;
+
   @override
-  State<StateMachineCell>? process(ModuleRotatingConveyor rotatingConveyor) {
+  void onUpdateToNextPointInTime(
+      ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+    goToNextState = false;
     var goToDirection = feedOutDirection(rotatingConveyor);
     if (goToDirection != null) {
       if (_doneTurning(rotatingConveyor, goToDirection)) {
-        // Go to next state when neighbour is waiting to feed in
-        if (_neighbourOkToFeedIn(rotatingConveyor, goToDirection)) {
-          return FeedingOut();
+        if (_neighbourOkToFeedIn(rotatingConveyor, goToDirection) &&
+            !_moduleGroupIsAtDestination(rotatingConveyor)) {
+          goToNextState = true;
         }
       } else {
         bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
-        turn1second(rotatingConveyor, clockWise);
+        turn(rotatingConveyor, clockWise);
       }
     }
   }
 
-  void turn1second(ModuleRotatingConveyor rotatingConveyor, bool clockWise) {
+  @override
+  State<ModuleRotatingConveyor>? nextState(
+      ModuleRotatingConveyor rotatingConveyor) {
+    if (goToNextState) {
+      return FeedOut();
+    }
+  }
+
+  void turn(ModuleRotatingConveyor rotatingConveyor, bool clockWise) {
     //TODO use duration
     var rotation = clockWise
         ? rotatingConveyor.degreesPerSecond
         : -rotatingConveyor.degreesPerSecond;
-    rotatingConveyor.actualDirection =
-        rotatingConveyor.actualDirection.rotate(rotation);
+    rotatingConveyor.currentDirection =
+        rotatingConveyor.currentDirection.rotate(rotation);
     rotatingConveyor.moduleGroup!.doorDirection =
         rotatingConveyor.moduleGroup!.doorDirection.rotate(rotation);
   }
@@ -378,7 +419,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
       CardinalDirection goToDirection) {
     // TODO make sure the rotatingConveyor does not rotate over stopper using: var stopperDirection = ModuleRotatingConveyor.homingPosition.opposite;
     // TODO make sure the feed out direction is correct depending neighbour: e.g. Cell.requiredDoorDirectionToFeedIn
-    var actualDirection = rotatingConveyor.actualDirection;
+    var actualDirection = rotatingConveyor.currentDirection;
     var clockWiseDistance = actualDirection
         .clockWiseDistanceInDegrees(goToDirection.toCompassDirection());
     var counterClockWiseDistance = actualDirection
@@ -392,20 +433,18 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
       CardinalDirection goToDirection) {
     var layout = rotatingConveyor.layout;
     var neighbour = layout.neighbouringCell(rotatingConveyor, goToDirection);
-    var okToFeedIn = neighbour.okToFeedIn(goToDirection.opposite);
+    var okToFeedIn = neighbour.waitingToFeedIn(goToDirection.opposite);
     return okToFeedIn;
   }
 
   bool _doneTurning(ModuleRotatingConveyor rotatingConveyor,
           CardinalDirection goToDirection) =>
-      rotatingConveyor.actualDirection.toCardinalDirection() == goToDirection;
+      rotatingConveyor.currentDirection.toCardinalDirection() == goToDirection;
 
   CardinalDirection? feedOutDirection(ModuleRotatingConveyor rotatingConveyor) {
     for (var direction in CardinalDirection.values) {
       var layout = rotatingConveyor.layout;
-      var destination =
-          layout.cellForPosition(rotatingConveyor.moduleGroup!.destination)
-              as ActiveCell;
+      var destination = rotatingConveyor.moduleGroup!.destination;
       var neighbour = layout.neighbouringCell(rotatingConveyor, direction);
 
       if (neighbour is StateMachineCell && destination is StateMachineCell) {
@@ -422,11 +461,34 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
     //no destination found: stay where we are
     return null;
   }
+
+  bool _moduleGroupIsAtDestination(ModuleRotatingConveyor rotatingConveyor) =>
+      rotatingConveyor.moduleGroup!.destination == rotatingConveyor;
 }
 
-class FeedingOut extends DurationState<ModuleRotatingConveyor> {
-  FeedingOut()
-      : super(
-            duration: (rotatingConveyor) => rotatingConveyor.outFeedDuration,
-            nextState: (rotatingConveyor) => TurnToFeedIn());
+class FeedOut extends State<ModuleRotatingConveyor> {
+  ModuleGroup? transportedModuleGroup;
+
+  @override
+  void onStart(ModuleRotatingConveyor rotatingConveyor) {
+    transportedModuleGroup = rotatingConveyor.moduleGroup;
+    var layout = rotatingConveyor.layout;
+    var direction = rotatingConveyor.currentDirection.toCardinalDirection();
+    var receivingNeighbour = layout.neighbouringCell(
+        rotatingConveyor, direction!) as StateMachineCell;
+    transportedModuleGroup!.position = ModulePosition.betweenCells(
+        source: rotatingConveyor, destination: receivingNeighbour);
+  }
+
+  @override
+  State<ModuleRotatingConveyor>? nextState(
+      ModuleRotatingConveyor rotatingConveyor) {
+    if (_transportCompleted(rotatingConveyor)) {
+      return TurnToFeedIn();
+    }
+  }
+
+  bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>
+      transportedModuleGroup != null &&
+      transportedModuleGroup!.position.source != rotatingConveyor;
 }
