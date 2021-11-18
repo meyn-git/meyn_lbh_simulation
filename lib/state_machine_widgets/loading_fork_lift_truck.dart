@@ -172,7 +172,7 @@ class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
         source: forkLiftTruck,
         destination: forkLiftTruck.receivingNeighbour,
         duration: forkLiftTruck.outFeedDuration);
-    moduleGroup.startedLoadingOnSystem();
+    moduleGroup.startedLoadingOnToSystem();
   }
 
   @override

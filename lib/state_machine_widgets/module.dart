@@ -29,6 +29,15 @@ class ModuleGroup extends TimeProcessor {
   @override
   onUpdateToNextPointInTime(Duration jump) {
     position.processNextTimeFrame(this, jump);
+    if (sinceLoadedOnSystem!=null) {
+      sinceLoadedOnSystem=sinceLoadedOnSystem!+jump;
+    }
+    if (sinceStartStun!=null) {
+      sinceStartStun=sinceStartStun!+jump;
+    }
+    if (sinceBirdsUnloaded!=null) {
+      sinceBirdsUnloaded=sinceBirdsUnloaded!+jump;
+    }
   }
 
   @override
@@ -41,36 +50,44 @@ class ModuleGroup extends TimeProcessor {
       .toString();
 
 
-  DateTime? get startLoadingOnSystem => firstModule.startLoadingOnSystem;
+  Duration? get sinceLoadedOnSystem => firstModule.sinceLoadedOnSystem;
 
-  void startedLoadingOnSystem() {
-    var now=DateTime.now();
-    firstModule.startLoadingOnSystem=now;
+  set sinceLoadedOnSystem(Duration? duration) {
+    firstModule.sinceLoadedOnSystem=duration;
     if (secondModule!=null) {
-      secondModule!.startLoadingOnSystem=now;
+      secondModule!.sinceLoadedOnSystem=duration;
     }
   }
 
-  DateTime? get startStun => firstModule.startStun;
+  void startedLoadingOnToSystem() {
+    sinceLoadedOnSystem=Duration.zero;
+  }
+
+  Duration? get sinceStartStun => firstModule.sinceStartStun;
+
+  set sinceStartStun(Duration? duration) {
+    firstModule.sinceStartStun=duration;
+    if (secondModule!=null) {
+      secondModule!.sinceStartStun=duration;
+    }
+  }
 
   void startedStunning() {
-    var now=DateTime.now();
-    firstModule.startStun=now;
-    if (secondModule!=null) {
-      secondModule!.startStun=now;
-    }
+    sinceStartStun=Duration.zero;
   }
 
-  DateTime? get startUnloadBirds => firstModule.startUnloadBirds;
+  Duration? get sinceBirdsUnloaded => firstModule.sinceBirdsUnloaded;
+
+  set sinceBirdsUnloaded(Duration? duration) {
+    firstModule.sinceBirdsUnloaded=duration;
+    if (secondModule!=null) {
+      secondModule!.sinceBirdsUnloaded=duration;
+    }
+  }
 
   void startedUnloadingBirds() {
-    var now=DateTime.now();
-    firstModule.startUnloadBirds=now;
-    if (secondModule!=null) {
-      secondModule!.startUnloadBirds=now;
-    }
+    sinceBirdsUnloaded=Duration.zero;
   }
-
 }
 
 /// A module location is either at a given position or traveling between 2 positions
@@ -145,9 +162,9 @@ class ModulePosition {
 class Module {
   final int sequenceNumber;
   final int nrOfBirds;
-  DateTime? startLoadingOnSystem;
-  DateTime? startStun;
-  DateTime? startUnloadBirds;
+  Duration? sinceLoadedOnSystem;
+  Duration? sinceStartStun;
+  Duration? sinceBirdsUnloaded;
 
   Module({
     required this.sequenceNumber,
@@ -158,9 +175,9 @@ class Module {
   String toString() => TitleBuilder('Module')
       .appendProperty('sequenceNumber', sequenceNumber)
       .appendProperty('nrOfBirds', nrOfBirds)
-      .appendProperty('loadedOnSystem', startLoadingOnSystem)
-      .appendProperty('startStun', startStun)
-      .appendProperty('startUnloadBirds', startUnloadBirds)
+      .appendProperty('sinceLoadedOnSystem', sinceLoadedOnSystem)
+      .appendProperty('sinceStartStun', sinceStartStun)
+      .appendProperty('sinceBirdsUnloaded', sinceBirdsUnloaded)
       .toString();
 }
 
@@ -225,9 +242,9 @@ class ModuleConveyorPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   Color _colorFor(ModuleGroup moduleGroup) {
-    if (moduleGroup.startUnloadBirds!=null) {
+    if (moduleGroup.sinceBirdsUnloaded!=null) {
       return Colors.black;//no birds
-    } else if (moduleGroup.startStun!=null) {
+    } else if (moduleGroup.sinceStartStun!=null) {
       return Colors.red;// stunned birds
     } else {
       return Colors.green;
