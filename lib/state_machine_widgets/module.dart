@@ -39,6 +39,38 @@ class ModuleGroup extends TimeProcessor {
       .appendProperty('firstModule', firstModule)
       .appendProperty('secondModule', secondModule)
       .toString();
+
+
+  DateTime? get startLoadingOnSystem => firstModule.startLoadingOnSystem;
+
+  void startedLoadingOnSystem() {
+    var now=DateTime.now();
+    firstModule.startLoadingOnSystem=now;
+    if (secondModule!=null) {
+      secondModule!.startLoadingOnSystem=now;
+    }
+  }
+
+  DateTime? get startStun => firstModule.startStun;
+
+  void startedStunning() {
+    var now=DateTime.now();
+    firstModule.startStun=now;
+    if (secondModule!=null) {
+      secondModule!.startStun=now;
+    }
+  }
+
+  DateTime? get startUnloadBirds => firstModule.startUnloadBirds;
+
+  void startedUnloadingBirds() {
+    var now=DateTime.now();
+    firstModule.startUnloadBirds=now;
+    if (secondModule!=null) {
+      secondModule!.startUnloadBirds=now;
+    }
+  }
+
 }
 
 /// A module location is either at a given position or traveling between 2 positions
@@ -113,7 +145,7 @@ class ModulePosition {
 class Module {
   final int sequenceNumber;
   final int nrOfBirds;
-  DateTime? loadedOnSystem;
+  DateTime? startLoadingOnSystem;
   DateTime? startStun;
   DateTime? startUnloadBirds;
 
@@ -126,7 +158,7 @@ class Module {
   String toString() => TitleBuilder('Module')
       .appendProperty('sequenceNumber', sequenceNumber)
       .appendProperty('nrOfBirds', nrOfBirds)
-      .appendProperty('loadedOnSystem', loadedOnSystem)
+      .appendProperty('loadedOnSystem', startLoadingOnSystem)
       .appendProperty('startStun', startStun)
       .appendProperty('startUnloadBirds', startUnloadBirds)
       .toString();
@@ -141,7 +173,7 @@ class ModuleGroupWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: AlwaysStoppedAnimation(moduleGroup.doorDirection.degrees / 360),
-      child: CustomPaint(painter: ModuleConveyorPainter()),
+      child: CustomPaint(painter: ModuleConveyorPainter(moduleGroup)),
     );
   }
 }
@@ -149,10 +181,14 @@ class ModuleGroupWidget extends StatelessWidget {
 //TODO depending on type: SideBySide or Stacked
 //TODO draw double with small offset when 2 modules
 class ModuleConveyorPainter extends CustomPainter {
+  final ModuleGroup moduleGroup;
+
+  ModuleConveyorPainter(this.moduleGroup);
+
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.green.withOpacity(0.5); //TODO red when stunned
+    paint.color = _colorFor(moduleGroup);
     paint.style = PaintingStyle.stroke;
 
     var path = Path();
@@ -187,4 +223,14 @@ class ModuleConveyorPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+
+  Color _colorFor(ModuleGroup moduleGroup) {
+    if (moduleGroup.startUnloadBirds!=null) {
+      return Colors.black;//no birds
+    } else if (moduleGroup.startStun!=null) {
+      return Colors.red;// stunned birds
+    } else {
+      return Colors.green;
+    }
+  }
 }

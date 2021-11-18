@@ -99,47 +99,47 @@ class LoadingForkLiftTruckPainter extends material.CustomPainter {
 class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
   GettingStackFromTruck()
       : super(
-            durationFunction: (loadingForkLiftTruck) =>
-                loadingForkLiftTruck.inFeedDuration,
-            nextStateFunction: (loadingForkLiftTruck) =>
+            durationFunction: (forkLiftTruck) =>
+                forkLiftTruck.inFeedDuration,
+            nextStateFunction: (forkLiftTruck) =>
                 WaitingForEmptyConveyor());
 
   @override
-  void onCompleted(LoadingForkLiftTruck loadingForkLiftTruck) {
-    var newModuleGroup = loadingForkLiftTruck.createModuleGroup();
+  void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
+    var newModuleGroup = forkLiftTruck.createModuleGroup();
     _verifyDirections(
-      loadingForkLiftTruck,
-      loadingForkLiftTruck.outFeedDirection,
+      forkLiftTruck,
+      forkLiftTruck.outFeedDirection,
       newModuleGroup.doorDirection.toCardinalDirection()!,
     );
-    _verifyDestination(loadingForkLiftTruck, newModuleGroup.destination);
-    loadingForkLiftTruck.layout.moduleGroups.add(newModuleGroup);
+    _verifyDestination(forkLiftTruck, newModuleGroup.destination);
+    forkLiftTruck.layout.moduleGroups.add(newModuleGroup);
   }
 
   static _verifyDirections(
-    LoadingForkLiftTruck loadingForkLiftTruck,
+    LoadingForkLiftTruck forkLiftTruck,
     CardinalDirection direction1,
     CardinalDirection direction2,
   ) {
     if (direction1.isParallelTo(direction2)) {
       throw ArgumentError(
-          "${loadingForkLiftTruck.name}: outFeedDirection and moduleDoorDirection must be perpendicular in layout configuration.");
+          "${forkLiftTruck.name}: outFeedDirection and moduleDoorDirection must be perpendicular in layout configuration.");
     }
   }
 
   static void _verifyDestination(
-    LoadingForkLiftTruck loadingForkLiftTruck,
+    LoadingForkLiftTruck forkLiftTruck,
     StateMachineCell destination,
   ) {
-    var layout = loadingForkLiftTruck.layout;
+    var layout = forkLiftTruck.layout;
     if (destination is! StateMachineCell) {
       throw ArgumentError("stack.destination must point to a none empty cell");
     }
     var route = layout.findRoute(
-        source: loadingForkLiftTruck, destination: destination);
+        source: forkLiftTruck, destination: destination);
     if (route == null) {
       throw ArgumentError(
-          "${loadingForkLiftTruck.name} can not reach destination: $destination in layout configuration.");
+          "${forkLiftTruck.name} can not reach destination: $destination in layout configuration.");
     }
   }
 }
@@ -147,15 +147,15 @@ class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
 class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
   State<LoadingForkLiftTruck>? nextState(
-      LoadingForkLiftTruck loadingForkLiftTruck) {
-    if (_neighbourCanFeedIn(loadingForkLiftTruck)) {
+      LoadingForkLiftTruck forkLiftTruck) {
+    if (_neighbourCanFeedIn(forkLiftTruck)) {
       return PutStackOnConveyor();
     }
   }
 
-  bool _neighbourCanFeedIn(LoadingForkLiftTruck loadingForkLiftTruck) {
-    return loadingForkLiftTruck.receivingNeighbour
-        .waitingToFeedIn(loadingForkLiftTruck.outFeedDirection.opposite);
+  bool _neighbourCanFeedIn(LoadingForkLiftTruck forkLiftTruck) {
+    return forkLiftTruck.receivingNeighbour
+        .waitingToFeedIn(forkLiftTruck.outFeedDirection.opposite);
   }
 }
 
@@ -164,26 +164,24 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
 /// drive backward to clear lifting spoons
 /// push button to feed in
 class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
-  ModuleGroup? transportedModuleGroup;
 
   @override
-  void onStart(LoadingForkLiftTruck loadingForkLiftTruck) {
-    transportedModuleGroup = loadingForkLiftTruck.moduleGroup!;
-    transportedModuleGroup!.position = ModulePosition.betweenCells(
-        source: loadingForkLiftTruck,
-        destination: loadingForkLiftTruck.receivingNeighbour,
-        duration: loadingForkLiftTruck.outFeedDuration);
+  void onStart(LoadingForkLiftTruck forkLiftTruck) {
+    var moduleGroup = forkLiftTruck.moduleGroup!;
+    moduleGroup.position = ModulePosition.betweenCells(
+        source: forkLiftTruck,
+        destination: forkLiftTruck.receivingNeighbour,
+        duration: forkLiftTruck.outFeedDuration);
+    moduleGroup.startedLoadingOnSystem();
   }
 
   @override
   State<LoadingForkLiftTruck>? nextState(
-      LoadingForkLiftTruck loadingForkLiftTruck) {
-    if (_transportCompleted(loadingForkLiftTruck)) {
+      LoadingForkLiftTruck forkLiftTruck) {
+    if (_transportCompleted(forkLiftTruck)) {
       return GettingStackFromTruck();
     }
   }
 
-  bool _transportCompleted(LoadingForkLiftTruck loadingForkLiftTruck) =>
-      transportedModuleGroup != null &&
-      transportedModuleGroup!.position.source != loadingForkLiftTruck;
+  bool _transportCompleted(LoadingForkLiftTruck forkLiftTruck) => forkLiftTruck.moduleGroup==null;
 }

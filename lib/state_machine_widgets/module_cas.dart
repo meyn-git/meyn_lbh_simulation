@@ -30,13 +30,13 @@ class ModuleCas extends StateMachineCell {
     Duration outFeedDuration = const Duration(seconds: 14),
     required this.moduleDestinationPositionAfterStunning,
   }) : super(
-    layout: layout,
-    position: position,
-    seqNr: seqNr,
-    initialState: WaitToFeedIn(),
-    inFeedDuration: inFeedDuration,
-    outFeedDuration: outFeedDuration,
-  );
+          layout: layout,
+          position: position,
+          seqNr: seqNr,
+          initialState: WaitToFeedIn(),
+          inFeedDuration: inFeedDuration,
+          outFeedDuration: outFeedDuration,
+        );
 
   StateMachineCell get neighbour =>
       layout.neighbouringCell(this, inAndOutFeedDirection) as StateMachineCell;
@@ -62,22 +62,18 @@ class ModuleCas extends StateMachineCell {
       direction == inAndOutFeedDirection && currentState is WaitToFeedOut;
 
   StateMachineCell get moduleDestinationAfterStunning =>
-      layout.cellForPosition(
-          moduleDestinationPositionAfterStunning) as StateMachineCell;
+      layout.cellForPosition(moduleDestinationPositionAfterStunning)
+          as StateMachineCell;
 
   @override
-  material.Widget get widget =>
-      material.Tooltip(
+  material.Widget get widget => material.Tooltip(
         message: toString(),
         child: material.RotationTransition(
           turns: material.AlwaysStoppedAnimation(
-              inAndOutFeedDirection
-                  .toCompassDirection()
-                  .degrees / 360),
+              inAndOutFeedDirection.toCompassDirection().degrees / 360),
           child: material.CustomPaint(painter: ModuleCasPainter()),
         ),
       );
-
 }
 
 class ModuleCasPainter extends material.CustomPainter {
@@ -160,9 +156,8 @@ class WaitToFeedIn extends State<ModuleCas> {
     }
   }
 
-  bool _moduleGroupTransportedTo(ModuleCas cas) =>
-      cas.layout.moduleGroups
-          .any((moduleGroup) => moduleGroup.position.destination == cas);
+  bool _moduleGroupTransportedTo(ModuleCas cas) => cas.layout.moduleGroups
+      .any((moduleGroup) => moduleGroup.position.destination == cas);
 }
 
 class FeedIn extends State<ModuleCas> {
@@ -187,9 +182,9 @@ class WaitForStart extends State<ModuleCas> {
 class CloseSlideDoor extends DurationState<ModuleCas> {
   CloseSlideDoor()
       : super(
-    durationFunction: (cas) => cas.closeSlideDoorDuration,
-    nextStateFunction: (cas) => StunStage(1),
-  );
+          durationFunction: (cas) => cas.closeSlideDoorDuration,
+          nextStateFunction: (cas) => StunStage(1),
+        );
 }
 
 class StunStage extends DurationState<ModuleCas> {
@@ -197,8 +192,8 @@ class StunStage extends DurationState<ModuleCas> {
 
   StunStage(this.stageNumber)
       : super(
-      durationFunction: (cas) => findDuration(cas),
-      nextStateFunction: (cas) => findNextStage(cas, stageNumber));
+            durationFunction: (cas) => findDuration(cas),
+            nextStateFunction: (cas) => findNextStage(cas, stageNumber));
 
   static State<ModuleCas> findNextStage(ModuleCas cas, int currentStageNumber) {
     if (currentStageNumber >= numberOfStages(cas)) {
@@ -207,9 +202,6 @@ class StunStage extends DurationState<ModuleCas> {
       return StunStage(++currentStageNumber);
     }
   }
-
-  @override
-  String get name => '${super.name}$stageNumber';
 
   static int numberOfStages(ModuleCas cas) =>
       cas.recipe.stunStageDurations.length;
@@ -224,14 +216,25 @@ class StunStage extends DurationState<ModuleCas> {
   }
 
   @override
+  String get name => '${super.name}$stageNumber';
+
+  @override
   String toString() => '$name (remaining: ${remainingDuration.inSeconds}sec)';
+
+  @override
+  void onStart(ModuleCas cas) {
+    super.onStart(cas);
+    if (stageNumber == 1) {
+      cas.moduleGroup!.startedStunning();
+    }
+  }
 }
 
 class ExhaustStage extends DurationState<ModuleCas> {
   ExhaustStage()
       : super(
-      durationFunction: (cas) => cas.recipe.exhaustDuration,
-      nextStateFunction: (cas) => OpenSlideDoor());
+            durationFunction: (cas) => cas.recipe.exhaustDuration,
+            nextStateFunction: (cas) => OpenSlideDoor());
 
   @override
   void onCompleted(ModuleCas cas) {
@@ -242,9 +245,9 @@ class ExhaustStage extends DurationState<ModuleCas> {
 class OpenSlideDoor extends DurationState<ModuleCas> {
   OpenSlideDoor()
       : super(
-    durationFunction: (cas) => cas.openSlideDoorDuration,
-    nextStateFunction: (cas) => WaitToFeedOut(),
-  );
+          durationFunction: (cas) => cas.openSlideDoorDuration,
+          nextStateFunction: (cas) => WaitToFeedOut(),
+        );
 }
 
 class WaitToFeedOut extends State<ModuleCas> {
@@ -278,5 +281,5 @@ class FeedOut extends State<ModuleCas> {
 
   bool _transportCompleted(ModuleCas cas) =>
       transportedModuleGroup != null &&
-          transportedModuleGroup!.position.source != cas;
+      transportedModuleGroup!.position.source != cas;
 }
