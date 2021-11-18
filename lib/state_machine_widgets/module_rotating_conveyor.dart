@@ -7,7 +7,7 @@ import 'module_cas.dart';
 
 class ModuleRotatingConveyor extends StateMachineCell {
   CompassDirection currentDirection;
-  final double degreesPerSecond;
+  final int degreesPerSecond;
   final CardinalDirection? defaultPositionWhenIdle;
 
   /// Note that you can note rotate more than 180 degrees left or right
@@ -297,12 +297,28 @@ class TurnToFeedIn extends State<ModuleRotatingConveyor> {
 
   void turn(ModuleRotatingConveyor rotatingConveyor,
       CardinalDirection goToDirection, Duration jump) {
-    bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
+    int degreesToTurnThisJump =
+        _degreesToTurnThisJump(rotatingConveyor, jump, goToDirection);
 
-    rotatingConveyor.currentDirection = rotatingConveyor.currentDirection
-        .rotate(clockWise
-            ? rotatingConveyor.degreesPerSecond
-            : -rotatingConveyor.degreesPerSecond);
+    rotatingConveyor.currentDirection =
+        rotatingConveyor.currentDirection.rotate(degreesToTurnThisJump);
+  }
+
+  int _degreesToTurnThisJump(ModuleRotatingConveyor rotatingConveyor,
+      Duration jump, CardinalDirection goToDirection) {
+    int degreesToTurnThisJump =
+        (rotatingConveyor.degreesPerSecond * jump.inMilliseconds / 1000)
+            .round();
+    int degreesToTurnTotal = (rotatingConveyor.currentDirection.degrees -
+            goToDirection.toCompassDirection().degrees)
+        .abs();
+    if (degreesToTurnTotal < 90 &&
+        degreesToTurnTotal % 90 < degreesToTurnThisJump) {
+      degreesToTurnThisJump = degreesToTurnTotal % 90;
+    }
+
+    bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
+    return clockWise ? degreesToTurnThisJump : -degreesToTurnThisJump;
   }
 
   /// Determines if the turn table needs to turn clock wise our counter clock wise
@@ -326,42 +342,6 @@ class TurnToFeedIn extends State<ModuleRotatingConveyor> {
 }
 
 class FeedIn extends State<ModuleRotatingConveyor> {
-  // ModuleGroup? transportedModuleGroup;
-  //
-  // @override
-  // void onStart(ModuleRotatingConveyor rotatingConveyor) {
-  //   var inFeedDirection = _inFeedDirection(rotatingConveyor);
-  //   if (inFeedDirection != null) {
-  //     StateMachineCell sendingNeighbour =
-  //         _sendingNeighbour(rotatingConveyor, inFeedDirection);
-  //     transportedModuleGroup = sendingNeighbour.moduleGroup!;
-  //     //!TODO! maybe we need to lookup in layout.moduleGroups  for a moduleGroup bing in transported to this
-  //   }
-  // }
-  //
-  // StateMachineCell _sendingNeighbour(ModuleRotatingConveyor rotatingConveyor,
-  //     CardinalDirection inFeedDirection) {
-  //   var sendingNeighbour = rotatingConveyor.layout.neighbouringCell(
-  //       rotatingConveyor, inFeedDirection) as StateMachineCell;
-  //   return sendingNeighbour;
-  // }
-  //
-  // CardinalDirection? _inFeedDirection(ModuleRotatingConveyor rotatingConveyor) {
-  //   return rotatingConveyor.currentDirection.toCardinalDirection();
-  // }
-  //
-  // @override
-  // State<ModuleRotatingConveyor>? nextState(
-  //     ModuleRotatingConveyor rotatingConveyor) {
-  //   if (_transportCompleted(rotatingConveyor)) {
-  //     return TurnToFeedOut();
-  //   }
-  // }
-  //
-  // bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>
-  //     transportedModuleGroup != null &&
-  //     transportedModuleGroup!.position.source == rotatingConveyor;
-
   @override
   State<ModuleRotatingConveyor>? nextState(
       ModuleRotatingConveyor rotatingConveyor) {
@@ -389,8 +369,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
           goToNextState = true;
         }
       } else {
-        bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
-        turn(rotatingConveyor, clockWise);
+        turn(rotatingConveyor, goToDirection, jump);
       }
     }
   }
@@ -403,15 +382,33 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
     }
   }
 
-  void turn(ModuleRotatingConveyor rotatingConveyor, bool clockWise) {
-    //TODO use duration
-    var rotation = clockWise
-        ? rotatingConveyor.degreesPerSecond
-        : -rotatingConveyor.degreesPerSecond;
+  void turn(ModuleRotatingConveyor rotatingConveyor,
+      CardinalDirection goToDirection, Duration jump) {
+    int degreesToTurnThisJump =
+        _degreesToTurnThisJump(rotatingConveyor, jump, goToDirection);
+
     rotatingConveyor.currentDirection =
-        rotatingConveyor.currentDirection.rotate(rotation);
-    rotatingConveyor.moduleGroup!.doorDirection =
-        rotatingConveyor.moduleGroup!.doorDirection.rotate(rotation);
+        rotatingConveyor.currentDirection.rotate(degreesToTurnThisJump);
+    rotatingConveyor.moduleGroup!.doorDirection = rotatingConveyor
+        .moduleGroup!.doorDirection
+        .rotate(degreesToTurnThisJump);
+  }
+
+  int _degreesToTurnThisJump(ModuleRotatingConveyor rotatingConveyor,
+      Duration jump, CardinalDirection goToDirection) {
+    int degreesToTurnThisJump =
+        (rotatingConveyor.degreesPerSecond * jump.inMilliseconds / 1000)
+            .round();
+    int degreesToTurnTotal = (rotatingConveyor.currentDirection.degrees -
+            goToDirection.toCompassDirection().degrees)
+        .abs();
+    if (degreesToTurnTotal < 90 &&
+        degreesToTurnTotal % 90 < degreesToTurnThisJump) {
+      degreesToTurnThisJump = degreesToTurnTotal % 90;
+    }
+
+    bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
+    return clockWise ? degreesToTurnThisJump : -degreesToTurnThisJump;
   }
 
   /// Determines if the turn table needs to turn clock wise our counter clock wise

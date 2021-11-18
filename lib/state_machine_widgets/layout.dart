@@ -163,10 +163,10 @@ class _LayoutWidgetState extends material.State<LayoutWidget> {
   Layout layout = Layout();
 
   _LayoutWidgetState() {
-    const interval = const Duration(milliseconds: 200);
+    const interval = const Duration(milliseconds: 20);
     Timer.periodic(interval, (Timer t) {
       setState(() {
-        layout.onUpdateToNextPointInTime(const Duration(seconds: 1));
+        layout.onUpdateToNextPointInTime(const Duration(milliseconds: 100));
       });
     });
   }
@@ -451,12 +451,12 @@ extension CardinalDirectionExtension on CardinalDirection {
 }
 
 class CompassDirection {
-  final double degrees;
-  static final double max = 360;
+  final int degrees;
+  static final int max = 360;
 
-  CompassDirection(double degrees) : degrees = degrees % max;
+  CompassDirection(int degrees) : degrees = degrees % max;
 
-  CompassDirection rotate(double rotation) {
+  CompassDirection rotate(int rotation) {
     return CompassDirection(degrees + rotation);
   }
 
@@ -471,7 +471,7 @@ class CompassDirection {
     return null;
   }
 
-  double clockWiseDistanceInDegrees(CompassDirection destination) {
+  int clockWiseDistanceInDegrees(CompassDirection destination) {
     if (this.degrees < destination.degrees) {
       return destination.degrees - this.degrees;
     } else {
@@ -479,7 +479,7 @@ class CompassDirection {
     }
   }
 
-  double counterClockWiseDistanceInDegrees(CompassDirection destination) {
+  int counterClockWiseDistanceInDegrees(CompassDirection destination) {
     if (this.degrees > destination.degrees) {
       return this.degrees - destination.degrees;
     } else {
