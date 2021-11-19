@@ -90,7 +90,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
 
   @override
   Widget build(BuildContext context) {
-    var values = <int>[for (int i = 1; i <= 32; i=i+i) i];
+    var values = <int>[for (int i = 1; i <= 64; i=i+i) i];
     return DropdownButtonHideUnderline(
       child: DropdownButton<int>(
         value: 1,
