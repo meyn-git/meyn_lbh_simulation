@@ -160,9 +160,11 @@ class ExhaustStage extends DurationState<ModuleCas> {
             nextStateFunction: (cas) => OpenSlideDoor());
 
   @override
-  void onCompleted(ModuleCas cas) {
+  void onStart(ModuleCas cas) {
+    super.onStart(cas);
     cas.moduleGroup!.destination = cas.moduleDestinationAfterStunning;
   }
+
 }
 
 class OpenSlideDoor extends DurationState<ModuleCas> {
@@ -190,8 +192,7 @@ class FeedOut extends State<ModuleCas> {
 
   @override
   void onStart(ModuleCas cas) {
-    transportedModuleGroup = cas.moduleGroup;
-    transportedModuleGroup!.position =
+    cas.moduleGroup!.position =
         ModulePosition.betweenCells(source: cas, destination: cas.neighbour);
   }
 
