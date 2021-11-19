@@ -2,7 +2,7 @@ import 'dart:async';
 
 
 class Player {
-  int speed=1;
+  int _speed=1;
   bool playing=true;
   Duration jump=Duration(milliseconds: 100);
   void Function(Timer t)? listener;
@@ -12,16 +12,11 @@ class Player {
     updateTimer();
   }
 
-  void increaseSpeed() {
-    speed++;
-    updateTimer();
-  }
+  int get speed=> _speed;
 
-  void decreaseSpeed() {
-    if (speed>0) {
-      speed--;
-      updateTimer();
-    }
+  set speed(speed) {
+    _speed=speed;
+    updateTimer();
   }
 
   void pause() {

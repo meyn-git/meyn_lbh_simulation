@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'domain/player.dart';
-import 'gui/layout.dart';
+import 'gui/player.dart';
 
 void main() {
   runApp(MyApp());
@@ -43,91 +42,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PlayerWidget extends StatefulWidget {
-  @override
-  State<PlayerWidget> createState() => _PlayerWidgetState();
-}
-
-class _PlayerWidgetState extends State<PlayerWidget> {
-  static final player = Player();
-  var layoutWidget = createLayoutWidget();
-
-  static LayoutWidget createLayoutWidget() => LayoutWidget(key:UniqueKey(), player:player);
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-        appBar: AppBar(
-          actions: [
-            buildRestartButton(context),
-            if (!player.playing) buildPlayButton(context),
-            if (player.playing) buildPauseButton(context),
-            if (player.speed > 1) buildDecreaseSpeedButton(context),
-            buildIncreaseSpeedButton(context),
-          ],
-        ),
-        body: layoutWidget,
-      );
-  }
-
-  IconButton buildIncreaseSpeedButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.fast_forward_rounded),
-      tooltip: 'Faster (x${player.speed + 1})',
-      onPressed: () {
-        setState(() {
-          player.increaseSpeed();
-        });
-      },
-    );
-  }
-
-  IconButton buildDecreaseSpeedButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.fast_rewind_rounded),
-      tooltip: 'Slower (x${player.speed - 1})',
-      onPressed: () {
-        setState(() {
-          player.decreaseSpeed();
-        });
-      },
-    );
-  }
-
-  IconButton buildPauseButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.pause_rounded),
-      tooltip: 'Pause',
-      onPressed: () {
-        setState(() {
-          player.pause();
-        });
-      },
-    );
-  }
-
-  IconButton buildPlayButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.play_arrow_rounded),
-      tooltip: 'Play',
-      onPressed: () {
-        setState(() {
-          player.play();
-        });
-      },
-    );
-  }
-
-  IconButton buildRestartButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.replay_rounded),
-      tooltip: 'Restart',
-      onPressed: () {
-        setState(() {
-          layoutWidget=createLayoutWidget();
-        });
-      },
-    );
-  }
-}
