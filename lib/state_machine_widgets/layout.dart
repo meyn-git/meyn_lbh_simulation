@@ -24,6 +24,7 @@ class Layout implements TimeProcessor {
         position: Position(2, 1),
         outFeedDirection: CardinalDirection.east,
         createModuleGroup: () => ModuleGroup(
+          type: ModuleType.square,
               destination: this.cellForPosition(Position(3, 1)) as StateMachineCell,
               doorDirection: CardinalDirection.north.toCompassDirection(),
               position: ModulePosition.forCel(

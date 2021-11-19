@@ -12,11 +12,13 @@ import 'layout.dart';
 class ModuleGroup extends TimeProcessor {
   final Module firstModule;
   final Module? secondModule;
+  final ModuleType type;
   CompassDirection doorDirection;
   StateMachineCell destination;
   ModulePosition position;
 
   ModuleGroup({
+    required this.type,
     required this.firstModule,
     this.secondModule,
     required this.doorDirection,
@@ -29,14 +31,14 @@ class ModuleGroup extends TimeProcessor {
   @override
   onUpdateToNextPointInTime(Duration jump) {
     position.processNextTimeFrame(this, jump);
-    if (sinceLoadedOnSystem!=null) {
-      sinceLoadedOnSystem=sinceLoadedOnSystem!+jump;
+    if (sinceLoadedOnSystem != null) {
+      sinceLoadedOnSystem = sinceLoadedOnSystem! + jump;
     }
-    if (sinceStartStun!=null) {
-      sinceStartStun=sinceStartStun!+jump;
+    if (sinceStartStun != null) {
+      sinceStartStun = sinceStartStun! + jump;
     }
-    if (sinceBirdsUnloaded!=null) {
-      sinceBirdsUnloaded=sinceBirdsUnloaded!+jump;
+    if (sinceBirdsUnloaded != null) {
+      sinceBirdsUnloaded = sinceBirdsUnloaded! + jump;
     }
   }
 
@@ -49,44 +51,43 @@ class ModuleGroup extends TimeProcessor {
       .appendProperty('secondModule', secondModule)
       .toString();
 
-
   Duration? get sinceLoadedOnSystem => firstModule.sinceLoadedOnSystem;
 
   set sinceLoadedOnSystem(Duration? duration) {
-    firstModule.sinceLoadedOnSystem=duration;
-    if (secondModule!=null) {
-      secondModule!.sinceLoadedOnSystem=duration;
+    firstModule.sinceLoadedOnSystem = duration;
+    if (secondModule != null) {
+      secondModule!.sinceLoadedOnSystem = duration;
     }
   }
 
   void startedLoadingOnToSystem() {
-    sinceLoadedOnSystem=Duration.zero;
+    sinceLoadedOnSystem = Duration.zero;
   }
 
   Duration? get sinceStartStun => firstModule.sinceStartStun;
 
   set sinceStartStun(Duration? duration) {
-    firstModule.sinceStartStun=duration;
-    if (secondModule!=null) {
-      secondModule!.sinceStartStun=duration;
+    firstModule.sinceStartStun = duration;
+    if (secondModule != null) {
+      secondModule!.sinceStartStun = duration;
     }
   }
 
   void startedStunning() {
-    sinceStartStun=Duration.zero;
+    sinceStartStun = Duration.zero;
   }
 
   Duration? get sinceBirdsUnloaded => firstModule.sinceBirdsUnloaded;
 
   set sinceBirdsUnloaded(Duration? duration) {
-    firstModule.sinceBirdsUnloaded=duration;
-    if (secondModule!=null) {
-      secondModule!.sinceBirdsUnloaded=duration;
+    firstModule.sinceBirdsUnloaded = duration;
+    if (secondModule != null) {
+      secondModule!.sinceBirdsUnloaded = duration;
     }
   }
 
   void startedUnloadingBirds() {
-    sinceBirdsUnloaded=Duration.zero;
+    sinceBirdsUnloaded = Duration.zero;
   }
 }
 
@@ -145,9 +146,9 @@ class ModulePosition {
 
   @override
   String toString() {
-    if (source == destination ) {
+    if (source == destination) {
       return TitleBuilder('ModulePosition')
-          .appendProperty('at',  source.name)
+          .appendProperty('at', source.name)
           .toString();
     } else {
       return TitleBuilder('ModulePosition')
@@ -190,50 +191,56 @@ class ModuleGroupWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: AlwaysStoppedAnimation(moduleGroup.doorDirection.degrees / 360),
-      child: CustomPaint(painter: ModuleConveyorPainter(moduleGroup)),
+      child: CustomPaint(painter: ModuleGroupWidgetPainter(moduleGroup)),
     );
   }
 }
 
 //TODO depending on type: SideBySide or Stacked
 //TODO draw double with small offset when 2 modules
-class ModuleConveyorPainter extends CustomPainter {
+class ModuleGroupWidgetPainter extends CustomPainter {
   final ModuleGroup moduleGroup;
+  static final compartmentSize = 0.30;
 
-  ModuleConveyorPainter(this.moduleGroup);
+  ModuleGroupWidgetPainter(this.moduleGroup);
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (moduleGroup.type == ModuleType.square) {
+      _paintSquareModules(canvas, size);
+    } else {
+      _paintRectangleModules(canvas, size);
+    }
+  }
+
+  /// paints a square scalable module compartment with doors pointing north
+  void _paintModuleCompartment(
+      Canvas canvas, Size size, double factor, Offset offset,
+      {bool paintTriangle = true}) {
     var paint = Paint();
     paint.color = _colorFor(moduleGroup);
     paint.style = PaintingStyle.stroke;
 
     var path = Path();
-    //rectangle starting bottom left, doors north
-    var x1 = 0.12;
-    var x2 = 0.31;
-    var x3 = 0.5;
-    var x4 = 0.69;
-    var x5 = 0.88;
-    var y1 = 0.32;
-    var y2 = 0.68;
-    path.moveTo(size.width * x1, size.height * y2);
-    path.lineTo(size.width * x1, size.height * y1);
-    path.lineTo(size.width * x5, size.height * y1);
-    path.lineTo(size.width * x5, size.height * y2);
-    path.lineTo(size.width * x1, size.height * y2);
+    //rectangle starting bottom left
+    var left = offset.dx;
+    var middle = (size.width * factor) / 2 + offset.dx;
+    var right = size.width * factor + offset.dx;
+    var top = offset.dy;
+    var bottom = size.height * factor + offset.dy;
 
-    //left compartment triangle
-    path.lineTo(size.width * x2, size.height * y1);
-    path.lineTo(size.width * x3, size.height * y2);
+    // paint square
+    path.moveTo(left, bottom);
+    path.lineTo(left, top);
+    path.lineTo(right, top);
+    path.lineTo(right, bottom);
+    path.lineTo(left, bottom);
 
-    //middle line
-    path.lineTo(size.width * x3, size.height * y1);
-    path.lineTo(size.width * x3, size.height * y2);
-
-    //left compartment triangle
-    path.lineTo(size.width * x4, size.height * y1);
-    path.lineTo(size.width * x5, size.height * y2);
+    if (paintTriangle) {
+      //paint triangle pointing north
+      path.lineTo(middle, top);
+      path.lineTo(right, bottom);
+    }
 
     canvas.drawPath(path, paint);
   }
@@ -242,12 +249,89 @@ class ModuleConveyorPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   Color _colorFor(ModuleGroup moduleGroup) {
-    if (moduleGroup.sinceBirdsUnloaded!=null) {
-      return Colors.black;//no birds
-    } else if (moduleGroup.sinceStartStun!=null) {
-      return Colors.red;// stunned birds
+    if (moduleGroup.sinceBirdsUnloaded != null) {
+      return Colors.black; //no birds
+    } else if (moduleGroup.sinceStartStun != null) {
+      return Colors.red; // stunned birds
     } else {
       return Colors.green;
     }
   }
+
+  void _paintSquareModules(Canvas canvas, Size size) {
+    if (moduleGroup.numberOfModules == 1) {
+      _paintSingleSquareModule(canvas, size);
+    } else {
+      _paintDoubleSquareModuleSideBySide(canvas, size);
+    }
+  }
+
+  void _paintSingleSquareModule(Canvas canvas, Size size) {
+    var x1 = (size.width * (1 - compartmentSize)) / 2;
+    var y1 = (size.height * (1 - compartmentSize)) / 2;
+    _paintModuleCompartment(canvas, size, compartmentSize, Offset(x1, y1));
+  }
+
+  void _paintDoubleSquareModuleSideBySide(Canvas canvas, Size size) {
+    var x1 = size.width * 0.15;
+    var y1 = (size.width * (1 - compartmentSize)) / 2;
+    _paintModuleCompartment(canvas, size, compartmentSize, Offset(x1, y1));
+    var x2 = size.width * (0.15 + compartmentSize + 0.1);
+    var y2 = y1;
+    _paintModuleCompartment(canvas, size, compartmentSize, Offset(x2, y2));
+  }
+
+  void _paintRectangleModules(Canvas canvas, Size size) {
+    if (moduleGroup.numberOfModules == 1) {
+      _paintSingleRectangularModule(canvas, size);
+    } else {
+      _paintStackedRectangularModules(canvas, size);
+    }
+  }
+
+  void _paintSingleRectangularModule(
+    Canvas canvas,
+    Size size, {
+    Offset offset = Offset.zero,
+    paintTriangle: true,
+  }) {
+    var x1 = size.width * 0.2 + offset.dx;
+    var y1 = (size.width * (1 - compartmentSize)) / 2 + offset.dy;
+    _paintModuleCompartment(
+      canvas,
+      size,
+      compartmentSize,
+      Offset(x1, y1),
+      paintTriangle: paintTriangle,
+    );
+    var x2 = size.width * (0.2 + compartmentSize) + offset.dx;
+    var y2 = y1;
+    _paintModuleCompartment(
+      canvas,
+      size,
+      compartmentSize,
+      Offset(x2, y2),
+      paintTriangle: paintTriangle,
+    );
+  }
+
+  void _paintStackedRectangularModules(Canvas canvas, Size size) {
+    var x1 = -size.width * 0.01;
+    var y1 = -size.width * 0.01;
+    _paintSingleRectangularModule(
+      canvas,
+      size,
+      offset: Offset(x1, y1),
+      paintTriangle: false,
+    );
+    var x2 = size.width * 0.01;
+    var y2 = size.width * 0.01;
+    _paintSingleRectangularModule(
+      canvas,
+      size,
+      offset: Offset(x2, y2),
+    );
+  }
 }
+
+enum ModuleType { square, rectangular }
