@@ -54,7 +54,10 @@ class ModuleCas extends StateMachineCell {
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) =>
       direction == inAndOutFeedDirection &&
-      (currentState is ExhaustStage || currentState is WaitToFeedOut);
+      (currentState is ExhaustStage ||
+          currentState is OpenSlideDoor ||
+          currentState is WaitToFeedOut ||
+          currentState is FeedOut);
 
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
