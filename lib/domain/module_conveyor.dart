@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart' as material;
-import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
-
+import 'layout.dart';
 import 'module.dart';
+import 'state_machine.dart';
 
 class ModuleConveyor extends StateMachineCell {
   final CardinalDirection inFeedDirection;
@@ -51,52 +49,8 @@ class ModuleConveyor extends StateMachineCell {
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
 
-  @override
-  material.Widget get widget => material.Tooltip(
-        message: toString(),
-        child: material.RotationTransition(
-          turns: material.AlwaysStoppedAnimation(
-              inFeedDirection.opposite.toCompassDirection().degrees / 360),
-          child: material.CustomPaint(painter: ModuleConveyorPainter()),
-        ),
-      );
 }
 
-class ModuleConveyorPainter extends material.CustomPainter {
-  @override
-  void paint(material.Canvas canvas, material.Size size) {
-    drawRectangle(canvas, size);
-    drawDirectionTriangle(size, canvas);
-  }
-
-  void drawDirectionTriangle(material.Size size, material.Canvas canvas) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.fill;
-    var path = material.Path();
-    path.moveTo(size.width * 0.45, size.height * 0.45);
-    path.lineTo(size.width * 0.55, size.height * 0.45);
-    path.lineTo(size.width * 0.50, size.height * 0.4);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  material.Paint drawRectangle(material.Canvas canvas, material.Size size) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.stroke;
-    canvas.drawRect(
-        material.Rect.fromCenter(
-            center: material.Offset(size.width / 2, size.height / 2),
-            width: size.width * 0.4,
-            height: size.width * 0.8),
-        paint);
-    return paint;
-  }
-
-  @override
-  bool shouldRepaint(covariant material.CustomPainter oldDelegate) => true;
-}
 
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
   CheckIfEmpty()

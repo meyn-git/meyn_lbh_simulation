@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart' as material;
-import 'package:meyn_lbh_simulation/state_machine_widgets/module_cas.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
-
+import 'module_cas.dart';
+import 'state_machine.dart';
 import 'layout.dart';
 import 'module.dart';
 
@@ -51,17 +49,8 @@ class ModuleCasAllocation extends ActiveCell {
     }
   }
 
-  @override
-  // TODO: implement widget
-  material.Widget get widget => material.SizedBox(
-        width: 20,
-        height: 20,
-        child: material.Text(widgetText()),
-      );
 
-  String widgetText() {
-    return "$name\n";
-  }
+
 
   @override
   String toString() {
@@ -110,3 +99,5 @@ class ModuleCasAllocation extends ActiveCell {
     }
   }
 }
+
+

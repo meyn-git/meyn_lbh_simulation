@@ -1,11 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/title_builder.dart';
 
 import 'layout.dart';
 import 'module.dart';
+import 'title_builder.dart';
 
 abstract class StateMachineCell extends ActiveCell {
-
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   final int? seqNr;
   State currentState;
@@ -47,7 +46,6 @@ abstract class StateMachineCell extends ActiveCell {
       .appendProperty('currentState', currentState)
       .appendProperty('moduleGroup', moduleGroup)
       .toString();
-
 
   @override
   ModuleGroup? get moduleGroup => layout.moduleGroups

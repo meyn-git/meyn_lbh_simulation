@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart' as material;
-import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
-
 import 'layout.dart';
 import 'module.dart';
+import 'state_machine.dart';
 
 class ModuleCas extends StateMachineCell {
   /// the [CardinalDirection] the in and out feed is pointed towards
@@ -64,81 +62,6 @@ class ModuleCas extends StateMachineCell {
   StateMachineCell get moduleDestinationAfterStunning =>
       layout.cellForPosition(moduleDestinationPositionAfterStunning)
           as StateMachineCell;
-
-  @override
-  material.Widget get widget => material.Tooltip(
-        message: toString(),
-        child: material.RotationTransition(
-          turns: material.AlwaysStoppedAnimation(
-              inAndOutFeedDirection.toCompassDirection().degrees / 360),
-          child: material.CustomPaint(painter: ModuleCasPainter()),
-        ),
-      );
-}
-
-class ModuleCasPainter extends material.CustomPainter {
-  @override
-  void paint(material.Canvas canvas, material.Size size) {
-    drawRectangle(canvas, size);
-    drawInFeedTriangle(canvas, size);
-    drawOutFeedTriangle(canvas, size);
-    drawAirIntakes(canvas, size);
-  }
-
-  void drawInFeedTriangle(material.Canvas canvas, material.Size size) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.fill;
-    var path = material.Path();
-    path.moveTo(size.width * 0.45, size.height * 0.55);
-    path.lineTo(size.width * 0.55, size.height * 0.55);
-    path.lineTo(size.width * 0.50, size.height * 0.6);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  void drawOutFeedTriangle(material.Canvas canvas, material.Size size) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.fill;
-    var path = material.Path();
-    path.moveTo(size.width * 0.45, size.height * 0.45);
-    path.lineTo(size.width * 0.55, size.height * 0.45);
-    path.lineTo(size.width * 0.50, size.height * 0.4);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  material.Paint drawRectangle(material.Canvas canvas, material.Size size) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.stroke;
-    canvas.drawRect(
-        material.Rect.fromCenter(
-            center: material.Offset(size.width / 2, size.height / 2),
-            width: size.width * 0.4,
-            height: size.width * 0.8),
-        paint);
-    return paint;
-  }
-
-  material.Paint drawAirIntakes(material.Canvas canvas, material.Size size) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.stroke;
-    canvas.drawRect(
-        material.Rect.fromLTWH(size.width * 0.2, size.height * 0.2,
-            size.width * 0.1, size.height * 0.2),
-        paint);
-    canvas.drawRect(
-        material.Rect.fromLTWH(size.width * 0.2, size.height * 0.6,
-            size.width * 0.1, size.height * 0.2),
-        paint);
-    return paint;
-  }
-
-  @override
-  bool shouldRepaint(covariant material.CustomPainter oldDelegate) => true;
 }
 
 class CasRecipe {

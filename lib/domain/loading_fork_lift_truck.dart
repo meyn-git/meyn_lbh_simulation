@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart' as material;
-import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
-
+import 'layout.dart';
 import 'module.dart';
+import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
 class LoadingForkLiftTruck extends StateMachineCell {
@@ -45,53 +43,6 @@ class LoadingForkLiftTruck extends StateMachineCell {
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
       currentState is WaitingForEmptyConveyor;
-
-  @override
-  material.Widget get widget => material.Tooltip(
-        message: toString(),
-        child: material.RotationTransition(
-          turns: material.AlwaysStoppedAnimation(paintDirection.degrees / 360),
-          child: material.CustomPaint(painter: LoadingForkLiftTruckPainter()),
-        ),
-      );
-
-  CompassDirection get paintDirection {
-    if (currentState is GettingStackFromTruck) {
-      return outFeedDirection.opposite.toCompassDirection();
-    } else {
-      return outFeedDirection.toCompassDirection();
-    }
-  }
-}
-
-class LoadingForkLiftTruckPainter extends material.CustomPainter {
-  @override
-  void paint(material.Canvas canvas, material.Size size) {
-    var paint = material.Paint();
-    paint.color = material.Colors.black;
-    paint.style = material.PaintingStyle.stroke;
-    var path = material.Path();
-
-    path.moveTo(size.width * 0.30, size.height * 0.90);
-    path.lineTo(size.width * 0.30, size.height * 0.50);
-    path.lineTo(size.width * 0.35, size.height * 0.50);
-    path.lineTo(size.width * 0.35, size.height * 0.10);
-    path.lineTo(size.width * 0.40, size.height * 0.10);
-    path.lineTo(size.width * 0.40, size.height * 0.50);
-    path.lineTo(size.width * 0.60, size.height * 0.50);
-    path.lineTo(size.width * 0.60, size.height * 0.10);
-    path.lineTo(size.width * 0.65, size.height * 0.10);
-    path.lineTo(size.width * 0.65, size.height * 0.50);
-    path.lineTo(size.width * 0.70, size.height * 0.50);
-    path.lineTo(size.width * 0.70, size.height * 0.90);
-    path.quadraticBezierTo(
-        size.width / 2, size.height, size.width * 0.3, size.height * 0.9);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant material.CustomPainter oldDelegate) => true;
 }
 
 /// driving to truck

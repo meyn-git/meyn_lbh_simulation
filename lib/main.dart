@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/layout.dart';
+
+import 'gui/layout.dart';
 
 void main() {
   runApp(MyApp());

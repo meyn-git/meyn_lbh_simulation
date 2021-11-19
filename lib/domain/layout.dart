@@ -1,16 +1,14 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart' as material;
-import 'package:meyn_lbh_simulation/state_machine_widgets/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/module_cas.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/module_conveyor.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/module_rotating_conveyor.dart';
-import 'package:meyn_lbh_simulation/state_machine_widgets/state_machine.dart';
 
+import 'loading_fork_lift_truck.dart';
 import 'module.dart';
+import 'module_cas.dart';
 import 'module_cas_allocation.dart';
+import 'module_conveyor.dart';
+import 'module_rotating_conveyor.dart';
+import 'state_machine.dart';
 
 class Layout implements TimeProcessor {
   final List<ActiveCell> cells = [];
@@ -24,8 +22,9 @@ class Layout implements TimeProcessor {
         position: Position(2, 1),
         outFeedDirection: CardinalDirection.east,
         createModuleGroup: () => ModuleGroup(
-          type: ModuleType.square,
-              destination: this.cellForPosition(Position(3, 1)) as StateMachineCell,
+              type: ModuleType.square,
+              destination:
+                  this.cellForPosition(Position(3, 1)) as StateMachineCell,
               doorDirection: CardinalDirection.north.toCompassDirection(),
               position: ModulePosition.forCel(
                   this.cellForPosition(Position(2, 1)) as StateMachineCell),
@@ -155,137 +154,6 @@ class Layout implements TimeProcessor {
   }
 }
 
-class LayoutWidget extends material.StatefulWidget {
-  @override
-  _LayoutWidgetState createState() => _LayoutWidgetState();
-}
-
-class _LayoutWidgetState extends material.State<LayoutWidget> {
-  Layout layout = Layout();
-
-  _LayoutWidgetState() {
-    const interval = const Duration(milliseconds: 20);
-    Timer.periodic(interval, (Timer t) {
-      setState(() {
-        layout.onUpdateToNextPointInTime(const Duration(milliseconds: 100));
-      });
-    });
-  }
-
-  @override
-  material.Widget build(material.BuildContext context) =>
-      material.CustomMultiChildLayout(
-          delegate: LayoutWidgetDelegate(layout),
-          children: createChildren(layout));
-
-  static List<material.Widget> createChildren(Layout layout) {
-    List<material.Widget> children = [];
-    children.addAll(createModuleGroupWidgets(layout));
-    children.addAll(createCellWidgets(layout));
-    return children;
-  }
-
-  static List<material.Widget> createModuleGroupWidgets(Layout layout) {
-    var moduleGroupWidgets = layout.moduleGroups
-        .map<material.Widget>((moduleGroup) => material.LayoutId(
-            id: moduleGroup, child: ModuleGroupWidget(moduleGroup)))
-        .toList();
-    return moduleGroupWidgets;
-  }
-
-  static List<material.Widget> createCellWidgets(Layout layout) {
-    var cellWidgets = layout.cells
-        .map<material.Widget>(
-            (cell) => material.LayoutId(id: cell, child: cell.widget))
-        .toList();
-    return cellWidgets;
-  }
-}
-
-/// Sizes (lets the children do their layout in given [material.BoxConstraints])
-/// and positions all the child widgets ([Cell]s and [ModuleGroup]s)
-/// within the given [LayoutWidget] size
-class LayoutWidgetDelegate extends material.MultiChildLayoutDelegate {
-  final Layout layout;
-  final CellRange cellRange;
-
-  LayoutWidgetDelegate(this.layout) : cellRange = CellRange(layout.cells);
-
-  @override
-  void performLayout(material.Size layoutSize) {
-    var childSize = _childSize(layoutSize);
-    var childOffset = _offsetForAllChildren(layoutSize, childSize);
-    _layoutAndPositionModuleGroups(childSize, childOffset);
-    //positioning cells last so they are on top so that the tooltips work
-    _layoutAndPositionCells(childSize, childOffset);
-  }
-
-  void _layoutAndPositionModuleGroups(
-      material.Size childSize, material.Offset childOffset) {
-    for (var moduleGroup in layout.moduleGroups) {
-      layoutChild(moduleGroup, material.BoxConstraints.tight(childSize));
-      var moduleGroupOffSet =
-          _createModuleGroupOffset(moduleGroup, childSize, childOffset);
-      positionChild(moduleGroup, moduleGroupOffSet);
-    }
-  }
-
-  void _layoutAndPositionCells(
-      material.Size childSize, material.Offset childOffset) {
-    for (var cell in layout.cells) {
-      layoutChild(cell, material.BoxConstraints.tight(childSize));
-      var cellOffset = _createCellOffset(cell.position, childSize, childOffset);
-      positionChild(cell, cellOffset);
-    }
-  }
-
-  material.Offset _offsetForAllChildren(
-      material.Size layoutSize, material.Size childSize) {
-    var offSet = material.Offset(
-      (layoutSize.width - (childSize.width * cellRange.width)) / 2,
-      (layoutSize.height - (childSize.height * cellRange.height)) / 2,
-    );
-    return offSet;
-  }
-
-  material.Size _childSize(material.Size layoutSize) {
-    var childWidth = layoutSize.width / cellRange.width;
-    var childHeight = layoutSize.height / cellRange.height;
-    var childSide = min(childWidth, childHeight);
-    return material.Size(childSide, childSide);
-  }
-
-  material.Offset _createModuleGroupOffset(ModuleGroup moduleGroup,
-      material.Size childSize, material.Offset offSet) {
-    var source = moduleGroup.position.source;
-    var sourceOffset = _createCellOffset(source.position, childSize, offSet);
-    var destination = moduleGroup.position.destination;
-    var destinationOffset =
-        _createCellOffset(destination.position, childSize, offSet);
-    var percentageCompleted = moduleGroup.position.percentageCompleted;
-    var moduleGroupOffSet = material.Offset(
-      ((destinationOffset.dx - sourceOffset.dx) * percentageCompleted) +
-          sourceOffset.dx,
-      ((destinationOffset.dy - sourceOffset.dy) * percentageCompleted) +
-          sourceOffset.dy,
-    );
-    return moduleGroupOffSet;
-  }
-
-  material.Offset _createCellOffset(
-      Position position, material.Size childSize, material.Offset offSet) {
-    return material.Offset(
-      (position.x - cellRange.minX) * childSize.width + offSet.dx,
-      (position.y - cellRange.minY) * childSize.height + offSet.dy,
-    );
-  }
-
-  @override
-  bool shouldRelayout(
-          covariant material.MultiChildLayoutDelegate oldDelegate) =>
-      true;
-}
-
 class CellRange {
   int? _minX;
   int? _maxX;
@@ -359,8 +227,6 @@ class Position {
 }
 
 abstract class Cell {
-  material.Widget get widget;
-
   /// whether a given direction can feed out modules
   bool isFeedIn(CardinalDirection inFeedDirection);
 
@@ -390,11 +256,6 @@ class EmptyCell extends Cell {
   EmptyCell._();
 
   factory EmptyCell() => _emptyCell;
-
-  @override
-  material.Widget get widget => material.SizedBox.fromSize(
-        size: material.Size(20, 20),
-      );
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
