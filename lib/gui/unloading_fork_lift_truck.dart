@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/layout.dart';
 import 'package:meyn_lbh_simulation/domain/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
-class LoadingForkLiftTruckWidget extends StatelessWidget {
-  final LoadingForkLiftTruck forkLiftTruck;
+class UnLoadingForkLiftTruckWidget extends StatelessWidget {
+  final UnLoadingForkLiftTruck forkLiftTruck;
 
-  LoadingForkLiftTruckWidget(this.forkLiftTruck);
+  UnLoadingForkLiftTruckWidget(this.forkLiftTruck);
 
   @override
   Widget build(BuildContext context) {
@@ -13,22 +14,22 @@ class LoadingForkLiftTruckWidget extends StatelessWidget {
       message: forkLiftTruck.toString(),
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(paintDirection.degrees / 360),
-        child: CustomPaint(painter: LoadingForkLiftTruckPainter()),
+        child: CustomPaint(painter: UnLoadingForkLiftTruckPainter()),
       ),
     );
   }
 
   CompassDirection get paintDirection {
-    if (forkLiftTruck.currentState is GetModuleGroupFromTruck) {
-      return forkLiftTruck.outFeedDirection.opposite
+    if (forkLiftTruck.currentState is PutModuleGroupOnTruck) {
+      return forkLiftTruck.inFeedDirection.opposite
           .toCompassDirection();
     } else {
-      return forkLiftTruck.outFeedDirection.toCompassDirection();
+      return forkLiftTruck.inFeedDirection.toCompassDirection();
     }
   }
 }
 
-class LoadingForkLiftTruckPainter extends CustomPainter {
+class UnLoadingForkLiftTruckPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();

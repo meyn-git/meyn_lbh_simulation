@@ -53,7 +53,8 @@ class ModuleCas extends StateMachineCell {
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) =>
-      currentState is ExhaustStage;
+      direction == inAndOutFeedDirection &&
+      (currentState is ExhaustStage || currentState is WaitToFeedOut);
 
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
@@ -164,7 +165,6 @@ class ExhaustStage extends DurationState<ModuleCas> {
     super.onStart(cas);
     cas.moduleGroup!.destination = cas.moduleDestinationAfterStunning;
   }
-
 }
 
 class OpenSlideDoor extends DurationState<ModuleCas> {
@@ -188,8 +188,6 @@ class WaitToFeedOut extends State<ModuleCas> {
 }
 
 class FeedOut extends State<ModuleCas> {
-  ModuleGroup? transportedModuleGroup;
-
   @override
   void onStart(ModuleCas cas) {
     cas.moduleGroup!.position =
@@ -203,7 +201,5 @@ class FeedOut extends State<ModuleCas> {
     }
   }
 
-  bool _transportCompleted(ModuleCas cas) =>
-      transportedModuleGroup != null &&
-      transportedModuleGroup!.position.source != cas;
+  bool _transportCompleted(ModuleCas cas) => cas.moduleGroup == null;
 }

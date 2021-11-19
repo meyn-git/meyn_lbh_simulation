@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
 import 'loading_fork_lift_truck.dart';
 import 'module.dart';
@@ -60,7 +61,7 @@ class Layout implements TimeProcessor {
         position: Position(3, 2),
         seqNr: 1,
         inAndOutFeedDirection: CardinalDirection.east,
-        moduleDestinationPositionAfterStunning: Position(4, 3)));
+        moduleDestinationPositionAfterStunning: Position(4, 4)));
     put(ModuleRotatingConveyor(
       layout: this,
       position: Position(4, 2),
@@ -77,6 +78,11 @@ class Layout implements TimeProcessor {
       layout: this,
       position: Position(1, 3),
       positionToAllocate: Position(3, 1),
+    ));
+    put(UnLoadingForkLiftTruck(
+      layout: this,
+      position: Position(4, 4),
+      inFeedDirection: CardinalDirection.north,
     ));
   }
 

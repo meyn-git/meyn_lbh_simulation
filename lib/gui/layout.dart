@@ -2,19 +2,21 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:meyn_lbh_simulation/domain/layout.dart';
-import 'package:meyn_lbh_simulation/domain/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/module.dart';
-import 'package:meyn_lbh_simulation/domain/module_cas.dart';
-import 'package:meyn_lbh_simulation/domain/module_cas_allocation.dart';
-import 'package:meyn_lbh_simulation/domain/module_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/module_rotating_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/player.dart';
-import 'package:meyn_lbh_simulation/gui/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/gui/module_cas.dart';
-import 'package:meyn_lbh_simulation/gui/module_cas_allocation.dart';
-import 'package:meyn_lbh_simulation/gui/module_conveyor.dart';
-import 'package:meyn_lbh_simulation/gui/module_rotating_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/unloading_fork_lift_truck.dart';
+import '/domain/layout.dart';
+import '/domain/loading_fork_lift_truck.dart';
+import '/domain/unloading_fork_lift_truck.dart';
+import '/domain/module.dart';
+import '/domain/module_cas.dart';
+import '/domain/module_cas_allocation.dart';
+import '/domain/module_conveyor.dart';
+import '/domain/module_rotating_conveyor.dart';
+import '/domain/player.dart';
+import '/gui/loading_fork_lift_truck.dart';
+import '/gui/module_cas.dart';
+import '/gui/module_cas_allocation.dart';
+import '/gui/module_conveyor.dart';
+import '/gui/module_rotating_conveyor.dart';
 
 import 'module.dart';
 
@@ -153,6 +155,9 @@ class CellWidgetFactory {
   static Widget createFor(ActiveCell cell) {
     if (cell is LoadingForkLiftTruck) {
       return LoadingForkLiftTruckWidget(cell);
+    }
+    if (cell is UnLoadingForkLiftTruck) {
+      return UnLoadingForkLiftTruckWidget(cell);
     }
     if (cell is ModuleCas) {
       return ModuleCasWidget(cell);

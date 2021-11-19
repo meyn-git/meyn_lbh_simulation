@@ -13,17 +13,17 @@ class LoadingForkLiftTruck extends StateMachineCell {
     int? seqNr,
     required this.outFeedDirection,
     required this.createModuleGroup,
-    Duration gettingStackFromTruckDuration =
+    Duration getModuleGroupOnTruckDuration =
         const Duration(seconds: 5), //TODO 30s?
-    Duration putStackOnConveyorDuration =
+    Duration putModuleGroupOnConveyorDuration =
         const Duration(seconds: 5), //TODO 15s?
   }) : super(
             layout: layout,
             position: position,
             seqNr: seqNr,
-            initialState: GettingStackFromTruck(),
-            inFeedDuration: gettingStackFromTruckDuration,
-            outFeedDuration: putStackOnConveyorDuration);
+            initialState: GetModuleGroupFromTruck(),
+            inFeedDuration: getModuleGroupOnTruckDuration,
+            outFeedDuration: putModuleGroupOnConveyorDuration);
 
   get receivingNeighbour =>
       layout.neighbouringCell(this, outFeedDirection) as StateMachineCell;
@@ -38,18 +38,18 @@ class LoadingForkLiftTruck extends StateMachineCell {
   bool waitingToFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool isFeedOut(CardinalDirection direction) => false;
+  bool isFeedOut(CardinalDirection direction) => direction==outFeedDirection;
 
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
-      currentState is WaitingForEmptyConveyor;
+      direction==outFeedDirection && currentState is WaitingForEmptyConveyor;
 }
 
 /// driving to truck
 /// unloading stack
 /// driving to in feed conveyor
-class GettingStackFromTruck extends DurationState<LoadingForkLiftTruck> {
-  GettingStackFromTruck()
+class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
+  GetModuleGroupFromTruck()
       : super(
             durationFunction: (forkLiftTruck) => forkLiftTruck.inFeedDuration,
             nextStateFunction: (forkLiftTruck) => WaitingForEmptyConveyor());
@@ -98,7 +98,7 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
   State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_neighbourCanFeedIn(forkLiftTruck)) {
-      return PutStackOnConveyor();
+      return PutModuleGroupOnConveyor();
     }
   }
 
@@ -112,7 +112,7 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
 /// lower stack on in feed conveyor and adjust when needed
 /// drive backward to clear lifting spoons
 /// push button to feed in
-class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
+class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
   @override
   void onStart(LoadingForkLiftTruck forkLiftTruck) {
     var moduleGroup = forkLiftTruck.moduleGroup!;
@@ -126,7 +126,7 @@ class PutStackOnConveyor extends State<LoadingForkLiftTruck> {
   @override
   State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_transportCompleted(forkLiftTruck)) {
-      return GettingStackFromTruck();
+      return GetModuleGroupFromTruck();
     }
   }
 

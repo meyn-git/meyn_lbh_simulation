@@ -86,6 +86,7 @@ class ModuleGroup extends TimeProcessor {
   void startedUnloadingBirds() {
     sinceBirdsUnloaded = Duration.zero;
   }
+
 }
 
 /// A module location is either at a given position or traveling between 2 positions
