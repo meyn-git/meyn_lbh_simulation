@@ -9,6 +9,7 @@ import 'package:meyn_lbh_simulation/domain/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/module_rotating_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/player.dart';
 import 'package:meyn_lbh_simulation/gui/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/gui/module_cas.dart';
 import 'package:meyn_lbh_simulation/gui/module_cas_allocation.dart';
@@ -18,18 +19,21 @@ import 'package:meyn_lbh_simulation/gui/module_rotating_conveyor.dart';
 import 'module.dart';
 
 class LayoutWidget extends StatefulWidget {
+  final Player player;
+
+  LayoutWidget({required Key key, required this.player}) : super(key: key);
+
   @override
-  _LayoutWidgetState createState() => _LayoutWidgetState();
+  _LayoutWidgetState createState() => _LayoutWidgetState(player);
 }
 
 class _LayoutWidgetState extends State<LayoutWidget> {
   Layout layout = Layout();
 
-  _LayoutWidgetState() {
-    const interval = const Duration(milliseconds: 20);
-    Timer.periodic(interval, (Timer t) {
+  _LayoutWidgetState(Player player) {
+    player.timerListener((Timer t) {
       setState(() {
-        layout.onUpdateToNextPointInTime(const Duration(milliseconds: 100));
+        layout.onUpdateToNextPointInTime(player.jump);
       });
     });
   }
