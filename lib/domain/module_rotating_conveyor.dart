@@ -71,23 +71,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   @override
   bool waitingToFeedIn(CardinalDirection direction) {
-    // var neighbour = layout.neighbouringCell(this, direction);
-    // var neighbourWaitingToFeedOut = neighbour.waitingToFeedOut(direction.opposite);
-    // if (neighbourWaitingToFeedOut == false) {
-    //   return false;
-    // }
-    // var moduleGroupToTransport = neighbour.moduleGroup;
-    // if (moduleGroupToTransport == null) {
-    //   return false;
-    // } else {
-    //   var destination =
-    //       layout.cellForPosition(moduleGroupToTransport.destination)
-    //           as StateMachineCell;
-    //   return layout.findRoute(source: this, destination: destination) != null;
-    // }
-
-    return direction == currentDirection.toCardinalDirection() &&
-        direction == bestInFeedDirection;
+    return direction.opposite == currentDirection.toCardinalDirection() &&
+        direction.opposite == bestInFeedDirection && currentState is TurnToFeedIn;
   }
 
   @override
@@ -102,25 +87,25 @@ class ModuleRotatingConveyor extends StateMachineCell {
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == currentDirection.toCardinalDirection() &&
-      moduleGroup != null;
+      moduleGroup != null && currentState is TurnToFeedOut;
 
   void increaseNeighboursWaitingDurations(Duration jump) {
     CardinalDirection.values.forEach((direction) {
       var neighbour = layout.neighbouringCell(this, direction);
       if (neighbour.almostWaitingToFeedOut(direction.opposite)) {
-        neighboursAlmostWaitingToFeedOutDurations[direction] = noMoreThan1Hour(
+        neighboursAlmostWaitingToFeedOutDurations[direction] = _noMoreThan1Hour(
             neighboursAlmostWaitingToFeedOutDurations[direction]! + jump);
       } else {
         neighboursAlmostWaitingToFeedOutDurations[direction] = Duration.zero;
       }
       if (neighbour.waitingToFeedOut(direction.opposite)) {
-        neighboursWaitingToFeedOutDurations[direction] = noMoreThan1Hour(
+        neighboursWaitingToFeedOutDurations[direction] = _noMoreThan1Hour(
             neighboursWaitingToFeedOutDurations[direction]! + jump);
       } else {
         neighboursWaitingToFeedOutDurations[direction] = Duration.zero;
       }
       if (neighbour.waitingToFeedIn(direction.opposite)) {
-        neighboursWaitingToFeedInDurations[direction] = noMoreThan1Hour(
+        neighboursWaitingToFeedInDurations[direction] = _noMoreThan1Hour(
             neighboursWaitingToFeedInDurations[direction]! + jump);
       } else {
         neighboursWaitingToFeedInDurations[direction] = Duration.zero;
@@ -165,7 +150,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   //     "${moduleGroup == null ? '' : '\n${moduleGroup!.numberOfModules} modules'}"
   //     "${moduleGroup == null ? '' : '\ndestination: ${(layout.cellForPosition(moduleGroup!.destination) as StateMachineCell).name}'}";
 
-  Duration noMoreThan1Hour(Duration duration) {
+  Duration _noMoreThan1Hour(Duration duration) {
     const max = const Duration(hours: 1);
     if (duration >= max) {
       return max;
@@ -181,26 +166,26 @@ class ModuleRotatingConveyor extends StateMachineCell {
         longestWaitingNeighbour(neighboursWaitingToFeedOutDurations,
             neighbourMustBeCASUnit: true);
     if (longestWaitingCasNeighbourOkToFeedOut != null) {
-      return longestWaitingCasNeighbourOkToFeedOut;
+      return longestWaitingCasNeighbourOkToFeedOut.opposite;
     }
 
     CardinalDirection? longestWaitingCasNeighbourAlmostOkToFeedOut =
         longestWaitingNeighbour(neighboursAlmostWaitingToFeedOutDurations,
             neighbourMustBeCASUnit: true);
     if (longestWaitingCasNeighbourAlmostOkToFeedOut != null) {
-      return longestWaitingCasNeighbourAlmostOkToFeedOut;
+      return longestWaitingCasNeighbourAlmostOkToFeedOut.opposite;
     }
 
     CardinalDirection? longestWaitingNeighbourOkToFeedOut =
         longestWaitingNeighbour(neighboursWaitingToFeedOutDurations);
     if (longestWaitingNeighbourOkToFeedOut != null) {
-      return longestWaitingNeighbourOkToFeedOut;
+      return longestWaitingNeighbourOkToFeedOut.opposite;
     }
 
     CardinalDirection? longestWaitingNeighbourAlmostOkToFeedOut =
         longestWaitingNeighbour(neighboursAlmostWaitingToFeedOutDurations);
     if (longestWaitingNeighbourAlmostOkToFeedOut != null) {
-      return longestWaitingNeighbourAlmostOkToFeedOut;
+      return longestWaitingNeighbourAlmostOkToFeedOut.opposite;
     }
 
     if (defaultPositionWhenIdle != null) {
@@ -218,6 +203,13 @@ class TurnToFeedIn extends State<ModuleRotatingConveyor> {
   void onUpdateToNextPointInTime(
       ModuleRotatingConveyor rotatingConveyor, Duration jump) {
     var bestInFeedDirection = rotatingConveyor.bestInFeedDirection;
+
+    // if (rotatingConveyor.seqNr==1) {
+    //   print('$bestInFeedDirection  ${rotatingConveyor.currentDirection.degrees}');
+    // }
+
+
+
     if (bestInFeedDirection != null) {
       var currentDirection =
           rotatingConveyor.currentDirection.toCardinalDirection();

@@ -54,7 +54,7 @@ class Layout implements TimeProcessor {
       position: Position(4, 1),
       seqNr: 1,
       homingDirection: CardinalDirection.north,
-      defaultPositionWhenIdle: CardinalDirection.west,
+      defaultPositionWhenIdle: CardinalDirection.east,
     ));
     put(ModuleCas(
         layout: this,
@@ -67,6 +67,7 @@ class Layout implements TimeProcessor {
       position: Position(4, 2),
       seqNr: 2,
       homingDirection: CardinalDirection.north,
+      defaultPositionWhenIdle: CardinalDirection.south,
     ));
     put(ModuleConveyor(
       layout: this,
