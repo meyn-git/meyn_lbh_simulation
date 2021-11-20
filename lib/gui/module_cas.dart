@@ -16,7 +16,7 @@ class ModuleCasWidget extends StatelessWidget {
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
             cas.inAndOutFeedDirection.toCompassDirection().degrees / 360),
-        child: CustomPaint(painter: ModuleCasPainter()),
+        child: CustomPaint(painter: ModuleCasPainter(cas)),
       ),
     );
   }
@@ -24,6 +24,10 @@ class ModuleCasWidget extends StatelessWidget {
 }
 
 class ModuleCasPainter extends CustomPainter {
+  final ModuleCas cas;
+
+  ModuleCasPainter(this.cas);
+
   @override
   void paint(Canvas canvas, Size size) {
     drawRectangle(canvas, size);
@@ -73,13 +77,23 @@ class ModuleCasPainter extends CustomPainter {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
+    bool left=cas.inAndOutFeedDirection==CardinalDirection.north && cas.doorDirection==CardinalDirection.west ||
+        cas.inAndOutFeedDirection==CardinalDirection.east && cas.doorDirection==CardinalDirection.north ||
+        cas.inAndOutFeedDirection==CardinalDirection.south && cas.doorDirection==CardinalDirection.east ||
+        cas.inAndOutFeedDirection==CardinalDirection.west && cas.doorDirection==CardinalDirection.south;
+
+    var x1=left?size.width*0.2:size.width*0.7;
+    var y1=size.height * 0.2;
+    var y2=size.height * 0.6;
+    var width = size.width * 0.1;
+    var height = size.height * 0.2;
     canvas.drawRect(
-        Rect.fromLTWH(size.width * 0.2, size.height * 0.2,
-            size.width * 0.1, size.height * 0.2),
+        Rect.fromLTWH(x1, y1,
+            width, height),
         paint);
     canvas.drawRect(
-        Rect.fromLTWH(size.width * 0.2, size.height * 0.6,
-            size.width * 0.1, size.height * 0.2),
+        Rect.fromLTWH(x1, y2,
+            width, height),
         paint);
     return paint;
   }

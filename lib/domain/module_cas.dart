@@ -4,8 +4,9 @@ import 'state_machine.dart';
 
 class ModuleCas extends StateMachineCell {
   /// the [CardinalDirection] the in and out feed is pointed towards
-  final CardinalDirection inAndOutFeedDirection;
   final CasRecipe recipe;
+  final CardinalDirection inAndOutFeedDirection;
+  final CardinalDirection doorDirection;
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
   final Position moduleDestinationPositionAfterStunning;
@@ -14,7 +15,7 @@ class ModuleCas extends StateMachineCell {
     required Layout layout,
     required Position position,
     int? seqNr,
-    required this.inAndOutFeedDirection,
+
     this.recipe = const CasRecipe([
       Duration(seconds: 60),
       Duration(seconds: 60),
@@ -22,6 +23,8 @@ class ModuleCas extends StateMachineCell {
       Duration(seconds: 60),
       Duration(seconds: 120)
     ], Duration(seconds: 30)),
+    required this.inAndOutFeedDirection,
+    required this.doorDirection,
     this.closeSlideDoorDuration = const Duration(seconds: 3),
     this.openSlideDoorDuration = const Duration(seconds: 3),
     Duration inFeedDuration = const Duration(seconds: 14),
@@ -34,7 +37,9 @@ class ModuleCas extends StateMachineCell {
           initialState: WaitToFeedIn(),
           inFeedDuration: inFeedDuration,
           outFeedDuration: outFeedDuration,
-        );
+        ) {
+    _verifyDirections();
+  }
 
   StateMachineCell get neighbour =>
       layout.neighbouringCell(this, inAndOutFeedDirection) as StateMachineCell;
@@ -66,6 +71,13 @@ class ModuleCas extends StateMachineCell {
   StateMachineCell get moduleDestinationAfterStunning =>
       layout.cellForPosition(moduleDestinationPositionAfterStunning)
           as StateMachineCell;
+
+  void _verifyDirections() {
+    if (inAndOutFeedDirection.isParallelTo(doorDirection)) {
+      throw ArgumentError(
+          "$name: inAndOutFeedDirection and doorDirection must be perpendicular in layout configuration.");
+    }
+  }
 }
 
 class CasRecipe {

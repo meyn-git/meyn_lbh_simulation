@@ -133,6 +133,6 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
   }
 
   bool _transportCompleted(LoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.layout.moduleGroups
-          .any((moduleGroup) => moduleGroup.position.source != forkLiftTruck);
+      !forkLiftTruck.layout.moduleGroups
+          .any((moduleGroup) => moduleGroup.position.source == forkLiftTruck);
 }

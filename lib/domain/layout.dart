@@ -23,6 +23,7 @@ class Layout implements TimeProcessor {
         position: Position(5, 1),
         seqNr: 1,
         inAndOutFeedDirection: CardinalDirection.south,
+        doorDirection: CardinalDirection.west,
         moduleDestinationPositionAfterStunning: Position(1, 2)));
 
     put(ModuleCas(
@@ -30,6 +31,7 @@ class Layout implements TimeProcessor {
         position: Position(6, 1),
         seqNr: 3,
         inAndOutFeedDirection: CardinalDirection.south,
+        doorDirection: CardinalDirection.west,
         moduleDestinationPositionAfterStunning: Position(1, 2)));
 
     put(ModuleCas(
@@ -37,6 +39,7 @@ class Layout implements TimeProcessor {
         position: Position(7, 1),
         seqNr: 5,
         inAndOutFeedDirection: CardinalDirection.south,
+        doorDirection: CardinalDirection.west,
         moduleDestinationPositionAfterStunning: Position(1, 2)));
 
 //Row 2
@@ -98,6 +101,7 @@ class Layout implements TimeProcessor {
         position: Position(5, 3),
         seqNr: 2,
         inAndOutFeedDirection: CardinalDirection.north,
+        doorDirection: CardinalDirection.west,
         moduleDestinationPositionAfterStunning: Position(1, 2)));
 
     put(ModuleCas(
@@ -105,6 +109,7 @@ class Layout implements TimeProcessor {
         position: Position(6, 3),
         seqNr: 4,
         inAndOutFeedDirection: CardinalDirection.north,
+        doorDirection: CardinalDirection.west,
         moduleDestinationPositionAfterStunning: Position(1, 2)));
 
     put(ModuleConveyor(
