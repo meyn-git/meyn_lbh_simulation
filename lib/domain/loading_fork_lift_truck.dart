@@ -64,6 +64,8 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
     );
     _verifyDestination(forkLiftTruck, newModuleGroup.destination);
     forkLiftTruck.layout.moduleGroups.add(newModuleGroup);
+    //ensure correct module group position
+    newModuleGroup.position=ModulePosition.forCel(forkLiftTruck);
   }
 
   static _verifyDirections(
