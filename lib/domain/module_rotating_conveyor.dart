@@ -72,7 +72,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
   @override
   bool waitingToFeedIn(CardinalDirection direction) {
     return direction.opposite == currentDirection.toCardinalDirection() &&
-        direction.opposite == bestInFeedDirection && currentState is TurnToFeedIn;
+        currentDirection.toCardinalDirection() == bestInFeedDirection &&
+        currentState is TurnToFeedIn;
   }
 
   @override
@@ -87,7 +88,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == currentDirection.toCardinalDirection() &&
-      moduleGroup != null && currentState is TurnToFeedOut;
+      moduleGroup != null &&
+      currentState is TurnToFeedOut;
 
   void increaseNeighboursWaitingDurations(Duration jump) {
     CardinalDirection.values.forEach((direction) {
@@ -142,14 +144,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
   }
 
-  // @override
-  // String toolTipText() => "$name\n"
-  //     "${currentState.name}"
-  //     "\n${currentState is DurationState ? '${(currentState as DurationState).remainingDuration} sec' : 'waiting'}"
-  //     "\nrotation :$actualDirection"
-  //     "${moduleGroup == null ? '' : '\n${moduleGroup!.numberOfModules} modules'}"
-  //     "${moduleGroup == null ? '' : '\ndestination: ${(layout.cellForPosition(moduleGroup!.destination) as StateMachineCell).name}'}";
-
   Duration _noMoreThan1Hour(Duration duration) {
     const max = const Duration(hours: 1);
     if (duration >= max) {
@@ -197,7 +191,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
   }
 }
 
-
 class TurnToFeedIn extends State<ModuleRotatingConveyor> {
   @override
   void onUpdateToNextPointInTime(
@@ -207,8 +200,6 @@ class TurnToFeedIn extends State<ModuleRotatingConveyor> {
     // if (rotatingConveyor.seqNr==1) {
     //   print('$bestInFeedDirection  ${rotatingConveyor.currentDirection.degrees}');
     // }
-
-
 
     if (bestInFeedDirection != null) {
       var currentDirection =
