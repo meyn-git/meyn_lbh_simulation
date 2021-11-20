@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
 import 'loading_fork_lift_truck.dart';
@@ -145,6 +146,12 @@ class Layout implements TimeProcessor {
               secondModule: Module(
                   sequenceNumber: ++moduleSequenceNumber, nrOfBirds: 400),
             )));
+
+    put(ModuleCasAllocation(
+      layout: this,
+      position: Position(1, 5),
+      positionToAllocate: Position(7, 3),
+    ));
   }
 
   Cell neighbouringCell(StateMachineCell cell, CardinalDirection direction) {
