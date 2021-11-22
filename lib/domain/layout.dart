@@ -76,7 +76,8 @@ class Layout implements TimeProcessor {
       layout: this,
       position: Position(5, 2),
       seqNr: 3,
-      homingDirection: CardinalDirection.west,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.west,
     ));
 
@@ -84,7 +85,8 @@ class Layout implements TimeProcessor {
       layout: this,
       position: Position(6, 2),
       seqNr: 2,
-      homingDirection: CardinalDirection.west,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.west,
     ));
 
@@ -92,7 +94,7 @@ class Layout implements TimeProcessor {
       layout: this,
       position: Position(7, 2),
       seqNr: 1,
-      homingDirection: CardinalDirection.north,
+      oppositeInFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.north,
     ));
 

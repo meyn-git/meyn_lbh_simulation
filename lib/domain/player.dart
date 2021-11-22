@@ -3,10 +3,13 @@ import 'dart:async';
 class Player {
   int _speed = 1;
   bool playing = true;
-  Duration jump = Duration(milliseconds: 100);
+  Duration jump = _calculateJump(1);
   void Function(Timer t)? listener;
   Timer? timer;
-  static final  timerInterval = const Duration(milliseconds: 100);
+
+  static final  maxSpeed = 64;
+  static final maxJumpResolution=Duration(seconds: 1);
+  static final  timerInterval =  Duration(microseconds: (1/maxSpeed*maxJumpResolution.inMicroseconds).round());
 
   Player() {
     updateTimer();
@@ -15,8 +18,10 @@ class Player {
   int get speed => _speed;
 
   set speed(speed) {
-    _speed = speed;
-    updateTimer();
+    if (_speed<=maxSpeed) {
+      _speed = speed;
+      updateTimer();
+    }
   }
 
   void pause() {
@@ -41,7 +46,7 @@ class Player {
         if (timer != null) {
           timer!.cancel();
         }
-        jump =  timerInterval * speed;
+        jump =  _calculateJump(speed);
         timer = Timer.periodic(timerInterval, listener!);
       }
     } else {
@@ -50,4 +55,6 @@ class Player {
       }
     }
   }
+
+  static Duration _calculateJump(int speed) =>  Duration(microseconds: (speed/maxSpeed * maxJumpResolution.inMicroseconds ).round());
 }

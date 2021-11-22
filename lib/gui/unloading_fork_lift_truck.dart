@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/layout.dart';
-import 'package:meyn_lbh_simulation/domain/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
 class UnLoadingForkLiftTruckWidget extends StatelessWidget {

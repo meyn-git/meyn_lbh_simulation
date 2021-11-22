@@ -142,17 +142,21 @@ class ModulePosition {
             max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
   }
 
+  bool get isMoving {
+    return source!=destination;
+  }
+
   @override
   String toString() {
-    if (source == destination) {
-      return TitleBuilder('ModulePosition')
-          .appendProperty('at', source.name)
-          .toString();
-    } else {
+    if (isMoving) {
       return TitleBuilder('ModulePosition')
           .appendProperty('source', source.name)
           .appendProperty('destination', destination.name)
           .appendProperty('remainingDuration', remainingDuration)
+          .toString();
+    } else {
+      return TitleBuilder('ModulePosition')
+          .appendProperty('at', source.name)
           .toString();
     }
   }
