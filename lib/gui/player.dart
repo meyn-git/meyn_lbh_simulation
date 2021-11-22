@@ -13,12 +13,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   var layoutWidget = createLayoutWidget();
 
   static LayoutWidget createLayoutWidget() =>
-      LayoutWidget(key: UniqueKey(), player: player);
+      LayoutWidget(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(player.layout.name),
         actions: [
           buildRestartButton(),
           if (!player.playing) buildPlayButton(),
@@ -61,6 +62,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       tooltip: 'Restart',
       onPressed: () {
         setState(() {
+          player.restart();
           layoutWidget = createLayoutWidget();
         });
       },

@@ -21,28 +21,29 @@ import '/gui/module_rotating_conveyor.dart';
 import 'module.dart';
 
 class LayoutWidget extends StatefulWidget {
-  final Player player;
 
-  LayoutWidget({required Key key, required this.player}) : super(key: key);
+
+  LayoutWidget({required Key key}) : super(key: key);
 
   @override
-  _LayoutWidgetState createState() => _LayoutWidgetState(player);
+  _LayoutWidgetState createState() => _LayoutWidgetState();
 }
 
 class _LayoutWidgetState extends State<LayoutWidget> {
-  Layout layout = Layout();
 
-  _LayoutWidgetState(Player player) {
+  final Player player=Player();
+
+  _LayoutWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        layout.onUpdateToNextPointInTime(player.jump);
+        player.layout.onUpdateToNextPointInTime(player.jump);
       });
     });
   }
 
   @override
   Widget build(BuildContext context) => CustomMultiChildLayout(
-      delegate: LayoutWidgetDelegate(layout), children: createChildren(layout));
+      delegate: LayoutWidgetDelegate(player.layout), children: createChildren(player.layout));
 
   static List<Widget> createChildren(Layout layout) {
     List<Widget> children = [];

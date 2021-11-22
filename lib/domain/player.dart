@@ -1,21 +1,38 @@
 import 'dart:async';
 
+import 'layout.dart';
+
 class Player {
   int _speed = 1;
   bool playing = true;
   Duration jump = _calculateJump(1);
   void Function(Timer t)? listener;
   Timer? timer;
+  Layout layout = createNewLayout();
+
+  static Layout createNewLayout() => Layout.feliniChicken();
+
+  // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
+  static final Player _singleton = Player._();
+
+  factory Player() {
+    return _singleton;
+  }
+
+  Player._() {
+    updateTimer();
+  }
+
+
 
   static final  maxSpeed = 64;
   static final maxJumpResolution=Duration(seconds: 1);
   static final  timerInterval =  Duration(microseconds: (1/maxSpeed*maxJumpResolution.inMicroseconds).round());
 
-  Player() {
-    updateTimer();
-  }
 
   int get speed => _speed;
+
+
 
   set speed(speed) {
     if (_speed<=maxSpeed) {
@@ -57,4 +74,8 @@ class Player {
   }
 
   static Duration _calculateJump(int speed) =>  Duration(microseconds: (speed/maxSpeed * maxJumpResolution.inMicroseconds ).round());
+
+  void restart() {
+    layout=createNewLayout();
+  }
 }

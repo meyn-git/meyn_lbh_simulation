@@ -12,13 +12,14 @@ import 'module_rotating_conveyor.dart';
 import 'state_machine.dart';
 
 class Layout implements TimeProcessor {
+  final String name;
   final List<ActiveCell> cells = [];
   final List<ModuleGroup> moduleGroups = [];
   Duration durationSinceStart = Duration.zero;
   int moduleSequenceNumber = 0;
 
-  Layout() {
-//Row 1
+  Layout.feliniChicken() : name = 'Filini Chicken' {
+    //Row 1
     put(ModuleCas(
         layout: this,
         position: Position(5, 1),
@@ -43,8 +44,7 @@ class Layout implements TimeProcessor {
         doorDirection: CardinalDirection.west,
         moduleDestinationPositionAfterStunning: Position(1, 2)));
 
-//Row 2
-
+    //Row 2
     put(UnLoadingForkLiftTruck(
       layout: this,
       position: Position(1, 2),
@@ -155,6 +155,147 @@ class Layout implements TimeProcessor {
       positionToAllocate: Position(7, 3),
     ));
   }
+
+  Layout.indrol() : name = '8052-Indrol-Grodzisk-Poland' {
+    //Row 1
+    put(ModuleCas(
+        layout: this,
+        position: Position(5, 1),
+        seqNr: 1,
+        inAndOutFeedDirection: CardinalDirection.south,
+        doorDirection: CardinalDirection.west,
+        moduleDestinationPositionAfterStunning: Position(1, 2)));
+
+    put(ModuleCas(
+        layout: this,
+        position: Position(6, 1),
+        seqNr: 3,
+        inAndOutFeedDirection: CardinalDirection.south,
+        doorDirection: CardinalDirection.west,
+        moduleDestinationPositionAfterStunning: Position(1, 2)));
+
+    put(ModuleCas(
+        layout: this,
+        position: Position(7, 1),
+        seqNr: 5,
+        inAndOutFeedDirection: CardinalDirection.south,
+        doorDirection: CardinalDirection.west,
+        moduleDestinationPositionAfterStunning: Position(1, 2)));
+
+    //Row 2
+    put(UnLoadingForkLiftTruck(
+      layout: this,
+      position: Position(1, 2),
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleConveyor(
+      layout: this,
+      position: Position(2, 2),
+      seqNr: 5,
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleConveyor(
+      layout: this,
+      position: Position(3, 2),
+      seqNr: 4,
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleConveyor(
+      layout: this,
+      position: Position(4, 2),
+      seqNr: 3,
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleRotatingConveyor(
+      layout: this,
+      position: Position(5, 2),
+      seqNr: 3,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      layout: this,
+      position: Position(6, 2),
+      seqNr: 2,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      layout: this,
+      position: Position(7, 2),
+      seqNr: 1,
+      oppositeInFeeds: [CardinalDirection.north],
+      defaultPositionWhenIdle: CardinalDirection.north,
+    ));
+
+    // Row 3
+    put(ModuleCas(
+        layout: this,
+        position: Position(5, 3),
+        seqNr: 2,
+        inAndOutFeedDirection: CardinalDirection.north,
+        doorDirection: CardinalDirection.west,
+        moduleDestinationPositionAfterStunning: Position(1, 2)));
+
+    put(ModuleCas(
+        layout: this,
+        position: Position(6, 3),
+        seqNr: 4,
+        inAndOutFeedDirection: CardinalDirection.north,
+        doorDirection: CardinalDirection.west,
+        moduleDestinationPositionAfterStunning: Position(1, 2)));
+
+    put(ModuleConveyor(
+      layout: this,
+      position: Position(7, 3),
+      seqNr: 2,
+      inFeedDirection: CardinalDirection.south,
+    ));
+
+    // Row 4
+
+    put(ModuleConveyor(
+      layout: this,
+      position: Position(7, 4),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.south,
+    ));
+
+    // Row 5
+    put(LoadingForkLiftTruck(
+        layout: this,
+        position: Position(7, 5),
+        outFeedDirection: CardinalDirection.north,
+        createModuleGroup: () => ModuleGroup(
+          type: ModuleType.square,
+          destination:
+          this.cellForPosition(Position(7, 3)) as StateMachineCell,
+          doorDirection: CardinalDirection.east.toCompassDirection(),
+          position: ModulePosition.forCel(
+              this.cellForPosition(Position(7, 3)) as StateMachineCell),
+          firstModule: Module(
+              sequenceNumber: ++moduleSequenceNumber, nrOfBirds: 400),
+          secondModule: Module(
+              sequenceNumber: ++moduleSequenceNumber, nrOfBirds: 400),
+        )));
+
+    put(ModuleCasAllocation(
+      layout: this,
+      position: Position(1, 5),
+      positionToAllocate: Position(7, 3),
+    ));
+  }
+
+
+
 
   Cell neighbouringCell(StateMachineCell cell, CardinalDirection direction) {
     Position relativePosition = cell.position.neighbour(direction);
