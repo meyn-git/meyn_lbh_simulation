@@ -1,3 +1,6 @@
+import 'package:collection/src/iterable_extensions.dart';
+import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
+
 import 'layout.dart';
 import 'module.dart';
 import 'state_machine.dart';
@@ -9,7 +12,6 @@ class ModuleCas extends StateMachineCell {
   final CardinalDirection doorDirection;
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
-  final Position moduleDestinationPositionAfterStunning;
 
   ModuleCas({
     required Layout layout,
@@ -29,8 +31,7 @@ class ModuleCas extends StateMachineCell {
     this.openSlideDoorDuration = const Duration(seconds: 3),
     Duration inFeedDuration = const Duration(seconds: 14),
     Duration outFeedDuration = const Duration(seconds: 14),
-    required this.moduleDestinationPositionAfterStunning,
-  }) : super(
+  }) :  super(
           layout: layout,
           position: position,
           seqNr: seqNr,
@@ -68,15 +69,21 @@ class ModuleCas extends StateMachineCell {
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == inAndOutFeedDirection && currentState is WaitToFeedOut;
 
-  StateMachineCell get moduleDestinationAfterStunning =>
-      layout.cellForPosition(moduleDestinationPositionAfterStunning)
-          as StateMachineCell;
 
   void _verifyDirections() {
     if (inAndOutFeedDirection.isParallelTo(doorDirection)) {
       throw ArgumentError(
           "$name: inAndOutFeedDirection and doorDirection must be perpendicular in layout configuration.");
     }
+  }
+
+
+  StateMachineCell get moduleGroupDestinationAfterStunning {
+    var unloadingCell=layout.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
+    if (unloadingCell==null) {
+      throw Exception('The layout MUST have a $UnLoadingForkLiftTruck.');
+    }
+    return unloadingCell as StateMachineCell;
   }
 }
 
@@ -178,7 +185,8 @@ class ExhaustStage extends DurationState<ModuleCas> {
   @override
   void onStart(ModuleCas cas) {
     super.onStart(cas);
-    cas.moduleGroup!.destination = cas.moduleDestinationAfterStunning;
+    var destination=cas.moduleGroupDestinationAfterStunning;
+    cas.moduleGroup!.destination = destination;
   }
 }
 
