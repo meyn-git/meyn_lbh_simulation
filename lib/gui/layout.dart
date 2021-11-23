@@ -3,26 +3,24 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/gui/unloading_fork_lift_truck.dart';
+
 import '/domain/layout.dart';
 import '/domain/loading_fork_lift_truck.dart';
-import '/domain/unloading_fork_lift_truck.dart';
 import '/domain/module.dart';
 import '/domain/module_cas.dart';
 import '/domain/module_cas_allocation.dart';
 import '/domain/module_conveyor.dart';
 import '/domain/module_rotating_conveyor.dart';
 import '/domain/player.dart';
+import '/domain/unloading_fork_lift_truck.dart';
 import '/gui/loading_fork_lift_truck.dart';
 import '/gui/module_cas.dart';
 import '/gui/module_cas_allocation.dart';
 import '/gui/module_conveyor.dart';
 import '/gui/module_rotating_conveyor.dart';
-
 import 'module.dart';
 
 class LayoutWidget extends StatefulWidget {
-
-
   LayoutWidget({required Key key}) : super(key: key);
 
   @override
@@ -30,20 +28,25 @@ class LayoutWidget extends StatefulWidget {
 }
 
 class _LayoutWidgetState extends State<LayoutWidget> {
-
-  final Player player=Player();
+  final Player player = Player();
 
   _LayoutWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        player.layout.onUpdateToNextPointInTime(player.jump);
+        try {
+          player.layout.onUpdateToNextPointInTime(player.jump);
+        }  catch (e) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(e.toString())));
+        }
       });
     });
   }
 
   @override
   Widget build(BuildContext context) => CustomMultiChildLayout(
-      delegate: LayoutWidgetDelegate(player.layout), children: createChildren(player.layout));
+      delegate: LayoutWidgetDelegate(player.layout),
+      children: createChildren(player.layout));
 
   static List<Widget> createChildren(Layout layout) {
     List<Widget> children = [];

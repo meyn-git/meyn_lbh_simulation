@@ -115,6 +115,18 @@ class FeedIn extends State<ModuleCas> {
   }
 
   bool _transportCompleted(ModuleCas cas) => cas.moduleGroup != null;
+
+  @override
+  void onCompleted(ModuleCas cas) {
+    _verifyDoorDirection(cas);
+  }
+
+  void _verifyDoorDirection(ModuleCas cas) {
+    if (cas.moduleGroup!.doorDirection.toCardinalDirection()!=cas.doorDirection) {
+      throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
+    }
+  }
+
 }
 
 class WaitForStart extends State<ModuleCas> {

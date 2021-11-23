@@ -10,7 +10,7 @@ class Player {
   Timer? timer;
   Layout layout = createNewLayout();
 
-  static Layout createNewLayout() => Layout.indrol();
+  static Layout createNewLayout() => Layout.feliniChicken();
 
   // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
   static final Player _singleton = Player._();

@@ -25,7 +25,7 @@ class Layout implements TimeProcessor {
       position: Position(5, 1),
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.west,
+      doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCas(
@@ -33,7 +33,7 @@ class Layout implements TimeProcessor {
         position: Position(6, 1),
         seqNr: 3,
         inAndOutFeedDirection: CardinalDirection.south,
-        doorDirection: CardinalDirection.west,
+        doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCas(
@@ -41,7 +41,7 @@ class Layout implements TimeProcessor {
         position: Position(7, 1),
         seqNr: 5,
         inAndOutFeedDirection: CardinalDirection.south,
-        doorDirection: CardinalDirection.west,
+        doorDirection: CardinalDirection.east,
     ));
 
     //Row 2
@@ -104,7 +104,7 @@ class Layout implements TimeProcessor {
         position: Position(5, 3),
         seqNr: 2,
         inAndOutFeedDirection: CardinalDirection.north,
-        doorDirection: CardinalDirection.west,
+        doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCas(
@@ -112,7 +112,7 @@ class Layout implements TimeProcessor {
         position: Position(6, 3),
         seqNr: 4,
         inAndOutFeedDirection: CardinalDirection.north,
-        doorDirection: CardinalDirection.west,
+        doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleConveyor(
@@ -162,7 +162,7 @@ class Layout implements TimeProcessor {
     put(ModuleCas(
         layout: this,
         position: Position(2, 1),
-        seqNr: 1,
+        seqNr: 2,
         inAndOutFeedDirection: CardinalDirection.south,
         doorDirection: CardinalDirection.west,
     ));
@@ -170,7 +170,7 @@ class Layout implements TimeProcessor {
     put(ModuleCas(
         layout: this,
         position: Position(3, 1),
-        seqNr: 3,
+        seqNr: 1,
         inAndOutFeedDirection: CardinalDirection.south,
         doorDirection: CardinalDirection.west,
     ));
@@ -182,7 +182,7 @@ class Layout implements TimeProcessor {
       position: Position(1, 2),
       seqNr: 1,
       oppositeInFeeds: [CardinalDirection.south],
-      defaultPositionWhenIdle: CardinalDirection.north,
+      defaultPositionWhenIdle: CardinalDirection.south,
     ));
 
     put(ModuleRotatingConveyor(
@@ -190,7 +190,6 @@ class Layout implements TimeProcessor {
       position: Position(2, 2),
       seqNr: 2,
       oppositeInFeeds: [CardinalDirection.north],
-      oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
 
@@ -574,8 +573,6 @@ class CompassDirection {
   CompassDirection rotate(int rotation) {
     return CompassDirection(degrees + rotation);
   }
-
-  double error = 1;
 
   CardinalDirection? toCardinalDirection() {
     for (var cardinalDirection in CardinalDirection.values) {

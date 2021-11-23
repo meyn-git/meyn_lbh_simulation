@@ -77,10 +77,10 @@ class ModuleCasPainter extends CustomPainter {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
-    bool left=cas.inAndOutFeedDirection==CardinalDirection.north && cas.doorDirection==CardinalDirection.west ||
-        cas.inAndOutFeedDirection==CardinalDirection.east && cas.doorDirection==CardinalDirection.north ||
-        cas.inAndOutFeedDirection==CardinalDirection.south && cas.doorDirection==CardinalDirection.east ||
-        cas.inAndOutFeedDirection==CardinalDirection.west && cas.doorDirection==CardinalDirection.south;
+    bool left=cas.inAndOutFeedDirection==CardinalDirection.north && cas.doorDirection==CardinalDirection.east ||
+        cas.inAndOutFeedDirection==CardinalDirection.east && cas.doorDirection==CardinalDirection.south ||
+        cas.inAndOutFeedDirection==CardinalDirection.south && cas.doorDirection==CardinalDirection.west ||
+        cas.inAndOutFeedDirection==CardinalDirection.west && cas.doorDirection==CardinalDirection.west;
 
     var x1=left?size.width*0.2:size.width*0.7;
     var y1=size.height * 0.2;

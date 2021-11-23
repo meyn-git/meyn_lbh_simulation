@@ -84,6 +84,7 @@ class FeedIn extends State<ModuleConveyor> {
 
   bool _transportCompleted(ModuleConveyor moduleConveyor) =>
       moduleConveyor.moduleGroup != null;
+
 }
 
 class WaitToFeedOut extends State<ModuleConveyor> {
