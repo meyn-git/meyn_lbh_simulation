@@ -1,10 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/layout.dart';
 import 'package:meyn_lbh_simulation/domain/module_cas.dart';
 
 class ModuleCasWidget extends StatelessWidget {
-
   final ModuleCas cas;
 
   ModuleCasWidget(this.cas);
@@ -20,7 +18,6 @@ class ModuleCasWidget extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class ModuleCasPainter extends CustomPainter {
@@ -77,24 +74,22 @@ class ModuleCasPainter extends CustomPainter {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
-    bool left=cas.inAndOutFeedDirection==CardinalDirection.north && cas.doorDirection==CardinalDirection.east ||
-        cas.inAndOutFeedDirection==CardinalDirection.east && cas.doorDirection==CardinalDirection.south ||
-        cas.inAndOutFeedDirection==CardinalDirection.south && cas.doorDirection==CardinalDirection.west ||
-        cas.inAndOutFeedDirection==CardinalDirection.west && cas.doorDirection==CardinalDirection.west;
+    bool left = cas.inAndOutFeedDirection == CardinalDirection.north &&
+            cas.doorDirection == CardinalDirection.east ||
+        cas.inAndOutFeedDirection == CardinalDirection.east &&
+            cas.doorDirection == CardinalDirection.south ||
+        cas.inAndOutFeedDirection == CardinalDirection.south &&
+            cas.doorDirection == CardinalDirection.west ||
+        cas.inAndOutFeedDirection == CardinalDirection.west &&
+            cas.doorDirection == CardinalDirection.north;
 
-    var x1=left?size.width*0.2:size.width*0.7;
-    var y1=size.height * 0.2;
-    var y2=size.height * 0.6;
+    var x1 = left ? size.width * 0.2 : size.width * 0.7;
+    var y1 = size.height * 0.2;
+    var y2 = size.height * 0.6;
     var width = size.width * 0.1;
     var height = size.height * 0.2;
-    canvas.drawRect(
-        Rect.fromLTWH(x1, y1,
-            width, height),
-        paint);
-    canvas.drawRect(
-        Rect.fromLTWH(x1, y2,
-            width, height),
-        paint);
+    canvas.drawRect(Rect.fromLTWH(x1, y1, width, height), paint);
+    canvas.drawRect(Rect.fromLTWH(x1, y2, width, height), paint);
     return paint;
   }
 

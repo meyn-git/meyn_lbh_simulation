@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/module_cas_allocation.dart';
+import 'package:meyn_lbh_simulation/domain/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
 import 'loading_fork_lift_truck.dart';
@@ -54,15 +55,16 @@ class Layout implements TimeProcessor {
     put(ModuleConveyor(
       layout: this,
       position: Position(2, 2),
-      seqNr: 5,
+      seqNr: 4,
       inFeedDirection: CardinalDirection.east,
     ));
 
-    put(ModuleConveyor(
+    put(ModuleTilter(
       layout: this,
       position: Position(3, 2),
-      seqNr: 4,
+      seqNr: 1,
       inFeedDirection: CardinalDirection.east,
+      doorDirection: CardinalDirection.north,
     ));
 
     put(ModuleConveyor(
@@ -201,80 +203,82 @@ class Layout implements TimeProcessor {
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
 
-    put(ModuleConveyor(
+    put(ModuleConveyor(//De stacker
       layout: this,
       position: Position(4, 2),
       seqNr: 2,
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(ModuleConveyor(
+    put(ModuleConveyor(//Gross weighing conveyor
       layout: this,
-      position: Position(5, 2),
+      position: Position(6, 2),
       seqNr: 3,
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(ModuleConveyor(
+    put(ModuleTilter(
       layout: this,
-      position: Position(6, 2),
+      position: Position(5, 2),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.west, doorDirection: CardinalDirection.north,
+    ));
+
+
+
+    put(ModuleConveyor(//Tare weighing conveyor
+      layout: this,
+      position: Position(7, 2),
       seqNr: 4,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(7, 2),
+      position: Position(8, 2),
       seqNr: 5,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(8, 2),
+      position: Position(9, 2),
       seqNr: 6,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(9, 2),
+      position: Position(10, 2),
       seqNr: 7,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(10, 2),
+      position: Position(11, 2),
       seqNr: 8,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(11, 2),
+      position: Position(12, 2),
       seqNr: 9,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(12, 2),
+      position: Position(13, 2),
       seqNr: 10,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       layout: this,
-      position: Position(13, 2),
-      seqNr: 11,
-      inFeedDirection: CardinalDirection.west,
-    ));
-
-    put(ModuleConveyor(
-      layout: this,
       position: Position(14, 2),
-      seqNr: 12,
+      seqNr: 11,
       inFeedDirection: CardinalDirection.west,
     ));
 
