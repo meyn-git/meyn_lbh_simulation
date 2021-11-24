@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/module_tilter.dart';
+import 'package:meyn_lbh_simulation/gui/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/unloading_fork_lift_truck.dart';
 
@@ -177,7 +179,9 @@ class CellWidgetFactory {
     if (cell is ModuleTilter) {
       return ModuleTilterWidget(cell);
     }
-
+    if (cell is BirdHangingConveyor) {
+      return BirdHangingConveyorWidget(cell);
+    }
     if (cell is ModuleCasAllocation) {
       return ModuleCasAllocationWidget(cell);
     }

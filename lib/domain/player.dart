@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:meyn_lbh_simulation/domain/layout_fileni.dart';
+import 'package:meyn_lbh_simulation/domain/layout_indrol.dart';
+
 import 'layout.dart';
 
 class Player {
@@ -10,7 +13,9 @@ class Player {
   Timer? timer;
   Layout layout = createNewLayout();
 
-  static Layout createNewLayout() => Layout.indrol();
+  // static Layout createNewLayout() => FileniChickenLayout();
+
+  static Layout createNewLayout() => IndrolLayout();
 
   // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
   static final Player _singleton = Player._();
@@ -23,19 +28,15 @@ class Player {
     updateTimer();
   }
 
-
-
-  static final  maxSpeed = 64;
-  static final maxJumpResolution=Duration(seconds: 1);
-  static final  timerInterval =  Duration(microseconds: (1/maxSpeed*maxJumpResolution.inMicroseconds).round());
-
+  static final maxSpeed = 64;
+  static final maxJumpResolution = Duration(seconds: 1);
+  static final timerInterval = Duration(
+      microseconds: (1 / maxSpeed * maxJumpResolution.inMicroseconds).round());
 
   int get speed => _speed;
 
-
-
   set speed(speed) {
-    if (_speed<=maxSpeed) {
+    if (_speed <= maxSpeed) {
       _speed = speed;
       updateTimer();
     }
@@ -51,7 +52,6 @@ class Player {
     updateTimer();
   }
 
-
   void timerListener(void Function(Timer t) listener) {
     this.listener = listener;
     updateTimer();
@@ -63,7 +63,7 @@ class Player {
         if (timer != null) {
           timer!.cancel();
         }
-        jump =  _calculateJump(speed);
+        jump = _calculateJump(speed);
         timer = Timer.periodic(timerInterval, listener!);
       }
     } else {
@@ -73,9 +73,11 @@ class Player {
     }
   }
 
-  static Duration _calculateJump(int speed) =>  Duration(microseconds: (speed/maxSpeed * maxJumpResolution.inMicroseconds ).round());
+  static Duration _calculateJump(int speed) => Duration(
+      microseconds:
+          (speed / maxSpeed * maxJumpResolution.inMicroseconds).round());
 
   void restart() {
-    layout=createNewLayout();
+    layout = createNewLayout();
   }
 }

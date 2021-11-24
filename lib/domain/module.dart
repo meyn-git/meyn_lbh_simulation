@@ -25,6 +25,10 @@ class ModuleGroup extends TimeProcessor {
 
   int get numberOfModules => 1 + ((secondModule == null) ? 0 : 1);
 
+  int get numberOfBirds =>
+      firstModule.nrOfBirds +
+      ((secondModule == null) ? 0 : secondModule!.nrOfBirds);
+
   @override
   onUpdateToNextPointInTime(Duration jump) {
     position.processNextTimeFrame(this, jump);
@@ -57,7 +61,7 @@ class ModuleGroup extends TimeProcessor {
     }
   }
 
-  void startedLoadingOnToSystem() {
+  void loadedOnToSystem() {
     sinceLoadedOnSystem = Duration.zero;
   }
 
@@ -70,7 +74,7 @@ class ModuleGroup extends TimeProcessor {
     }
   }
 
-  void startedStunning() {
+  void startStunning() {
     sinceStartStun = Duration.zero;
   }
 
@@ -83,10 +87,13 @@ class ModuleGroup extends TimeProcessor {
     }
   }
 
-  void startedUnloadingBirds() {
+  void unloadBirds() {
     sinceBirdsUnloaded = Duration.zero;
+    firstModule.nrOfBirds=0;
+    if (secondModule!=null) {
+      secondModule!.nrOfBirds=0;
+    }
   }
-
 }
 
 /// A module location is either at a given position or traveling between 2 positions
@@ -143,7 +150,7 @@ class ModulePosition {
   }
 
   bool get isMoving {
-    return source!=destination;
+    return source != destination;
   }
 
   @override
@@ -164,7 +171,7 @@ class ModulePosition {
 
 class Module {
   final int sequenceNumber;
-  final int nrOfBirds;
+  int nrOfBirds;
   Duration? sinceLoadedOnSystem;
   Duration? sinceStartStun;
   Duration? sinceBirdsUnloaded;

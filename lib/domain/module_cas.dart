@@ -1,9 +1,10 @@
+
 import 'package:collection/src/iterable_extensions.dart';
-import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
 import 'layout.dart';
 import 'module.dart';
 import 'state_machine.dart';
+import 'unloading_fork_lift_truck.dart';
 
 class ModuleCas extends StateMachineCell {
   /// the [CardinalDirection] the in and out feed is pointed towards
@@ -17,7 +18,6 @@ class ModuleCas extends StateMachineCell {
     required Layout layout,
     required Position position,
     int? seqNr,
-
     this.recipe = const CasRecipe([
       Duration(seconds: 60),
       Duration(seconds: 60),
@@ -31,7 +31,7 @@ class ModuleCas extends StateMachineCell {
     this.openSlideDoorDuration = const Duration(seconds: 3),
     Duration inFeedDuration = const Duration(seconds: 14),
     Duration outFeedDuration = const Duration(seconds: 14),
-  }) :  super(
+  }) : super(
           layout: layout,
           position: position,
           seqNr: seqNr,
@@ -69,18 +69,17 @@ class ModuleCas extends StateMachineCell {
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == inAndOutFeedDirection && currentState is WaitToFeedOut;
 
-
   void _verifyDirections() {
     if (inAndOutFeedDirection.isParallelTo(doorDirection)) {
       throw ArgumentError(
-          "$name: inAndOutFeedDirection and doorDirection must be perpendicular in layout configuration.");
+          "Layout error: $name: inAndOutFeedDirection and doorDirection must be perpendicular in layout configuration.");
     }
   }
 
-
   StateMachineCell get moduleGroupDestinationAfterStunning {
-    var unloadingCell=layout.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
-    if (unloadingCell==null) {
+    var unloadingCell =
+        layout.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
+    if (unloadingCell == null) {
       throw Exception('The layout MUST have a $UnLoadingForkLiftTruck.');
     }
     return unloadingCell as StateMachineCell;
@@ -122,11 +121,11 @@ class FeedIn extends State<ModuleCas> {
   }
 
   void _verifyDoorDirection(ModuleCas cas) {
-    if (cas.moduleGroup!.doorDirection.toCardinalDirection()!=cas.doorDirection) {
+    if (cas.moduleGroup!.doorDirection.toCardinalDirection() !=
+        cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
     }
   }
-
 }
 
 class WaitForStart extends State<ModuleCas> {
@@ -183,7 +182,7 @@ class StunStage extends DurationState<ModuleCas> {
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     if (stageNumber == 1) {
-      cas.moduleGroup!.startedStunning();
+      cas.moduleGroup!.startStunning();
     }
   }
 }
@@ -197,7 +196,7 @@ class ExhaustStage extends DurationState<ModuleCas> {
   @override
   void onStart(ModuleCas cas) {
     super.onStart(cas);
-    var destination=cas.moduleGroupDestinationAfterStunning;
+    var destination = cas.moduleGroupDestinationAfterStunning;
     cas.moduleGroup!.destination = destination;
   }
 }

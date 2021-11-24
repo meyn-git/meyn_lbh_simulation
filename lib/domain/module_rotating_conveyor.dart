@@ -431,8 +431,6 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
     return clockWise;
   }
 
-  bool _moduleGroupIsAtDestination(ModuleRotatingConveyor rotatingConveyor) =>
-      rotatingConveyor.moduleGroup!.destination == rotatingConveyor;
 }
 
 class FeedOut extends State<ModuleRotatingConveyor> {

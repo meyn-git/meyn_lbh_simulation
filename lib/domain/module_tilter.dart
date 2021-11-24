@@ -2,28 +2,51 @@ import 'layout.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
-class ModuleTilter extends StateMachineCell {
+class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final CardinalDirection inFeedDirection;
-  final CardinalDirection doorDirection;
-  final Duration checkIfEmptyDuration;
+  final CardinalDirection birdDirection;
+  int birdsOnDumpBelt = 0;
 
-  ModuleTilter({
-    required Layout layout,
-    required Position position,
-    int? seqNr,
-    required this.inFeedDirection,
-    required this.doorDirection,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration inFeedDuration = const Duration(seconds: 12),
-    Duration outFeedDuration = const Duration(seconds: 12),
-  }) : super(
+  ///Number of birds on dumping belt between module and hanger (a buffer).
+  ///The tilter starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
+  ///Normally this number is between the number of birds in 1 or 2 modules
+  final int minimumDumpBeltBufferSize;
+  final Duration checkIfEmptyDuration;
+  final Duration tiltForwardDuration;
+  final Duration tiltBackDuration;
+
+  ModuleTilter(
+      {required Layout layout,
+      required Position position,
+      int? seqNr,
+      required this.inFeedDirection,
+      required this.birdDirection,
+      this.checkIfEmptyDuration = const Duration(seconds: 18),
+      Duration inFeedDuration = const Duration(seconds: 12),
+      this.tiltForwardDuration = const Duration(seconds: 9),
+      this.tiltBackDuration = const Duration(seconds: 5),
+      Duration outFeedDuration = const Duration(seconds: 12),
+      required this.minimumDumpBeltBufferSize})
+      : super(
           layout: layout,
           position: position,
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
           inFeedDuration: inFeedDuration,
           outFeedDuration: outFeedDuration,
-        );
+        ) {
+    _verifyDirections();
+  }
+
+  bool get dumpBeltCanReceiveBirds =>
+      birdsOnDumpBelt < minimumDumpBeltBufferSize;
+
+  void _verifyDirections() {
+    if (inFeedDirection.isParallelTo(birdDirection)) {
+      throw ArgumentError(
+          "Layout error: $name: inFeedDirection and birdDirection must be perpendicular in layout configuration.");
+    }
+  }
 
   Cell get receivingNeighbour =>
       layout.neighbouringCell(this, inFeedDirection.opposite);
@@ -48,14 +71,21 @@ class ModuleTilter extends StateMachineCell {
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
 
+  @override
+  bool removeBird() {
+    if (birdsOnDumpBelt > 0) {
+      birdsOnDumpBelt--;
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
-
 
 class CheckIfEmpty extends DurationState<ModuleTilter> {
   CheckIfEmpty()
       : super(
-            durationFunction: (tilter) =>
-                tilter.checkIfEmptyDuration,
+            durationFunction: (tilter) => tilter.checkIfEmptyDuration,
             nextStateFunction: (tilter) => WaitToFeedIn());
 }
 
@@ -68,8 +98,8 @@ class WaitToFeedIn extends State<ModuleTilter> {
   }
 
   bool _moduleGroupTransportedTo(ModuleTilter tilter) {
-    return tilter.layout.moduleGroups.any(
-        (moduleGroup) => moduleGroup.position.destination == tilter);
+    return tilter.layout.moduleGroups
+        .any((moduleGroup) => moduleGroup.position.destination == tilter);
   }
 }
 
@@ -77,12 +107,11 @@ class FeedIn extends State<ModuleTilter> {
   @override
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_transportCompleted(tilter)) {
-      return WaitToFeedOut();
+      return WaitToTilt();
     }
   }
 
-  bool _transportCompleted(ModuleTilter tilter) =>
-      tilter.moduleGroup != null;
+  bool _transportCompleted(ModuleTilter tilter) => tilter.moduleGroup != null;
 
   @override
   void onCompleted(ModuleTilter tilter) {
@@ -90,18 +119,47 @@ class FeedIn extends State<ModuleTilter> {
   }
 
   void _verifyDoorDirection(ModuleTilter tilter) {
-    if (tilter.moduleGroup!.doorDirection.toCardinalDirection()!=tilter.doorDirection) {
+    if (tilter.moduleGroup!.doorDirection.toCardinalDirection() !=
+        tilter.birdDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');
     }
   }
+}
 
+class WaitToTilt extends State<ModuleTilter> {
+  @override
+  State<ModuleTilter>? nextState(ModuleTilter tilter) {
+    if (tilter.dumpBeltCanReceiveBirds) {
+      return TiltForward();
+    }
+  }
+}
+
+class TiltForward extends DurationState<ModuleTilter> {
+  TiltForward()
+      : super(
+            durationFunction: (tilter) => tilter.tiltForwardDuration,
+            nextStateFunction: (tilter) => TiltBack());
+
+  @override
+  void onCompleted(ModuleTilter tilter) {
+    var moduleGroup = tilter.moduleGroup!;
+    tilter.birdsOnDumpBelt+=moduleGroup.numberOfBirds;
+    moduleGroup.unloadBirds();
+  }
+}
+
+class TiltBack extends DurationState<ModuleTilter> {
+  TiltBack()
+      : super(
+            durationFunction: (tilter) => tilter.tiltBackDuration,
+            nextStateFunction: (tilter) => WaitToFeedOut());
 }
 
 class WaitToFeedOut extends State<ModuleTilter> {
   @override
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (_neighbourCanFeedIn(tilter) &&
-        !_moduleGroupAtDestination(tilter)) {
+    if (_neighbourCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
       return FeedOut();
     }
   }
@@ -110,8 +168,7 @@ class WaitToFeedOut extends State<ModuleTilter> {
       tilter.moduleGroup!.destination == tilter;
 
   _neighbourCanFeedIn(ModuleTilter tilter) =>
-      tilter.receivingNeighbour
-          .waitingToFeedIn(tilter.inFeedDirection);
+      tilter.receivingNeighbour.waitingToFeedIn(tilter.inFeedDirection);
 }
 
 class FeedOut extends State<ModuleTilter> {

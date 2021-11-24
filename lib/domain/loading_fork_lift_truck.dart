@@ -122,7 +122,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
         source: forkLiftTruck,
         destination: forkLiftTruck.receivingNeighbour,
         duration: forkLiftTruck.outFeedDuration);
-    moduleGroup.startedLoadingOnToSystem();
+    moduleGroup.loadedOnToSystem();
   }
 
   @override

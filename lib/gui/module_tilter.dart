@@ -27,12 +27,12 @@ class ModuleTilterPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    _paintConveyor(canvas, size);
-    _paintDumpBelt(canvas, size);
-    _paintDirectionTriangle(size, canvas);
+    _drawConveyor(canvas, size);
+    _drawDumpBelt(canvas, size);
+    _drawDirectionTriangle(size, canvas);
   }
 
-  void _paintDirectionTriangle(Size size, Canvas canvas) {
+  void _drawDirectionTriangle(Size size, Canvas canvas) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.fill;
@@ -44,7 +44,7 @@ class ModuleTilterPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  _paintConveyor(Canvas canvas, Size size) {
+  _drawConveyor(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
@@ -56,18 +56,18 @@ class ModuleTilterPainter extends CustomPainter {
   }
 
 
-  _paintDumpBelt(Canvas canvas, Size size) {
+  _drawDumpBelt(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
     bool left = tilter.inFeedDirection == CardinalDirection.north &&
-        tilter.doorDirection == CardinalDirection.east ||
+        tilter.birdDirection == CardinalDirection.east ||
         tilter.inFeedDirection == CardinalDirection.east &&
-            tilter.doorDirection == CardinalDirection.south ||
+            tilter.birdDirection == CardinalDirection.south ||
         tilter.inFeedDirection == CardinalDirection.south &&
-            tilter.doorDirection == CardinalDirection.west ||
+            tilter.birdDirection == CardinalDirection.west ||
         tilter.inFeedDirection == CardinalDirection.west &&
-            tilter.doorDirection == CardinalDirection.north;
+            tilter.birdDirection == CardinalDirection.north;
 
     var x1 = left ? 0.0 : size.width * 0.7;
     var x2 = left ? size.width *0.3 : size.width;
