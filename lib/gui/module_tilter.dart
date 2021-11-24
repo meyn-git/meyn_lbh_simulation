@@ -30,8 +30,9 @@ class ModuleTilterPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _drawConveyor(canvas, size);
-    _drawDumpBelt(canvas, size);
+    _drawReceivingConveyor(canvas, size);
     _drawDirectionTriangle(size, canvas);
+    _drawBirdsOnReceivingConveyor(canvas, size);
   }
 
   void _drawDirectionTriangle(Size size, Canvas canvas) {
@@ -58,26 +59,33 @@ class ModuleTilterPainter extends CustomPainter {
   }
 
 
-  _drawDumpBelt(Canvas canvas, Size size) {
+  _drawReceivingConveyor(Canvas canvas, Size size) {
     var conveyorPaint = Paint();
     conveyorPaint.color = Colors.black;
     conveyorPaint.style = PaintingStyle.stroke;
+
+    bool left = _dumpBeltOnLeftSide;
+    var x1 = left ? 0.0 : size.width * 0.7;
+    var x3 = left ? size.width *0.3  : size.width;
+    var y1 = size.height * 0.1;
+    var y2 = size.height * 0.9;
+
+    canvas.drawRect(Rect.fromLTRB(x1, y1, x3, y2), conveyorPaint);
+  }
+
+  _drawBirdsOnReceivingConveyor(Canvas canvas, Size size) {
     var birdPaint = Paint();
     birdPaint.color = Colors.grey;
     birdPaint.style = PaintingStyle.fill;
 
     bool left = _dumpBeltOnLeftSide;
 
-    var x1 = left ? 0.0 : size.width * 0.7;
-    var x2 = left ? size.width *0.3 * tilter.dumpBeltLoad : size.width-size.width * 0.3 * tilter.dumpBeltLoad;
-    var x3 = left ? size.width *0.3  : size.width;
+    var x1 = left ? 0.0 : size.width-size.width * 0.3 * tilter.dumpBeltLoad;
+    var x2 = left ? size.width *0.3 * tilter.dumpBeltLoad : size.width;
     var y1 = size.height * 0.1;
     var y2 = size.height * 0.9;
 
-
     canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), birdPaint);
-
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x3, y2), conveyorPaint);
   }
 
   bool get _dumpBeltOnLeftSide {
