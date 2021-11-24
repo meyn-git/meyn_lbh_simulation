@@ -6,14 +6,16 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final CardinalDirection inFeedDirection;
   final CardinalDirection birdDirection;
   int birdsOnDumpBelt = 0;
-
+  int maxBirdsOnDumpBelt;
   ///Number of birds on dumping belt between module and hanger (a buffer).
   ///The tilter starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
   ///Normally this number is between the number of birds in 1 or 2 modules
-  final int minimumDumpBeltBufferSize;
+  final int minBirdsOnDumpBeltBuffer;
   final Duration checkIfEmptyDuration;
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
+
+
 
   ModuleTilter(
       {required Layout layout,
@@ -26,8 +28,9 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
       this.tiltForwardDuration = const Duration(seconds: 9),
       this.tiltBackDuration = const Duration(seconds: 5),
       Duration outFeedDuration = const Duration(seconds: 12),
-      required this.minimumDumpBeltBufferSize})
-      : super(
+      required this.minBirdsOnDumpBeltBuffer})
+      : maxBirdsOnDumpBelt=minBirdsOnDumpBeltBuffer,
+        super(
           layout: layout,
           position: position,
           seqNr: seqNr,
@@ -39,7 +42,16 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   }
 
   bool get dumpBeltCanReceiveBirds =>
-      birdsOnDumpBelt < minimumDumpBeltBufferSize;
+      birdsOnDumpBelt < minBirdsOnDumpBeltBuffer;
+
+  /// 1=dump belt full with birds
+  /// 0=dump belt empty
+  double get dumpBeltLoad   {
+    if (birdsOnDumpBelt>maxBirdsOnDumpBelt) {
+      maxBirdsOnDumpBelt=birdsOnDumpBelt;
+    }
+    return birdsOnDumpBelt/maxBirdsOnDumpBelt;
+  }
 
   void _verifyDirections() {
     if (inFeedDirection.isParallelTo(birdDirection)) {

@@ -110,7 +110,7 @@ class IndrolLayout extends Layout {
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
       birdDirection: CardinalDirection.north,
-      minimumDumpBeltBufferSize: 2 * 40,
+      minBirdsOnDumpBeltBuffer: 2 * 40,
     ));
 
     put(ModuleConveyor(

@@ -83,7 +83,7 @@ class FileniChickenLayout extends Layout {
       seqNr: 1,
       inFeedDirection: CardinalDirection.east,
       birdDirection: CardinalDirection.north,
-      minimumDumpBeltBufferSize: 2 * 40,
+      minBirdsOnDumpBeltBuffer: 2 * 40,
     ));
 
     put(ModuleConveyor(

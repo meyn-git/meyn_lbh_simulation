@@ -23,7 +23,9 @@ class ModuleTilterWidget extends StatelessWidget {
 class ModuleTilterPainter extends CustomPainter {
   final ModuleTilter tilter;
 
-  ModuleTilterPainter(this.tilter);
+  int maxBirdsOnDumpBelt;
+
+  ModuleTilterPainter(this.tilter): maxBirdsOnDumpBelt=tilter.minBirdsOnDumpBeltBuffer;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -57,23 +59,36 @@ class ModuleTilterPainter extends CustomPainter {
 
 
   _drawDumpBelt(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = Colors.black;
-    paint.style = PaintingStyle.stroke;
-    bool left = tilter.inFeedDirection == CardinalDirection.north &&
-        tilter.birdDirection == CardinalDirection.east ||
-        tilter.inFeedDirection == CardinalDirection.east &&
-            tilter.birdDirection == CardinalDirection.south ||
-        tilter.inFeedDirection == CardinalDirection.south &&
-            tilter.birdDirection == CardinalDirection.west ||
-        tilter.inFeedDirection == CardinalDirection.west &&
-            tilter.birdDirection == CardinalDirection.north;
+    var conveyorPaint = Paint();
+    conveyorPaint.color = Colors.black;
+    conveyorPaint.style = PaintingStyle.stroke;
+    var birdPaint = Paint();
+    birdPaint.color = Colors.grey;
+    birdPaint.style = PaintingStyle.fill;
+
+    bool left = _dumpBeltOnLeftSide;
 
     var x1 = left ? 0.0 : size.width * 0.7;
-    var x2 = left ? size.width *0.3 : size.width;
+    var x2 = left ? size.width *0.3 * tilter.dumpBeltLoad : size.width-size.width * 0.3 * tilter.dumpBeltLoad;
+    var x3 = left ? size.width *0.3  : size.width;
     var y1 = size.height * 0.1;
     var y2 = size.height * 0.9;
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
+
+
+    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), birdPaint);
+
+    canvas.drawRect(Rect.fromLTRB(x1, y1, x3, y2), conveyorPaint);
+  }
+
+  bool get _dumpBeltOnLeftSide {
+    return tilter.inFeedDirection == CardinalDirection.north &&
+      tilter.birdDirection == CardinalDirection.east ||
+      tilter.inFeedDirection == CardinalDirection.east &&
+          tilter.birdDirection == CardinalDirection.south ||
+      tilter.inFeedDirection == CardinalDirection.south &&
+          tilter.birdDirection == CardinalDirection.west ||
+      tilter.inFeedDirection == CardinalDirection.west &&
+          tilter.birdDirection == CardinalDirection.north;
   }
 
   @override
