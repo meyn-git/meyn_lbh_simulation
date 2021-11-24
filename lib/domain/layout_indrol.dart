@@ -91,16 +91,16 @@ class IndrolLayout extends Layout {
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
 
+    //De stacker
     put(ModuleConveyor(
-//De stacker
       layout: this,
       position: Position(4, 2),
       seqNr: 2,
       inFeedDirection: CardinalDirection.west,
     ));
 
+    //Gross weighing conveyor
     put(ModuleConveyor(
-//Gross weighing conveyor
       layout: this,
       position: Position(5, 2),
       seqNr: 3,
@@ -113,17 +113,19 @@ class IndrolLayout extends Layout {
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
       birdDirection: CardinalDirection.north,
-      minBirdsOnDumpBeltBuffer: 2 * 40,
+      minBirdsOnDumpBeltBuffer: 2 * birdsPerModule,
     ));
 
+
+    //Tare weighing conveyor
     put(ModuleConveyor(
-//Tare weighing conveyor
       layout: this,
       position: Position(7, 2),
       seqNr: 4,
       inFeedDirection: CardinalDirection.west,
     ));
 
+    // Module conveyor
     put(ModuleConveyor(
       layout: this,
       position: Position(8, 2),
@@ -131,6 +133,7 @@ class IndrolLayout extends Layout {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    // High pressure pre-washer
     put(ModuleConveyor(
       layout: this,
       position: Position(9, 2),
@@ -138,6 +141,7 @@ class IndrolLayout extends Layout {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    //  Module conveyor
     put(ModuleConveyor(
       layout: this,
       position: Position(10, 2),
@@ -145,6 +149,7 @@ class IndrolLayout extends Layout {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    // Active module washer
     put(ModuleConveyor(
       layout: this,
       position: Position(11, 2),
@@ -152,6 +157,7 @@ class IndrolLayout extends Layout {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    // Disinfection unit
     put(ModuleConveyor(
       layout: this,
       position: Position(12, 2),
@@ -159,6 +165,7 @@ class IndrolLayout extends Layout {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    //  Module conveyor
     put(ModuleConveyor(
       layout: this,
       position: Position(13, 2),
@@ -166,6 +173,7 @@ class IndrolLayout extends Layout {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    //  Stacker
     put(ModuleConveyor(
       layout: this,
       position: Position(14, 2),
