@@ -30,7 +30,8 @@ class IndrolLayout extends Layout {
   ///  - max birds: 300/18kg= 16 birds/level x 3 levels= 48 birds per module
 
   static final birdsPerHour=1800;
-  static final birdsPerModule=3*13;
+  static final birdsPerModule=3*15;
+  static final casRecipe=CasRecipe.standardTurkeyRecipe();
 
   IndrolLayout() : super('8052-Indrol-Grodzisk-Poland') {
     _row1();
@@ -44,6 +45,7 @@ class IndrolLayout extends Layout {
       layout: this,
       position: Position(2, 1),
       seqNr: 2,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
     ));
@@ -52,6 +54,7 @@ class IndrolLayout extends Layout {
       layout: this,
       position: Position(3, 1),
       seqNr: 1,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
     ));

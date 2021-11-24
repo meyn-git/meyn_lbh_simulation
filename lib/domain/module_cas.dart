@@ -1,4 +1,3 @@
-
 import 'package:collection/src/iterable_extensions.dart';
 
 import 'layout.dart';
@@ -18,13 +17,7 @@ class ModuleCas extends StateMachineCell {
     required Layout layout,
     required Position position,
     int? seqNr,
-    this.recipe = const CasRecipe([
-      Duration(seconds: 60),
-      Duration(seconds: 60),
-      Duration(seconds: 60),
-      Duration(seconds: 60),
-      Duration(seconds: 120)
-    ], Duration(seconds: 30)),
+    required this.recipe,
     required this.inAndOutFeedDirection,
     required this.doorDirection,
     this.closeSlideDoorDuration = const Duration(seconds: 3),
@@ -91,6 +84,23 @@ class CasRecipe {
   final Duration exhaustDuration;
 
   const CasRecipe(this.stunStageDurations, this.exhaustDuration);
+
+  const CasRecipe.standardChickenRecipe()
+      : this(const [
+          Duration(seconds: 60), //18%
+          Duration(seconds: 60), //28%
+          Duration(seconds: 60), //33%
+          Duration(seconds: 60), //38%
+          Duration(seconds: 120) //67%
+        ], const Duration(seconds: 30));
+
+  const CasRecipe.standardTurkeyRecipe()
+      : this(const [
+          Duration(seconds: 40), //22%
+          Duration(seconds: 40), //34%
+          Duration(seconds: 40), //43%
+          Duration(seconds: 120) //67%
+        ], const Duration(seconds: 30));
 }
 
 class WaitToFeedIn extends State<ModuleCas> {

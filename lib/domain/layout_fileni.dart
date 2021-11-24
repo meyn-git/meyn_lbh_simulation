@@ -21,6 +21,7 @@ class FileniChickenLayout extends Layout {
   static final birdsPerHour = 8000;
   static final birdsPerModule1 = 4 * 26;
   static final birdsPerModule2 = 5 * 26;
+  static final casRecipe = CasRecipe.standardChickenRecipe();
 
   FileniChickenLayout() : super('7324-Fileni Castelplanio-Chicken-Italy') {
     _row1();
@@ -42,6 +43,7 @@ class FileniChickenLayout extends Layout {
       layout: this,
       position: Position(5, 1),
       seqNr: 1,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
     ));
@@ -50,6 +52,7 @@ class FileniChickenLayout extends Layout {
       layout: this,
       position: Position(6, 1),
       seqNr: 3,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
     ));
@@ -58,6 +61,7 @@ class FileniChickenLayout extends Layout {
       layout: this,
       position: Position(7, 1),
       seqNr: 5,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
     ));
@@ -125,6 +129,7 @@ class FileniChickenLayout extends Layout {
       layout: this,
       position: Position(5, 3),
       seqNr: 2,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
     ));
@@ -133,6 +138,7 @@ class FileniChickenLayout extends Layout {
       layout: this,
       position: Position(6, 3),
       seqNr: 4,
+      recipe: casRecipe,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
     ));
