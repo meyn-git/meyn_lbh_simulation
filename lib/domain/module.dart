@@ -78,6 +78,19 @@ class ModuleGroup extends TimeProcessor {
     sinceStartStun = Duration.zero;
   }
 
+  Duration? get sinceEndStun => firstModule.sinceEndStun;
+
+  set sinceEndStun(Duration? duration) {
+    firstModule.sinceEndStun = duration;
+    if (secondModule != null) {
+      secondModule!.sinceEndStun = duration;
+    }
+  }
+
+  void endStunning() {
+    sinceEndStun = Duration.zero;
+  }
+
   Duration? get sinceBirdsUnloaded => firstModule.sinceBirdsUnloaded;
 
   set sinceBirdsUnloaded(Duration? duration) {
@@ -94,6 +107,22 @@ class ModuleGroup extends TimeProcessor {
       secondModule!.nrOfBirds=0;
     }
   }
+
+  ModuleContents get contents {
+    if (sinceBirdsUnloaded!=null) {
+      return ModuleContents.noBirds;
+    } else if (sinceEndStun!=null) {
+      return ModuleContents.stunnedBirds;
+    } else if (sinceStartStun!=null) {
+      return ModuleContents.birdsBeingStunned;
+    } else {
+      return ModuleContents.awakeBirds;
+    }
+  }
+}
+
+enum ModuleContents {
+  awakeBirds, birdsBeingStunned, stunnedBirds, noBirds
 }
 
 /// A module location is either at a given position or traveling between 2 positions
@@ -174,6 +203,7 @@ class Module {
   int nrOfBirds;
   Duration? sinceLoadedOnSystem;
   Duration? sinceStartStun;
+  Duration? sinceEndStun;
   Duration? sinceBirdsUnloaded;
 
   Module({
@@ -187,6 +217,7 @@ class Module {
       .appendProperty('nrOfBirds', nrOfBirds)
       .appendProperty('sinceLoadedOnSystem', sinceLoadedOnSystem)
       .appendProperty('sinceStartStun', sinceStartStun)
+      .appendProperty('sinceEndStun', sinceEndStun)
       .appendProperty('sinceBirdsUnloaded', sinceBirdsUnloaded)
       .toString();
 }

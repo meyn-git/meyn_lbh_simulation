@@ -15,8 +15,6 @@ class ModuleGroupWidget extends StatelessWidget {
   }
 }
 
-//TODO depending on type: SideBySide or Stacked
-//TODO draw double with small offset when 2 modules
 class ModuleGroupWidgetPainter extends CustomPainter {
   final ModuleGroup moduleGroup;
   static final compartmentSize = 0.30;
@@ -68,12 +66,15 @@ class ModuleGroupWidgetPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   Color _colorFor(ModuleGroup moduleGroup) {
-    if (moduleGroup.sinceBirdsUnloaded != null) {
-      return Colors.black; //no birds
-    } else if (moduleGroup.sinceStartStun != null) {
-      return Colors.red; // stunned birds
-    } else {
-      return Colors.green;
+    switch (moduleGroup.contents) {
+      case ModuleContents.noBirds:
+        return Colors.black;
+      case ModuleContents.stunnedBirds:
+        return Colors.red;
+      case ModuleContents.birdsBeingStunned:
+        return Colors.orange;
+      case ModuleContents.awakeBirds:
+        return Colors.green; // awake birds
     }
   }
 
@@ -109,11 +110,11 @@ class ModuleGroupWidgetPainter extends CustomPainter {
   }
 
   void _paintSingleRectangularModule(
-      Canvas canvas,
-      Size size, {
-        Offset offset = Offset.zero,
-        paintTriangle: true,
-      }) {
+    Canvas canvas,
+    Size size, {
+    Offset offset = Offset.zero,
+    paintTriangle: true,
+  }) {
     var x1 = size.width * 0.2 + offset.dx;
     var y1 = (size.width * (1 - compartmentSize)) / 2 + offset.dy;
     _paintModuleCompartment(

@@ -207,6 +207,7 @@ class ExhaustStage extends DurationState<ModuleCas> {
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     var destination = cas.moduleGroupDestinationAfterStunning;
+    cas.moduleGroup!.endStunning();
     cas.moduleGroup!.destination = destination;
   }
 }
