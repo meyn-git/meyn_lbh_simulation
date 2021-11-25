@@ -42,17 +42,15 @@ class ModuleConveyorPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  Paint drawRectangle(Canvas canvas, Size size) {
+   drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
-    canvas.drawRect(
-        Rect.fromCenter(
-            center: Offset(size.width / 2, size.height / 2),
-            width: size.width * 0.4,
-            height: size.width * 0.8),
-        paint);
-    return paint;
+    var x1 = size.width * 0.3;
+    var x2 = size.width * 0.7;
+    var y1 = size.height * 0.1;
+    var y2 = size.height * 0.9;
+    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
   }
 
   @override

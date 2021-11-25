@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:meyn_lbh_simulation/domain/layout_fileni.dart';
 import 'package:meyn_lbh_simulation/domain/layout_indrol.dart';
 
 import 'layout.dart';
+import 'layout_fileni.dart';
 
 class Player {
   int _speed = 1;
@@ -13,9 +13,9 @@ class Player {
   Timer? timer;
   Layout layout = createNewLayout();
 
-  static Layout createNewLayout() => FileniChickenLayout();
+  // static Layout createNewLayout() => FileniChickenLayout();
 
-  // static Layout createNewLayout() => IndrolLayout();
+  static Layout createNewLayout() => IndrolLayout();
 
   // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
   static final Player _singleton = Player._();

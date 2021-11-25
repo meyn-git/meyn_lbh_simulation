@@ -8,7 +8,7 @@ import 'title_builder.dart';
 /// E.g. a stack of 2 modules, or 2 modules side by side
 class ModuleGroup extends TimeProcessor {
   final Module firstModule;
-  final Module? secondModule;
+  Module? secondModule;
   final ModuleType type;
   CompassDirection doorDirection;
   StateMachineCell destination;
@@ -22,6 +22,20 @@ class ModuleGroup extends TimeProcessor {
     required this.destination,
     required this.position,
   });
+
+  ModuleGroup copyWith(
+          {ModuleType? type,
+          Module? firstModule,
+          Module? secondModule,
+          CompassDirection? doorDirection,
+          StateMachineCell? destination,
+          ModulePosition? position}) =>
+      ModuleGroup(
+          type: type ?? this.type,
+          firstModule: firstModule ?? this.firstModule,
+          doorDirection: doorDirection ?? this.doorDirection,
+          destination: destination ?? this.destination,
+          position: position ?? this.position);
 
   int get numberOfModules => 1 + ((secondModule == null) ? 0 : 1);
 
@@ -102,28 +116,40 @@ class ModuleGroup extends TimeProcessor {
 
   void unloadBirds() {
     sinceBirdsUnloaded = Duration.zero;
-    firstModule.nrOfBirds=0;
-    if (secondModule!=null) {
-      secondModule!.nrOfBirds=0;
+    firstModule.nrOfBirds = 0;
+    if (secondModule != null) {
+      secondModule!.nrOfBirds = 0;
     }
   }
 
   ModuleContents get contents {
-    if (sinceBirdsUnloaded!=null) {
+    if (sinceBirdsUnloaded != null) {
       return ModuleContents.noBirds;
-    } else if (sinceEndStun!=null) {
+    } else if (sinceEndStun != null) {
       return ModuleContents.stunnedBirds;
-    } else if (sinceStartStun!=null) {
+    } else if (sinceStartStun != null) {
       return ModuleContents.birdsBeingStunned;
     } else {
       return ModuleContents.awakeBirds;
     }
   }
+
+  /// Splits the [ModuleGroup] int 2 different [ModuleGroup]s:
+  /// - The [ModuleGroup.secondModule] is removed from the existing [ModuleGroup]
+  /// - returns a new copied [ModuleGroup] where [ModuleGroup.firstModule]=[ModuleGroup.secondModule]
+  ModuleGroup? split() {
+    if (secondModule == null) {
+      throw Exception(
+          'You can not split a $ModuleGroup that contains only one module');
+    }
+    var newModuleGroup =
+        copyWith(firstModule: secondModule, secondModule: null);
+    secondModule = null;
+    return newModuleGroup;
+  }
 }
 
-enum ModuleContents {
-  awakeBirds, birdsBeingStunned, stunnedBirds, noBirds
-}
+enum ModuleContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
 
 /// A module location is either at a given position or traveling between 2 positions
 class ModulePosition {

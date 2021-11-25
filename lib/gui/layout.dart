@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/gui/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/unloading_fork_lift_truck.dart';
 
@@ -181,6 +183,9 @@ class CellWidgetFactory {
     }
     if (cell is BirdHangingConveyor) {
       return BirdHangingConveyorWidget(cell);
+    }
+    if (cell is ModuleDeStacker) {
+      return ModuleDeStackerWidget(cell);
     }
     if (cell is ModuleCasAllocation) {
       return ModuleCasAllocationWidget(cell);

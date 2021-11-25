@@ -4,22 +4,22 @@ import 'package:meyn_lbh_simulation/domain/module.dart';
 class ModuleGroupWidget extends StatelessWidget {
   final ModuleGroup moduleGroup;
 
-  ModuleGroupWidget(this.moduleGroup);
+  ModuleGroupWidget(this.moduleGroup): super(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: AlwaysStoppedAnimation(moduleGroup.doorDirection.degrees / 360),
-      child: CustomPaint(painter: ModuleGroupWidgetPainter(moduleGroup)),
+      child: CustomPaint(painter: ModuleGroupPainter(moduleGroup)),
     );
   }
 }
 
-class ModuleGroupWidgetPainter extends CustomPainter {
+class ModuleGroupPainter extends CustomPainter {
   final ModuleGroup moduleGroup;
   static final compartmentSize = 0.30;
 
-  ModuleGroupWidgetPainter(this.moduleGroup);
+  ModuleGroupPainter(this.moduleGroup);
 
   @override
   void paint(Canvas canvas, Size size) {

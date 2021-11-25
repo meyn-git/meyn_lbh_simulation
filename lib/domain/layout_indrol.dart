@@ -1,4 +1,5 @@
 import 'package:meyn_lbh_simulation/domain/layout.dart';
+import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
@@ -91,11 +92,10 @@ class IndrolLayout extends Layout {
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
 
-    //De stacker
-    put(ModuleConveyor(
+    put(ModuleDeStacker(
       layout: this,
       position: Position(4, 2),
-      seqNr: 2,
+      seqNr: 1,
       inFeedDirection: CardinalDirection.west,
     ));
 

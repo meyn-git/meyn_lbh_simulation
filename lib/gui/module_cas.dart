@@ -27,13 +27,13 @@ class ModuleCasPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    drawRectangle(canvas, size);
-    drawInFeedTriangle(canvas, size);
-    drawOutFeedTriangle(canvas, size);
-    drawAirIntakes(canvas, size);
+    _drawRectangle(canvas, size);
+    _drawInFeedTriangle(canvas, size);
+    _drawOutFeedTriangle(canvas, size);
+    _drawAirIntakes(canvas, size);
   }
 
-  void drawInFeedTriangle(Canvas canvas, Size size) {
+  void _drawInFeedTriangle(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.fill;
@@ -45,7 +45,7 @@ class ModuleCasPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  void drawOutFeedTriangle(Canvas canvas, Size size) {
+  void _drawOutFeedTriangle(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.fill;
@@ -57,20 +57,18 @@ class ModuleCasPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  Paint drawRectangle(Canvas canvas, Size size) {
+  _drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
-    canvas.drawRect(
-        Rect.fromCenter(
-            center: Offset(size.width / 2, size.height / 2),
-            width: size.width * 0.4,
-            height: size.width * 0.8),
-        paint);
-    return paint;
+    var x1 = size.width * 0.3;
+    var x2 = size.width * 0.7;
+    var y1 = size.height * 0.1;
+    var y2 = size.height * 0.9;
+    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
   }
 
-  Paint drawAirIntakes(Canvas canvas, Size size) {
+   _drawAirIntakes(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;
@@ -90,7 +88,6 @@ class ModuleCasPainter extends CustomPainter {
     var height = size.height * 0.2;
     canvas.drawRect(Rect.fromLTWH(x1, y1, width, height), paint);
     canvas.drawRect(Rect.fromLTWH(x1, y2, width, height), paint);
-    return paint;
   }
 
   @override

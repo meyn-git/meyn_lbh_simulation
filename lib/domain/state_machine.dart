@@ -113,6 +113,6 @@ class DurationState<T extends StateMachineCell> extends State<T> {
 
   @override
   String toString() {
-    return '${super.name} (remaining: ${remainingDuration.inSeconds}sec)';
+    return '${this.name} remaining:${remainingDuration.inSeconds}sec';
   }
 }
