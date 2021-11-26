@@ -41,20 +41,17 @@ class _LayoutWidgetState extends State<LayoutWidget> {
   _LayoutWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        // try {
-          player.layout.onUpdateToNextPointInTime(player.jump);
-        // }  catch (e) {
-        //   ScaffoldMessenger.of(context)
-        //       .showSnackBar(SnackBar(content: Text(e.toString())));
-        // }
       });
     });
   }
 
   @override
-  Widget build(BuildContext context) => CustomMultiChildLayout(
-      delegate: LayoutWidgetDelegate(player.layout),
-      children: createChildren(player.layout));
+  Widget build(BuildContext context) => Container(
+    color:Colors.grey.shade200,
+    child: CustomMultiChildLayout(
+        delegate: LayoutWidgetDelegate(player.layout),
+        children: createChildren(player.layout)),
+  );
 
   static List<Widget> createChildren(Layout layout) {
     List<Widget> children = [];
