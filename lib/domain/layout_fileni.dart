@@ -1,3 +1,5 @@
+import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 
@@ -8,6 +10,7 @@ import 'module.dart';
 import 'module_cas.dart';
 import 'module_cas_allocation.dart';
 import 'module_conveyor.dart';
+import 'module_lift_position.dart';
 import 'module_rotating_conveyor.dart';
 import 'module_tilter.dart';
 
@@ -77,7 +80,7 @@ class FileniChickenLayout extends Layout {
     put(ModuleConveyor(
       layout: this,
       position: Position(2, 2),
-      seqNr: 4,
+      seqNr: 3,
       inFeedDirection: CardinalDirection.east,
     ));
 
@@ -87,14 +90,25 @@ class FileniChickenLayout extends Layout {
       seqNr: 1,
       inFeedDirection: CardinalDirection.east,
       birdDirection: CardinalDirection.north,
-      minBirdsOnDumpBeltBuffer: (birdsPerModule1+birdsPerModule2/2).round(),
+      minBirdsOnDumpBeltBuffer: (birdsPerModule1 + birdsPerModule2 / 2).round(),
     ));
 
-    put(ModuleConveyor(
+
+    /// mimicking a de-merging conveyor: 1 [ModuleGroup] => 2x [ModuleGroup] to tilter
+    /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
+    put(ModuleDeStacker(
       layout: this,
       position: Position(4, 2),
-      seqNr: 3,
+      seqNr: 1,
       inFeedDirection: CardinalDirection.east,
+      heightsInCentiMeter: const {
+        LiftPosition.inFeed: 0,
+        LiftPosition.outFeed: 0,
+        LiftPosition.pickUpTopModule: 0,
+        LiftPosition.supportTopModule: 0,
+      },
+      supportsCloseDuration: Duration.zero,
+      supportsOpenDuration: Duration.zero,
     ));
 
     put(ModuleRotatingConveyor(
@@ -143,11 +157,21 @@ class FileniChickenLayout extends Layout {
       doorDirection: CardinalDirection.east,
     ));
 
-    put(ModuleConveyor(
+    /// mimicking a merging conveyor: 2 x singe [ModuleGroup] from fork lift truck into 1
+    /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
+    put(ModuleStacker(
       layout: this,
       position: Position(7, 3),
-      seqNr: 2,
+      seqNr: 1,
       inFeedDirection: CardinalDirection.south,
+      heightsInCentiMeter: const {
+        LiftPosition.inFeed: 0,
+        LiftPosition.outFeed: 0,
+        LiftPosition.pickUpTopModule: 0,
+        LiftPosition.supportTopModule: 0,
+      },
+      supportsCloseDuration: Duration.zero,
+      supportsOpenDuration: Duration.zero,
     ));
   }
 
@@ -175,9 +199,9 @@ class FileniChickenLayout extends Layout {
               firstModule: Module(
                   sequenceNumber: ++moduleSequenceNumber,
                   nrOfBirds: birdsPerModule1),
-              secondModule: Module(
-                  sequenceNumber: ++moduleSequenceNumber,
-                  nrOfBirds: birdsPerModule2),
+              // secondModule: Module(
+              //     sequenceNumber: ++moduleSequenceNumber,
+              //     nrOfBirds: birdsPerModule2),
             )));
 
     put(ModuleCasAllocation(

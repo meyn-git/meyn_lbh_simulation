@@ -2,6 +2,7 @@ import 'package:collection/src/iterable_extensions.dart';
 
 import 'layout.dart';
 import 'module.dart';
+import 'module_lift_position.dart';
 import 'state_machine.dart';
 
 class ModuleStacker extends StateMachineCell {
@@ -74,13 +75,6 @@ class ModuleStacker extends StateMachineCell {
           moduleGroup != moduleGroupOnSupports &&
           moduleGroup.position.equals(this));
 
-}
-
-enum LiftPosition {
-  pickUpTopModule,
-  supportTopModule,
-  inFeed,
-  outFeed,
 }
 
 class MoveLift extends DurationState<ModuleStacker> {

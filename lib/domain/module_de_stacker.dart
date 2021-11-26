@@ -1,5 +1,6 @@
 import 'layout.dart';
 import 'module.dart';
+import 'module_lift_position.dart';
 import 'state_machine.dart';
 
 class ModuleDeStacker extends StateMachineCell {
@@ -65,12 +66,7 @@ class ModuleDeStacker extends StateMachineCell {
       direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
 }
 
-enum LiftPosition {
-  pickUpTopModule,
-  supportTopModule,
-  inFeed,
-  outFeed,
-}
+
 
 class MoveLift extends DurationState<ModuleDeStacker> {
   final LiftPosition goToPosition;
