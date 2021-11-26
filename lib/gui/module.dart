@@ -136,16 +136,17 @@ class ModuleGroupPainter extends CustomPainter {
   }
 
   void _paintStackedRectangularModules(Canvas canvas, Size size) {
-    var x1 = -size.width * 0.01;
-    var y1 = -size.width * 0.01;
+    var moduleOffset=0.015;
+    var x1 = -size.width * moduleOffset;
+    var y1 = -size.width * moduleOffset;
     _paintSingleRectangularModule(
       canvas,
       size,
       offset: Offset(x1, y1),
       paintTriangle: false,
     );
-    var x2 = size.width * 0.01;
-    var y2 = size.width * 0.01;
+    var x2 = size.width * moduleOffset;
+    var y2 = size.width * moduleOffset;
     _paintSingleRectangularModule(
       canvas,
       size,

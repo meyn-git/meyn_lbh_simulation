@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/layout.dart';
-import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/module_stacker.dart';
 
 
-class ModuleDeStackerWidget extends StatelessWidget {
-  final ModuleDeStacker deStacker;
+class ModuleStackerWidget extends StatelessWidget {
+  final ModuleStacker stacker;
 
-  ModuleDeStackerWidget(this.deStacker);
+  ModuleStackerWidget(this.stacker);
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-        message: deStacker.toString(),
+        message: stacker.toString(),
         child: RotationTransition(
-            turns: AlwaysStoppedAnimation(deStacker.inFeedDirection.opposite
+            turns: AlwaysStoppedAnimation(stacker.inFeedDirection.opposite
                 .toCompassDirection()
                 .degrees /
                 360),
-            child: CustomPaint(painter: ModuleDeStackerPainter(deStacker))));
+            child: CustomPaint(painter: ModuleStackerPainter(stacker))));
   }
 }
 
-class ModuleDeStackerPainter extends CustomPainter {
-  final ModuleDeStacker deStacker;
+class ModuleStackerPainter extends CustomPainter {
+  final ModuleStacker stacker;
 
-  ModuleDeStackerPainter(this.deStacker);
+  ModuleStackerPainter(this.stacker);
 
   @override
   void paint(Canvas canvas, Size size) {

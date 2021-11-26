@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/module_de_stacker.dart';
@@ -25,6 +26,7 @@ import '/gui/module_cas_allocation.dart';
 import '/gui/module_conveyor.dart';
 import '/gui/module_rotating_conveyor.dart';
 import 'module.dart';
+import 'module_stacker.dart';
 
 class LayoutWidget extends StatefulWidget {
   LayoutWidget({required Key key}) : super(key: key);
@@ -39,12 +41,12 @@ class _LayoutWidgetState extends State<LayoutWidget> {
   _LayoutWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        try {
+        // try {
           player.layout.onUpdateToNextPointInTime(player.jump);
-        }  catch (e) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(e.toString())));
-        }
+        // }  catch (e) {
+        //   ScaffoldMessenger.of(context)
+        //       .showSnackBar(SnackBar(content: Text(e.toString())));
+        // }
       });
     });
   }
@@ -187,6 +189,10 @@ class CellWidgetFactory {
     if (cell is ModuleDeStacker) {
       return ModuleDeStackerWidget(cell);
     }
+    if (cell is ModuleStacker) {
+      return ModuleStackerWidget(cell);
+    }
+
     if (cell is ModuleCasAllocation) {
       return ModuleCasAllocationWidget(cell);
     }
