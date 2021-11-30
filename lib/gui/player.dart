@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '/domain/player.dart';
 import '/gui/layout.dart';
 
@@ -21,6 +20,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       appBar: AppBar(
         title: Text(player.layout.name),
         actions: [
+          buildOpenButton(),
           buildRestartButton(),
           if (!player.playing) buildPlayButton(),
           if (player.playing) buildPauseButton(),
@@ -56,6 +56,19 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     );
   }
 
+  IconButton buildOpenButton() {
+    return IconButton(
+      icon: const Icon(Icons.folder_open_rounded),
+      tooltip: 'Open other layout project',
+      onPressed: () {
+        setState(() {
+          player.restartOtherLayout();
+        });
+      },
+    );
+  }
+
+
   IconButton buildRestartButton() {
     return IconButton(
       icon: const Icon(Icons.replay_rounded),
@@ -63,7 +76,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       onPressed: () {
         setState(() {
           player.restart();
-          layoutWidget = createLayoutWidget();
+          //layoutWidget = createLayoutWidget();
         });
       },
     );
@@ -74,7 +87,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 }
 
-/// This is the stateful widget that the main application instantiates.
 class SpeedDropDownButton extends StatefulWidget {
   final Player player;
 
@@ -84,7 +96,6 @@ class SpeedDropDownButton extends StatefulWidget {
   State<SpeedDropDownButton> createState() => _SpeedDropDownButtonState(player);
 }
 
-/// This is the private State class that goes with MyStatefulWidget.
 class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
   final Player player;
 
@@ -134,3 +145,5 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
     );
   }
 }
+
+

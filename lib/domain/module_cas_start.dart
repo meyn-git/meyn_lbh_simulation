@@ -62,13 +62,13 @@ class ModuleCasStart extends ActiveCell {
     }
     switch (nrStunnedModules) {
       case 1:
-        return _normalStartInterval * 0;
+        return _normalStartInterval * 0.5;
       case 2:
-        return _normalStartInterval * 0;
+        return _normalStartInterval * 1;
       case 3:
-        return _normalStartInterval * 0;
+        return _normalStartInterval * 1;
       case 4:
-        return _normalStartInterval * 0;
+        return _normalStartInterval * 1;
       default:
         return hold;
     }
@@ -108,7 +108,7 @@ class ModuleCasStart extends ActiveCell {
 
   Duration get _normalStartInterval {
     var shacklesPerHour = _findBirdHangingConveyors().shacklesPerHour;
-    var birdsPerModuleGroup = _findAverageNrOfBirdsPerModuleGroup();
+    var birdsPerModuleGroup = _findNrOfBirdsPerModuleGroup();
     Duration startInterval = Duration(
         microseconds: (3600 / shacklesPerHour * birdsPerModuleGroup*Duration.microsecondsPerSecond).round());
     return startInterval;
@@ -143,12 +143,10 @@ class ModuleCasStart extends ActiveCell {
     }
   }
 
-  int _findAverageNrOfBirdsPerModuleGroup() {
+  int _findNrOfBirdsPerModuleGroup() {
     var forkLiftTruck = _findLoadingForkLiftTruck();
     var moduleGroup = forkLiftTruck.createModuleGroup();
-    var averageNrOfBirdsPerModule =
-        (moduleGroup.numberOfBirds / moduleGroup.numberOfModules).round();
-    return averageNrOfBirdsPerModule;
+    return moduleGroup.numberOfBirds;
   }
 
   @override

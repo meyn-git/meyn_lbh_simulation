@@ -11,11 +11,7 @@ class Player {
   Duration jump = _calculateJump(1);
   void Function(Timer t)? listener;
   Timer? timer;
-  Layout layout = createNewLayout();
-
-  static Layout createNewLayout() => FileniChickenLayout();
-
-  // static Layout createNewLayout() => IndrolLayout();
+  Layout layout = IndrolLayout();
 
   // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
   static final Player _singleton = Player._();
@@ -78,6 +74,19 @@ class Player {
           (speed / maxSpeed * maxJumpResolution.inMicroseconds).round());
 
   void restart() {
-    layout = createNewLayout();
+    if (layout is IndrolLayout) {
+      layout=IndrolLayout();
+    } else {
+      layout=FileniChickenLayout();
+    }
   }
+
+  void restartOtherLayout() {
+    if (layout is IndrolLayout) {
+      layout=FileniChickenLayout();
+    } else {
+      layout=IndrolLayout();
+    }
+  }
+
 }

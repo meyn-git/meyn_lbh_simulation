@@ -1,4 +1,4 @@
-import 'package:collection/src/iterable_extensions.dart';
+import 'package:collection/collection.dart';
 
 import 'layout.dart';
 import 'module.dart';
@@ -74,7 +74,6 @@ class ModuleStacker extends StateMachineCell {
       layout.moduleGroups.firstWhereOrNull((moduleGroup) =>
           moduleGroup != moduleGroupOnSupports &&
           moduleGroup.position.equals(this));
-
 }
 
 class MoveLift extends DurationState<ModuleStacker> {
