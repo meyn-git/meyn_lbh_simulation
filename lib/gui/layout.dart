@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/module_tilter.dart';
@@ -26,6 +27,7 @@ import '/gui/module_cas_allocation.dart';
 import '/gui/module_conveyor.dart';
 import '/gui/module_rotating_conveyor.dart';
 import 'module.dart';
+import 'module_cas_start.dart';
 import 'module_stacker.dart';
 
 class LayoutWidget extends StatefulWidget {
@@ -193,6 +195,9 @@ class CellWidgetFactory {
 
     if (cell is ModuleCasAllocation) {
       return ModuleCasAllocationWidget(cell);
+    }
+    if (cell is ModuleCasStart) {
+      return ModuleCasStartWidget(cell);
     }
     return EmptyCellWidget();
   }

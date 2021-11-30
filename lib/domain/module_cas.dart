@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/module_cas_start.dart';
 
 import 'layout.dart';
 import 'module.dart';
@@ -12,6 +13,7 @@ class ModuleCas extends StateMachineCell {
   final CardinalDirection doorDirection;
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
+  Duration waitingForStartDuration=Duration.zero;
 
   ModuleCas({
     required Layout layout,
@@ -77,6 +79,25 @@ class ModuleCas extends StateMachineCell {
     }
     return unloadingCell as StateMachineCell;
   }
+
+  @override
+  onUpdateToNextPointInTime(Duration jump) {
+    super.onUpdateToNextPointInTime(jump);
+    if (currentState is WaitForStart) {
+      waitingForStartDuration+=jump;
+    } else {
+      waitingForStartDuration=Duration.zero;
+    }
+  }
+
+  ///Called by [ModuleCasStart]
+  start() {
+    if (currentState is WaitForStart) {
+      (currentState as WaitForStart).start();
+    } else {
+      throw Exception('Can not start $name, because it is in $currentState state and not in $WaitForStart state.');
+    }
+  }
 }
 
 class CasRecipe {
@@ -139,10 +160,18 @@ class FeedIn extends State<ModuleCas> {
 }
 
 class WaitForStart extends State<ModuleCas> {
+  bool _start=false;
+
   @override
   State<ModuleCas>? nextState(ModuleCas moduleCas) {
-    //TODO wait for start from
-    return CloseSlideDoor();
+    if (_start) {
+      _start=false;
+      return CloseSlideDoor();
+    }
+  }
+
+  void start() {
+    _start=true;
   }
 }
 

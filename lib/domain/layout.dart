@@ -289,7 +289,7 @@ class CompassDirection {
 
 abstract class TimeProcessor {
   /// method to change the state of the object to the next point in time
-  onUpdateToNextPointInTime(Duration jump);
+  void onUpdateToNextPointInTime(Duration jump);
 }
 
 abstract class ActiveCell extends Cell implements TimeProcessor {

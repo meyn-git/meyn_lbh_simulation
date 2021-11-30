@@ -26,15 +26,17 @@ static final  indentation='    ';
       var propertyValue = properties[propertyName];
       if (propertyValue != null) {
         string += '\n$indentation$propertyName: ';
-        string += _propertyValueToString(propertyName);
+        string += _multilineFormattedPropertyValue(propertyValue);
       }
     }
     return string;
   }
 
-  String _propertyValueToString(String propertyName) {
+  /// Converts the property value to a string and indents this value
+  /// if the value has multiple lines (e.g. a nested object)
+  String _multilineFormattedPropertyValue(dynamic propertyValue) {
     String string='';
-    var lines = properties[propertyName].toString().split('\n');
+    var lines = _formattedPropertyValue(propertyValue).split('\n');
       for (String line in lines) {
         if (line==lines.first) {
           string += lines.first;
@@ -44,5 +46,18 @@ static final  indentation='    ';
       }
     // }
     return string;
+  }
+
+  String _formattedPropertyValue(dynamic propertyValue) {
+    if (propertyValue is Duration) {
+      return _formattedDuration(propertyValue);
+    } else {
+      return propertyValue.toString();
+    }
+  }
+
+  String _formattedDuration(Duration duration) {
+    var durationString = duration.toString();
+    return durationString.substring(0,durationString.length-5)+'s';
   }
 }

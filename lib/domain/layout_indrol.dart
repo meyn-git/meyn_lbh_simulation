@@ -9,6 +9,7 @@ import 'loading_fork_lift_truck.dart';
 import 'module.dart';
 import 'module_cas.dart';
 import 'module_cas_allocation.dart';
+import 'module_cas_start.dart';
 import 'module_conveyor.dart';
 import 'module_rotating_conveyor.dart';
 import 'module_tilter.dart';
@@ -227,6 +228,11 @@ class IndrolLayout extends Layout {
       layout: this,
       position: Position(8, 4),
       positionToAllocate: Position(1, 2),
+    ));
+
+    put(ModuleCasStart(
+      layout: this,
+      position: Position(9, 4),
     ));
 
     put(UnLoadingForkLiftTruck(

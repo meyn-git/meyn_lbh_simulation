@@ -1,7 +1,9 @@
-import 'module_cas.dart';
-import 'state_machine.dart';
+import 'package:meyn_lbh_simulation/domain/title_builder.dart';
+
 import 'layout.dart';
 import 'module.dart';
+import 'module_cas.dart';
+import 'state_machine.dart';
 
 /// Allocates the destination of a [ModuleGroup] of a given location depending on the
 /// state of the [ModuleCas] units and transport modules between this position
@@ -49,20 +51,22 @@ class ModuleCasAllocation extends ActiveCell {
     }
   }
 
-
-
-
   @override
   String toString() {
-    return name;
+    var route = findRouteWithHighestWaitingForStackScore();
+    return TitleBuilder(name)
+        .appendProperty('bestRoute', route == null ? 'none' : route.cas.name)
+        .toString();
   }
 
   List<Route> get routesToCasUnits {
     if (_cashedRoutesToCasUnits.isEmpty) {
-      var cellToAllocate = layout.cellForPosition(positionToAllocate) as StateMachineCell;
+      var cellToAllocate =
+          layout.cellForPosition(positionToAllocate) as StateMachineCell;
       _cashedRoutesToCasUnits = [];
       for (var casUnit in allModuleCasUnits) {
-        var route = layout.findRoute(source: cellToAllocate, destination: casUnit);
+        var route =
+            layout.findRoute(source: cellToAllocate, destination: casUnit);
         if (route != null) {
           _cashedRoutesToCasUnits.add(route);
         }
@@ -80,7 +84,8 @@ class ModuleCasAllocation extends ActiveCell {
   }
 
   Route? findRouteWithHighestWaitingForStackScore() {
-    routesToCasUnits.sort((a, b) => a.casNewStackScore.compareTo(b.casNewStackScore)*-1);
+    routesToCasUnits
+        .sort((a, b) => a.casNewStackScore.compareTo(b.casNewStackScore) * -1);
     Route bestCandidate = routesToCasUnits.first;
     if (bestCandidate.casNewStackScore == 0) {
       return null;
@@ -95,9 +100,8 @@ class ModuleCasAllocation extends ActiveCell {
   void validatePositionToAllocateIsStateMachineCell() {
     var cellToAllocate = layout.cellForPosition(positionToAllocate);
     if (cellToAllocate is! StateMachineCell) {
-      throw ArgumentError('$ModuleCasAllocation positionToAllocate=$positionToAllocate does not point to a $StateMachineCell');
+      throw ArgumentError(
+          '$ModuleCasAllocation positionToAllocate=$positionToAllocate does not point to a $StateMachineCell');
     }
   }
 }
-
-

@@ -79,6 +79,7 @@ abstract class State<T extends StateMachineCell> {
 
   @override
   String toString() => name;
+
 }
 
 class DurationState<T extends StateMachineCell> extends State<T> {

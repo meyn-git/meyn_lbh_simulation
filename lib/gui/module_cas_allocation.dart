@@ -8,8 +8,8 @@ class ModuleCasAllocationWidget extends StatelessWidget {
   ModuleCasAllocationWidget(this.moduleCasAllocation);
 
   @override
-  Widget build(BuildContext context) {
-    return Text(moduleCasAllocation.toString());
-  }
+  Widget build(BuildContext context) => FittedBox(
+        fit: BoxFit.fitWidth,
+        child: Text(moduleCasAllocation.toString()));
 
 }

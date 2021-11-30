@@ -9,6 +9,7 @@ import 'loading_fork_lift_truck.dart';
 import 'module.dart';
 import 'module_cas.dart';
 import 'module_cas_allocation.dart';
+import 'module_cas_start.dart';
 import 'module_conveyor.dart';
 import 'module_lift_position.dart';
 import 'module_rotating_conveyor.dart';
@@ -208,6 +209,11 @@ class FileniChickenLayout extends Layout {
       layout: this,
       position: Position(1, 5),
       positionToAllocate: Position(7, 3),
+    ));
+
+    put(ModuleCasStart(
+      layout: this,
+      position: Position(2, 5),
     ));
   }
 }
