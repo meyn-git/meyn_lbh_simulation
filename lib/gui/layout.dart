@@ -41,6 +41,7 @@ class _LayoutWidgetState extends State<LayoutWidget> {
   _LayoutWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
+        player.layout.onUpdateToNextPointInTime(player.jump);
       });
     });
   }
