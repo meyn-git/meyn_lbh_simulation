@@ -24,12 +24,14 @@ class IndrolLayout extends Layout {
   ///  - line speed: 3600 birds/hour
   ///  - live weight: min:8.500g, avr:10.000g, max 11.500g
   ///  - min birds: 300/11.5kg= 26 birds/level x 3 levels= 78 birds per module
+  ///  - avr birds: 300/10kg=  30 birds/level x 3 levels= 90 birds per module
   ///  - max birds: 300/8.5kg= 35 birds/level x 3 levels= 105 birds per module
   ///
   ///  Male turkeys:
   ///  - line speed: 1800 birds/hour
   ///  - live weight: min:18.000g, avr:20.000g, max 23.000g
   ///  - min birds: 300/23kg= 13 birds/level x 3 levels= 39 birds per module
+  ///  - avr birds: 300/20kg= 15 birds/level x 3 levels= 45 birds per module
   ///  - max birds: 300/18kg= 16 birds/level x 3 levels= 48 birds per module
 
   static final birdsPerHour=1800;

@@ -23,8 +23,8 @@ class FileniChickenLayout extends Layout {
   /// Pollo PICCOLO:              54 birds/compartment @ 10000 birds/hour
 
   static final birdsPerHour = 8000;
-  static final birdsPerModule1 = 4 * 26;
-  static final birdsPerModule2 = 5 * 26;
+  static final birdsPerModule1 = ((4+5)/2 * 26).round();
+  static final birdsPerModule2 = ((4+5)/2 * 26).round();
   static final casRecipe = CasRecipe.standardChickenRecipe();
 
   FileniChickenLayout() : super('7324-Fileni Castelplanio-Chicken-Italy') {

@@ -14,6 +14,8 @@ class ModuleCasStart extends ActiveCell {
 
   Duration elapsedTime = Duration.zero;
 
+  static final Duration maxElapsedTime=Duration(minutes: 30);
+
   ModuleCasStart({
     required Layout layout,
     required Position position,
@@ -39,12 +41,8 @@ class ModuleCasStart extends ActiveCell {
   @override
   onUpdateToNextPointInTime(Duration jump) {
     var startInterval = nextStartInterval;
-    if (startInterval == Duration.zero) {
-      startLongestWaitingCasUnit();
-      elapsedTime = Duration.zero;
-    }
-    if (startInterval == hold) {
-      elapsedTime = Duration.zero;
+    if (elapsedTime>=maxElapsedTime) {
+      elapsedTime = maxElapsedTime;
     } else {
       elapsedTime = elapsedTime + jump;
       if (elapsedTime > startInterval) {
@@ -64,11 +62,15 @@ class ModuleCasStart extends ActiveCell {
       case 1:
         return _normalStartInterval * 0.5;
       case 2:
-        return _normalStartInterval * 1;
+        return _normalStartInterval * 0.75;
       case 3:
         return _normalStartInterval * 1;
       case 4:
         return _normalStartInterval * 1;
+      case 5:
+        return _normalStartInterval * 1.25;
+      case 6:
+        return _normalStartInterval * 1.5;
       default:
         return hold;
     }
@@ -146,7 +148,12 @@ class ModuleCasStart extends ActiveCell {
   int _findNrOfBirdsPerModuleGroup() {
     var forkLiftTruck = _findLoadingForkLiftTruck();
     var moduleGroup = forkLiftTruck.createModuleGroup();
-    return moduleGroup.numberOfBirds;
+    if (moduleGroup.type==ModuleType.square) {
+      return moduleGroup.numberOfBirds*2;// assuming square modules are put on the system 1 by 1, a module group is x2
+    } else {
+      return moduleGroup.numberOfBirds;
+    }
+
   }
 
   @override
