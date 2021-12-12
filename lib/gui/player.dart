@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import '/domain/player.dart';
-import '/gui/layout.dart';
+import '/gui/area.dart';
 
 class PlayerWidget extends StatefulWidget {
   @override
@@ -9,16 +10,16 @@ class PlayerWidget extends StatefulWidget {
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   static final player = Player();
-  var layoutWidget = createLayoutWidget();
+  var areaWidget = createAreaWidget();
 
-  static LayoutWidget createLayoutWidget() =>
-      LayoutWidget(key: UniqueKey());
+  static AreaWidget createAreaWidget() =>
+      AreaWidget(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(player.layout.name),
+        title: Text(player.area.name),
         actions: [
           buildOpenButton(),
           buildRestartButton(),
@@ -28,7 +29,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           SizedBox(width: 40,),
         ],
       ),
-      body: layoutWidget,
+      body: areaWidget,
     );
   }
 
@@ -59,10 +60,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   IconButton buildOpenButton() {
     return IconButton(
       icon: const Icon(Icons.folder_open_rounded),
-      tooltip: 'Open other layout project',
+      tooltip: 'Open other $LiveBirdHandlingArea',
       onPressed: () {
         setState(() {
-          player.restartOtherLayout();
+          player.restartOtherArea();
         });
       },
     );
@@ -76,7 +77,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       onPressed: () {
         setState(() {
           player.restart();
-          //layoutWidget = createLayoutWidget();
         });
       },
     );

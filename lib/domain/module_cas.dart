@@ -1,25 +1,24 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/module_cas_start.dart';
 
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 import 'unloading_fork_lift_truck.dart';
 
 class ModuleCas extends StateMachineCell {
   /// the [CardinalDirection] the in and out feed is pointed towards
-  final CasRecipe recipe;
+  late final CasRecipe recipe;
   final CardinalDirection inAndOutFeedDirection;
   final CardinalDirection doorDirection;
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
-  Duration waitingForStartDuration=Duration.zero;
+  Duration waitingForStartDuration = Duration.zero;
 
   ModuleCas({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
-    required this.recipe,
     required this.inAndOutFeedDirection,
     required this.doorDirection,
     this.closeSlideDoorDuration = const Duration(seconds: 3),
@@ -27,7 +26,7 @@ class ModuleCas extends StateMachineCell {
     Duration inFeedDuration = const Duration(seconds: 14),
     Duration outFeedDuration = const Duration(seconds: 14),
   }) : super(
-          layout: layout,
+          area: area,
           position: position,
           seqNr: seqNr,
           initialState: WaitToFeedIn(),
@@ -35,10 +34,12 @@ class ModuleCas extends StateMachineCell {
           outFeedDuration: outFeedDuration,
         ) {
     _verifyDirections();
+    _verifyCasRecipeIsDefined();
+    recipe = area.casRecipe!;
   }
 
   StateMachineCell get neighbour =>
-      layout.neighbouringCell(this, inAndOutFeedDirection) as StateMachineCell;
+      area.neighbouringCell(this, inAndOutFeedDirection) as StateMachineCell;
 
   @override
   bool isFeedIn(CardinalDirection direction) =>
@@ -67,15 +68,15 @@ class ModuleCas extends StateMachineCell {
   void _verifyDirections() {
     if (inAndOutFeedDirection.isParallelTo(doorDirection)) {
       throw ArgumentError(
-          "Layout error: $name: inAndOutFeedDirection and doorDirection must be perpendicular in layout configuration.");
+          "$LiveBirdHandlingArea error: $name: inAndOutFeedDirection and doorDirection must be perpendicular.");
     }
   }
 
   StateMachineCell get moduleGroupDestinationAfterStunning {
     var unloadingCell =
-        layout.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
+        area.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
     if (unloadingCell == null) {
-      throw Exception('The layout MUST have a $UnLoadingForkLiftTruck.');
+      throw Exception('The $LiveBirdHandlingArea MUST have a $UnLoadingForkLiftTruck.');
     }
     return unloadingCell as StateMachineCell;
   }
@@ -84,9 +85,9 @@ class ModuleCas extends StateMachineCell {
   onUpdateToNextPointInTime(Duration jump) {
     super.onUpdateToNextPointInTime(jump);
     if (currentState is WaitForStart) {
-      waitingForStartDuration+=jump;
+      waitingForStartDuration += jump;
     } else {
-      waitingForStartDuration=Duration.zero;
+      waitingForStartDuration = Duration.zero;
     }
   }
 
@@ -95,7 +96,15 @@ class ModuleCas extends StateMachineCell {
     if (currentState is WaitForStart) {
       (currentState as WaitForStart).start();
     } else {
-      throw Exception('Can not start $name, because it is in $currentState state and not in $WaitForStart state.');
+      throw Exception(
+          'Can not start $name, because it is in $currentState state and not in $WaitForStart state.');
+    }
+  }
+
+  void _verifyCasRecipeIsDefined() {
+    if (area.casRecipe == null) {
+      throw ArgumentError(
+          '$LiveBirdHandlingArea error: You must specify the casRecipe in the layout when it contains one or more $ModuleCas');
     }
   }
 }
@@ -132,7 +141,7 @@ class WaitToFeedIn extends State<ModuleCas> {
     }
   }
 
-  bool _moduleGroupTransportedTo(ModuleCas cas) => cas.layout.moduleGroups
+  bool _moduleGroupTransportedTo(ModuleCas cas) => cas.area.moduleGroups
       .any((moduleGroup) => moduleGroup.position.destination == cas);
 }
 
@@ -160,18 +169,18 @@ class FeedIn extends State<ModuleCas> {
 }
 
 class WaitForStart extends State<ModuleCas> {
-  bool _start=false;
+  bool _start = false;
 
   @override
   State<ModuleCas>? nextState(ModuleCas moduleCas) {
     if (_start) {
-      _start=false;
+      _start = false;
       return CloseSlideDoor();
     }
   }
 
   void start() {
-    _start=true;
+    _start = true;
   }
 }
 

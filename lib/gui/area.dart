@@ -12,7 +12,7 @@ import 'package:meyn_lbh_simulation/gui/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/gui/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/unloading_fork_lift_truck.dart';
 
-import '/domain/layout.dart';
+import '/domain/life_bird_handling_area.dart';
 import '/domain/loading_fork_lift_truck.dart';
 import '/domain/module.dart';
 import '/domain/module_cas.dart';
@@ -30,20 +30,20 @@ import 'module.dart';
 import 'module_cas_start.dart';
 import 'module_stacker.dart';
 
-class LayoutWidget extends StatefulWidget {
-  LayoutWidget({required Key key}) : super(key: key);
+class AreaWidget extends StatefulWidget {
+  AreaWidget({required Key key}) : super(key: key);
 
   @override
-  _LayoutWidgetState createState() => _LayoutWidgetState();
+  _AreaWidgetState createState() => _AreaWidgetState();
 }
 
-class _LayoutWidgetState extends State<LayoutWidget> {
+class _AreaWidgetState extends State<AreaWidget> {
   final Player player = Player();
 
-  _LayoutWidgetState() {
+  _AreaWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        player.layout.onUpdateToNextPointInTime(player.jump);
+        player.area.onUpdateToNextPointInTime(player.jump);
       });
     });
   }
@@ -52,27 +52,27 @@ class _LayoutWidgetState extends State<LayoutWidget> {
   Widget build(BuildContext context) => Container(
     color:Colors.grey.shade200,
     child: CustomMultiChildLayout(
-        delegate: LayoutWidgetDelegate(player.layout),
-        children: createChildren(player.layout)),
+        delegate: AreaWidgetDelegate(player.area),
+        children: createChildren(player.area)),
   );
 
-  static List<Widget> createChildren(Layout layout) {
+  static List<Widget> createChildren(LiveBirdHandlingArea area) {
     List<Widget> children = [];
-    children.addAll(createModuleGroupWidgets(layout));
-    children.addAll(createCellWidgets(layout));
+    children.addAll(createModuleGroupWidgets(area));
+    children.addAll(createCellWidgets(area));
     return children;
   }
 
-  static List<Widget> createModuleGroupWidgets(Layout layout) {
-    var moduleGroupWidgets = layout.moduleGroups
+  static List<Widget> createModuleGroupWidgets(LiveBirdHandlingArea area) {
+    var moduleGroupWidgets = area.moduleGroups
         .map<Widget>((moduleGroup) =>
             LayoutId(id: moduleGroup, child: ModuleGroupWidget(moduleGroup)))
         .toList();
     return moduleGroupWidgets;
   }
 
-  static List<Widget> createCellWidgets(Layout layout) {
-    var cellWidgets = layout.cells
+  static List<Widget> createCellWidgets(LiveBirdHandlingArea area) {
+    var cellWidgets = area.cells
         .map<Widget>((cell) =>
             LayoutId(id: cell, child: CellWidgetFactory.createFor(cell)))
         .toList();
@@ -87,24 +87,24 @@ class EmptyCellWidget extends StatelessWidget {
 
 /// Sizes (lets the children do their layout in given [BoxConstraints])
 /// and positions all the child widgets ([Cell]s and [ModuleGroup]s)
-/// within the given [LayoutWidget] size
-class LayoutWidgetDelegate extends MultiChildLayoutDelegate {
-  final Layout layout;
+/// within the given [AreaWidget] size
+class AreaWidgetDelegate extends MultiChildLayoutDelegate {
+  final LiveBirdHandlingArea area;
   final CellRange cellRange;
 
-  LayoutWidgetDelegate(this.layout) : cellRange = CellRange(layout.cells);
+  AreaWidgetDelegate(this.area) : cellRange = CellRange(area.cells);
 
   @override
-  void performLayout(Size layoutSize) {
-    var childSize = _childSize(layoutSize);
-    var childOffset = _offsetForAllChildren(layoutSize, childSize);
+  void performLayout(Size size) {
+    var childSize = _childSize(size);
+    var childOffset = _offsetForAllChildren(size, childSize);
     _layoutAndPositionModuleGroups(childSize, childOffset);
     //positioning cells last so they are on top so that the tooltips work
     _layoutAndPositionCells(childSize, childOffset);
   }
 
   void _layoutAndPositionModuleGroups(Size childSize, Offset childOffset) {
-    for (var moduleGroup in layout.moduleGroups) {
+    for (var moduleGroup in area.moduleGroups) {
       layoutChild(moduleGroup, BoxConstraints.tight(childSize));
       var moduleGroupOffSet =
           _createModuleGroupOffset(moduleGroup, childSize, childOffset);
@@ -113,24 +113,24 @@ class LayoutWidgetDelegate extends MultiChildLayoutDelegate {
   }
 
   void _layoutAndPositionCells(Size childSize, Offset childOffset) {
-    for (var cell in layout.cells) {
+    for (var cell in area.cells) {
       layoutChild(cell, BoxConstraints.tight(childSize));
       var cellOffset = _createCellOffset(cell.position, childSize, childOffset);
       positionChild(cell, cellOffset);
     }
   }
 
-  Offset _offsetForAllChildren(Size layoutSize, Size childSize) {
+  Offset _offsetForAllChildren(Size size, Size childSize) {
     var offSet = Offset(
-      (layoutSize.width - (childSize.width * cellRange.width)) / 2,
-      (layoutSize.height - (childSize.height * cellRange.height)) / 2,
+      (size.width - (childSize.width * cellRange.width)) / 2,
+      (size.height - (childSize.height * cellRange.height)) / 2,
     );
     return offSet;
   }
 
-  Size _childSize(Size layoutSize) {
-    var childWidth = layoutSize.width / cellRange.width;
-    var childHeight = layoutSize.height / cellRange.height;
+  Size _childSize(Size area) {
+    var childWidth = area.width / cellRange.width;
+    var childHeight = area.height / cellRange.height;
     var childSide = min(childWidth, childHeight);
     return Size(childSide, childSide);
   }

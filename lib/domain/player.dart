@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:meyn_lbh_simulation/domain/layout_indrol.dart';
+import 'package:meyn_lbh_simulation/domain/site_fileni.dart';
+import 'package:meyn_lbh_simulation/domain/site_indrol.dart';
 
-import 'layout.dart';
-import 'layout_fileni.dart';
+import 'life_bird_handling_area.dart';
 
 class Player {
   int _speed = 1;
@@ -11,7 +11,7 @@ class Player {
   Duration jump = _calculateJump(1);
   void Function(Timer t)? listener;
   Timer? timer;
-  Layout layout = IndrolLayout();
+  LiveBirdHandlingArea area = IndrolLifeBirdHandlingArea(IndrolProductDefinitions()[0]);
 
   // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
   static final Player _singleton = Player._();
@@ -74,19 +74,22 @@ class Player {
           (speed / maxSpeed * maxJumpResolution.inMicroseconds).round());
 
   void restart() {
-    if (layout is IndrolLayout) {
-      layout=IndrolLayout();
+    if (area is IndrolLifeBirdHandlingArea) {
+      area = IndrolLifeBirdHandlingArea(
+          IndrolProductDefinitions()[0]); // TODO be able to select others
     } else {
-      layout=FileniChickenLayout();
+      area = FileniLiveBirdHandlingArea(
+          FileniProductDefinitions()[0]); // TODO be able to select others
     }
   }
 
-  void restartOtherLayout() {
-    if (layout is IndrolLayout) {
-      layout=FileniChickenLayout();
+  void restartOtherArea() {
+    if (area is IndrolLifeBirdHandlingArea) {
+      area = FileniLiveBirdHandlingArea(
+          FileniProductDefinitions()[0]); // TODO be able to select others
     } else {
-      layout=IndrolLayout();
+      area = IndrolLifeBirdHandlingArea(
+          IndrolProductDefinitions()[0]); // TODO be able to select others
     }
   }
-
 }

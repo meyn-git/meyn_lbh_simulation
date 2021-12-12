@@ -1,8 +1,7 @@
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/title_builder.dart';
 
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_cas.dart';
 
@@ -17,9 +16,9 @@ class ModuleCasStart extends ActiveCell {
   static final Duration maxElapsedTime=Duration(minutes: 30);
 
   ModuleCasStart({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
-  }) : super(layout, position);
+  }) : super(area, position);
 
   String get name => "${this.runtimeType.toString()}";
 
@@ -88,7 +87,7 @@ class ModuleCasStart extends ActiveCell {
 
 
 
-  int get numberOfWaitingStunnedModules => layout.moduleGroups
+  int get numberOfWaitingStunnedModules => area.moduleGroups
       .where(
           (groupModule) => groupModule.contents == ModuleContents.stunnedBirds)
       .fold(
@@ -98,42 +97,31 @@ class ModuleCasStart extends ActiveCell {
 
   BirdHangingConveyor _findBirdHangingConveyors() {
     var hangingConveyors =
-        layout.cells.where((cell) => cell is BirdHangingConveyor);
+        area.cells.where((cell) => cell is BirdHangingConveyor);
     if (hangingConveyors.isEmpty) {
-      throw Exception('Could not find a $BirdHangingConveyor in layout');
+      throw Exception('Could not find a $BirdHangingConveyor in $LiveBirdHandlingArea');
     }
     if (hangingConveyors.length > 1) {
-      throw Exception("Found multiple $BirdHangingConveyor's in layout");
+      throw Exception("Found multiple $BirdHangingConveyor's in $LiveBirdHandlingArea");
     }
     return hangingConveyors.first as BirdHangingConveyor;
   }
 
   Duration get _normalStartInterval {
     var shacklesPerHour = _findBirdHangingConveyors().shacklesPerHour;
-    var birdsPerModuleGroup = _findNrOfBirdsPerModuleGroup();
+    var birdsPerModuleGroup = area.productDefinition.averageProductsPerModuleGroup;
     Duration startInterval = Duration(
         microseconds: (3600 / shacklesPerHour * birdsPerModuleGroup*Duration.microsecondsPerSecond).round());
     return startInterval;
   }
 
-  LoadingForkLiftTruck _findLoadingForkLiftTruck() {
-    var forkLiftTrucks =
-        layout.cells.where((cell) => cell is LoadingForkLiftTruck);
-    if (forkLiftTrucks.isEmpty) {
-      throw Exception('Could not find any $LoadingForkLiftTruck in layout');
-    }
-    if (forkLiftTrucks.length > 1) {
-      throw Exception("Found multiple $LoadingForkLiftTruck's in layout");
-    }
-    return forkLiftTrucks.first as LoadingForkLiftTruck;
-  }
 
   /// Starts longest waiting CAS unit
   /// returns true if a CAS unit was started
   bool startLongestWaitingCasUnit() {
-    List<ModuleCas> casUnits=layout.cells.where((cell) => cell is ModuleCas).map((cell) => cell as ModuleCas).toList();
+    List<ModuleCas> casUnits=area.cells.where((cell) => cell is ModuleCas).map((cell) => cell as ModuleCas).toList();
     if (casUnits.isEmpty) {
-      throw Exception('Layout error: No $ModuleCas cells found');
+      throw Exception('$LiveBirdHandlingArea error: No $ModuleCas cells found');
     }
     List<ModuleCas> casUnitsOrderedByLongestWaiting=casUnits..sort((a,b) => a.waitingForStartDuration.compareTo(b.waitingForStartDuration)*-1);
     var longestWaitingCasUnit=casUnitsOrderedByLongestWaiting.first;
@@ -145,16 +133,16 @@ class ModuleCasStart extends ActiveCell {
     }
   }
 
-  int _findNrOfBirdsPerModuleGroup() {
-    var forkLiftTruck = _findLoadingForkLiftTruck();
-    var moduleGroup = forkLiftTruck.createModuleGroup();
-    if (moduleGroup.type==ModuleType.square) {
-      return moduleGroup.numberOfBirds*2;// assuming square modules are put on the system 1 by 1, a module group is x2
-    } else {
-      return moduleGroup.numberOfBirds;
-    }
-
-  }
+  // int _findNrOfBirdsPerModuleGroup() {
+  //   var forkLiftTruck = _findLoadingForkLiftTruck();
+  //   var moduleGroup = forkLiftTruck.createModuleGroup();
+  //   if (moduleGroup.type==ModuleType.square) {
+  //     return moduleGroup.numberOfBirds*2;// assuming square modules are put on the system 1 by 1, a module group is x2
+  //   } else {
+  //     return moduleGroup.numberOfBirds;
+  //   }
+  //
+  // }
 
   @override
   ModuleGroup? get moduleGroup => null;

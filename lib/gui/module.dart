@@ -23,7 +23,7 @@ class ModuleGroupPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (moduleGroup.type == ModuleType.square) {
+    if (moduleGroup.type.shape == ModuleShape.squareSideBySide) {
       _paintSquareModules(canvas, size);
     } else {
       _paintRectangleModules(canvas, size);

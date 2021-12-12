@@ -1,4 +1,4 @@
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_lift_position.dart';
 import 'state_machine.dart';
@@ -15,7 +15,7 @@ class ModuleDeStacker extends StateMachineCell {
   ModuleGroup? moduleGroupOnSupports;
 
   ModuleDeStacker({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
     required this.inFeedDirection,
@@ -32,7 +32,7 @@ class ModuleDeStacker extends StateMachineCell {
       LiftPosition.pickUpTopModule: 150 + 150 + 20
     },
   }) : super(
-          layout: layout,
+          area: area,
           position: position,
           seqNr: seqNr,
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
@@ -41,9 +41,9 @@ class ModuleDeStacker extends StateMachineCell {
         );
 
   Cell get receivingNeighbour =>
-      layout.neighbouringCell(this, inFeedDirection.opposite);
+      area.neighbouringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => layout.neighbouringCell(this, inFeedDirection);
+  Cell get sendingNeighbour => area.neighbouringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -113,7 +113,7 @@ class WaitToFeedIn extends State<ModuleDeStacker> {
   }
 
   bool _moduleGroupTransportedTo(ModuleDeStacker deStacker) {
-    return deStacker.layout.moduleGroups
+    return deStacker.area.moduleGroups
         .any((moduleGroup) => moduleGroup.position.destination == deStacker);
   }
 }
@@ -145,7 +145,7 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
   @override
   void onCompleted(ModuleDeStacker deStacker) {
     deStacker.moduleGroupOnSupports = deStacker.moduleGroup!.split();
-    deStacker.layout.moduleGroups.add(deStacker.moduleGroupOnSupports!);
+    deStacker.area.moduleGroups.add(deStacker.moduleGroupOnSupports!);
   }
 }
 

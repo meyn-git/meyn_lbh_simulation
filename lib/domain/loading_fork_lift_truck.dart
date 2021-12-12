@@ -1,32 +1,49 @@
-import 'layout.dart';
+import 'dart:math';
+
+import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/module_cas_allocation.dart';
+
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
 class LoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection outFeedDirection;
-  final ModuleGroup Function() createModuleGroup;
+  final CardinalDirection doorDirection;
+  final bool loadsSingeModule;
+  var sequenceNumber = 0;
 
   LoadingForkLiftTruck({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
     required this.outFeedDirection,
-    required this.createModuleGroup,
+    required this.doorDirection,
     Duration getModuleGroupOnTruckDuration =
-        const Duration(seconds: 5), //TODO 30s?
+    const Duration(seconds: 5), //TODO 30s?
     Duration putModuleGroupOnConveyorDuration =
-        const Duration(seconds: 5), //TODO 15s?
+    const Duration(seconds: 5), //TODO 15s?
+    this.loadsSingeModule = false,
   }) : super(
-            layout: layout,
-            position: position,
-            seqNr: seqNr,
-            initialState: GetModuleGroupFromTruck(),
-            inFeedDuration: getModuleGroupOnTruckDuration,
-            outFeedDuration: putModuleGroupOnConveyorDuration);
+      area: area,
+      position: position,
+      seqNr: seqNr,
+      initialState: GetModuleGroupFromTruck(),
+      inFeedDuration: getModuleGroupOnTruckDuration,
+      outFeedDuration: putModuleGroupOnConveyorDuration) {
+    _verifyDirections();
+  }
+
+  void _verifyDirections() {
+    if (outFeedDirection.isParallelTo(doorDirection)) {
+      throw ArgumentError(
+          "$LiveBirdHandlingArea error: $name: outFeedDirection and doorDirection must be perpendicular.");
+    }
+  }
 
   get receivingNeighbour =>
-      layout.neighbouringCell(this, outFeedDirection) as StateMachineCell;
+      area.neighbouringCell(this, outFeedDirection) as StateMachineCell;
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -38,11 +55,74 @@ class LoadingForkLiftTruck extends StateMachineCell {
   bool waitingToFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool isFeedOut(CardinalDirection direction) => direction==outFeedDirection;
+  bool isFeedOut(CardinalDirection direction) => direction == outFeedDirection;
 
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
-      direction==outFeedDirection && currentState is WaitingForEmptyConveyor;
+      direction == outFeedDirection && currentState is WaitingForEmptyConveyor;
+
+  ModuleGroup createModuleGroup() {
+    var moduleCombination = _randomModuleCombination();
+
+    var moduleGroup = ModuleGroup(
+        type: moduleCombination.firstModuleType,
+        firstModule: Module(
+          nrOfBirds: moduleCombination.firstModuleNumberOfBirds,
+          sequenceNumber: ++sequenceNumber,
+        ),
+        secondModule: moduleCombination.secondModuleType == null
+            ? null
+            : Module(
+          nrOfBirds: moduleCombination.secondModuleNumberOfBirds!,
+          sequenceNumber: ++sequenceNumber,
+        ),
+        doorDirection: doorDirection.toCompassDirection(),
+        destination: _findModuleDestination(),
+        position: _createModulePosition());
+    return moduleGroup;
+  }
+
+  ModuleCombination _randomModuleCombination() {
+    var total = 0.0;
+    double totalOccurrence = _totalOccurrence();
+    var random = totalOccurrence * Random().nextDouble();
+    for (var moduleCombination in area.productDefinition.moduleCombinations) {
+      total += moduleCombination.occurrence;
+      if (random <= total) {
+        return moduleCombination;
+      }
+    }
+    return area.productDefinition.moduleCombinations.last;
+  }
+
+  double _totalOccurrence() {
+    var totalOccurrence = 0.0;
+    for (var moduleCombination in area.productDefinition.moduleCombinations) {
+      totalOccurrence += moduleCombination.occurrence;
+    }
+    return totalOccurrence;
+  }
+
+  ModulePosition _createModulePosition() =>
+      ModulePosition.forCel(receivingNeighbour);
+
+  StateMachineCell _findModuleDestination() {
+    var moduleCasAllocation = _findModuleCasAllocation();
+    var position=moduleCasAllocation.positionToAllocate;
+    return area.cellForPosition(position) as StateMachineCell;
+  }
+
+  ModuleCasAllocation _findModuleCasAllocation() {
+    //TODO what if there is only one CAS unit, we would not need the ModuleCasAllocation
+    var moduleCasAllocation = area.cells.firstWhereOrNull((
+        cell) => cell is ModuleCasAllocation);
+    if (moduleCasAllocation == null) {
+      throw Exception(
+          'Could not find a $ModuleCasAllocation cell in the $LiveBirdHandlingArea');
+    }
+    return moduleCasAllocation as ModuleCasAllocation;
+  }
+
 }
 
 /// driving to truck
@@ -51,8 +131,8 @@ class LoadingForkLiftTruck extends StateMachineCell {
 class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
   GetModuleGroupFromTruck()
       : super(
-            durationFunction: (forkLiftTruck) => forkLiftTruck.inFeedDuration,
-            nextStateFunction: (forkLiftTruck) => WaitingForEmptyConveyor());
+      durationFunction: (forkLiftTruck) => forkLiftTruck.inFeedDuration,
+      nextStateFunction: (forkLiftTruck) => WaitingForEmptyConveyor());
 
   @override
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
@@ -63,35 +143,32 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
       newModuleGroup.doorDirection.toCardinalDirection()!,
     );
     _verifyDestination(forkLiftTruck, newModuleGroup.destination);
-    forkLiftTruck.layout.moduleGroups.add(newModuleGroup);
+    forkLiftTruck.area.moduleGroups.add(newModuleGroup);
     //ensure correct module group position
-    newModuleGroup.position=ModulePosition.forCel(forkLiftTruck);
+    newModuleGroup.position = ModulePosition.forCel(forkLiftTruck);
   }
 
-  static _verifyDirections(
-    LoadingForkLiftTruck forkLiftTruck,
-    CardinalDirection direction1,
-    CardinalDirection direction2,
-  ) {
+  static _verifyDirections(LoadingForkLiftTruck forkLiftTruck,
+      CardinalDirection direction1,
+      CardinalDirection direction2,) {
     if (direction1.isParallelTo(direction2)) {
       throw ArgumentError(
-          "${forkLiftTruck.name}: outFeedDirection and moduleDoorDirection must be perpendicular in layout configuration.");
+          "${forkLiftTruck
+              .name}: outFeedDirection and moduleDoorDirection must be perpendicular in layout configuration.");
     }
   }
 
-  static void _verifyDestination(
-    LoadingForkLiftTruck forkLiftTruck,
-    StateMachineCell destination,
-  ) {
-    var layout = forkLiftTruck.layout;
+  static void _verifyDestination(LoadingForkLiftTruck forkLiftTruck,
+      StateMachineCell destination,) {
+    var area = forkLiftTruck.area;
     if (destination is! StateMachineCell) {
       throw ArgumentError("stack.destination must point to a none empty cell");
     }
-    var route =
-        layout.findRoute(source: forkLiftTruck, destination: destination);
+    var route = area.findRoute(source: forkLiftTruck, destination: destination);
     if (route == null) {
       throw ArgumentError(
-          "${forkLiftTruck.name} can not reach destination: $destination in layout configuration.");
+          "${forkLiftTruck
+              .name} can not reach destination: $destination in $LiveBirdHandlingArea configuration.");
     }
   }
 }
@@ -133,6 +210,6 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
   }
 
   bool _transportCompleted(LoadingForkLiftTruck forkLiftTruck) =>
-      !forkLiftTruck.layout.moduleGroups
+      !forkLiftTruck.area.moduleGroups
           .any((moduleGroup) => moduleGroup.position.source == forkLiftTruck);
 }

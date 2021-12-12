@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_lift_position.dart';
 import 'state_machine.dart';
@@ -17,7 +17,7 @@ class ModuleStacker extends StateMachineCell {
   ModuleGroup? moduleGroupOnSupports;
 
   ModuleStacker({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
     required this.inFeedDirection,
@@ -34,7 +34,7 @@ class ModuleStacker extends StateMachineCell {
       LiftPosition.supportTopModule: 150 + 150 + 20,
     },
   }) : super(
-          layout: layout,
+          area: area,
           position: position,
           seqNr: seqNr,
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
@@ -43,9 +43,9 @@ class ModuleStacker extends StateMachineCell {
         );
 
   Cell get receivingNeighbour =>
-      layout.neighbouringCell(this, inFeedDirection.opposite);
+      area.neighbouringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => layout.neighbouringCell(this, inFeedDirection);
+  Cell get sendingNeighbour => area.neighbouringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -66,12 +66,12 @@ class ModuleStacker extends StateMachineCell {
       direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
 
   /// needed override: When [moduleGroupOnSupports]!=null than
-  /// there could be 2 [ModuleGroup]s in [Layout.modelGroups] for this [StateMachineCell].
+  /// there could be 2 [ModuleGroup]s in [LiveBirdHandlingArea.modelGroups] for this [StateMachineCell].
   /// In this case we do not want the [moduleGroupOnSupports] but the other one
   /// That is why we need to override the default behaviour.
   @override
   ModuleGroup? get moduleGroup =>
-      layout.moduleGroups.firstWhereOrNull((moduleGroup) =>
+      area.moduleGroups.firstWhereOrNull((moduleGroup) =>
           moduleGroup != moduleGroupOnSupports &&
           moduleGroup.position.equals(this));
 }
@@ -121,7 +121,7 @@ class WaitToFeedIn extends State<ModuleStacker> {
   }
 
   bool _moduleGroupTransportedTo(ModuleStacker stacker) {
-    return stacker.layout.moduleGroups.any((moduleGroup) =>
+    return stacker.area.moduleGroups.any((moduleGroup) =>
         moduleGroup != stacker.moduleGroupOnSupports &&
         moduleGroup.position.destination == stacker);
   }
@@ -173,7 +173,7 @@ class OpenModuleSupports extends DurationState<ModuleStacker> {
   void _mergeModuleGroup(ModuleStacker stacker) {
     stacker.moduleGroup!.secondModule =
         stacker.moduleGroupOnSupports!.firstModule;
-    stacker.layout.moduleGroups.remove(stacker.moduleGroupOnSupports);
+    stacker.area.moduleGroups.remove(stacker.moduleGroupOnSupports);
     stacker.moduleGroupOnSupports = null;
   }
 }

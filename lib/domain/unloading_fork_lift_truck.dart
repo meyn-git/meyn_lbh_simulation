@@ -1,4 +1,4 @@
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
@@ -6,7 +6,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection inFeedDirection;
 
   UnLoadingForkLiftTruck({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
     required this.inFeedDirection,
@@ -15,7 +15,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
     Duration getStackFromConveyorDuration =
         const Duration(seconds: 5), //TODO 15s?
   }) : super(
-            layout: layout,
+            area: area,
             position: position,
             seqNr: seqNr,
             initialState: WaitingForFullConveyor(),
@@ -23,7 +23,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
             outFeedDuration: getStackFromConveyorDuration);
 
   StateMachineCell get sendingNeighbour =>
-      layout.neighbouringCell(this, inFeedDirection) as StateMachineCell;
+      area.neighbouringCell(this, inFeedDirection) as StateMachineCell;
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -52,7 +52,7 @@ class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck> {
   }
 
   bool _neighbourCanFeedOut(UnLoadingForkLiftTruck forkLiftTruck) {
-    return forkLiftTruck.layout.moduleGroups.any(
+    return forkLiftTruck.area.moduleGroups.any(
         (moduleGroup) => moduleGroup.position.destination == forkLiftTruck);
   }
 }
@@ -68,7 +68,7 @@ class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck> {
   }
 
   bool _transportCompleted(UnLoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.layout.moduleGroups
+      forkLiftTruck.area.moduleGroups
           .any((moduleGroup) => moduleGroup.position.source == forkLiftTruck);
 }
 
@@ -81,6 +81,6 @@ class PutModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
   @override
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
     //TODO keep track of trough put
-    forkLiftTruck.layout.moduleGroups.remove(forkLiftTruck.moduleGroup);
+    forkLiftTruck.area.moduleGroups.remove(forkLiftTruck.moduleGroup);
   }
 }

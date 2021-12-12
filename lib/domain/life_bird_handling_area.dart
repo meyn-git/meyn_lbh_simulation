@@ -2,19 +2,30 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/site.dart';
 
 import 'module.dart';
 import 'module_cas.dart';
 import 'state_machine.dart';
 
-abstract class Layout implements TimeProcessor {
-  final String name;
+abstract class LiveBirdHandlingArea implements TimeProcessor {
+  final Site site;
+  final String lineName;
+  final ProductDefinition productDefinition;
+  final CasRecipe? casRecipe;
   final List<ActiveCell> cells = [];
   final List<ModuleGroup> moduleGroups = [];
   Duration durationSinceStart = Duration.zero;
   int moduleSequenceNumber = 0;
 
-  Layout(this.name);
+  LiveBirdHandlingArea({
+    required this.site,
+    required this.lineName,
+    required this.productDefinition,
+    this.casRecipe,
+  });
+
+  String get name =>'$site-$lineName-$productDefinition';
 
   Cell neighbouringCell(ActiveCell cell, CardinalDirection direction) {
     Position relativePosition = cell.position.neighbour(direction);
@@ -41,7 +52,7 @@ abstract class Layout implements TimeProcessor {
 
   Cell cellForPosition(Position positionToFind) {
     var foundCell =
-        cells.firstWhereOrNull((cell) => cell.position == positionToFind);
+    cells.firstWhereOrNull((cell) => cell.position == positionToFind);
     return foundCell ?? EmptyCell();
   }
 
@@ -98,7 +109,7 @@ class CellRange {
 
   CellRange(List<ActiveCell> cells) {
     if (cells.isEmpty) {
-      throw ('You must put cells in the layout as part of the Layout constructor');
+      throw ('You must put cells in the area as part of the Area constructor');
     }
     Position firstPosition = cells.first.position;
     _minX = firstPosition.x;
@@ -135,10 +146,10 @@ class Position {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Position &&
-          runtimeType == other.runtimeType &&
-          x == other.x &&
-          y == other.y;
+          other is Position &&
+              runtimeType == other.runtimeType &&
+              x == other.x &&
+              y == other.y;
 
   @override
   int get hashCode => x.hashCode ^ y.hashCode;
@@ -260,7 +271,9 @@ class CompassDirection {
 
   CardinalDirection? toCardinalDirection() {
     for (var cardinalDirection in CardinalDirection.values) {
-      if (cardinalDirection.toCompassDirection().degrees == degrees) {
+      if (cardinalDirection
+          .toCompassDirection()
+          .degrees == degrees) {
         return cardinalDirection;
       }
     }
@@ -293,19 +306,17 @@ abstract class TimeProcessor {
 }
 
 abstract class ActiveCell extends Cell implements TimeProcessor {
-  final Layout layout;
+  final LiveBirdHandlingArea area;
   final Position position;
 
-  ActiveCell(this.layout, this.position);
+  ActiveCell(this.area, this.position);
 
   String get name;
 }
 
-/// A list of [StateMachineCell]s to get to a [ModuleCas] within a [Layout]
+/// A list of [StateMachineCell]s to get to a [ModuleCas] within a [LiveBirdHandlingArea]
 class Route extends DelegatingList<StateMachineCell> {
-  Route(
-    List<StateMachineCell> cellRoute,
-  ) : super(cellRoute);
+  Route(List<StateMachineCell> cellRoute,) : super(cellRoute);
 
   const Route.empty() : super(const []);
 
@@ -332,8 +343,9 @@ class Route extends DelegatingList<StateMachineCell> {
     }
   }
 
-  bool _moduleGroupGoingTo(ModuleCas cas) => cas.layout.moduleGroups
-      .any((moduleGroup) => moduleGroup.destination == cas);
+  bool _moduleGroupGoingTo(ModuleCas cas) =>
+      cas.area.moduleGroups
+          .any((moduleGroup) => moduleGroup.destination == cas);
 
   bool get casIsOkToFeedIn => cas.waitingToFeedIn(cas.inAndOutFeedDirection);
 
@@ -358,4 +370,80 @@ abstract class BirdBuffer {
 
   /// Removes a bird from the buffer. returns true if the buffer still had one.
   bool removeBird();
+}
+
+class ProductDefinition {
+  final String birdType;
+  final LoadFactor loadFactor;
+  final int lineSpeedInShacklesPerHour;
+  final List<ModuleCombination> moduleCombinations;
+
+  ProductDefinition({required this.birdType,
+    required this.loadFactor,
+    required this.lineSpeedInShacklesPerHour,
+    required this.moduleCombinations});
+
+  double get averageProductsPerModuleGroup {
+    var totalBirds = 0;
+    var totalOccurrence = 0.0;
+    for (var moduleCombination in moduleCombinations) {
+      totalBirds += moduleCombination.firstModuleNumberOfBirds;
+      totalOccurrence += moduleCombination.occurrence;
+      if (moduleCombination.secondModuleNumberOfBirds != null) {
+        totalBirds += moduleCombination.secondModuleNumberOfBirds!;
+        totalOccurrence += moduleCombination.occurrence;
+      }
+    }
+    return totalBirds / totalOccurrence;
+  }
+
+  @override
+  String toString() {
+    return '$birdType-$loadFactor-${lineSpeedInShacklesPerHour}b/h';
+  }
+}
+
+enum LoadFactor { minimum, average, max }
+
+class ModuleCombination {
+  // how often this Module Combination is loaded on to the system
+  final double occurrence;
+  final ModuleType firstModuleType;
+  final int firstModuleNumberOfBirds;
+  final ModuleType? secondModuleType;
+  final int? secondModuleNumberOfBirds;
+
+  ModuleCombination({this.occurrence = 1,
+    required this.firstModuleType,
+    required this.firstModuleNumberOfBirds,
+    this.secondModuleType,
+    this.secondModuleNumberOfBirds}) {
+    _validateIfSecondModuleIsComplete();
+    _validateFirstAndSecondModule();
+  }
+
+  void _validateFirstAndSecondModule() {
+    if (secondModuleType != null) {
+      if (firstModuleType.shape != secondModuleType!.shape) {
+        throw Exception(
+            'The first module shape (${firstModuleType
+                .shape}) and second module shape (${secondModuleType!
+                .shape}) must be identical');
+      }
+      if (firstModuleType.birdType != secondModuleType!.birdType) {
+        throw Exception(
+            'The first module bird type (${firstModuleType
+                .birdType}) and second module bird type (${secondModuleType!
+                .birdType}) must be identical');
+      }
+    }
+  }
+
+  void _validateIfSecondModuleIsComplete() {
+    if (secondModuleType != null && secondModuleNumberOfBirds == null ||
+        secondModuleType == null && secondModuleNumberOfBirds != null) {
+      throw Exception(
+          'You must eiter define secondModuleType with secondModuleNumberOfBirds or none.');
+    }
+  }
 }

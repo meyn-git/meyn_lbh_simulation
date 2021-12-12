@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'state_machine.dart';
 import 'title_builder.dart';
 
@@ -248,4 +248,51 @@ class Module {
       .toString();
 }
 
-enum ModuleType { square, rectangular }
+class MeynTurkeyModule extends ModuleType {
+  MeynTurkeyModule()
+      : super(
+            name: '$MeynTurkeyModule',
+            shape: ModuleShape.rectangularStacked,
+            birdType: BirdType.Turkey,
+            maxKgPerCompartment: 300,
+            numberOfCompartments: 3);
+}
+
+class StorkSquare4LayerChickenModule extends ModuleType {
+  StorkSquare4LayerChickenModule()
+      : super(
+      name: '$StorkSquare4LayerChickenModule',
+      shape: ModuleShape.squareSideBySide,
+      birdType: BirdType.Chicken,
+      maxKgPerCompartment: 99999,//unknown
+      numberOfCompartments: 4);
+}
+
+class StorkSquare5LayerChickenModule extends ModuleType {
+  StorkSquare5LayerChickenModule()
+      : super(
+      name: '$StorkSquare4LayerChickenModule',
+      shape: ModuleShape.squareSideBySide,
+      birdType: BirdType.Chicken,
+      maxKgPerCompartment: 99999,//unknown
+      numberOfCompartments: 5);
+}
+
+class ModuleType {
+  final String name;
+  final ModuleShape shape;
+  final BirdType birdType;
+  final int numberOfCompartments;
+  final double maxKgPerCompartment;
+
+  ModuleType({
+    required this.name,
+    required this.shape,
+    required this.birdType,
+    required this.numberOfCompartments,
+    required this.maxKgPerCompartment,
+  });
+}
+
+enum ModuleShape { squareSideBySide, rectangularStacked }
+enum BirdType { Chicken, Turkey }

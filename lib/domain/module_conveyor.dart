@@ -1,4 +1,4 @@
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
@@ -10,7 +10,7 @@ class ModuleConveyor extends StateMachineCell {
   final Duration checkIfEmptyDuration;
 
   ModuleConveyor({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
     required this.inFeedDirection,
@@ -18,7 +18,7 @@ class ModuleConveyor extends StateMachineCell {
     Duration inFeedDuration = const Duration(seconds: 12),
     Duration outFeedDuration = const Duration(seconds: 12),
   }) : super(
-          layout: layout,
+          area: area,
           position: position,
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
@@ -27,9 +27,9 @@ class ModuleConveyor extends StateMachineCell {
         );
 
   Cell get receivingNeighbour =>
-      layout.neighbouringCell(this, inFeedDirection.opposite);
+      area.neighbouringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => layout.neighbouringCell(this, inFeedDirection);
+  Cell get sendingNeighbour => area.neighbouringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -69,7 +69,7 @@ class WaitToFeedIn extends State<ModuleConveyor> {
   }
 
   bool _moduleGroupTransportedTo(ModuleConveyor moduleConveyor) {
-    return moduleConveyor.layout.moduleGroups.any(
+    return moduleConveyor.area.moduleGroups.any(
         (moduleGroup) => moduleGroup.position.destination == moduleConveyor);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/layout.dart';
+import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 
 class BirdHangingConveyorWidget extends StatelessWidget {
   final BirdHangingConveyor birdHangingConveyor;

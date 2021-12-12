@@ -1,4 +1,4 @@
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_cas.dart';
 import 'state_machine.dart';
@@ -30,7 +30,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   };
 
   ModuleRotatingConveyor({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
 
@@ -43,7 +43,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
     Duration outFeedDuration = const Duration(seconds: 12),
   })  : currentDirection = calculateBeginPosition(defaultPositionWhenIdle),
         super(
-          layout: layout,
+          area: area,
           position: position,
           seqNr: seqNr,
           initialState: TurnToInFeed(),
@@ -61,7 +61,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   @override
   bool isFeedIn(CardinalDirection direction) {
-    var neighbour = layout.neighbouringCell(this, direction);
+    var neighbour = area.neighbouringCell(this, direction);
     if (neighbour is ModuleRotatingConveyor) {
       return true; // prevent endless loops between ModuleRotatingConveyor.isFeedIn and ModuleRotatingConveyor.isFeedOut
     }
@@ -78,7 +78,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   @override
   bool isFeedOut(CardinalDirection direction) {
-    var neighbour = layout.neighbouringCell(this, direction);
+    var neighbour = area.neighbouringCell(this, direction);
     if (neighbour is ModuleRotatingConveyor) {
       return true; // prevent endless loops between ModuleRotatingConveyor.isFeedIn and ModuleRotatingConveyor.isFeedOut
     }
@@ -96,7 +96,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   void increaseNeighboursWaitingDurations(Duration jump) {
     CardinalDirection.values.forEach((direction) {
-      var neighbour = layout.neighbouringCell(this, direction);
+      var neighbour = area.neighbouringCell(this, direction);
       if (neighbour.almostWaitingToFeedOut(direction.opposite)) {
         neighboursAlmostWaitingToFeedOutDurations[direction] = _noMoreThan1Hour(
             neighboursAlmostWaitingToFeedOutDurations[direction]! + jump);
@@ -128,7 +128,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
     secondsThatNeighboursAreWaiting.forEach((direction, secondsWaiting) {
       if ((!neighbourMustBeCASUnit ||
-              layout.neighbouringCell(this, direction) is ModuleCas) &&
+              area.neighbouringCell(this, direction) is ModuleCas) &&
           secondsWaiting > Duration.zero &&
           secondsWaiting > highestValue) {
         highestValue = secondsWaiting;
@@ -213,10 +213,10 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
     for (var direction in CardinalDirection.values) {
       var destination = moduleGroup!.destination;
-      var neighbour = layout.neighbouringCell(this, direction);
+      var neighbour = area.neighbouringCell(this, direction);
 
       if (neighbour is StateMachineCell && destination is StateMachineCell) {
-        var route = layout.findRoute(
+        var route = area.findRoute(
           source: neighbour,
           destination: destination,
           routeSoFar: Route([this]),
@@ -317,7 +317,7 @@ class TurnToInFeed extends State<ModuleRotatingConveyor> {
   }
 
   bool _moduleGroupTransportedTo(ModuleRotatingConveyor rotatingConveyor) =>
-      rotatingConveyor.layout.moduleGroups.any((moduleGroup) =>
+      rotatingConveyor.area.moduleGroups.any((moduleGroup) =>
           moduleGroup.position.destination == rotatingConveyor);
 }
 
@@ -374,7 +374,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
     if (neighbourPosition == null) {
       return false;
     }
-    var receivingNeighbour = rotatingConveyor.layout
+    var receivingNeighbour = rotatingConveyor.area
         .neighbouringCell(rotatingConveyor, neighbourPosition);
     return receivingNeighbour.waitingToFeedIn(neighbourPosition.opposite);
   }
@@ -437,9 +437,9 @@ class FeedOut extends State<ModuleRotatingConveyor> {
   @override
   void onStart(ModuleRotatingConveyor rotatingConveyor) {
     var transportedModuleGroup = rotatingConveyor.moduleGroup;
-    var layout = rotatingConveyor.layout;
+    var area = rotatingConveyor.area;
     var neighbourDirection = rotatingConveyor.bestOutFeedNeighbour;
-    var receivingNeighbour = layout.neighbouringCell(
+    var receivingNeighbour = area.neighbouringCell(
         rotatingConveyor, neighbourDirection!) as StateMachineCell;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
         source: rotatingConveyor, destination: receivingNeighbour);
@@ -454,6 +454,6 @@ class FeedOut extends State<ModuleRotatingConveyor> {
   }
 
   bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>
-      !rotatingConveyor.layout.moduleGroups.any(
+      !rotatingConveyor.area.moduleGroups.any(
           (moduleGroup) => moduleGroup.position.source == rotatingConveyor);
 }

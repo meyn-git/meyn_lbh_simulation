@@ -1,4 +1,4 @@
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
@@ -18,7 +18,7 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
 
 
   ModuleTilter(
-      {required Layout layout,
+      {required LiveBirdHandlingArea area,
       required Position position,
       int? seqNr,
       required this.inFeedDirection,
@@ -31,7 +31,7 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
       required this.minBirdsOnDumpBeltBuffer})
       : maxBirdsOnDumpBelt=minBirdsOnDumpBeltBuffer,
         super(
-          layout: layout,
+          area: area,
           position: position,
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
@@ -56,14 +56,14 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   void _verifyDirections() {
     if (inFeedDirection.isParallelTo(birdDirection)) {
       throw ArgumentError(
-          "Layout error: $name: inFeedDirection and birdDirection must be perpendicular in layout configuration.");
+          "$LiveBirdHandlingArea error: $name: inFeedDirection and birdDirection must be perpendicular in layout configuration.");
     }
   }
 
   Cell get receivingNeighbour =>
-      layout.neighbouringCell(this, inFeedDirection.opposite);
+      area.neighbouringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => layout.neighbouringCell(this, inFeedDirection);
+  Cell get sendingNeighbour => area.neighbouringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -110,7 +110,7 @@ class WaitToFeedIn extends State<ModuleTilter> {
   }
 
   bool _moduleGroupTransportedTo(ModuleTilter tilter) {
-    return tilter.layout.moduleGroups
+    return tilter.area.moduleGroups
         .any((moduleGroup) => moduleGroup.position.destination == tilter);
   }
 }

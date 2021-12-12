@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:meyn_lbh_simulation/domain/layout.dart';
+import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/module_conveyor.dart';
 
 class ModuleConveyorWidget extends StatelessWidget {

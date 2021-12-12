@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'title_builder.dart';
 
@@ -14,21 +14,21 @@ abstract class StateMachineCell extends ActiveCell {
   final Duration outFeedDuration;
 
   StateMachineCell({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     this.seqNr,
     required State initialState,
     required this.inFeedDuration,
     required this.outFeedDuration,
   })  : currentState = initialState,
-        super(layout, position) {
+        super(area, position) {
     initialState.onStart(this);
   }
 
   //TODO word spacing
   String get name => "${this.runtimeType.toString()}${seqNr ?? ''}";
 
-  /// This method gets called with a regular time interval by the [Layout]
+  /// This method gets called with a regular time interval by the [LiveBirdHandlingArea]
   /// to update the [StateMachineCell]
   @override
   onUpdateToNextPointInTime(Duration jump) {
@@ -48,7 +48,7 @@ abstract class StateMachineCell extends ActiveCell {
       .toString();
 
   @override
-  ModuleGroup? get moduleGroup => layout.moduleGroups
+  ModuleGroup? get moduleGroup => area.moduleGroups
       .firstWhereOrNull((moduleGroup) => moduleGroup.position.equals(this));
 }
 

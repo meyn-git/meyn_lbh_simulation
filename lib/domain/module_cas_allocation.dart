@@ -1,6 +1,6 @@
 import 'package:meyn_lbh_simulation/domain/title_builder.dart';
 
-import 'layout.dart';
+import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_cas.dart';
 import 'state_machine.dart';
@@ -13,10 +13,10 @@ class ModuleCasAllocation extends ActiveCell {
   List<Route> _cashedRoutesToCasUnits = [];
 
   ModuleCasAllocation({
-    required Layout layout,
+    required LiveBirdHandlingArea area,
     required Position position,
     required this.positionToAllocate,
-  }) : super(layout, position) {
+  }) : super(area, position) {
     validatePositionToAllocateIsStateMachineCell();
   }
 
@@ -41,7 +41,7 @@ class ModuleCasAllocation extends ActiveCell {
   onUpdateToNextPointInTime(Duration jump) {
     Route? route = findRouteWithHighestWaitingForStackScore();
     if (route != null) {
-      var cellToAllocate = layout.cellForPosition(positionToAllocate);
+      var cellToAllocate = area.cellForPosition(positionToAllocate);
       if (cellToAllocate is StateMachineCell) {
         var moduleGroupToAllocate = cellToAllocate.moduleGroup;
         if (moduleGroupToAllocate != null) {
@@ -62,11 +62,11 @@ class ModuleCasAllocation extends ActiveCell {
   List<Route> get routesToCasUnits {
     if (_cashedRoutesToCasUnits.isEmpty) {
       var cellToAllocate =
-          layout.cellForPosition(positionToAllocate) as StateMachineCell;
+          area.cellForPosition(positionToAllocate) as StateMachineCell;
       _cashedRoutesToCasUnits = [];
       for (var casUnit in allModuleCasUnits) {
         var route =
-            layout.findRoute(source: cellToAllocate, destination: casUnit);
+            area.findRoute(source: cellToAllocate, destination: casUnit);
         if (route != null) {
           _cashedRoutesToCasUnits.add(route);
         }
@@ -76,7 +76,7 @@ class ModuleCasAllocation extends ActiveCell {
   }
 
   List<ModuleCas> get allModuleCasUnits {
-    List<ModuleCas> allCasUnits = layout.cells
+    List<ModuleCas> allCasUnits = area.cells
         .where((cell) => cell is ModuleCas)
         .map((cell) => cell as ModuleCas)
         .toList();
@@ -98,7 +98,7 @@ class ModuleCasAllocation extends ActiveCell {
   ModuleGroup? get moduleGroup => null;
 
   void validatePositionToAllocateIsStateMachineCell() {
-    var cellToAllocate = layout.cellForPosition(positionToAllocate);
+    var cellToAllocate = area.cellForPosition(positionToAllocate);
     if (cellToAllocate is! StateMachineCell) {
       throw ArgumentError(
           '$ModuleCasAllocation positionToAllocate=$positionToAllocate does not point to a $StateMachineCell');
