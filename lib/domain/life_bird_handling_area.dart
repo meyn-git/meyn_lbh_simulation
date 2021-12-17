@@ -2,14 +2,13 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/site.dart';
 
 import 'module.dart';
 import 'module_cas.dart';
 import 'state_machine.dart';
 
+
 abstract class LiveBirdHandlingArea implements TimeProcessor {
-  final Site site;
   final String lineName;
   final ProductDefinition productDefinition;
   final CasRecipe? casRecipe;
@@ -19,13 +18,12 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   int moduleSequenceNumber = 0;
 
   LiveBirdHandlingArea({
-    required this.site,
     required this.lineName,
     required this.productDefinition,
     this.casRecipe,
   });
 
-  String get name =>'$site-$lineName-$productDefinition';
+  String get name => '$lineName-$productDefinition';
 
   Cell neighbouringCell(ActiveCell cell, CardinalDirection direction) {
     Position relativePosition = cell.position.neighbour(direction);
@@ -52,7 +50,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
 
   Cell cellForPosition(Position positionToFind) {
     var foundCell =
-    cells.firstWhereOrNull((cell) => cell.position == positionToFind);
+        cells.firstWhereOrNull((cell) => cell.position == positionToFind);
     return foundCell ?? EmptyCell();
   }
 
@@ -98,6 +96,11 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
     }
     // tried all directions, no success
     return null;
+  }
+
+  @override
+  String toString() {
+    return '$lineName-$productDefinition';
   }
 }
 
@@ -146,10 +149,10 @@ class Position {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is Position &&
-              runtimeType == other.runtimeType &&
-              x == other.x &&
-              y == other.y;
+      other is Position &&
+          runtimeType == other.runtimeType &&
+          x == other.x &&
+          y == other.y;
 
   @override
   int get hashCode => x.hashCode ^ y.hashCode;
@@ -271,9 +274,7 @@ class CompassDirection {
 
   CardinalDirection? toCardinalDirection() {
     for (var cardinalDirection in CardinalDirection.values) {
-      if (cardinalDirection
-          .toCompassDirection()
-          .degrees == degrees) {
+      if (cardinalDirection.toCompassDirection().degrees == degrees) {
         return cardinalDirection;
       }
     }
@@ -316,7 +317,9 @@ abstract class ActiveCell extends Cell implements TimeProcessor {
 
 /// A list of [StateMachineCell]s to get to a [ModuleCas] within a [LiveBirdHandlingArea]
 class Route extends DelegatingList<StateMachineCell> {
-  Route(List<StateMachineCell> cellRoute,) : super(cellRoute);
+  Route(
+    List<StateMachineCell> cellRoute,
+  ) : super(cellRoute);
 
   const Route.empty() : super(const []);
 
@@ -343,9 +346,8 @@ class Route extends DelegatingList<StateMachineCell> {
     }
   }
 
-  bool _moduleGroupGoingTo(ModuleCas cas) =>
-      cas.area.moduleGroups
-          .any((moduleGroup) => moduleGroup.destination == cas);
+  bool _moduleGroupGoingTo(ModuleCas cas) => cas.area.moduleGroups
+      .any((moduleGroup) => moduleGroup.destination == cas);
 
   bool get casIsOkToFeedIn => cas.waitingToFeedIn(cas.inAndOutFeedDirection);
 
@@ -377,11 +379,17 @@ class ProductDefinition {
   final LoadFactor loadFactor;
   final int lineSpeedInShacklesPerHour;
   final List<ModuleCombination> moduleCombinations;
+  final List<LiveBirdHandlingArea> Function(ProductDefinition)  areaFactory;
 
-  ProductDefinition({required this.birdType,
+  ProductDefinition({
+    required this.areaFactory,
+    required this.birdType,
     required this.loadFactor,
     required this.lineSpeedInShacklesPerHour,
-    required this.moduleCombinations});
+    required this.moduleCombinations,
+  });
+
+  List<LiveBirdHandlingArea> get areas => areaFactory(this);
 
   double get averageProductsPerModuleGroup {
     var totalBirds = 0;
@@ -396,6 +404,8 @@ class ProductDefinition {
     }
     return totalBirds / totalOccurrence;
   }
+
+
 
   @override
   String toString() {
@@ -413,11 +423,12 @@ class ModuleCombination {
   final ModuleType? secondModuleType;
   final int? secondModuleNumberOfBirds;
 
-  ModuleCombination({this.occurrence = 1,
-    required this.firstModuleType,
-    required this.firstModuleNumberOfBirds,
-    this.secondModuleType,
-    this.secondModuleNumberOfBirds}) {
+  ModuleCombination(
+      {this.occurrence = 1,
+      required this.firstModuleType,
+      required this.firstModuleNumberOfBirds,
+      this.secondModuleType,
+      this.secondModuleNumberOfBirds}) {
     _validateIfSecondModuleIsComplete();
     _validateFirstAndSecondModule();
   }
@@ -426,15 +437,11 @@ class ModuleCombination {
     if (secondModuleType != null) {
       if (firstModuleType.shape != secondModuleType!.shape) {
         throw Exception(
-            'The first module shape (${firstModuleType
-                .shape}) and second module shape (${secondModuleType!
-                .shape}) must be identical');
+            'The first module shape (${firstModuleType.shape}) and second module shape (${secondModuleType!.shape}) must be identical');
       }
       if (firstModuleType.birdType != secondModuleType!.birdType) {
         throw Exception(
-            'The first module bird type (${firstModuleType
-                .birdType}) and second module bird type (${secondModuleType!
-                .birdType}) must be identical');
+            'The first module bird type (${firstModuleType.birdType}) and second module bird type (${secondModuleType!.birdType}) must be identical');
       }
     }
   }

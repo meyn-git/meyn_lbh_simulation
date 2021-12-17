@@ -43,7 +43,7 @@ class _AreaWidgetState extends State<AreaWidget> {
   _AreaWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        player.area.onUpdateToNextPointInTime(player.jump);
+        player.scenario.area.onUpdateToNextPointInTime(player.jump);
       });
     });
   }
@@ -52,8 +52,8 @@ class _AreaWidgetState extends State<AreaWidget> {
   Widget build(BuildContext context) => Container(
     color:Colors.grey.shade200,
     child: CustomMultiChildLayout(
-        delegate: AreaWidgetDelegate(player.area),
-        children: createChildren(player.area)),
+        delegate: AreaWidgetDelegate(player.scenario.area),
+        children: createChildren(player.scenario.area)),
   );
 
   static List<Widget> createChildren(LiveBirdHandlingArea area) {

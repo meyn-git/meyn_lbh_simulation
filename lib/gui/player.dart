@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
+import 'package:meyn_lbh_simulation/domain/scenario.dart';
+import 'package:meyn_lbh_simulation/domain/site.dart';
+
 import '/domain/player.dart';
 import '/gui/area.dart';
 
@@ -12,21 +15,22 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   static final player = Player();
   var areaWidget = createAreaWidget();
 
-  static AreaWidget createAreaWidget() =>
-      AreaWidget(key: UniqueKey());
+  static AreaWidget createAreaWidget() => AreaWidget(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(player.area.name),
+        title: Text(player.scenario.nameWithSite),
         actions: [
           buildOpenButton(),
           buildRestartButton(),
           if (!player.playing) buildPlayButton(),
           if (player.playing) buildPauseButton(),
           buildSpeedButton(),
-          SizedBox(width: 40,),
+          SizedBox(
+            width: 40,
+          ),
         ],
       ),
       body: areaWidget,
@@ -63,12 +67,15 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       tooltip: 'Open other $LiveBirdHandlingArea',
       onPressed: () {
         setState(() {
-          player.restartOtherArea();
+          showDialog(
+              context: context,
+              builder: (BuildContext b) {
+                return ProjectSelectionDialog(player);
+              });
         });
       },
     );
   }
-
 
   IconButton buildRestartButton() {
     return IconButton(
@@ -87,6 +94,84 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 }
 
+class ProjectSelectionDialog extends StatelessWidget {
+  final Player player;
+
+  ProjectSelectionDialog(this.player);
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: Text('Select project'),
+        content: Container(
+          height: 300.0, // Change as per your requirement
+          width: 300.0, // Change as per your requirement
+          child: ListView(
+            // shrinkWrap: true,
+            // physics: AlwaysScrollableScrollPhysics(),
+            children: _createListItems(player),
+          ),
+        ),
+      );
+
+  List<Widget> _createListItems(Player player) {
+    List<Widget> listItems = [];
+
+    for (var site in Sites()) {
+      listItems.add(SiteTile(site));
+      for (var scenario in site.scenarios) {
+        listItems.add(ScenarioTile(scenario, player));
+      }
+    }
+    return listItems;
+  }
+}
+
+class ScenarioTile extends StatefulWidget {
+  final Scenario scenario;
+  final Player player;
+
+  ScenarioTile(this.scenario, this.player);
+
+  @override
+  State<ScenarioTile> createState() => _ScenarioTileState();
+}
+
+class _ScenarioTileState extends State<ScenarioTile> {
+  @override
+  Widget build(BuildContext context) => ListTile(
+        title: Text(
+          widget.scenario.nameWithoutSite,
+        ),
+        onTap: () {
+          setState(() {
+            _closeDialog(context);
+            widget.player.start(widget.scenario);
+          });
+        },
+      );
+
+  void _closeDialog(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+}
+
+class SiteTile extends StatelessWidget {
+  final Site site;
+
+  SiteTile(this.site);
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+        title: Align(
+          child: Text(
+            site.toString(),
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          alignment: Alignment(-1.6, 0),
+        ),
+      );
+}
+
 class SpeedDropDownButton extends StatefulWidget {
   final Player player;
 
@@ -103,7 +188,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
 
   @override
   Widget build(BuildContext context) {
-    var values = <int>[for (int i = 1; i <= 64; i=i+i) i];
+    var values = <int>[for (int i = 1; i <= 64; i = i + i) i];
     return DropdownButtonHideUnderline(
       child: DropdownButton<int>(
         value: 1,
@@ -145,5 +230,3 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
     );
   }
 }
-
-

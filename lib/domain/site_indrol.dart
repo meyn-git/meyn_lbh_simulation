@@ -23,7 +23,9 @@ class IndrolSite extends Site {
           organizationName: 'Indrol',
           city: 'Grodzisk',
           country: 'Poland',
+    productDefinitions: IndrolProductDefinitions(),
         );
+
 }
 
 /// Modules:
@@ -85,6 +87,7 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
   IndrolProductDefinitions()
       : super([
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
               loadFactor: LoadFactor.minimum,
               lineSpeedInShacklesPerHour: 3600,
@@ -97,6 +100,7 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
               loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 3600,
@@ -109,6 +113,7 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
               loadFactor: LoadFactor.max,
               lineSpeedInShacklesPerHour: 3600,
@@ -121,6 +126,7 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Male Turkey',
               loadFactor: LoadFactor.minimum,
               lineSpeedInShacklesPerHour: 1800,
@@ -133,6 +139,7 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Male Turkey',
               loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 1800,
@@ -145,6 +152,7 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Male Turkey',
               loadFactor: LoadFactor.max,
               lineSpeedInShacklesPerHour: 1800,
@@ -157,12 +165,16 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
         ]);
+
+  static List<LiveBirdHandlingArea> Function(ProductDefinition)
+  _areaFactory() => (ProductDefinition productDefinition) =>
+  [IndrolLiveBirdHandlingArea(productDefinition)];
+
 }
 
-class IndrolLifeBirdHandlingArea extends LiveBirdHandlingArea {
-  IndrolLifeBirdHandlingArea(ProductDefinition productDefinition)
+class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  IndrolLiveBirdHandlingArea( ProductDefinition productDefinition)
       : super(
-          site: IndrolSite(),
           lineName: 'Line 1',
           productDefinition: productDefinition,
           casRecipe: CasRecipe.standardTurkeyRecipe(),

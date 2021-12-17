@@ -20,10 +20,12 @@ import 'module_tilter.dart';
 class FileniSite extends Site {
   FileniSite()
       : super(
-            meynLayoutNumber: 7324,
-            organizationName: 'Fileni',
-            city: 'Castelplanio',
-            country: 'Italy');
+          meynLayoutNumber: 7324,
+          organizationName: 'Fileni',
+          city: 'Castelplanio',
+          country: 'Italy',
+          productDefinitions: FileniProductDefinitions(),
+        );
 }
 
 /// Fileni chicken: ModuleGroup = 4 and 5 compartment module
@@ -35,6 +37,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
   FileniProductDefinitions()
       : super([
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               loadFactor: LoadFactor.average,
@@ -47,6 +50,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               loadFactor: LoadFactor.average,
@@ -59,6 +63,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               loadFactor: LoadFactor.average,
@@ -71,6 +76,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
           ProductDefinition(
+              areaFactory: _areaFactory(),
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               loadFactor: LoadFactor.average,
@@ -83,6 +89,10 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 )
               ]),
         ]);
+
+  static List<LiveBirdHandlingArea> Function(ProductDefinition)
+      _areaFactory() => (ProductDefinition productDefinition) =>
+          [FileniLiveBirdHandlingArea(productDefinition)];
 }
 
 class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
@@ -99,7 +109,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
   FileniLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
-          site: FileniSite(),
           lineName: 'Chicken Line',
           productDefinition: productDefinition,
           casRecipe: CasRecipe.standardChickenRecipe(),
@@ -289,7 +298,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       area: this,
       position: Position(7, 5),
       outFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
+      doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCasAllocation(
