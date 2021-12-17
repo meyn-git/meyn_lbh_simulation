@@ -11,11 +11,14 @@ class BirdHangingConveyor extends ActiveCell {
   static final int hourInMicroSeconds = Duration(hours: 1).inMicroseconds;
   Duration timePerBird;
 
+  bool running;
+
   BirdHangingConveyor({
     required LiveBirdHandlingArea area,
     required Position position,
     required this.direction,
-  })  : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
+  })  : running = true,
+        shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
         timePerBird = Duration(
             microseconds: (hourInMicroSeconds /
                     area.productDefinition.lineSpeedInShacklesPerHour)
@@ -62,12 +65,14 @@ class BirdHangingConveyor extends ActiveCell {
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
-    elapsedTime += jump;
+    if (running) {
+      elapsedTime += jump;
 
-    while (elapsedTime > timePerBird) {
-      bool hasBird = birdBuffer.removeBird();
-      shackleLine.nextShackle(hasBird: hasBird);
-      elapsedTime = elapsedTime - timePerBird; //remainder
+      while (elapsedTime > timePerBird) {
+        bool hasBird = birdBuffer.removeBird();
+        shackleLine.nextShackle(hasBird: hasBird);
+        elapsedTime = elapsedTime - timePerBird; //remainder
+      }
     }
   }
 

@@ -9,13 +9,18 @@ class BirdHangingConveyorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: birdHangingConveyor.toString(),
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            birdHangingConveyor.direction.toCompassDirection().degrees / 360),
-        child: CustomPaint(
-            painter: BirdHangingConveyorPainter(birdHangingConveyor)),
+    return InkWell(
+      onTap: () {
+        birdHangingConveyor.running=!birdHangingConveyor.running;
+      },
+      child: Tooltip(
+        message: birdHangingConveyor.toString(),
+        child: RotationTransition(
+          turns: AlwaysStoppedAnimation(
+              birdHangingConveyor.direction.toCompassDirection().degrees / 360),
+          child: CustomPaint(
+              painter: BirdHangingConveyorPainter(birdHangingConveyor)),
+        ),
       ),
     );
   }
