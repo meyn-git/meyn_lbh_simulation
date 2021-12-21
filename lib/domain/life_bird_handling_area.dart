@@ -7,7 +7,6 @@ import 'module.dart';
 import 'module_cas.dart';
 import 'state_machine.dart';
 
-
 abstract class LiveBirdHandlingArea implements TimeProcessor {
   final String lineName;
   final ProductDefinition productDefinition;
@@ -335,15 +334,30 @@ class Route extends DelegatingList<StateMachineCell> {
       return 0;
     }
 
+    // factor is high when no modules are on route, otherwise lower for each module that is blocking the route
+    int factor = 20 - numberOfModulesOnRoute;
+
     if (casIsOkToFeedIn) {
-      return length + 0.3;
+      return (length + 0.3) * factor;
     } else if (casIsOkToFeedOut) {
-      return length + 0.2;
+      return (length + 0.2) * factor;
     } else if (casIsAlmostOkToFeedOut) {
-      return length + 0.1;
+      return (length + 0.1) * factor;
     } else {
       return 0;
     }
+  }
+
+  int get numberOfModulesOnRoute {
+    int total = 0;
+    for (StateMachineCell stateMachine in this) {
+      if (stateMachine.moduleGroup != null &&
+          stateMachine != first &&
+          stateMachine != last) {
+        total++;
+      }
+    }
+    return total;
   }
 
   bool _moduleGroupGoingTo(ModuleCas cas) => cas.area.moduleGroups
@@ -379,7 +393,7 @@ class ProductDefinition {
   final LoadFactor loadFactor;
   final int lineSpeedInShacklesPerHour;
   final List<ModuleCombination> moduleCombinations;
-  final List<LiveBirdHandlingArea> Function(ProductDefinition)  areaFactory;
+  final List<LiveBirdHandlingArea> Function(ProductDefinition) areaFactory;
 
   ProductDefinition({
     required this.areaFactory,
@@ -404,8 +418,6 @@ class ProductDefinition {
     }
     return totalBirds / totalOccurrence;
   }
-
-
 
   @override
   String toString() {

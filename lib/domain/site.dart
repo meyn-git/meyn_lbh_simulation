@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site_fileni.dart';
+import 'package:meyn_lbh_simulation/domain/site_fileni_extended.dart';
 import 'package:meyn_lbh_simulation/domain/site_indrol.dart';
 
 /// A ISO88/ISO99 A [Site] is a production location/plant of one of out customers
@@ -47,5 +48,6 @@ class Sites extends DelegatingList<Site> {
       : super([
           IndrolSite(),
           FileniSite(),
+          FileniExtendedSite(),
         ]);
 }
