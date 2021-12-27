@@ -51,8 +51,35 @@ class ModuleRotatingConveyor extends StateMachineCell {
           outFeedDuration: outFeedDuration,
         );
 
+
+  bool get moduleGroupFeedingIn => area.moduleGroups
+      .any((moduleGroup) => moduleGroup.position.destination == this);
+
+  /// Returns in feed scores for each direction
+  /// The higher the score the higher the priority
+  /// (e.g. when more neighbours are competing to feed in)
+  /// 0= not waiting
+
+  Map<CardinalDirection, int> get neighbourInFeedScores {
+    Map<CardinalDirection, int> scores = {};
+    for (var direction in CardinalDirection.values) {
+      scores[direction] = _neighbourInFeedScore(direction);
+    }
+    return scores;
+  }
+
+  int _neighbourInFeedScore(CardinalDirection direction) {
+    if (_neighbourModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
+        direction)) {
+      return 0;
+    }
+
+    return neighboursWaitingToFeedOutDurations[direction]!.inMilliseconds;
+  }
+
   onUpdateToNextPointInTime(Duration jump) {
     increaseNeighboursWaitingDurations(jump);
+
     super.onUpdateToNextPointInTime(jump);
   }
 
@@ -70,10 +97,12 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   @override
   bool waitingToFeedIn(CardinalDirection direction) {
-    return direction == bestInFeedNeighbour &&
+    var waitingToFeedIn = direction == bestInFeedNeighbour &&
         currentDirection.toCardinalDirection() != null &&
         currentDirection.toCardinalDirection() == inFeedDirection &&
         currentState is TurnToInFeed;
+
+    return waitingToFeedIn;
   }
 
   @override
@@ -159,34 +188,16 @@ class ModuleRotatingConveyor extends StateMachineCell {
   /// returns the best direction to feed in from
   /// returns null when there is no outcome
   CardinalDirection? get bestInFeedNeighbour {
-    CardinalDirection? longestWaitingCasNeighbourOkToFeedOut =
-        longestWaitingNeighbour(neighboursWaitingToFeedOutDurations,
-            neighbourMustBeCASUnit: true);
-    if (longestWaitingCasNeighbourOkToFeedOut != null) {
-      return longestWaitingCasNeighbourOkToFeedOut;
+    var topScore = 0;
+    var topScoreDirection;
+    for (var direction in CardinalDirection.values) {
+      var score = _neighbourInFeedScore(direction);
+      if (score > topScore) {
+        topScore = score;
+        topScoreDirection = direction;
+      }
     }
-
-    CardinalDirection? longestWaitingCasNeighbourAlmostOkToFeedOut =
-        longestWaitingNeighbour(neighboursAlmostWaitingToFeedOutDurations,
-            neighbourMustBeCASUnit: true);
-    if (longestWaitingCasNeighbourAlmostOkToFeedOut != null) {
-      return longestWaitingCasNeighbourAlmostOkToFeedOut;
-    }
-
-    CardinalDirection? longestWaitingNeighbourOkToFeedOut =
-        longestWaitingNeighbour(neighboursWaitingToFeedOutDurations);
-    if (longestWaitingNeighbourOkToFeedOut != null) {
-      return longestWaitingNeighbourOkToFeedOut;
-    }
-
-    CardinalDirection? longestWaitingNeighbourAlmostOkToFeedOut =
-        longestWaitingNeighbour(neighboursAlmostWaitingToFeedOutDurations);
-    if (longestWaitingNeighbourAlmostOkToFeedOut != null) {
-      return longestWaitingNeighbourAlmostOkToFeedOut;
-    }
-
-    //stay where we are
-    return null;
+    return topScoreDirection;
   }
 
   CardinalDirection? get inFeedDirection {
@@ -266,6 +277,32 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
     return foundNeighbour;
   }
+
+  bool _neighbourModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
+      CardinalDirection direction) {
+    var neighbour = area.neighbouringCell(this, direction);
+    return neighbour is StateMachineCell &&
+        neighbour is! ModuleCas &&
+        neighbour.moduleGroup != null &&
+        neighbour.isFeedIn(direction.opposite) &&
+        _hasNeighbouringCasUnitNotOkToFeedIn(
+            neighbour.moduleGroup!.destination);
+  }
+
+  bool _hasNeighbouringCasUnitNotOkToFeedIn(
+      StateMachineCell stateMachineCellToFind) {
+    for (var direction in CardinalDirection.values) {
+      var neighbour = area.neighbouringCell(this, direction);
+      var found = neighbour == stateMachineCellToFind &&
+          neighbour is ModuleCas &&
+          neighbour.isFeedIn(direction.opposite) &&
+          !neighbour.waitingToFeedIn(direction.opposite);
+      if (found) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 class TurnToInFeed extends State<ModuleRotatingConveyor> {
@@ -276,19 +313,23 @@ class TurnToInFeed extends State<ModuleRotatingConveyor> {
       ModuleRotatingConveyor rotatingConveyor, Duration jump) {
     var goToDirection = rotatingConveyor.inFeedDirection;
 
-    if (goToDirection != null) {
-      var currentDirection =
-          rotatingConveyor.currentDirection.toCardinalDirection();
-      if (currentDirection != goToDirection) {
-        turn(rotatingConveyor, goToDirection, jump);
-      }
+    if (_needsToTurn(rotatingConveyor, goToDirection)) {
+      turn(rotatingConveyor, goToDirection!, jump);
     }
+  }
+
+  bool _needsToTurn(ModuleRotatingConveyor rotatingConveyor,
+      CardinalDirection? goToDirection) {
+    return goToDirection != null &&
+        rotatingConveyor.currentDirection.toCardinalDirection() !=
+            goToDirection &&
+        !rotatingConveyor.moduleGroupFeedingIn;
   }
 
   @override
   State<ModuleRotatingConveyor>? nextState(
       ModuleRotatingConveyor rotatingConveyor) {
-    if (_moduleGroupTransportedTo(rotatingConveyor)) {
+    if (rotatingConveyor.moduleGroupFeedingIn) {
       return FeedIn();
     }
   }
@@ -325,25 +366,21 @@ class TurnToInFeed extends State<ModuleRotatingConveyor> {
     bool clockWise = _rotateClockWise(rotatingConveyor, goToDirection);
     return clockWise ? degreesToTurnThisJump : -degreesToTurnThisJump;
   }
+}
 
-  /// Determines if the turn table needs to turn clock wise our counter clock wise
-  bool _rotateClockWise(ModuleRotatingConveyor rotatingConveyor,
-      CardinalDirection goToDirection) {
-    // TODO make sure the table does not rotate over stopper using: var stopperDirection = ModuleRotatingConveyor.homingPosition.opposite;
-    // TODO make sure the feed out direction is correct depending neighbour: e.g. Cell.requiredDoorDirectionToFeedIn
-    var actualDirection = rotatingConveyor.currentDirection;
-    var clockWiseDistance = actualDirection
-        .clockWiseDistanceInDegrees(goToDirection.toCompassDirection());
-    var counterClockWiseDistance = actualDirection
-        .counterClockWiseDistanceInDegrees(goToDirection.toCompassDirection());
-    bool clockWise =
-        clockWiseDistance < counterClockWiseDistance; //TODO stopperDirection
-    return clockWise;
-  }
-
-  bool _moduleGroupTransportedTo(ModuleRotatingConveyor rotatingConveyor) =>
-      rotatingConveyor.area.moduleGroups.any((moduleGroup) =>
-          moduleGroup.position.destination == rotatingConveyor);
+/// Determines if the turn table needs to turn clock wise our counter clock wise
+bool _rotateClockWise(
+    ModuleRotatingConveyor rotatingConveyor, CardinalDirection goToDirection) {
+  // TODO make sure the table does not rotate over stopper using: var stopperDirection = ModuleRotatingConveyor.homingPosition.opposite;
+  // TODO make sure the feed out direction is correct depending neighbour: e.g. Cell.requiredDoorDirectionToFeedIn
+  var actualDirection = rotatingConveyor.currentDirection;
+  var clockWiseDistance = actualDirection
+      .clockWiseDistanceInDegrees(goToDirection.toCompassDirection());
+  var counterClockWiseDistance = actualDirection
+      .counterClockWiseDistanceInDegrees(goToDirection.toCompassDirection());
+  bool clockWise =
+      clockWiseDistance < counterClockWiseDistance; //TODO stopperDirection
+  return clockWise;
 }
 
 class FeedIn extends State<ModuleRotatingConveyor> {
@@ -351,12 +388,6 @@ class FeedIn extends State<ModuleRotatingConveyor> {
   State<ModuleRotatingConveyor>? nextState(
       ModuleRotatingConveyor rotatingConveyor) {
     if (_transportCompleted(rotatingConveyor)) {
-      //FOR SOME REASON THE CONVEYOR ALREADY ROTATED (BY TURN TO FEED IN???) WHEN STARTED TO TURN THE CONVEYOR WITH MODULE????
-      var turnError = rotatingConveyor.currentDirection.degrees % 90;
-      if (turnError != 0) {
-        rotatingConveyor.currentDirection =
-            rotatingConveyor.currentDirection.rotate(-turnError);
-      }
       return TurnToFeedOut();
     }
   }
@@ -371,6 +402,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
   @override
   void onUpdateToNextPointInTime(
       ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+
     if (!_doneRotating(rotatingConveyor)) {
       turn(rotatingConveyor, jump);
     }
