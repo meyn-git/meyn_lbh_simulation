@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_cas.dart';
@@ -51,7 +53,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
           outFeedDuration: outFeedDuration,
         );
 
-
   bool get moduleGroupFeedingIn => area.moduleGroups
       .any((moduleGroup) => moduleGroup.position.destination == this);
 
@@ -74,7 +75,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
       return 0;
     }
 
-    return neighboursWaitingToFeedOutDurations[direction]!.inMilliseconds;
+    return max(neighboursWaitingToFeedOutDurations[direction]!.inMilliseconds,
+        neighboursAlmostWaitingToFeedOutDurations[direction]!.inMilliseconds);
   }
 
   onUpdateToNextPointInTime(Duration jump) {
@@ -402,7 +404,6 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
   @override
   void onUpdateToNextPointInTime(
       ModuleRotatingConveyor rotatingConveyor, Duration jump) {
-
     if (!_doneRotating(rotatingConveyor)) {
       turn(rotatingConveyor, jump);
     }
