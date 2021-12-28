@@ -99,7 +99,9 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   @override
   bool waitingToFeedIn(CardinalDirection direction) {
-    var waitingToFeedIn = direction == bestInFeedNeighbour &&
+    var bestInFeedNeighbourDirection = bestInFeedNeighbour;
+    var waitingToFeedIn = bestInFeedNeighbourDirection != null &&
+        direction == bestInFeedNeighbourDirection &&
         currentDirection.toCardinalDirection() != null &&
         currentDirection.toCardinalDirection() == inFeedDirection &&
         currentState is TurnToInFeed;
@@ -282,13 +284,12 @@ class ModuleRotatingConveyor extends StateMachineCell {
 
   bool _neighbourModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
       CardinalDirection direction) {
-    var neighbour = area.neighbouringCell(this, direction);
-    return neighbour is StateMachineCell &&
-        neighbour is! ModuleCas &&
-        neighbour.moduleGroup != null &&
-        neighbour.isFeedIn(direction.opposite) &&
+    var inFeedNeighbour = area.neighbouringCell(this, direction);
+    return inFeedNeighbour is StateMachineCell &&
+        inFeedNeighbour.moduleGroup != null &&
+        inFeedNeighbour.isFeedOut(direction.opposite) &&
         _hasNeighbouringCasUnitNotOkToFeedIn(
-            neighbour.moduleGroup!.destination);
+            inFeedNeighbour.moduleGroup!.destination);
   }
 
   bool _hasNeighbouringCasUnitNotOkToFeedIn(
