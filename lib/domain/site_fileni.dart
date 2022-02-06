@@ -36,7 +36,7 @@ class FileniSite extends Site {
 class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
   FileniProductDefinitions()
       : super([
-          ProductDefinition(
+          ProductDefinition(//2,82286 stacks per hour
               areaFactory: _areaFactory(),
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
@@ -49,7 +49,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                   secondModuleNumberOfBirds: 5 * 26,
                 )
               ]),
-          ProductDefinition(
+          ProductDefinition(// 1,3 stacks per hour
               areaFactory: _areaFactory(),
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
@@ -62,7 +62,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                   secondModuleNumberOfBirds: 5 * 33,
                 )
               ]),
-          ProductDefinition(
+          ProductDefinition(//0.6319997 stacks per hour
               areaFactory: _areaFactory(),
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
@@ -75,7 +75,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                   secondModuleNumberOfBirds: 5 * 52,
                 )
               ]),
-          ProductDefinition(
+          ProductDefinition(//0,8379
               areaFactory: _areaFactory(),
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
@@ -96,14 +96,11 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
 }
 
 class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  // static final birdsPerHour = 8000;
-  // static final birdsPerModule1 = ((4 + 5) / 2 * 26).round();
-  // static final birdsPerModule2 = ((4 + 5) / 2 * 26).round();
-  //
+
   static final conveyorTransportDuration = //TODO move to ModuleType
       Duration(milliseconds: 13400); // Based on measurements @ Dabe
   static final turnTableDegreesPerSecond = //TODO move to ModuleType
-      10; //Based on measurements @ Dabe: 90 degrees in 9 seconds
+      10; //Based on measurements @ Dabe
   static final casTransportDuration = //TODO move to ModuleType
       Duration(milliseconds: 18700); // Based on measurements @ Dabe
 

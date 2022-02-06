@@ -123,13 +123,13 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row1() {
     put(BirdHangingConveyor(
       area: this,
-      position: Position(4, 1),
+      position: Position(5, 1),
       direction: CardinalDirection.east,
     ));
 
     put(ModuleCas(
       area: this,
-      position: Position(7, 1),
+      position: Position(9, 1),
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -139,7 +139,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(8, 1),
+      position: Position(10, 1),
       seqNr: 3,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -149,7 +149,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(9, 1),
+      position: Position(11, 1),
       seqNr: 5,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -161,14 +161,14 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row2() {
     put(UnLoadingForkLiftTruck(
       area: this,
-      position: Position(2, 2),
+      position: Position(3, 2),
       inFeedDirection: CardinalDirection.east,
     ));
 
     put(ModuleConveyor(
       area: this,
-      position: Position(3, 2),
-      seqNr: 3,
+      position: Position(4, 2),
+      seqNr: 5,
       inFeedDirection: CardinalDirection.east,
       inFeedDuration: conveyorTransportDuration,
       outFeedDuration: conveyorTransportDuration,
@@ -176,7 +176,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleTilter(
       area: this,
-      position: Position(4, 2),
+      position: Position(5, 2),
       seqNr: 1,
       inFeedDirection: CardinalDirection.east,
       birdDirection: CardinalDirection.north,
@@ -190,7 +190,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
     /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
     put(ModuleDeStacker(
       area: this,
-      position: Position(5, 2),
+      position: Position(6, 2),
       seqNr: 1,
       inFeedDirection: CardinalDirection.east,
       heightsInCentiMeter: const {
@@ -206,13 +206,26 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
     ));
 
     put(ModuleConveyor(
-        area: this,
-        position: Position(6, 2),
-        inFeedDirection: CardinalDirection.east));
+      area: this,
+      seqNr: 13,
+      position: Position(7, 2),
+      inFeedDirection: CardinalDirection.east,
+      inFeedDuration: conveyorTransportDuration,
+      outFeedDuration: conveyorTransportDuration,
+    ));
+
+    put(ModuleConveyor(
+      area: this,
+      seqNr: 14,
+      position: Position(8, 2),
+      inFeedDirection: CardinalDirection.east,
+      inFeedDuration: conveyorTransportDuration,
+      outFeedDuration: conveyorTransportDuration,
+    ));
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(7, 2),
+      position: Position(9, 2),
       seqNr: 3,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
@@ -224,7 +237,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(8, 2),
+      position: Position(10, 2),
       seqNr: 2,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
@@ -236,7 +249,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(9, 2),
+      position: Position(11, 2),
       seqNr: 1,
       oppositeInFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.north,
@@ -249,7 +262,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row3() {
     put(ModuleCas(
       area: this,
-      position: Position(7, 3),
+      position: Position(9, 3),
       seqNr: 2,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
@@ -259,7 +272,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(8, 3),
+      position: Position(10, 3),
       seqNr: 4,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
@@ -271,7 +284,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
     /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
     put(ModuleStacker(
       area: this,
-      position: Position(9, 3),
+      position: Position(11, 3),
       seqNr: 1,
       inFeedDirection: CardinalDirection.south,
       heightsInCentiMeter: const {
@@ -290,7 +303,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row4() {
     put(ModuleConveyor(
       area: this,
-      position: Position(9, 4),
+      position: Position(11, 4),
       seqNr: 1,
       inFeedDirection: CardinalDirection.south,
       inFeedDuration: conveyorTransportDuration,
@@ -301,7 +314,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row5() {
     put(LoadingForkLiftTruck(
       area: this,
-      position: Position(9, 5),
+      position: Position(11, 5),
       outFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
       loadsSingeModule: true,
@@ -310,7 +323,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
     put(ModuleCasAllocation(
       area: this,
       position: Position(3, 5),
-      positionToAllocate: Position(9, 3),
+      positionToAllocate: Position(11, 3),
     ));
 
     put(ModuleCasStart(

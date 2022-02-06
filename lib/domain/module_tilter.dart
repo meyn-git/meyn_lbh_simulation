@@ -15,8 +15,6 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
 
-
-
   ModuleTilter(
       {required LiveBirdHandlingArea area,
       required Position position,

@@ -40,7 +40,8 @@ class ModuleCasStart extends ActiveCell {
   @override
   onUpdateToNextPointInTime(Duration jump) {
     var startInterval = nextStartInterval;
-    if (elapsedTime>=maxElapsedTime) {
+
+    if (elapsedTime>maxElapsedTime) {
       elapsedTime = maxElapsedTime;
     } else {
       elapsedTime = elapsedTime + jump;
@@ -54,10 +55,9 @@ class ModuleCasStart extends ActiveCell {
 
   Duration get nextStartInterval {
     var nrStunnedModules = numberOfWaitingStunnedModules;
-    if (nrStunnedModules == 0) {
-      return Duration.zero;
-    }
     switch (nrStunnedModules) {
+      case 0:
+        return Duration.zero;
       case 1:
         return _normalStartInterval * 0.5;
       case 2:
@@ -70,6 +70,12 @@ class ModuleCasStart extends ActiveCell {
         return _normalStartInterval * 1.25;
       case 6:
         return _normalStartInterval * 1.5;
+      case 7:
+        return _normalStartInterval * 1.75;
+      case 8:
+        return _normalStartInterval * 2;
+      case 9:
+        return _normalStartInterval * 2.25;
       default:
         return hold;
     }
