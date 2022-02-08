@@ -69,6 +69,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
     return scores;
   }
 
+
+
   int _neighbourInFeedScore(CardinalDirection direction) {
     if (_neighbourModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
         direction)) {
@@ -79,6 +81,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
         neighboursAlmostWaitingToFeedOutDurations[direction]!.inMilliseconds);
   }
 
+  @override
   onUpdateToNextPointInTime(Duration jump) {
     increaseNeighboursWaitingDurations(jump);
 
@@ -214,7 +217,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
       }
     }
 
-    //note that in feed position in inverse by default!!!
+    //note that in feed position is in inverse by default!!!
     if (oppositeInFeeds.contains(neighbourToFeedInFrom)) {
       return neighbourToFeedInFrom;
     } else {
@@ -233,6 +236,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
       return onlyOutFeedNeighbour;
     }
 
+
+    //TODO scores for longest waiting
     for (var direction in CardinalDirection.values) {
       var neighbour = area.neighbouringCell(this, direction);
 

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/scenario.dart';
+import 'package:meyn_lbh_simulation/domain/site_dobrimex.dart';
 import 'package:meyn_lbh_simulation/domain/site_fileni.dart';
 import 'package:meyn_lbh_simulation/domain/site_fileni_extended.dart';
 import 'package:meyn_lbh_simulation/domain/site_indrol.dart';
@@ -46,8 +47,9 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
       : super([
-       //   IndrolSite(),
-          FileniSite(),
-          FileniExtendedSite(),
+        DobrimexSite(),
+         IndrolSite(),
+       //    FileniSite(),
+       //    FileniExtendedSite(),
         ]);
 }

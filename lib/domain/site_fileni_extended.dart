@@ -45,7 +45,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleCombination(
                   firstModuleType: StorkSquare4LayerChickenModule(),
                   firstModuleNumberOfBirds: 4 * 26,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
+                  secondModuleType: AngliaAutoFlow5LayerChickenModule(),
                   secondModuleNumberOfBirds: 5 * 26,
                 )
               ]),
@@ -58,7 +58,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleCombination(
                   firstModuleType: StorkSquare4LayerChickenModule(),
                   firstModuleNumberOfBirds: 4 * 33,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
+                  secondModuleType: AngliaAutoFlow5LayerChickenModule(),
                   secondModuleNumberOfBirds: 5 * 33,
                 )
               ]),
@@ -71,7 +71,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleCombination(
                   firstModuleType: StorkSquare4LayerChickenModule(),
                   firstModuleNumberOfBirds: 4 * 52,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
+                  secondModuleType: AngliaAutoFlow5LayerChickenModule(),
                   secondModuleNumberOfBirds: 5 * 52,
                 )
               ]),
@@ -84,7 +84,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleCombination(
                   firstModuleType: StorkSquare4LayerChickenModule(),
                   firstModuleNumberOfBirds: 4 * 54,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
+                  secondModuleType: AngliaAutoFlow5LayerChickenModule(),
                   secondModuleNumberOfBirds: 5 * 54,
                 )
               ]),
