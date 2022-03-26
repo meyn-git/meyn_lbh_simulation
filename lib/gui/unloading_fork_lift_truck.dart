@@ -5,7 +5,8 @@ import 'package:meyn_lbh_simulation/domain/unloading_fork_lift_truck.dart';
 class UnLoadingForkLiftTruckWidget extends StatelessWidget {
   final UnLoadingForkLiftTruck forkLiftTruck;
 
-  UnLoadingForkLiftTruckWidget(this.forkLiftTruck);
+  const UnLoadingForkLiftTruckWidget(this.forkLiftTruck, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +21,7 @@ class UnLoadingForkLiftTruckWidget extends StatelessWidget {
 
   CompassDirection get paintDirection {
     if (forkLiftTruck.currentState is PutModuleGroupOnTruck) {
-      return forkLiftTruck.inFeedDirection.opposite
-          .toCompassDirection();
+      return forkLiftTruck.inFeedDirection.opposite.toCompassDirection();
     } else {
       return forkLiftTruck.inFeedDirection.toCompassDirection();
     }

@@ -256,7 +256,7 @@ class MeynTurkeyModule extends ModuleType {
       : super(
             name: '$MeynTurkeyModule',
             shape: ModuleShape.rectangularStacked,
-            birdType: BirdType.Turkey,
+            birdType: BirdType.turkey,
             maxKgPerCompartment: 300,
             numberOfCompartments: 3);
 }
@@ -266,7 +266,7 @@ class StorkSquare4LayerChickenModule extends ModuleType {
       : super(
             name: '$StorkSquare4LayerChickenModule',
             shape: ModuleShape.squareSideBySide,
-            birdType: BirdType.Chicken,
+            birdType: BirdType.chicken,
             maxKgPerCompartment: 99999,
             //unknown
             numberOfCompartments: 4);
@@ -277,7 +277,7 @@ class StorkSquare5LayerChickenModule extends ModuleType {
       : super(
             name: '$StorkSquare5LayerChickenModule',
             shape: ModuleShape.squareSideBySide,
-            birdType: BirdType.Chicken,
+            birdType: BirdType.chicken,
             maxKgPerCompartment: 99999,
             //unknown
             numberOfCompartments: 5);
@@ -288,7 +288,7 @@ class AngliaAutoFlow4LayerChickenModule extends ModuleType {
       : super(
             name: '$AngliaAutoFlow4LayerChickenModule',
             shape: ModuleShape.rectangularStacked,
-            birdType: BirdType.Chicken,
+            birdType: BirdType.chicken,
             maxKgPerCompartment: 99999,
             //unknown
             numberOfCompartments: 4);
@@ -299,7 +299,7 @@ class AngliaAutoFlow5LayerChickenModule extends ModuleType {
       : super(
             name: '$AngliaAutoFlow5LayerChickenModule',
             shape: ModuleShape.rectangularStacked,
-            birdType: BirdType.Chicken,
+            birdType: BirdType.chicken,
             maxKgPerCompartment: 99999,
             //unknown
             numberOfCompartments: 5);
@@ -322,4 +322,4 @@ class ModuleType {
 }
 
 enum ModuleShape { squareSideBySide, rectangularStacked }
-enum BirdType { Chicken, Turkey }
+enum BirdType { chicken, turkey }

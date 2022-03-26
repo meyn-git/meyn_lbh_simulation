@@ -7,6 +7,8 @@ import '/domain/player.dart';
 import '/gui/area.dart';
 
 class PlayerWidget extends StatefulWidget {
+  const PlayerWidget({Key? key}) : super(key: key);
+
   @override
   State<PlayerWidget> createState() => _PlayerWidgetState();
 }
@@ -28,7 +30,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           if (!player.playing) buildPlayButton(),
           if (player.playing) buildPauseButton(),
           buildSpeedButton(),
-          SizedBox(
+          const SizedBox(
             width: 40,
           ),
         ],
@@ -97,12 +99,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 class ProjectSelectionDialog extends StatelessWidget {
   final Player player;
 
-  ProjectSelectionDialog(this.player);
+  const ProjectSelectionDialog(this.player, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: Text('Select project'),
-        content: Container(
+        title: const Text('Select project'),
+        content: SizedBox(
           height: 300.0, // Change as per your requirement
           width: 300.0, // Change as per your requirement
           child: ListView(
@@ -130,7 +132,7 @@ class ScenarioTile extends StatefulWidget {
   final Scenario scenario;
   final Player player;
 
-  ScenarioTile(this.scenario, this.player);
+  const ScenarioTile(this.scenario, this.player, {Key? key}) : super(key: key);
 
   @override
   State<ScenarioTile> createState() => _ScenarioTileState();
@@ -158,16 +160,16 @@ class _ScenarioTileState extends State<ScenarioTile> {
 class SiteTile extends StatelessWidget {
   final Site site;
 
-  SiteTile(this.site);
+  const SiteTile(this.site, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => ListTile(
         title: Align(
           child: Text(
             site.toString(),
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          alignment: Alignment(-1.6, 0),
+          alignment: const Alignment(-1.6, 0),
         ),
       );
 }
@@ -175,9 +177,10 @@ class SiteTile extends StatelessWidget {
 class SpeedDropDownButton extends StatefulWidget {
   final Player player;
 
-  const SpeedDropDownButton(this.player);
+  const SpeedDropDownButton(this.player, {Key? key}) : super(key: key);
 
   @override
+  // ignore: no_logic_in_create_state
   State<SpeedDropDownButton> createState() => _SpeedDropDownButtonState(player);
 }
 
@@ -206,10 +209,10 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
           return values.map((int value) {
             return Row(
               children: [
-                Icon(Icons.speed_rounded),
+                const Icon(Icons.speed_rounded),
                 Text(
                   'x${player.speed}',
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ],
             );
@@ -220,7 +223,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
             value: value,
             child: Row(
               children: [
-                Icon(Icons.speed_rounded, color: Colors.black),
+                const Icon(Icons.speed_rounded, color: Colors.black),
                 Text('x$value'),
               ],
             ),

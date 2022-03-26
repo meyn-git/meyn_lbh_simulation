@@ -54,7 +54,7 @@ abstract class StateMachineCell extends ActiveCell {
 }
 
 abstract class State<T extends StateMachineCell> {
-  String get name => this.runtimeType.toString(); //TODO word spacing
+  String get name => runtimeType.toString();
 
   /// this method is called when the state starts
   /// (when another [State.nextState] method returned this [State]).
@@ -80,7 +80,6 @@ abstract class State<T extends StateMachineCell> {
 
   @override
   String toString() => name;
-
 }
 
 class DurationState<T extends StateMachineCell> extends State<T> {
@@ -115,6 +114,6 @@ class DurationState<T extends StateMachineCell> extends State<T> {
 
   @override
   String toString() {
-    return '${this.name} remaining:${remainingDuration.inSeconds}sec';
+    return '$name remaining:${remainingDuration.inSeconds}sec';
   }
 }

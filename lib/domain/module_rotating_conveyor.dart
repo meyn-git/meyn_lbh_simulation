@@ -116,7 +116,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   }
 
   void increaseNeighboursWaitingDurations(Duration jump) {
-    CardinalDirection.values.forEach((direction) {
+    for (var direction in CardinalDirection.values) {
       var neighbour = area.neighbouringCell(this, direction);
       if (neighbour.almostWaitingToFeedOut(direction.opposite)) {
         neighboursAlmostWaitingToFeedOutDurations[direction] = _noMoreThan1Hour(
@@ -136,7 +136,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
       } else {
         neighboursWaitingToFeedInDurations[direction] = Duration.zero;
       }
-    });
+    }
   }
 
   /// returns the neighbour cell that was waiting the longest to feed out.
@@ -169,7 +169,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   }
 
   Duration _noMoreThan1Hour(Duration duration) {
-    const max = const Duration(hours: 1);
+    const max = Duration(hours: 1);
     if (duration >= max) {
       return max;
     } else {
@@ -177,11 +177,10 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
   }
 
-
   Map<CardinalDirection, int> get neighbourInFeedScores {
-    Map<CardinalDirection, int> scores={};
+    Map<CardinalDirection, int> scores = {};
     for (var direction in CardinalDirection.values) {
-      scores[direction]=_neighbourInFeedScore(direction);
+      scores[direction] = _neighbourInFeedScore(direction);
     }
     return scores;
   }
@@ -190,7 +189,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   /// returns null when there is no outcome
   CardinalDirection? get bestInFeedNeighbour {
     var topScore = 0;
-    var topScoreDirection;
+    CardinalDirection? topScoreDirection;
     for (var direction in CardinalDirection.values) {
       var score = _neighbourInFeedScore(direction);
       if (score > topScore) {
@@ -198,7 +197,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
         topScoreDirection = direction;
       }
     }
-    if (name=='ModuleRotatingConveyor1') {
+    if (name == 'ModuleRotatingConveyor1') {
       //print('direction:=$topScoreDirection $neighbourInFeedScores');
     }
 
@@ -234,7 +233,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
       return onlyOutFeedNeighbour;
     }
 
-
     //TODO scores for longest waiting
     for (var direction in CardinalDirection.values) {
       var neighbour = area.neighbouringCell(this, direction);
@@ -269,7 +267,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   }
 
   CardinalDirection? findOnlyNeighbour() {
-    var foundNeighbour;
+    CardinalDirection? foundNeighbour;
     for (var direction in CardinalDirection.values) {
       var neighbour = area.neighbouringCell(this, direction);
       if (neighbour is StateMachineCell &&
@@ -317,7 +315,9 @@ class TurnToInFeed extends State<ModuleRotatingConveyor> {
 
   @override
   void onUpdateToNextPointInTime(
-      ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+      // ignore: avoid_renaming_method_parameters
+      ModuleRotatingConveyor rotatingConveyor,
+      Duration jump) {
     var goToDirection = rotatingConveyor.inFeedDirection;
 
     if (_needsToTurn(rotatingConveyor, goToDirection)) {
@@ -335,6 +335,7 @@ class TurnToInFeed extends State<ModuleRotatingConveyor> {
 
   @override
   State<ModuleRotatingConveyor>? nextState(
+      // ignore: avoid_renaming_method_parameters
       ModuleRotatingConveyor rotatingConveyor) {
     if (rotatingConveyor.moduleGroupFeedingIn) {
       return FeedIn();
@@ -393,6 +394,7 @@ bool _rotateClockWise(
 class FeedIn extends State<ModuleRotatingConveyor> {
   @override
   State<ModuleRotatingConveyor>? nextState(
+      // ignore: avoid_renaming_method_parameters
       ModuleRotatingConveyor rotatingConveyor) {
     if (_transportCompleted(rotatingConveyor)) {
       return TurnToFeedOut();
@@ -408,7 +410,9 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
 
   @override
   void onUpdateToNextPointInTime(
-      ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+      // ignore: avoid_renaming_method_parameters
+      ModuleRotatingConveyor rotatingConveyor,
+      Duration jump) {
     if (!_doneRotating(rotatingConveyor)) {
       turn(rotatingConveyor, jump);
     }
@@ -416,6 +420,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
 
   @override
   State<ModuleRotatingConveyor>? nextState(
+      // ignore: avoid_renaming_method_parameters
       ModuleRotatingConveyor rotatingConveyor) {
     if (_neighbourOkToFeedIn(rotatingConveyor) &&
         _doneRotating(rotatingConveyor) &&
@@ -498,6 +503,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
 
 class FeedOut extends State<ModuleRotatingConveyor> {
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleRotatingConveyor rotatingConveyor) {
     var transportedModuleGroup = rotatingConveyor.moduleGroup;
     var area = rotatingConveyor.area;
@@ -510,6 +516,7 @@ class FeedOut extends State<ModuleRotatingConveyor> {
 
   @override
   State<ModuleRotatingConveyor>? nextState(
+      // ignore: avoid_renaming_method_parameters
       ModuleRotatingConveyor rotatingConveyor) {
     if (_transportCompleted(rotatingConveyor)) {
       return TurnToInFeed();

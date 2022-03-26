@@ -8,19 +8,19 @@ import 'module_cas.dart';
 /// Starts CAS units depending on the line speed, nr of birds per module
 /// (=modules/hour) compensated for the number of stunned modules waiting
 class ModuleCasStart extends ActiveCell {
-  static final Duration hold = Duration(seconds: 999999999);
-
+  static const Duration hold = Duration(seconds: 999999999);
 
   Duration elapsedTime = Duration.zero;
 
-  static final Duration maxElapsedTime=Duration(minutes: 30);
+  static const Duration maxElapsedTime = Duration(minutes: 30);
 
   ModuleCasStart({
     required LiveBirdHandlingArea area,
     required Position position,
   }) : super(area, position);
 
-  String get name => "${this.runtimeType.toString()}";
+  @override
+  String get name => runtimeType.toString();
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -41,7 +41,7 @@ class ModuleCasStart extends ActiveCell {
   onUpdateToNextPointInTime(Duration jump) {
     var startInterval = nextStartInterval;
 
-    if (elapsedTime>maxElapsedTime) {
+    if (elapsedTime > maxElapsedTime) {
       elapsedTime = maxElapsedTime;
     } else {
       elapsedTime = elapsedTime + jump;
@@ -84,14 +84,13 @@ class ModuleCasStart extends ActiveCell {
   @override
   String toString() {
     return TitleBuilder(name)
-      .appendProperty('stunnedModules', numberOfWaitingStunnedModules)
-      .appendProperty('baseInterval', _normalStartInterval)
-      .appendProperty('nextInterval', nextStartInterval==hold?'onHold':nextStartInterval)
-      .appendProperty('elapsedTime', elapsedTime)
-      .toString();
+        .appendProperty('stunnedModules', numberOfWaitingStunnedModules)
+        .appendProperty('baseInterval', _normalStartInterval)
+        .appendProperty('nextInterval',
+            nextStartInterval == hold ? 'onHold' : nextStartInterval)
+        .appendProperty('elapsedTime', elapsedTime)
+        .toString();
   }
-
-
 
   int get numberOfWaitingStunnedModules => area.moduleGroups
       .where(
@@ -102,35 +101,43 @@ class ModuleCasStart extends ActiveCell {
               previousValue + groupModule.numberOfModules);
 
   BirdHangingConveyor _findBirdHangingConveyors() {
-    var hangingConveyors =
-        area.cells.where((cell) => cell is BirdHangingConveyor);
+    var hangingConveyors = area.cells.whereType<BirdHangingConveyor>();
     if (hangingConveyors.isEmpty) {
-      throw Exception('Could not find a $BirdHangingConveyor in $LiveBirdHandlingArea');
+      throw Exception(
+          'Could not find a $BirdHangingConveyor in $LiveBirdHandlingArea');
     }
     if (hangingConveyors.length > 1) {
-      throw Exception("Found multiple $BirdHangingConveyor's in $LiveBirdHandlingArea");
+      throw Exception(
+          "Found multiple $BirdHangingConveyor's in $LiveBirdHandlingArea");
     }
-    return hangingConveyors.first as BirdHangingConveyor;
+    return hangingConveyors.first;
   }
 
   Duration get _normalStartInterval {
     var shacklesPerHour = _findBirdHangingConveyors().shacklesPerHour;
-    var birdsPerModuleGroup = area.productDefinition.averageProductsPerModuleGroup;
+    var birdsPerModuleGroup =
+        area.productDefinition.averageProductsPerModuleGroup;
     Duration startInterval = Duration(
-        microseconds: (3600 / shacklesPerHour * birdsPerModuleGroup*Duration.microsecondsPerSecond).round());
+        microseconds: (3600 /
+                shacklesPerHour *
+                birdsPerModuleGroup *
+                Duration.microsecondsPerSecond)
+            .round());
     return startInterval;
   }
-
 
   /// Starts longest waiting CAS unit
   /// returns true if a CAS unit was started
   bool startLongestWaitingCasUnit() {
-    List<ModuleCas> casUnits=area.cells.where((cell) => cell is ModuleCas).map((cell) => cell as ModuleCas).toList();
+    List<ModuleCas> casUnits =
+        area.cells.whereType<ModuleCas>().map((cell) => cell).toList();
     if (casUnits.isEmpty) {
       throw Exception('$LiveBirdHandlingArea error: No $ModuleCas cells found');
     }
-    List<ModuleCas> casUnitsOrderedByLongestWaiting=casUnits..sort((a,b) => a.waitingForStartDuration.compareTo(b.waitingForStartDuration)*-1);
-    var longestWaitingCasUnit=casUnitsOrderedByLongestWaiting.first;
+    List<ModuleCas> casUnitsOrderedByLongestWaiting = casUnits
+      ..sort((a, b) =>
+          a.waitingForStartDuration.compareTo(b.waitingForStartDuration) * -1);
+    var longestWaitingCasUnit = casUnitsOrderedByLongestWaiting.first;
     if (longestWaitingCasUnit.currentState is WaitForStart) {
       longestWaitingCasUnit.start();
       return true;

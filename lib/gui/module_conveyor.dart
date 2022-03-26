@@ -5,17 +5,16 @@ import 'package:meyn_lbh_simulation/domain/module_conveyor.dart';
 class ModuleConveyorWidget extends StatelessWidget {
   final ModuleConveyor moduleConveyor;
 
-  ModuleConveyorWidget(this.moduleConveyor);
+  const ModuleConveyorWidget(this.moduleConveyor, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: moduleConveyor.toString(),
       child: RotationTransition(
-        turns: AlwaysStoppedAnimation(moduleConveyor
-            .inFeedDirection.opposite
-            .toCompassDirection()
-            .degrees /
+        turns: AlwaysStoppedAnimation(moduleConveyor.inFeedDirection.opposite
+                .toCompassDirection()
+                .degrees /
             360),
         child: CustomPaint(painter: ModuleConveyorPainter()),
       ),
@@ -42,7 +41,7 @@ class ModuleConveyorPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-   drawRectangle(Canvas canvas, Size size) {
+  drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;

@@ -102,10 +102,11 @@ class MoveLift extends DurationState<ModuleStacker> {
 
   @override
   String toString() {
-    return '${this.name} to:${goToPosition.toString().replaceFirst('$LiftPosition.', '')} remaining:${remainingDuration.inSeconds}sec';
+    return '$name to:${goToPosition.toString().replaceFirst('$LiftPosition.', '')} remaining:${remainingDuration.inSeconds}sec';
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleStacker stacker) {
     stacker.currentHeightInCentiMeter =
         stacker.heightsInCentiMeter[goToPosition]!;
@@ -114,6 +115,7 @@ class MoveLift extends DurationState<ModuleStacker> {
 
 class WaitToFeedIn extends State<ModuleStacker> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
     if (_moduleGroupTransportedTo(stacker)) {
       return FeedIn();
@@ -129,6 +131,7 @@ class WaitToFeedIn extends State<ModuleStacker> {
 
 class FeedIn extends State<ModuleStacker> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
     if (_transportCompleted(stacker)) {
       if (stacker.moduleGroupOnSupports == null) {
@@ -152,6 +155,7 @@ class CloseModuleSupports extends DurationState<ModuleStacker> {
         );
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleStacker stacker) {
     stacker.moduleGroupOnSupports = stacker.moduleGroup;
   }
@@ -166,6 +170,7 @@ class OpenModuleSupports extends DurationState<ModuleStacker> {
         );
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleStacker stacker) {
     _mergeModuleGroup(stacker);
   }
@@ -180,6 +185,7 @@ class OpenModuleSupports extends DurationState<ModuleStacker> {
 
 class WaitToFeedOut extends State<ModuleStacker> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
     if (_neighbourCanFeedIn(stacker) && !_moduleGroupAtDestination(stacker)) {
       return FeedOut();
@@ -197,6 +203,7 @@ class FeedOut extends State<ModuleStacker> {
   ModuleGroup? transportedModuleGroup;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleStacker stacker) {
     transportedModuleGroup = stacker.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
@@ -205,6 +212,7 @@ class FeedOut extends State<ModuleStacker> {
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
     if (_transportCompleted(stacker)) {
       return MoveLift(LiftPosition.inFeed, WaitToFeedIn());

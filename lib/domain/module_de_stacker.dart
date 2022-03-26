@@ -66,8 +66,6 @@ class ModuleDeStacker extends StateMachineCell {
       direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
 }
 
-
-
 class MoveLift extends DurationState<ModuleDeStacker> {
   final LiftPosition goToPosition;
 
@@ -94,10 +92,11 @@ class MoveLift extends DurationState<ModuleDeStacker> {
 
   @override
   String toString() {
-    return '${this.name} to:${goToPosition.toString().replaceFirst('$LiftPosition.', '')} remaining:${remainingDuration.inSeconds}sec';
+    return '$name to:${goToPosition.toString().replaceFirst('$LiftPosition.', '')} remaining:${remainingDuration.inSeconds}sec';
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleDeStacker deStacker) {
     deStacker.currentHeightInCentiMeter =
         deStacker.heightsInCentiMeter[goToPosition]!;
@@ -106,6 +105,7 @@ class MoveLift extends DurationState<ModuleDeStacker> {
 
 class WaitToFeedIn extends State<ModuleDeStacker> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_moduleGroupTransportedTo(deStacker)) {
       return FeedIn();
@@ -120,6 +120,7 @@ class WaitToFeedIn extends State<ModuleDeStacker> {
 
 class FeedIn extends State<ModuleDeStacker> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_transportCompleted(deStacker)) {
       if (deStacker.moduleGroup!.numberOfModules == 1) {
@@ -143,6 +144,7 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
         );
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleDeStacker deStacker) {
     deStacker.moduleGroupOnSupports = deStacker.moduleGroup!.split();
     deStacker.area.moduleGroups.add(deStacker.moduleGroupOnSupports!);
@@ -158,6 +160,7 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
         );
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleDeStacker deStacker) {
     deStacker.moduleGroupOnSupports = null;
   }
@@ -165,6 +168,7 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
 
 class WaitToFeedOut extends State<ModuleDeStacker> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_neighbourCanFeedIn(deStacker) &&
         !_moduleGroupAtDestination(deStacker)) {
@@ -183,6 +187,7 @@ class FeedOut extends State<ModuleDeStacker> {
   ModuleGroup? transportedModuleGroup;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleDeStacker deStacker) {
     transportedModuleGroup = deStacker.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
@@ -191,6 +196,7 @@ class FeedOut extends State<ModuleDeStacker> {
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_transportCompleted(deStacker)) {
       if (deStacker.moduleGroupOnSupports == null) {

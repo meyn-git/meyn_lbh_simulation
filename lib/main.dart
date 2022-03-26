@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 import 'gui/player.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 const title = 'Meyn Live Bird Handling Simulator (no rights)';
 const meynColor = Color.fromRGBO(0, 118, 90, 1);
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: title,
       theme: _createThemeData(),
-      home: PlayerWidget(),
+      home: const PlayerWidget(),
     );
   }
 
@@ -41,4 +43,3 @@ class MyApp extends StatelessWidget {
     });
   }
 }
-

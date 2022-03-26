@@ -31,7 +31,7 @@ import 'module_cas_start.dart';
 import 'module_stacker.dart';
 
 class AreaWidget extends StatefulWidget {
-  AreaWidget({required Key key}) : super(key: key);
+  const AreaWidget({required Key key}) : super(key: key);
 
   @override
   _AreaWidgetState createState() => _AreaWidgetState();
@@ -50,11 +50,11 @@ class _AreaWidgetState extends State<AreaWidget> {
 
   @override
   Widget build(BuildContext context) => Container(
-    color:Colors.grey.shade200,
-    child: CustomMultiChildLayout(
-        delegate: AreaWidgetDelegate(player.scenario.area),
-        children: createChildren(player.scenario.area)),
-  );
+        color: Colors.grey.shade200,
+        child: CustomMultiChildLayout(
+            delegate: AreaWidgetDelegate(player.scenario.area),
+            children: createChildren(player.scenario.area)),
+      );
 
   static List<Widget> createChildren(LiveBirdHandlingArea area) {
     List<Widget> children = [];
@@ -81,6 +81,8 @@ class _AreaWidgetState extends State<AreaWidget> {
 }
 
 class EmptyCellWidget extends StatelessWidget {
+  const EmptyCellWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) => SizedBox.fromSize(size: Size.zero);
 }
@@ -199,6 +201,6 @@ class CellWidgetFactory {
     if (cell is ModuleCasStart) {
       return ModuleCasStartWidget(cell);
     }
-    return EmptyCellWidget();
+    return const EmptyCellWidget();
   }
 }

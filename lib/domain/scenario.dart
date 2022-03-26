@@ -19,9 +19,11 @@ class Scenario {
         );
 
   Scenario withNewArea() {
-    var newAreas=productDefinition.areaFactory(productDefinition);
-    var newArea=newAreas.firstWhere((newArea) => newArea.runtimeType == area.runtimeType);
-    return Scenario(site: site, productDefinition: productDefinition, area: newArea);
+    var newAreas = productDefinition.areaFactory(productDefinition);
+    var newArea = newAreas
+        .firstWhere((newArea) => newArea.runtimeType == area.runtimeType);
+    return Scenario(
+        site: site, productDefinition: productDefinition, area: newArea);
   }
 
   String get nameWithoutSite => '$area-$productDefinition';

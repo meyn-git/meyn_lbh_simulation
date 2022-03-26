@@ -10,7 +10,7 @@ class Player {
   Timer? timer;
   Scenario scenario = Scenario.first();
 
-  // Using a singleton here. A bit jucky, that for now cleaner than using get_it or provider.
+  // Using a singleton here. A bit ugly, that for now cleaner than using get_it or provider.
   static final Player _singleton = Player._();
 
   factory Player() {
@@ -21,8 +21,8 @@ class Player {
     updateTimer();
   }
 
-  static final maxSpeed = 64;
-  static final maxJumpResolution = Duration(seconds: 1);
+  static const maxSpeed = 64;
+  static const maxJumpResolution = Duration(seconds: 1);
   static final timerInterval = Duration(
       microseconds: (1 / maxSpeed * maxJumpResolution.inMicroseconds).round());
 

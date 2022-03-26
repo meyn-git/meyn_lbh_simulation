@@ -4,7 +4,8 @@ import 'package:meyn_lbh_simulation/domain/module_rotating_conveyor.dart';
 class ModuleRotatingConveyorWidget extends StatelessWidget {
   final ModuleRotatingConveyor rotatingConveyor;
 
-  ModuleRotatingConveyorWidget(this.rotatingConveyor);
+  const ModuleRotatingConveyorWidget(this.rotatingConveyor, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

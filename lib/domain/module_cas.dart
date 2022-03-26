@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/module_cas_start.dart';
-import 'package:meyn_lbh_simulation/domain/module_rotating_conveyor.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -77,7 +76,8 @@ class ModuleCas extends StateMachineCell {
     var unloadingCell =
         area.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
     if (unloadingCell == null) {
-      throw Exception('The $LiveBirdHandlingArea MUST have a $UnLoadingForkLiftTruck.');
+      throw Exception(
+          'The $LiveBirdHandlingArea MUST have a $UnLoadingForkLiftTruck.');
     }
     return unloadingCell as StateMachineCell;
   }
@@ -136,6 +136,7 @@ class CasRecipe {
 
 class WaitToFeedIn extends State<ModuleCas> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_moduleGroupTransportedTo(cas)) {
       return FeedIn();
@@ -148,6 +149,7 @@ class WaitToFeedIn extends State<ModuleCas> {
 
 class FeedIn extends State<ModuleCas> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_transportCompleted(cas)) {
       return WaitForStart();
@@ -157,6 +159,7 @@ class FeedIn extends State<ModuleCas> {
   bool _transportCompleted(ModuleCas cas) => cas.moduleGroup != null;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleCas cas) {
     _verifyDoorDirection(cas);
   }
@@ -173,6 +176,7 @@ class WaitForStart extends State<ModuleCas> {
   bool _start = false;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas moduleCas) {
     if (_start) {
       _start = false;
@@ -228,6 +232,7 @@ class StunStage extends DurationState<ModuleCas> {
   String toString() => '$name (remaining: ${remainingDuration.inSeconds}sec)';
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     if (stageNumber == 1) {
@@ -243,6 +248,7 @@ class ExhaustStage extends DurationState<ModuleCas> {
             nextStateFunction: (cas) => OpenSlideDoor());
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     var destination = cas.moduleGroupDestinationAfterStunning;
@@ -261,8 +267,8 @@ class OpenSlideDoor extends DurationState<ModuleCas> {
 
 class WaitToFeedOut extends State<ModuleCas> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
-
     if (_neighbourOkToFeedIn(cas)) {
       return FeedOut();
     }
@@ -274,12 +280,14 @@ class WaitToFeedOut extends State<ModuleCas> {
 
 class FeedOut extends State<ModuleCas> {
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     cas.moduleGroup!.position =
         ModulePosition.betweenCells(source: cas, destination: cas.neighbour);
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_transportCompleted(cas)) {
       return WaitToFeedIn();
