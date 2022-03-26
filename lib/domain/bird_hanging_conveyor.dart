@@ -29,10 +29,7 @@ class BirdHangingConveyor extends ActiveCell {
         );
 
   BirdBuffer get birdBuffer {
-    if (_cashedBirdBuffer == null) {
-      _cashedBirdBuffer = _findBirdBuffer();
-    }
-    return _cashedBirdBuffer!;
+    return _cashedBirdBuffer?? _findBirdBuffer();
   }
 
   BirdBuffer _findBirdBuffer() {

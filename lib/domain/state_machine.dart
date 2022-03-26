@@ -26,7 +26,8 @@ abstract class StateMachineCell extends ActiveCell {
   }
 
   //TODO word spacing
-  String get name => "${this.runtimeType.toString()}${seqNr ?? ''}";
+  @override
+  String get name => "${runtimeType.toString()}${seqNr ?? ''}";
 
   /// This method gets called with a regular time interval by the [LiveBirdHandlingArea]
   /// to update the [StateMachineCell]

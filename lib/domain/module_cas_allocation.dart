@@ -39,13 +39,13 @@ class ModuleCasAllocation extends ActiveCell {
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
-    Route? route = findRouteWithHighestWaitingForStackScore();
-    if (route != null) {
-      var cellToAllocate = area.cellForPosition(positionToAllocate);
-      if (cellToAllocate is StateMachineCell) {
+    var cellToAllocate = area.cellForPosition(positionToAllocate);
+    if (cellToAllocate is StateMachineCell) {
+      var destination = casWithHighestScore;
+      if (destination != null) {
         var moduleGroupToAllocate = cellToAllocate.moduleGroup;
         if (moduleGroupToAllocate != null) {
-          moduleGroupToAllocate.destination = route.cas;
+          moduleGroupToAllocate.destination = destination;
         }
       }
     }
@@ -53,9 +53,10 @@ class ModuleCasAllocation extends ActiveCell {
 
   @override
   String toString() {
-    var route = findRouteWithHighestWaitingForStackScore();
+    var destination = casWithHighestScore;
     return TitleBuilder(name)
-        .appendProperty('bestRoute', route == null ? 'none' : route.cas.name)
+        .appendProperty(
+            'destination', destination == null ? 'none' : destination.name)
         .toString();
   }
 
@@ -83,14 +84,24 @@ class ModuleCasAllocation extends ActiveCell {
     return allCasUnits;
   }
 
-  Route? findRouteWithHighestWaitingForStackScore() {
-    routesToCasUnits
-        .sort((a, b) => a.casNewStackScore.compareTo(b.casNewStackScore) * -1);
-    Route bestCandidate = routesToCasUnits.first;
-    if (bestCandidate.casNewStackScore == 0) {
+  ModuleCas? get casWithHighestScore {
+    Map<String, double> casUnitScores = {}; //for debugging
+    double highScore = 0;
+    ModuleCas? casWithHighestScore;
+    for (var route in routesToCasUnits) {
+      var score = route.casNewStackScore;
+      casUnitScores[route.cas.name] = score;
+      if (score > highScore) {
+        highScore = score;
+        casWithHighestScore = route.cas;
+      }
+    }
+
+    // print('${casWithHighestScore == null ? 'none' : casWithHighestScore.name} $casUnitScores');
+    if (highScore == 0) {
       return null;
     } else {
-      return bestCandidate;
+      return casWithHighestScore;
     }
   }
 

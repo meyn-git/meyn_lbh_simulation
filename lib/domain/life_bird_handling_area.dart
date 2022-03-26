@@ -263,7 +263,7 @@ extension CardinalDirectionExtension on CardinalDirection {
 
 class CompassDirection {
   final int degrees;
-  static final int max = 360;
+  static const int max = 360;
 
   CompassDirection(int degrees) : degrees = degrees % max;
 
@@ -281,18 +281,18 @@ class CompassDirection {
   }
 
   int clockWiseDistanceInDegrees(CompassDirection destination) {
-    if (this.degrees < destination.degrees) {
-      return destination.degrees - this.degrees;
+    if (degrees < destination.degrees) {
+      return destination.degrees - degrees;
     } else {
-      return max - this.degrees + destination.degrees;
+      return max - degrees + destination.degrees;
     }
   }
 
   int counterClockWiseDistanceInDegrees(CompassDirection destination) {
-    if (this.degrees > destination.degrees) {
-      return this.degrees - destination.degrees;
+    if (degrees > destination.degrees) {
+      return degrees - destination.degrees;
     } else {
-      return this.degrees + max - destination.degrees;
+      return degrees + max - destination.degrees;
     }
   }
 
@@ -333,16 +333,33 @@ class Route extends DelegatingList<StateMachineCell> {
     if (_moduleGroupGoingTo(cas)) {
       return 0;
     }
+    var score = _casReadinessScore * 3 +
+        _troughPutScore * 2 +
+        _distanceToTravelScore * 1;
+    return score;
+  }
 
-    // factor is high when no modules are on route, otherwise lower for each module that is blocking the route
-    int factor = 20 - numberOfModulesOnRoute;
+  /// A score between 1 (=100%) and 0 (=0%)
+  /// high (1) = when no modules are on route, otherwise
+  /// lower for each module that is blocking the route
+  double get _troughPutScore => 1 / (1 + numberOfModulesOnRoute);
 
+  /// A score between 1 (=100%) and 0 (=0%)
+  /// high (near 1) = longest route
+  /// low (towards 0) = shortest route
+  double get _distanceToTravelScore => 1 - (1 / length);
+
+  /// A score between 1 (=100%) and 0 (=0%)
+  /// 1= waiting to feed in
+  /// 0.7= waiting to feed out
+  /// 0.4= almost waiting to feed in
+  double get _casReadinessScore {
     if (casIsOkToFeedIn) {
-      return (length + 0.3) * factor;
+      return 1;
     } else if (casIsOkToFeedOut) {
-      return (length + 0.2) * factor;
+      return 0.7;
     } else if (casIsAlmostOkToFeedOut) {
-      return (length + 0.1) * factor;
+      return 0.4;
     } else {
       return 0;
     }
@@ -360,8 +377,10 @@ class Route extends DelegatingList<StateMachineCell> {
     return total;
   }
 
-  bool _moduleGroupGoingTo(ModuleCas cas) => cas.area.moduleGroups
-      .any((moduleGroup) => moduleGroup.destination == cas);
+  bool _moduleGroupGoingTo(ModuleCas cas) =>
+      cas.area.moduleGroups.any((moduleGroup) =>
+          moduleGroup.position.source != first &&
+          moduleGroup.destination == cas);
 
   bool get casIsOkToFeedIn => cas.waitingToFeedIn(cas.inAndOutFeedDirection);
 

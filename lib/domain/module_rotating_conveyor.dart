@@ -56,21 +56,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
   bool get moduleGroupFeedingIn => area.moduleGroups
       .any((moduleGroup) => moduleGroup.position.destination == this);
 
-  /// Returns in feed scores for each direction
-  /// The higher the score the higher the priority
-  /// (e.g. when more neighbours are competing to feed in)
-  /// 0= not waiting
-
-  Map<CardinalDirection, int> get neighbourInFeedScores {
-    Map<CardinalDirection, int> scores = {};
-    for (var direction in CardinalDirection.values) {
-      scores[direction] = _neighbourInFeedScore(direction);
-    }
-    return scores;
-  }
-
-
-
   int _neighbourInFeedScore(CardinalDirection direction) {
     if (_neighbourModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
         direction)) {
@@ -192,6 +177,15 @@ class ModuleRotatingConveyor extends StateMachineCell {
     }
   }
 
+
+  Map<CardinalDirection, int> get neighbourInFeedScores {
+    Map<CardinalDirection, int> scores={};
+    for (var direction in CardinalDirection.values) {
+      scores[direction]=_neighbourInFeedScore(direction);
+    }
+    return scores;
+  }
+
   /// returns the best direction to feed in from
   /// returns null when there is no outcome
   CardinalDirection? get bestInFeedNeighbour {
@@ -204,6 +198,10 @@ class ModuleRotatingConveyor extends StateMachineCell {
         topScoreDirection = direction;
       }
     }
+    if (name=='ModuleRotatingConveyor1') {
+      //print('direction:=$topScoreDirection $neighbourInFeedScores');
+    }
+
     return topScoreDirection;
   }
 
@@ -291,6 +289,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
       CardinalDirection direction) {
     var inFeedNeighbour = area.neighbouringCell(this, direction);
     return inFeedNeighbour is StateMachineCell &&
+        inFeedNeighbour is! ModuleCas &&
         inFeedNeighbour.moduleGroup != null &&
         inFeedNeighbour.isFeedOut(direction.opposite) &&
         _hasNeighbouringCasUnitNotOkToFeedIn(

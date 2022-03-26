@@ -47,9 +47,9 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
       : super([
-        DobrimexSite(),
-         IndrolSite(),
-       //    FileniSite(),
-       //    FileniExtendedSite(),
+          DobrimexSite(),
+          IndrolSite(),
+          FileniSite(),
+          FileniExtendedSite(),
         ]);
 }

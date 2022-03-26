@@ -222,6 +222,9 @@ class ModulePosition {
           .toString();
     }
   }
+
+  transportingFrom(StateMachineCell stateMachineCell) =>
+      source == stateMachineCell && destination != stateMachineCell;
 }
 
 class Module {
@@ -261,41 +264,45 @@ class MeynTurkeyModule extends ModuleType {
 class StorkSquare4LayerChickenModule extends ModuleType {
   StorkSquare4LayerChickenModule()
       : super(
-      name: '$StorkSquare4LayerChickenModule',
-      shape: ModuleShape.squareSideBySide,
-      birdType: BirdType.Chicken,
-      maxKgPerCompartment: 99999,//unknown
-      numberOfCompartments: 4);
+            name: '$StorkSquare4LayerChickenModule',
+            shape: ModuleShape.squareSideBySide,
+            birdType: BirdType.Chicken,
+            maxKgPerCompartment: 99999,
+            //unknown
+            numberOfCompartments: 4);
 }
 
 class StorkSquare5LayerChickenModule extends ModuleType {
   StorkSquare5LayerChickenModule()
       : super(
-      name: '$StorkSquare5LayerChickenModule',
-      shape: ModuleShape.squareSideBySide,
-      birdType: BirdType.Chicken,
-      maxKgPerCompartment: 99999,//unknown
-      numberOfCompartments: 5);
+            name: '$StorkSquare5LayerChickenModule',
+            shape: ModuleShape.squareSideBySide,
+            birdType: BirdType.Chicken,
+            maxKgPerCompartment: 99999,
+            //unknown
+            numberOfCompartments: 5);
 }
 
 class AngliaAutoFlow4LayerChickenModule extends ModuleType {
   AngliaAutoFlow4LayerChickenModule()
       : super(
-      name: '$AngliaAutoFlow4LayerChickenModule',
-      shape: ModuleShape.rectangularStacked,
-      birdType: BirdType.Chicken,
-      maxKgPerCompartment: 99999  ,//unknown
-      numberOfCompartments: 4);
+            name: '$AngliaAutoFlow4LayerChickenModule',
+            shape: ModuleShape.rectangularStacked,
+            birdType: BirdType.Chicken,
+            maxKgPerCompartment: 99999,
+            //unknown
+            numberOfCompartments: 4);
 }
 
 class AngliaAutoFlow5LayerChickenModule extends ModuleType {
   AngliaAutoFlow5LayerChickenModule()
       : super(
-      name: '$AngliaAutoFlow5LayerChickenModule',
-      shape: ModuleShape.rectangularStacked,
-      birdType: BirdType.Chicken,
-      maxKgPerCompartment: 99999  ,//unknown
-      numberOfCompartments: 5);
+            name: '$AngliaAutoFlow5LayerChickenModule',
+            shape: ModuleShape.rectangularStacked,
+            birdType: BirdType.Chicken,
+            maxKgPerCompartment: 99999,
+            //unknown
+            numberOfCompartments: 5);
 }
 
 class ModuleType {
