@@ -1,7 +1,7 @@
 class TitleBuilder {
   final String name;
   final Map<String, dynamic> properties = {};
-static final  indentation='    ';
+  static const indentation = '    ';
   TitleBuilder(this.name) {
     validateName(name);
   }
@@ -35,15 +35,15 @@ static final  indentation='    ';
   /// Converts the property value to a string and indents this value
   /// if the value has multiple lines (e.g. a nested object)
   String _multilineFormattedPropertyValue(dynamic propertyValue) {
-    String string='';
+    String string = '';
     var lines = _formattedPropertyValue(propertyValue).split('\n');
-      for (String line in lines) {
-        if (line==lines.first) {
-          string += lines.first;
-        } else {
-          string += '\n$indentation$indentation$line';
-        }
+    for (String line in lines) {
+      if (line == lines.first) {
+        string += lines.first;
+      } else {
+        string += '\n$indentation$indentation$line';
       }
+    }
     // }
     return string;
   }
@@ -58,6 +58,6 @@ static final  indentation='    ';
 
   String _formattedDuration(Duration duration) {
     var durationString = duration.toString();
-    return durationString.substring(0,durationString.length-5)+'s';
+    return durationString.substring(0, durationString.length - 5) + 's';
   }
 }

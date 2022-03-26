@@ -4,9 +4,11 @@ import 'state_machine.dart';
 
 class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final CardinalDirection inFeedDirection;
+  @override
   final CardinalDirection birdDirection;
   int birdsOnDumpBelt = 0;
   int maxBirdsOnDumpBelt;
+
   ///Number of birds on dumping belt between module and hanger (a buffer).
   ///The tilter starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
   ///Normally this number is between the number of birds in 1 or 2 modules
@@ -27,7 +29,7 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
       this.tiltBackDuration = const Duration(seconds: 5),
       Duration outFeedDuration = const Duration(seconds: 12),
       required this.minBirdsOnDumpBeltBuffer})
-      : maxBirdsOnDumpBelt=minBirdsOnDumpBeltBuffer,
+      : maxBirdsOnDumpBelt = minBirdsOnDumpBeltBuffer,
         super(
           area: area,
           position: position,
@@ -44,11 +46,11 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
 
   /// 1=dump belt full with birds
   /// 0=dump belt empty
-  double get dumpBeltLoad   {
-    if (birdsOnDumpBelt>maxBirdsOnDumpBelt) {
-      maxBirdsOnDumpBelt=birdsOnDumpBelt;
+  double get dumpBeltLoad {
+    if (birdsOnDumpBelt > maxBirdsOnDumpBelt) {
+      maxBirdsOnDumpBelt = birdsOnDumpBelt;
     }
-    return birdsOnDumpBelt/maxBirdsOnDumpBelt;
+    return birdsOnDumpBelt / maxBirdsOnDumpBelt;
   }
 
   void _verifyDirections() {
@@ -101,6 +103,7 @@ class CheckIfEmpty extends DurationState<ModuleTilter> {
 
 class WaitToFeedIn extends State<ModuleTilter> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_moduleGroupTransportedTo(tilter)) {
       return FeedIn();
@@ -115,6 +118,7 @@ class WaitToFeedIn extends State<ModuleTilter> {
 
 class FeedIn extends State<ModuleTilter> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_transportCompleted(tilter)) {
       return WaitToTilt();
@@ -124,6 +128,7 @@ class FeedIn extends State<ModuleTilter> {
   bool _transportCompleted(ModuleTilter tilter) => tilter.moduleGroup != null;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleTilter tilter) {
     _verifyDoorDirection(tilter);
   }
@@ -138,6 +143,7 @@ class FeedIn extends State<ModuleTilter> {
 
 class WaitToTilt extends State<ModuleTilter> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (tilter.dumpBeltCanReceiveBirds) {
       return TiltForward();
@@ -152,9 +158,10 @@ class TiltForward extends DurationState<ModuleTilter> {
             nextStateFunction: (tilter) => TiltBack());
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroup!;
-    tilter.birdsOnDumpBelt+=moduleGroup.numberOfBirds;
+    tilter.birdsOnDumpBelt += moduleGroup.numberOfBirds;
     moduleGroup.unloadBirds();
   }
 }
@@ -168,6 +175,7 @@ class TiltBack extends DurationState<ModuleTilter> {
 
 class WaitToFeedOut extends State<ModuleTilter> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_neighbourCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
       return FeedOut();
@@ -185,6 +193,7 @@ class FeedOut extends State<ModuleTilter> {
   ModuleGroup? transportedModuleGroup;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleTilter tilter) {
     transportedModuleGroup = tilter.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
@@ -193,6 +202,7 @@ class FeedOut extends State<ModuleTilter> {
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_transportCompleted(tilter)) {
       return WaitToFeedIn();

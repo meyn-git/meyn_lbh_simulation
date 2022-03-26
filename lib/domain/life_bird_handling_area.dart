@@ -36,15 +36,17 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   }
 
   void checkIfPositionIsUnique(Position position) {
-    if (cells.map((cell) => cell.position).contains(position))
-      throw new Exception('$position was already defined');
+    if (cells.map((cell) => cell.position).contains(position)) {
+      throw Exception('$position was already defined');
+    }
   }
 
   checkIfNameIsUnique(ActiveCell cell) {
     bool exists = cells
         .any((existingStateMachine) => cell.name == existingStateMachine.name);
-    if (exists)
+    if (exists) {
       throw Exception('StateMachine name: ${cell.name} is not unique');
+    }
   }
 
   Cell cellForPosition(Position positionToFind) {
@@ -57,12 +59,12 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   @override
   onUpdateToNextPointInTime(Duration jump) {
     durationSinceStart = durationSinceStart + jump;
-    cells.forEach((cell) {
+    for (var cell in cells) {
       cell.onUpdateToNextPointInTime(jump);
-    });
-    moduleGroups.forEach((moduleGroup) {
+    }
+    for (var moduleGroup in moduleGroups) {
       moduleGroup.onUpdateToNextPointInTime(jump);
-    });
+    }
   }
 
   Route? findRoute({
@@ -177,21 +179,21 @@ class Position {
 
 abstract class Cell {
   /// whether a given direction can feed out modules
-  bool isFeedIn(CardinalDirection inFeedDirection);
+  bool isFeedIn(CardinalDirection direction);
 
   /// waiting to feed in a [ModuleGroup] from the preceding transport system
   /// e.g.: when a [StateMachineCell] is in WaitToFeedIn
-  bool waitingToFeedIn(CardinalDirection inFeedDirection);
+  bool waitingToFeedIn(CardinalDirection direction);
 
   /// whether a given direction can feed out modules
-  bool isFeedOut(CardinalDirection outFeedDirection);
+  bool isFeedOut(CardinalDirection direction);
 
   /// used to request to turn the turn table to this position in advance.
-  bool almostWaitingToFeedOut(CardinalDirection outFeedDirection);
+  bool almostWaitingToFeedOut(CardinalDirection direction);
 
   /// module(s) waiting to feed out to next transport system
   /// e.g. when a [StateMachineCell] is WaitToFeedOut
-  bool waitingToFeedOut(CardinalDirection outFeedDirection);
+  bool waitingToFeedOut(CardinalDirection direction);
 
   /// to be increased with [nrOfModules] when the StateMachine has fed out
   int nrOfModulesMoved = 0;
@@ -200,7 +202,7 @@ abstract class Cell {
 }
 
 class EmptyCell extends Cell {
-  static EmptyCell _emptyCell = EmptyCell._();
+  static final EmptyCell _emptyCell = EmptyCell._();
 
   EmptyCell._();
 

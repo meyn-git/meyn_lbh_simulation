@@ -20,7 +20,8 @@ class ModuleCasAllocation extends ActiveCell {
     validatePositionToAllocateIsStateMachineCell();
   }
 
-  String get name => "${this.runtimeType.toString()}";
+  @override
+  String get name => runtimeType.toString();
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -77,10 +78,8 @@ class ModuleCasAllocation extends ActiveCell {
   }
 
   List<ModuleCas> get allModuleCasUnits {
-    List<ModuleCas> allCasUnits = area.cells
-        .where((cell) => cell is ModuleCas)
-        .map((cell) => cell as ModuleCas)
-        .toList();
+    List<ModuleCas> allCasUnits =
+        area.cells.whereType<ModuleCas>().map((cell) => cell).toList();
     return allCasUnits;
   }
 

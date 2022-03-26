@@ -134,6 +134,7 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
             nextStateFunction: (forkLiftTruck) => WaitingForEmptyConveyor());
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
     if (forkLiftTruck.moduleGroup == null) {
       var newModuleGroup = forkLiftTruck.createModuleGroup();
@@ -178,6 +179,7 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
 
 class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_neighbourCanFeedIn(forkLiftTruck)) {
       return PutModuleGroupOnConveyor();
@@ -196,6 +198,7 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
 /// push button to feed in
 class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(LoadingForkLiftTruck forkLiftTruck) {
     var moduleGroup = forkLiftTruck.moduleGroup!;
 
@@ -213,6 +216,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_putSecondModuleOnConveyor(forkLiftTruck)) {
       return PutModuleGroupOnConveyor();

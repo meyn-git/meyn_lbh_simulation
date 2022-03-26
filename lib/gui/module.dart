@@ -4,7 +4,7 @@ import 'package:meyn_lbh_simulation/domain/module.dart';
 class ModuleGroupWidget extends StatelessWidget {
   final ModuleGroup moduleGroup;
 
-  ModuleGroupWidget(this.moduleGroup): super(key: UniqueKey());
+  ModuleGroupWidget(this.moduleGroup) : super(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class ModuleGroupWidget extends StatelessWidget {
 
 class ModuleGroupPainter extends CustomPainter {
   final ModuleGroup moduleGroup;
-  static final compartmentSize = 0.30;
+  static const compartmentSize = 0.30;
 
   ModuleGroupPainter(this.moduleGroup);
 
@@ -113,7 +113,7 @@ class ModuleGroupPainter extends CustomPainter {
     Canvas canvas,
     Size size, {
     Offset offset = Offset.zero,
-    paintTriangle: true,
+    paintTriangle = true,
   }) {
     var x1 = size.width * 0.2 + offset.dx;
     var y1 = (size.width * (1 - compartmentSize)) / 2 + offset.dy;
@@ -136,7 +136,7 @@ class ModuleGroupPainter extends CustomPainter {
   }
 
   void _paintStackedRectangularModules(Canvas canvas, Size size) {
-    var moduleOffset=0.015;
+    var moduleOffset = 0.015;
     var x1 = -size.width * moduleOffset;
     var y1 = -size.width * moduleOffset;
     _paintSingleRectangularModule(

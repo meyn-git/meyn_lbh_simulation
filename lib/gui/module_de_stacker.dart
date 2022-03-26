@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
 
-
 class ModuleDeStackerWidget extends StatelessWidget {
   final ModuleDeStacker deStacker;
 
-  ModuleDeStackerWidget(this.deStacker);
+  const ModuleDeStackerWidget(this.deStacker, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +13,8 @@ class ModuleDeStackerWidget extends StatelessWidget {
         message: deStacker.toString(),
         child: RotationTransition(
             turns: AlwaysStoppedAnimation(deStacker.inFeedDirection.opposite
-                .toCompassDirection()
-                .degrees /
+                    .toCompassDirection()
+                    .degrees /
                 360),
             child: CustomPaint(painter: ModuleDeStackerPainter(deStacker))));
   }

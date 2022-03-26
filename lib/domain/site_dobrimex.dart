@@ -58,7 +58,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,
-          casRecipe: CasRecipe.standardChickenRecipe(),
+          casRecipe: const CasRecipe.standardChickenRecipe(),
         ) {
     _row1();
     _row2();
@@ -69,7 +69,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row1() {
     put(ModuleCas(
       area: this,
-      position: Position(2, 1),
+      position: const Position(2, 1),
       seqNr: 5,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -77,7 +77,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(3, 1),
+      position: const Position(3, 1),
       seqNr: 3,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -85,7 +85,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(4, 1),
+      position: const Position(4, 1),
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -95,7 +95,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row2() {
     put(ModuleCas(
       area: this,
-      position: Position(1, 2),
+      position: const Position(1, 2),
       seqNr: 6,
       inAndOutFeedDirection: CardinalDirection.east,
       doorDirection: CardinalDirection.south,
@@ -103,7 +103,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(2, 2),
+      position: const Position(2, 2),
       seqNr: 1,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south, CardinalDirection.west],
@@ -112,7 +112,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(3, 2),
+      position: const Position(3, 2),
       seqNr: 2,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
@@ -121,7 +121,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(4, 2),
+      position: const Position(4, 2),
       seqNr: 3,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
@@ -130,7 +130,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleDeStacker(
       area: this,
-      position: Position(5, 2),
+      position: const Position(5, 2),
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -138,14 +138,14 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     //Gross weighing conveyor
     put(ModuleConveyor(
       area: this,
-      position: Position(6, 2),
+      position: const Position(6, 2),
       seqNr: 2,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(7, 2),
+      position: const Position(7, 2),
       seqNr: 4,
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.east,
@@ -155,14 +155,14 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row3() {
     put(ModuleConveyor(
       area: this,
-      position: Position(2, 3),
+      position: const Position(2, 3),
       seqNr: 1,
       inFeedDirection: CardinalDirection.south,
     ));
 
     put(ModuleCas(
       area: this,
-      position: Position(3, 3),
+      position: const Position(3, 3),
       seqNr: 4,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
@@ -170,7 +170,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(4, 3),
+      position: const Position(4, 3),
       seqNr: 2,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
@@ -178,7 +178,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleTilter(
       area: this,
-      position: Position(7, 3),
+      position: const Position(7, 3),
       seqNr: 1,
       inFeedDirection: CardinalDirection.north,
       birdDirection: CardinalDirection.east,
@@ -188,7 +188,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(BirdHangingConveyor(
       area: this,
-      position: Position(8, 3),
+      position: const Position(8, 3),
       direction: CardinalDirection.north,
     ));
   }
@@ -196,24 +196,24 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row4() {
     put(LoadingForkLiftTruck(
       area: this,
-      position: Position(2, 4),
+      position: const Position(2, 4),
       outFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCasAllocation(
         area: this,
-        position: Position(3, 4),
-        positionToAllocate: Position(2, 3)));
+        position: const Position(3, 4),
+        positionToAllocate: const Position(2, 3)));
 
     put(ModuleCasStart(
       area: this,
-      position: Position(4, 4),
+      position: const Position(4, 4),
     ));
 
     put(UnLoadingForkLiftTruck(
       area: this,
-      position: Position(7, 4),
+      position: const Position(7, 4),
       inFeedDirection: CardinalDirection.north,
     ));
   }

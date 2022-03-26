@@ -29,7 +29,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection ;
+  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
 
   @override
   bool waitingToFeedIn(CardinalDirection direction) =>
@@ -45,6 +45,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
 class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck> {
   @override
   State<UnLoadingForkLiftTruck>? nextState(
+      // ignore: avoid_renaming_method_parameters
       UnLoadingForkLiftTruck forkLiftTruck) {
     if (_neighbourCanFeedOut(forkLiftTruck)) {
       return GetModuleGroupFromConveyor();
@@ -61,6 +62,7 @@ class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck> {
   @override
   @override
   State<UnLoadingForkLiftTruck>? nextState(
+      // ignore: avoid_renaming_method_parameters
       UnLoadingForkLiftTruck forkLiftTruck) {
     if (_transportCompleted(forkLiftTruck)) {
       return PutModuleGroupOnTruck();
@@ -79,6 +81,7 @@ class PutModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
             nextStateFunction: (forkLiftTruck) => WaitingForFullConveyor());
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
     //TODO keep track of trough put
     forkLiftTruck.area.moduleGroups.remove(forkLiftTruck.moduleGroup);

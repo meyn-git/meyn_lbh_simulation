@@ -48,9 +48,7 @@ class ModuleConveyor extends StateMachineCell {
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
       direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
-
 }
-
 
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
   CheckIfEmpty()
@@ -62,6 +60,7 @@ class CheckIfEmpty extends DurationState<ModuleConveyor> {
 
 class WaitToFeedIn extends State<ModuleConveyor> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_moduleGroupTransportedTo(moduleConveyor)) {
       return FeedIn();
@@ -76,6 +75,7 @@ class WaitToFeedIn extends State<ModuleConveyor> {
 
 class FeedIn extends State<ModuleConveyor> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_transportCompleted(moduleConveyor)) {
       return WaitToFeedOut();
@@ -84,11 +84,11 @@ class FeedIn extends State<ModuleConveyor> {
 
   bool _transportCompleted(ModuleConveyor moduleConveyor) =>
       moduleConveyor.moduleGroup != null;
-
 }
 
 class WaitToFeedOut extends State<ModuleConveyor> {
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_neighbourCanFeedIn(moduleConveyor) &&
         !_moduleGroupAtDestination(moduleConveyor)) {
@@ -108,6 +108,7 @@ class FeedOut extends State<ModuleConveyor> {
   ModuleGroup? transportedModuleGroup;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleConveyor moduleConveyor) {
     transportedModuleGroup = moduleConveyor.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
@@ -116,6 +117,7 @@ class FeedOut extends State<ModuleConveyor> {
   }
 
   @override
+  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_transportCompleted(moduleConveyor)) {
       return WaitToFeedIn();

@@ -8,7 +8,7 @@ class BirdHangingConveyor extends ActiveCell {
   ShackleLine shackleLine = ShackleLine();
   Duration elapsedTime = Duration.zero;
   BirdBuffer? _cashedBirdBuffer;
-  static final int hourInMicroSeconds = Duration(hours: 1).inMicroseconds;
+  static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
   Duration timePerBird;
 
   bool running;
@@ -29,7 +29,7 @@ class BirdHangingConveyor extends ActiveCell {
         );
 
   BirdBuffer get birdBuffer {
-    return _cashedBirdBuffer?? _findBirdBuffer();
+    return _cashedBirdBuffer ?? _findBirdBuffer();
   }
 
   BirdBuffer _findBirdBuffer() {
@@ -42,23 +42,23 @@ class BirdHangingConveyor extends ActiveCell {
       }
     }
     throw Exception(
-        '$LiveBirdHandlingArea error: ${this.name} must connect to a $BirdBuffer (e.g. a $ModuleTilter)');
+        '$LiveBirdHandlingArea error: $name must connect to a $BirdBuffer (e.g. a $ModuleTilter)');
   }
 
   @override
-  bool almostWaitingToFeedOut(CardinalDirection outFeedDirection) => false;
+  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
   @override
-  bool isFeedIn(CardinalDirection inFeedDirection) => false;
+  bool isFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool isFeedOut(CardinalDirection outFeedDirection) => false;
+  bool isFeedOut(CardinalDirection direction) => false;
 
   @override
   ModuleGroup? get moduleGroup => null;
 
   @override
-  String get name => this.runtimeType.toString();
+  String get name => runtimeType.toString();
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
@@ -74,14 +74,14 @@ class BirdHangingConveyor extends ActiveCell {
   }
 
   @override
-  bool waitingToFeedIn(CardinalDirection inFeedDirection) => false;
+  bool waitingToFeedIn(CardinalDirection direction) => false;
 
   @override
-  bool waitingToFeedOut(CardinalDirection outFeedDirection) => false;
+  bool waitingToFeedOut(CardinalDirection direction) => false;
 }
 
 class ShackleLine {
-  static final int maxSize = 100;
+  static const int maxSize = 100;
   final List<bool> _shackles = []; // true if shackle has a bird, false if not
   int hangedBirdsSinceStart = 0;
   int emptyShacklesSinceStart = 0;

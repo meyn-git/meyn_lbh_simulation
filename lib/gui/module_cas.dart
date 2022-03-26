@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/domain/module_cas.dart';
 class ModuleCasWidget extends StatelessWidget {
   final ModuleCas cas;
 
-  ModuleCasWidget(this.cas);
+  const ModuleCasWidget(this.cas, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +68,7 @@ class ModuleCasPainter extends CustomPainter {
     canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
   }
 
-   _drawAirIntakes(Canvas canvas, Size size) {
+  _drawAirIntakes(Canvas canvas, Size size) {
     var paint = Paint();
     paint.color = Colors.black;
     paint.style = PaintingStyle.stroke;

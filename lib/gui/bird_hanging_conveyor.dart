@@ -5,13 +5,14 @@ import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 class BirdHangingConveyorWidget extends StatelessWidget {
   final BirdHangingConveyor birdHangingConveyor;
 
-  BirdHangingConveyorWidget(this.birdHangingConveyor);
+  const BirdHangingConveyorWidget(this.birdHangingConveyor, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        birdHangingConveyor.running=!birdHangingConveyor.running;
+        birdHangingConveyor.running = !birdHangingConveyor.running;
       },
       child: Tooltip(
         message: birdHangingConveyor.toString(),
@@ -56,7 +57,7 @@ class BirdHangingConveyorPainter extends CustomPainter {
     var y = shackleDistance *
         (birdHangingConveyor.elapsedTime.inMilliseconds /
             birdHangingConveyor.timePerBird.inMilliseconds);
-    var shackleLine=birdHangingConveyor.shackleLine;
+    var shackleLine = birdHangingConveyor.shackleLine;
     var fillPaint = Paint();
     fillPaint.color = Colors.black;
     fillPaint.style = PaintingStyle.fill;
@@ -64,11 +65,11 @@ class BirdHangingConveyorPainter extends CustomPainter {
     strokePaint.color = Colors.black;
     strokePaint.style = PaintingStyle.stroke;
 
-    for (int i=0;i<10;i++) {
-      bool fullShackle=shackleLine.hasBirdInShackle(i);
-      Paint paint=fullShackle?fillPaint:strokePaint;
-      canvas.drawCircle(Offset(x,y), size.width/30, paint);
-      y+=shackleDistance;
+    for (int i = 0; i < 10; i++) {
+      bool fullShackle = shackleLine.hasBirdInShackle(i);
+      Paint paint = fullShackle ? fillPaint : strokePaint;
+      canvas.drawCircle(Offset(x, y), size.width / 30, paint);
+      y += shackleDistance;
     }
   }
 }

@@ -2,21 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/module_stacker.dart';
 
-
 class ModuleStackerWidget extends StatelessWidget {
   final ModuleStacker stacker;
 
-  ModuleStackerWidget(this.stacker);
+  const ModuleStackerWidget(this.stacker, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
         message: stacker.toString(),
         child: RotationTransition(
-            turns: AlwaysStoppedAnimation(stacker.inFeedDirection.opposite
-                .toCompassDirection()
-                .degrees /
-                360),
+            turns: AlwaysStoppedAnimation(
+                stacker.inFeedDirection.opposite.toCompassDirection().degrees /
+                    360),
             child: CustomPaint(painter: ModuleStackerPainter(stacker))));
   }
 }

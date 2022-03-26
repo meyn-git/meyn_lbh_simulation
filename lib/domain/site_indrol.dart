@@ -23,9 +23,8 @@ class IndrolSite extends Site {
           organizationName: 'Indrol',
           city: 'Grodzisk',
           country: 'Poland',
-    productDefinitions: IndrolProductDefinitions(),
+          productDefinitions: IndrolProductDefinitions(),
         );
-
 }
 
 /// Modules:
@@ -48,37 +47,37 @@ class IndrolSite extends Site {
 ///  - max birds: 300/18kg= 16 birds/level x 3 levels= 48 birds per module
 
 class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
-  static final double femaleTurkeyMaxWeightInKg = 11.5;
+  static const double femaleTurkeyMaxWeightInKg = 11.5;
   static final int femaleTurkeysMinimumInModule =
       (MeynTurkeyModule().maxKgPerCompartment / femaleTurkeyMaxWeightInKg)
               .truncate() *
           MeynTurkeyModule().numberOfCompartments;
 
-  static final double femaleTurkeyAverageWeightInKg = 10;
+  static const double femaleTurkeyAverageWeightInKg = 10;
   static final int femaleTurkeysAverageInModule =
       (MeynTurkeyModule().maxKgPerCompartment / femaleTurkeyAverageWeightInKg)
               .truncate() *
           MeynTurkeyModule().numberOfCompartments;
 
-  static final double femaleTurkeyMinWeightInKg = 8.5;
+  static const double femaleTurkeyMinWeightInKg = 8.5;
   static final int femaleTurkeysMaximumInModule =
       (MeynTurkeyModule().maxKgPerCompartment / femaleTurkeyMinWeightInKg)
               .truncate() *
           MeynTurkeyModule().numberOfCompartments;
 
-  static final double maleTurkeyMaxWeightInKg = 23;
+  static const double maleTurkeyMaxWeightInKg = 23;
   static final int maleTurkeysMinimumInModule =
       (MeynTurkeyModule().maxKgPerCompartment / maleTurkeyMaxWeightInKg)
               .truncate() *
           MeynTurkeyModule().numberOfCompartments;
 
-  static final double maleTurkeyAverageWeightInKg = 20;
+  static const double maleTurkeyAverageWeightInKg = 20;
   static final int maleTurkeysAverageInModule =
       (MeynTurkeyModule().maxKgPerCompartment / maleTurkeyAverageWeightInKg)
               .truncate() *
           MeynTurkeyModule().numberOfCompartments;
 
-  static final double maleTurkeyMinWeightInKg = 18;
+  static const double maleTurkeyMinWeightInKg = 18;
   static final int maleTurkeysMaximumInModule =
       (MeynTurkeyModule().maxKgPerCompartment / maleTurkeyMinWeightInKg)
               .truncate() *
@@ -167,17 +166,16 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
         ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-  _areaFactory() => (ProductDefinition productDefinition) =>
-  [IndrolLiveBirdHandlingArea(productDefinition)];
-
+      _areaFactory() => (ProductDefinition productDefinition) =>
+          [IndrolLiveBirdHandlingArea(productDefinition)];
 }
 
 class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  IndrolLiveBirdHandlingArea( ProductDefinition productDefinition)
+  IndrolLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,
-          casRecipe: CasRecipe.standardTurkeyRecipe(),
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
         ) {
     _row1();
     _row2();
@@ -188,7 +186,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row1() {
     put(ModuleCas(
       area: this,
-      position: Position(2, 1),
+      position: const Position(2, 1),
       seqNr: 2,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -196,7 +194,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: Position(3, 1),
+      position: const Position(3, 1),
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -204,7 +202,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(BirdHangingConveyor(
       area: this,
-      position: Position(6, 1),
+      position: const Position(6, 1),
       direction: CardinalDirection.west,
     ));
   }
@@ -212,7 +210,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row2() {
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(1, 2),
+      position: const Position(1, 2),
       seqNr: 1,
       oppositeInFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.south,
@@ -220,7 +218,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(2, 2),
+      position: const Position(2, 2),
       seqNr: 2,
       oppositeInFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.east,
@@ -228,7 +226,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(3, 2),
+      position: const Position(3, 2),
       seqNr: 3,
       oppositeInFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.east,
@@ -236,7 +234,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleDeStacker(
       area: this,
-      position: Position(4, 2),
+      position: const Position(4, 2),
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -244,14 +242,14 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     //Gross weighing conveyor
     put(ModuleConveyor(
       area: this,
-      position: Position(5, 2),
+      position: const Position(5, 2),
       seqNr: 3,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleTilter(
       area: this,
-      position: Position(6, 2),
+      position: const Position(6, 2),
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
       birdDirection: CardinalDirection.north,
@@ -262,7 +260,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     //Tare weighing conveyor
     put(ModuleConveyor(
       area: this,
-      position: Position(7, 2),
+      position: const Position(7, 2),
       seqNr: 4,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -270,7 +268,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // Module conveyor
     put(ModuleConveyor(
       area: this,
-      position: Position(8, 2),
+      position: const Position(8, 2),
       seqNr: 5,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -278,7 +276,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // High pressure pre-washer
     put(ModuleConveyor(
       area: this,
-      position: Position(9, 2),
+      position: const Position(9, 2),
       seqNr: 6,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -286,7 +284,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     //  Module conveyor
     put(ModuleConveyor(
       area: this,
-      position: Position(10, 2),
+      position: const Position(10, 2),
       seqNr: 7,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -294,7 +292,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // Active module washer
     put(ModuleConveyor(
       area: this,
-      position: Position(11, 2),
+      position: const Position(11, 2),
       seqNr: 8,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -302,7 +300,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // Disinfection unit
     put(ModuleConveyor(
       area: this,
-      position: Position(12, 2),
+      position: const Position(12, 2),
       seqNr: 9,
       inFeedDirection: CardinalDirection.west,
     ));
@@ -310,21 +308,21 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
     //  Module conveyor
     put(ModuleConveyor(
       area: this,
-      position: Position(13, 2),
+      position: const Position(13, 2),
       seqNr: 10,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleStacker(
       area: this,
-      position: Position(14, 2),
+      position: const Position(14, 2),
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: Position(15, 2),
+      position: const Position(15, 2),
       seqNr: 4,
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
@@ -333,14 +331,14 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row3() {
     put(ModuleConveyor(
       area: this,
-      position: Position(1, 3),
+      position: const Position(1, 3),
       seqNr: 1,
       inFeedDirection: CardinalDirection.south,
     ));
 
     put(ModuleConveyor(
       area: this,
-      position: Position(15, 3),
+      position: const Position(15, 3),
       seqNr: 20,
       inFeedDirection: CardinalDirection.north,
     ));
@@ -349,25 +347,25 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row4() {
     put(LoadingForkLiftTruck(
       area: this,
-      position: Position(1, 4),
+      position: const Position(1, 4),
       outFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCasAllocation(
       area: this,
-      position: Position(8, 4),
-      positionToAllocate: Position(1, 2),
+      position: const Position(8, 4),
+      positionToAllocate: const Position(1, 2),
     ));
 
     put(ModuleCasStart(
       area: this,
-      position: Position(9, 4),
+      position: const Position(9, 4),
     ));
 
     put(UnLoadingForkLiftTruck(
       area: this,
-      position: Position(15, 4),
+      position: const Position(15, 4),
       inFeedDirection: CardinalDirection.north,
     ));
   }
