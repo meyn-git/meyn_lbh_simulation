@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:meyn_lbh_simulation/domain/player.dart';
+import 'package:meyn_lbh_simulation/domain/site.dart';
 
 import 'gui/player.dart';
 
 void main() {
+  GetIt.instance.registerSingleton<Sites>(Sites());
+  GetIt.instance.registerSingleton<Player>(Player());
+
   runApp(const MyApp());
 }
 

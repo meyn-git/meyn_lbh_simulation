@@ -12,23 +12,14 @@ dependencies:
   flutter:
     sdk: flutter
   collection: ^1.15.0
+  get_it: ^7.2.0
+
 
 dev_dependencies:
   flutter_lints: ^1.0.4
   flutter_test:
     sdk: flutter
-  msix: ^2.8.12
-  # windows installer (msix):
-  # * see: https://pub.dev/packages/msix
-  # * Add msxi config section in pubspec.yaml
-  # * from command line: flutter build windows
-  # * from command line (run as admin): flutter pub run msix:create
-  # * output: build\windows\runner\Release\meyn_lbh_simulation.msix
-  # create certificate file (once)
-  #   * download app: https://sourceforge.net/projects/xca/postdownload
-  #   * create certificate
-  #   * Export as PKCS#12
-  #   * Store in project folder root with pkf extension, e.g.: meyn_lbh_simulation.pfx
+
 
 
 
@@ -39,7 +30,3 @@ dev_dependencies:
 flutter:
 
   uses-material-design: true
-
-msix_config:
-  certificate_path: C:\Users\nilsth\AndroidStudioProjects\meyn_lbh_simulation\meyn_lbh_simulation3.pfx
-  certificate_password: y

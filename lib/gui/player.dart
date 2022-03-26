@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site.dart';
@@ -14,7 +15,6 @@ class PlayerWidget extends StatefulWidget {
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  static final player = Player();
   var areaWidget = createAreaWidget();
 
   static AreaWidget createAreaWidget() => AreaWidget(key: UniqueKey());
@@ -94,6 +94,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   buildSpeedButton() {
     return SpeedDropDownButton(player);
   }
+
+  Player get player => GetIt.instance<Player>();
 }
 
 class ProjectSelectionDialog extends StatelessWidget {
@@ -117,8 +119,8 @@ class ProjectSelectionDialog extends StatelessWidget {
 
   List<Widget> _createListItems(Player player) {
     List<Widget> listItems = [];
-
-    for (var site in Sites()) {
+    var sites = GetIt.instance<Sites>();
+    for (var site in sites) {
       listItems.add(SiteTile(site));
       for (var scenario in site.scenarios) {
         listItems.add(ScenarioTile(scenario, player));

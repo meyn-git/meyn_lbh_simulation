@@ -10,14 +10,7 @@ class Player {
   Timer? timer;
   Scenario scenario = Scenario.first();
 
-  // Using a singleton here. A bit ugly, that for now cleaner than using get_it or provider.
-  static final Player _singleton = Player._();
-
-  factory Player() {
-    return _singleton;
-  }
-
-  Player._() {
+  Player() {
     updateTimer();
   }
 

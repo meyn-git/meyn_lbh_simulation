@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
@@ -38,7 +39,7 @@ class AreaWidget extends StatefulWidget {
 }
 
 class _AreaWidgetState extends State<AreaWidget> {
-  final Player player = Player();
+  Player get player => GetIt.instance<Player>();
 
   _AreaWidgetState() {
     player.timerListener((Timer t) {

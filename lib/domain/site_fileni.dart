@@ -102,8 +102,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
 class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
   static const conveyorTransportDuration =
       Duration(milliseconds: 13400); // Based on measurements @ Dabe
-  static const turnTableDegreesPerSecond =
-      10; //Based on measurements @ Dabe
+  static const turnTableDegreesPerSecond = 10; //Based on measurements @ Dabe
   static const casTransportDuration =
       Duration(milliseconds: 18700); // Based on measurements @ Dabe
 

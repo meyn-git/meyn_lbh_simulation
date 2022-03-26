@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/site.dart';
 
@@ -13,10 +14,12 @@ class Scenario {
 
   Scenario.first()
       : this(
-          site: Sites()[0],
-          productDefinition: Sites()[0].productDefinitions[0],
-          area: Sites()[0].productDefinitions[0].areas[0],
+          site: firstSite,
+          productDefinition: firstSite.productDefinitions.first,
+          area: firstSite.productDefinitions.first.areas.first,
         );
+
+  static Site get firstSite => GetIt.instance<Sites>().first;
 
   Scenario withNewArea() {
     var newAreas = productDefinition.areaFactory(productDefinition);
