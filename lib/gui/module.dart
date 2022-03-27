@@ -9,7 +9,7 @@ class ModuleGroupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RotationTransition(
-      turns: AlwaysStoppedAnimation(moduleGroup.doorDirection.degrees / 360),
+      turns: AlwaysStoppedAnimation(moduleGroup.direction.degrees / 360),
       child: CustomPaint(painter: ModuleGroupPainter(moduleGroup)),
     );
   }
@@ -31,9 +31,13 @@ class ModuleGroupPainter extends CustomPainter {
   }
 
   /// paints a square scalable module compartment with doors pointing north
-  void _paintModuleCompartment(
-      Canvas canvas, Size size, double factor, Offset offset,
-      {bool paintTriangle = true}) {
+  void _paintModuleCompartment({
+    required Canvas canvas,
+    required Size size,
+    required double factor,
+    required Offset offset,
+    required bool paintTriangle,
+  }) {
     var paint = Paint();
     paint.color = _colorFor(moduleGroup);
     paint.style = PaintingStyle.stroke;
@@ -89,16 +93,34 @@ class ModuleGroupPainter extends CustomPainter {
   void _paintSingleSquareModule(Canvas canvas, Size size) {
     var x1 = (size.width * (1 - compartmentSize)) / 2;
     var y1 = (size.height * (1 - compartmentSize)) / 2;
-    _paintModuleCompartment(canvas, size, compartmentSize, Offset(x1, y1));
+    _paintModuleCompartment(
+      canvas: canvas,
+      size: size,
+      factor: compartmentSize,
+      offset: Offset(x1, y1),
+      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+    );
   }
 
   void _paintDoubleSquareModuleSideBySide(Canvas canvas, Size size) {
     var x1 = size.width * 0.15;
     var y1 = (size.width * (1 - compartmentSize)) / 2;
-    _paintModuleCompartment(canvas, size, compartmentSize, Offset(x1, y1));
+    _paintModuleCompartment(
+      canvas: canvas,
+      size: size,
+      factor: compartmentSize,
+      offset: Offset(x1, y1),
+      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+    );
     var x2 = size.width * (0.15 + compartmentSize + 0.1);
     var y2 = y1;
-    _paintModuleCompartment(canvas, size, compartmentSize, Offset(x2, y2));
+    _paintModuleCompartment(
+      canvas: canvas,
+      size: size,
+      factor: compartmentSize,
+      offset: Offset(x2, y2),
+      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+    );
   }
 
   void _paintRectangleModules(Canvas canvas, Size size) {
@@ -118,20 +140,20 @@ class ModuleGroupPainter extends CustomPainter {
     var x1 = size.width * 0.2 + offset.dx;
     var y1 = (size.width * (1 - compartmentSize)) / 2 + offset.dy;
     _paintModuleCompartment(
-      canvas,
-      size,
-      compartmentSize,
-      Offset(x1, y1),
-      paintTriangle: paintTriangle,
+      canvas: canvas,
+      size: size,
+      factor: compartmentSize,
+      offset: Offset(x1, y1),
+      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
     );
     var x2 = size.width * (0.2 + compartmentSize) + offset.dx;
     var y2 = y1;
     _paintModuleCompartment(
-      canvas,
-      size,
-      compartmentSize,
-      Offset(x2, y2),
-      paintTriangle: paintTriangle,
+      canvas: canvas,
+      size: size,
+      factor: compartmentSize,
+      offset: Offset(x2, y2),
+      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
     );
   }
 

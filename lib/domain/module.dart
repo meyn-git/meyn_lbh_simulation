@@ -10,7 +10,10 @@ class ModuleGroup extends TimeProcessor {
   final Module firstModule;
   Module? secondModule;
   final ModuleType type;
-  CompassDirection doorDirection;
+
+  /// The direction (rotation) of the module group. This is the direction
+  /// that the doors would be pointing towards (if it has any)
+  CompassDirection direction;
   StateMachineCell destination;
   ModulePosition position;
 
@@ -18,7 +21,7 @@ class ModuleGroup extends TimeProcessor {
     required this.type,
     required this.firstModule,
     this.secondModule,
-    required this.doorDirection,
+    required this.direction,
     required this.destination,
     required this.position,
   });
@@ -27,13 +30,13 @@ class ModuleGroup extends TimeProcessor {
           {ModuleType? type,
           Module? firstModule,
           Module? secondModule,
-          CompassDirection? doorDirection,
+          CompassDirection? direction,
           StateMachineCell? destination,
           ModulePosition? position}) =>
       ModuleGroup(
           type: type ?? this.type,
           firstModule: firstModule ?? this.firstModule,
-          doorDirection: doorDirection ?? this.doorDirection,
+          direction: direction ?? this.direction,
           destination: destination ?? this.destination,
           position: position ?? this.position);
 
@@ -59,7 +62,7 @@ class ModuleGroup extends TimeProcessor {
 
   @override
   String toString() => TitleBuilder('ModuleGroup')
-      .appendProperty('doorDirection', doorDirection)
+      .appendProperty('doorDirection', direction)
       .appendProperty('destination', destination.name)
       //.appendProperty('position', position) removed because its obvious
       .appendProperty('firstModule', firstModule)
@@ -254,55 +257,65 @@ class Module {
 class MeynTurkeyModule extends ModuleType {
   MeynTurkeyModule()
       : super(
-            name: '$MeynTurkeyModule',
-            shape: ModuleShape.rectangularStacked,
-            birdType: BirdType.turkey,
-            maxKgPerCompartment: 300,
-            numberOfCompartments: 3);
+          name: '$MeynTurkeyModule',
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.turkey,
+          maxKgPerCompartment: 300,
+          numberOfCompartments: 3,
+          compartmentType: CompartmentType.door,
+        );
 }
 
 class StorkSquare4LayerChickenModule extends ModuleType {
   StorkSquare4LayerChickenModule()
       : super(
-            name: '$StorkSquare4LayerChickenModule',
-            shape: ModuleShape.squareSideBySide,
-            birdType: BirdType.chicken,
-            maxKgPerCompartment: 99999,
-            //unknown
-            numberOfCompartments: 4);
+          name: '$StorkSquare4LayerChickenModule',
+          shape: ModuleShape.squareSideBySide,
+          birdType: BirdType.chicken,
+          maxKgPerCompartment: 99999,
+          //unknown
+          numberOfCompartments: 4,
+          compartmentType: CompartmentType.door,
+        );
 }
 
 class StorkSquare5LayerChickenModule extends ModuleType {
   StorkSquare5LayerChickenModule()
       : super(
-            name: '$StorkSquare5LayerChickenModule',
-            shape: ModuleShape.squareSideBySide,
-            birdType: BirdType.chicken,
-            maxKgPerCompartment: 99999,
-            //unknown
-            numberOfCompartments: 5);
+          name: '$StorkSquare5LayerChickenModule',
+          shape: ModuleShape.squareSideBySide,
+          birdType: BirdType.chicken,
+          maxKgPerCompartment: 99999,
+          //unknown
+          numberOfCompartments: 5,
+          compartmentType: CompartmentType.door,
+        );
 }
 
 class AngliaAutoFlow4LayerChickenModule extends ModuleType {
   AngliaAutoFlow4LayerChickenModule()
       : super(
-            name: '$AngliaAutoFlow4LayerChickenModule',
-            shape: ModuleShape.rectangularStacked,
-            birdType: BirdType.chicken,
-            maxKgPerCompartment: 99999,
-            //unknown
-            numberOfCompartments: 4);
+          name: '$AngliaAutoFlow4LayerChickenModule',
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.chicken,
+          maxKgPerCompartment: 99999,
+          //unknown
+          numberOfCompartments: 4,
+          compartmentType: CompartmentType.drawer,
+        );
 }
 
 class AngliaAutoFlow5LayerChickenModule extends ModuleType {
   AngliaAutoFlow5LayerChickenModule()
       : super(
-            name: '$AngliaAutoFlow5LayerChickenModule',
-            shape: ModuleShape.rectangularStacked,
-            birdType: BirdType.chicken,
-            maxKgPerCompartment: 99999,
-            //unknown
-            numberOfCompartments: 5);
+          name: '$AngliaAutoFlow5LayerChickenModule',
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.chicken,
+          maxKgPerCompartment: 99999,
+          //unknown
+          numberOfCompartments: 5,
+          compartmentType: CompartmentType.drawer,
+        );
 }
 
 class ModuleType {
@@ -311,6 +324,7 @@ class ModuleType {
   final BirdType birdType;
   final int numberOfCompartments;
   final double maxKgPerCompartment;
+  final CompartmentType compartmentType;
 
   ModuleType({
     required this.name,
@@ -318,8 +332,12 @@ class ModuleType {
     required this.birdType,
     required this.numberOfCompartments,
     required this.maxKgPerCompartment,
+    required this.compartmentType,
   });
 }
 
 enum ModuleShape { squareSideBySide, rectangularStacked }
+
+enum CompartmentType { door, drawer }
+
 enum BirdType { chicken, turkey }

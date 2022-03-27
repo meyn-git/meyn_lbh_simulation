@@ -457,9 +457,8 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
 
       rotatingConveyor.currentDirection =
           rotatingConveyor.currentDirection.rotate(degreesToTurnThisJump);
-      rotatingConveyor.moduleGroup!.doorDirection = rotatingConveyor
-          .moduleGroup!.doorDirection
-          .rotate(degreesToTurnThisJump);
+      rotatingConveyor.moduleGroup!.direction =
+          rotatingConveyor.moduleGroup!.direction.rotate(degreesToTurnThisJump);
     }
   }
 

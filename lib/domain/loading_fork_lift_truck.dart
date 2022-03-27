@@ -76,7 +76,7 @@ class LoadingForkLiftTruck extends StateMachineCell {
                 nrOfBirds: moduleCombination.secondModuleNumberOfBirds!,
                 sequenceNumber: ++sequenceNumber,
               ),
-        doorDirection: doorDirection.toCompassDirection(),
+        direction: doorDirection.toCompassDirection(),
         destination: _findModuleDestination(),
         position: _createModulePosition());
     return moduleGroup;
@@ -141,7 +141,7 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
       _verifyDirections(
         forkLiftTruck,
         forkLiftTruck.outFeedDirection,
-        newModuleGroup.doorDirection.toCardinalDirection()!,
+        newModuleGroup.direction,
       );
       _verifyDestination(forkLiftTruck, newModuleGroup.destination);
       forkLiftTruck.area.moduleGroups.add(newModuleGroup);
@@ -152,10 +152,11 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
 
   static _verifyDirections(
     LoadingForkLiftTruck forkLiftTruck,
-    CardinalDirection direction1,
-    CardinalDirection direction2,
+    CardinalDirection doorDirection1,
+    CompassDirection? doorDirection2,
   ) {
-    if (direction1.isParallelTo(direction2)) {
+    if (doorDirection2 != null &&
+        doorDirection1.isParallelTo(doorDirection2.toCardinalDirection()!)) {
       throw ArgumentError(
           "${forkLiftTruck.name}: outFeedDirection and moduleDoorDirection must be perpendicular in layout configuration.");
     }

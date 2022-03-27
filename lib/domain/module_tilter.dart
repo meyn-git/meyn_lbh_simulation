@@ -134,8 +134,10 @@ class FeedIn extends State<ModuleTilter> {
   }
 
   void _verifyDoorDirection(ModuleTilter tilter) {
-    if (tilter.moduleGroup!.doorDirection.toCardinalDirection() !=
-        tilter.birdDirection) {
+    var moduleGroup = tilter.moduleGroup!;
+    var hasDoors = moduleGroup.type.compartmentType == CompartmentType.door;
+    if (hasDoors &&
+        moduleGroup.direction.toCardinalDirection() != tilter.birdDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');
     }
   }
