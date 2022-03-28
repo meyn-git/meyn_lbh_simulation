@@ -29,7 +29,5 @@ class Scenario {
         site: site, productDefinition: productDefinition, area: newArea);
   }
 
-  String get nameWithoutSite => '$area-$productDefinition';
 
-  String get nameWithSite => '$site-$nameWithoutSite';
 }
