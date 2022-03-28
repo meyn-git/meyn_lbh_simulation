@@ -12,7 +12,7 @@ void main() {
   runApp(const MyApp());
 }
 
-const title = 'Meyn Live Bird Handling Simulator (no rights)';
+const title = 'Meyn Live Bird Handling Simulator';
 const meynColor = Color.fromRGBO(0, 118, 90, 1);
 
 class MyApp extends StatelessWidget {
