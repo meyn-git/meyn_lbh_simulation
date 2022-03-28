@@ -52,9 +52,19 @@ class _AreaWidgetState extends State<AreaWidget> {
   @override
   Widget build(BuildContext context) => Container(
         color: Colors.grey.shade200,
-        child: CustomMultiChildLayout(
-            delegate: AreaWidgetDelegate(player.scenario.area),
-            children: createChildren(player.scenario.area)),
+        child: Column(
+          children: [
+            FittedBox(
+                fit: BoxFit.fitWidth,
+                child: Text(player.scenario.area.toString(),
+                    style: const TextStyle(fontSize: 25))),
+            Expanded(
+              child: CustomMultiChildLayout(
+                  delegate: AreaWidgetDelegate(player.scenario.area),
+                  children: createChildren(player.scenario.area)),
+            )
+          ],
+        ),
       );
 
   static List<Widget> createChildren(LiveBirdHandlingArea area) {

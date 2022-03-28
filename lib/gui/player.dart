@@ -23,7 +23,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(player.scenario.nameWithSite),
+        title: Text(player.scenario.site.toString()),
         actions: [
           buildOpenButton(),
           buildRestartButton(),
@@ -54,7 +54,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   IconButton buildInfoButton() {
     return IconButton(
-        icon: const Icon(Icons.info),
+        icon: const Icon(Icons.info_outline),
         tooltip: 'Info',
         onPressed: () {
           setState(() {
@@ -164,7 +164,7 @@ class _ScenarioTileState extends State<ScenarioTile> {
   @override
   Widget build(BuildContext context) => ListTile(
         title: Text(
-          widget.scenario.nameWithoutSite,
+          widget.scenario.area.toString(),
         ),
         onTap: () {
           setState(() {
