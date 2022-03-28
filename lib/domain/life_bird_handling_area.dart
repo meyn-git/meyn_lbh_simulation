@@ -344,7 +344,7 @@ class Route extends DelegatingList<StateMachineCell> {
   /// A score between 1 (=100%) and 0 (=0%)
   /// high (1) = when no modules are on route, otherwise
   /// lower for each module that is blocking the route
-  double get _troughPutScore => 1 / (1 + numberOfModulesOnRoute);
+  double get _troughPutScore => 1 / (1 + numberOfModulesGroupsOnRoute);
 
   /// A score between 1 (=100%) and 0 (=0%)
   /// high (near 1) = longest route
@@ -367,7 +367,7 @@ class Route extends DelegatingList<StateMachineCell> {
     }
   }
 
-  int get numberOfModulesOnRoute {
+  int get numberOfModulesGroupsOnRoute {
     int total = 0;
     for (StateMachineCell stateMachine in this) {
       if (stateMachine.moduleGroup != null &&
@@ -413,7 +413,8 @@ class ProductDefinition {
   final String birdType;
   final LoadFactor loadFactor;
   final int lineSpeedInShacklesPerHour;
-  final List<ModuleCombination> moduleCombinations;
+  final ModuleType moduleType;
+  final List<ModuleGroupCapacity> moduleGroupCapacities;
   final List<LiveBirdHandlingArea> Function(ProductDefinition) areaFactory;
 
   ProductDefinition({
@@ -421,7 +422,8 @@ class ProductDefinition {
     required this.birdType,
     required this.loadFactor,
     required this.lineSpeedInShacklesPerHour,
-    required this.moduleCombinations,
+    required this.moduleType,
+    required this.moduleGroupCapacities,
   });
 
   List<LiveBirdHandlingArea> get areas => areaFactory(this);
@@ -429,13 +431,9 @@ class ProductDefinition {
   double get averageProductsPerModuleGroup {
     var totalBirds = 0;
     var totalOccurrence = 0.0;
-    for (var moduleCombination in moduleCombinations) {
-      totalBirds += moduleCombination.firstModuleNumberOfBirds;
-      totalOccurrence += moduleCombination.occurrence;
-      if (moduleCombination.secondModuleNumberOfBirds != null) {
-        totalBirds += moduleCombination.secondModuleNumberOfBirds!;
-        totalOccurrence += moduleCombination.occurrence;
-      }
+    for (var moduleGroupCapacity in moduleGroupCapacities) {
+      totalBirds += moduleGroupCapacity.numberOfBirds;
+      totalOccurrence += moduleGroupCapacity.occurrence;
     }
     return totalBirds / totalOccurrence;
   }
@@ -447,43 +445,3 @@ class ProductDefinition {
 }
 
 enum LoadFactor { minimum, average, max }
-
-class ModuleCombination {
-  // how often this Module Combination is loaded on to the system
-  final double occurrence;
-  final ModuleType firstModuleType;
-  final int firstModuleNumberOfBirds;
-  final ModuleType? secondModuleType;
-  final int? secondModuleNumberOfBirds;
-
-  ModuleCombination(
-      {this.occurrence = 1,
-      required this.firstModuleType,
-      required this.firstModuleNumberOfBirds,
-      this.secondModuleType,
-      this.secondModuleNumberOfBirds}) {
-    _validateIfSecondModuleIsComplete();
-    _validateFirstAndSecondModule();
-  }
-
-  void _validateFirstAndSecondModule() {
-    if (secondModuleType != null) {
-      if (firstModuleType.shape != secondModuleType!.shape) {
-        throw Exception(
-            'The first module shape (${firstModuleType.shape}) and second module shape (${secondModuleType!.shape}) must be identical');
-      }
-      if (firstModuleType.birdType != secondModuleType!.birdType) {
-        throw Exception(
-            'The first module bird type (${firstModuleType.birdType}) and second module bird type (${secondModuleType!.birdType}) must be identical');
-      }
-    }
-  }
-
-  void _validateIfSecondModuleIsComplete() {
-    if (secondModuleType != null && secondModuleNumberOfBirds == null ||
-        secondModuleType == null && secondModuleNumberOfBirds != null) {
-      throw Exception(
-          'You must eiter define secondModuleType with secondModuleNumberOfBirds or none.');
-    }
-  }
-}

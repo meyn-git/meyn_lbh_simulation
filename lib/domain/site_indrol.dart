@@ -48,40 +48,34 @@ class IndrolSite extends Site {
 
 class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
   static const double femaleTurkeyMaxWeightInKg = 11.5;
-  static final int femaleTurkeysMinimumInModule =
-      (MeynTurkeyModule().maxKgPerCompartment / femaleTurkeyMaxWeightInKg)
-              .truncate() *
-          MeynTurkeyModule().numberOfCompartments;
+  static final int femaleTurkeysMinimumPerCompartment =
+      (MeynOmniTurkeyModule.maxKgPerCompartment / femaleTurkeyMaxWeightInKg)
+          .truncate();
 
   static const double femaleTurkeyAverageWeightInKg = 10;
-  static final int femaleTurkeysAverageInModule =
-      (MeynTurkeyModule().maxKgPerCompartment / femaleTurkeyAverageWeightInKg)
-              .truncate() *
-          MeynTurkeyModule().numberOfCompartments;
+  static final int femaleTurkeysAveragePerCompartment =
+      (MeynOmniTurkeyModule.maxKgPerCompartment / femaleTurkeyAverageWeightInKg)
+          .truncate();
 
   static const double femaleTurkeyMinWeightInKg = 8.5;
-  static final int femaleTurkeysMaximumInModule =
-      (MeynTurkeyModule().maxKgPerCompartment / femaleTurkeyMinWeightInKg)
-              .truncate() *
-          MeynTurkeyModule().numberOfCompartments;
+  static final int femaleTurkeysMaximumPerCompartment =
+      (MeynOmniTurkeyModule.maxKgPerCompartment / femaleTurkeyMinWeightInKg)
+          .truncate();
 
   static const double maleTurkeyMaxWeightInKg = 23;
-  static final int maleTurkeysMinimumInModule =
-      (MeynTurkeyModule().maxKgPerCompartment / maleTurkeyMaxWeightInKg)
-              .truncate() *
-          MeynTurkeyModule().numberOfCompartments;
+  static final int maleTurkeysMinimumPerCompartment =
+      (MeynOmniTurkeyModule.maxKgPerCompartment / maleTurkeyMaxWeightInKg)
+          .truncate();
 
   static const double maleTurkeyAverageWeightInKg = 20;
-  static final int maleTurkeysAverageInModule =
-      (MeynTurkeyModule().maxKgPerCompartment / maleTurkeyAverageWeightInKg)
-              .truncate() *
-          MeynTurkeyModule().numberOfCompartments;
+  static final int maleTurkeysAveragePerCompartment =
+      (MeynOmniTurkeyModule.maxKgPerCompartment / maleTurkeyAverageWeightInKg)
+          .truncate();
 
   static const double maleTurkeyMinWeightInKg = 18;
-  static final int maleTurkeysMaximumInModule =
-      (MeynTurkeyModule().maxKgPerCompartment / maleTurkeyMinWeightInKg)
-              .truncate() *
-          MeynTurkeyModule().numberOfCompartments;
+  static final int maleTurkeysMaximumPerCompartment =
+      (MeynOmniTurkeyModule.maxKgPerCompartment / maleTurkeyMinWeightInKg)
+          .truncate();
 
   IndrolProductDefinitions()
       : super([
@@ -90,12 +84,19 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Female Turkey',
               loadFactor: LoadFactor.minimum,
               lineSpeedInShacklesPerHour: 3600,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: MeynTurkeyModule(),
-                  firstModuleNumberOfBirds: femaleTurkeysMinimumInModule,
-                  secondModuleType: MeynTurkeyModule(),
-                  secondModuleNumberOfBirds: femaleTurkeysMinimumInModule,
+              moduleType: MeynOmniTurkeyModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                      numberOfCompartments:
+                          MeynOmniTurkeyModule.numberOfCompartments,
+                      numberOfBirdsPerCompartment:
+                          femaleTurkeysMinimumPerCompartment),
+                  secondModule: ModuleCapacity(
+                      numberOfCompartments:
+                          MeynOmniTurkeyModule.numberOfCompartments,
+                      numberOfBirdsPerCompartment:
+                          femaleTurkeysMinimumPerCompartment),
                 )
               ]),
           ProductDefinition(
@@ -103,25 +104,42 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Female Turkey',
               loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 3600,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: MeynTurkeyModule(),
-                  firstModuleNumberOfBirds: femaleTurkeysAverageInModule,
-                  secondModuleType: MeynTurkeyModule(),
-                  secondModuleNumberOfBirds: femaleTurkeysAverageInModule,
-                )
+              moduleType: MeynOmniTurkeyModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                    firstModule: ModuleCapacity(
+                      numberOfCompartments:
+                          MeynOmniTurkeyModule.numberOfCompartments,
+                      numberOfBirdsPerCompartment:
+                          femaleTurkeysAveragePerCompartment,
+                    ),
+                    secondModule: ModuleCapacity(
+                      numberOfCompartments:
+                          MeynOmniTurkeyModule.numberOfCompartments,
+                      numberOfBirdsPerCompartment:
+                          femaleTurkeysAveragePerCompartment,
+                    ))
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
               loadFactor: LoadFactor.max,
               lineSpeedInShacklesPerHour: 3600,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: MeynTurkeyModule(),
-                  firstModuleNumberOfBirds: femaleTurkeysMaximumInModule,
-                  secondModuleType: MeynTurkeyModule(),
-                  secondModuleNumberOfBirds: femaleTurkeysMaximumInModule,
+              moduleType: MeynOmniTurkeyModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        femaleTurkeysMaximumPerCompartment,
+                  ),
+                  secondModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        femaleTurkeysMaximumPerCompartment,
+                  ),
                 )
               ]),
           ProductDefinition(
@@ -129,12 +147,21 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Male Turkey',
               loadFactor: LoadFactor.minimum,
               lineSpeedInShacklesPerHour: 1800,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: MeynTurkeyModule(),
-                  firstModuleNumberOfBirds: maleTurkeysMinimumInModule,
-                  secondModuleType: MeynTurkeyModule(),
-                  secondModuleNumberOfBirds: maleTurkeysMinimumInModule,
+              moduleType: MeynOmniTurkeyModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        maleTurkeysMinimumPerCompartment,
+                  ),
+                  secondModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        maleTurkeysMinimumPerCompartment,
+                  ),
                 )
               ]),
           ProductDefinition(
@@ -142,12 +169,21 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Male Turkey',
               loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 1800,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: MeynTurkeyModule(),
-                  firstModuleNumberOfBirds: maleTurkeysAverageInModule,
-                  secondModuleType: MeynTurkeyModule(),
-                  secondModuleNumberOfBirds: maleTurkeysAverageInModule,
+              moduleType: MeynOmniTurkeyModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        maleTurkeysAveragePerCompartment,
+                  ),
+                  secondModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        maleTurkeysAveragePerCompartment,
+                  ),
                 )
               ]),
           ProductDefinition(
@@ -155,12 +191,21 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Male Turkey',
               loadFactor: LoadFactor.max,
               lineSpeedInShacklesPerHour: 1800,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: MeynTurkeyModule(),
-                  firstModuleNumberOfBirds: maleTurkeysMaximumInModule,
-                  secondModuleType: MeynTurkeyModule(),
-                  secondModuleNumberOfBirds: maleTurkeysMaximumInModule,
+              moduleType: MeynOmniTurkeyModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        maleTurkeysMaximumPerCompartment,
+                  ),
+                  secondModule: ModuleCapacity(
+                    numberOfCompartments:
+                        MeynOmniTurkeyModule.numberOfCompartments,
+                    numberOfBirdsPerCompartment:
+                        maleTurkeysMaximumPerCompartment,
+                  ),
                 )
               ]),
         ]);
@@ -175,7 +220,7 @@ class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,
-          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
         ) {
     _row1();
     _row2();

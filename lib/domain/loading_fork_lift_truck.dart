@@ -62,18 +62,18 @@ class LoadingForkLiftTruck extends StateMachineCell {
       direction == outFeedDirection && currentState is WaitingForEmptyConveyor;
 
   ModuleGroup createModuleGroup() {
-    var moduleCombination = _randomModuleCombination();
+    var moduleGroupCapacity = _randomModuleGroupCapacity();
 
     var moduleGroup = ModuleGroup(
-        type: moduleCombination.firstModuleType,
+        type: area.productDefinition.moduleType,
         firstModule: Module(
-          nrOfBirds: moduleCombination.firstModuleNumberOfBirds,
+          nrOfBirds: moduleGroupCapacity.firstModule.numberOfBirds,
           sequenceNumber: ++sequenceNumber,
         ),
-        secondModule: moduleCombination.secondModuleType == null
+        secondModule: moduleGroupCapacity.secondModule == null
             ? null
             : Module(
-                nrOfBirds: moduleCombination.secondModuleNumberOfBirds!,
+                nrOfBirds: moduleGroupCapacity.secondModule!.numberOfBirds,
                 sequenceNumber: ++sequenceNumber,
               ),
         direction: doorDirection.toCompassDirection(),
@@ -82,22 +82,24 @@ class LoadingForkLiftTruck extends StateMachineCell {
     return moduleGroup;
   }
 
-  ModuleCombination _randomModuleCombination() {
+  ModuleGroupCapacity _randomModuleGroupCapacity() {
     var total = 0.0;
     double totalOccurrence = _totalOccurrence();
     var random = totalOccurrence * Random().nextDouble();
-    for (var moduleCombination in area.productDefinition.moduleCombinations) {
+    for (var moduleCombination
+        in area.productDefinition.moduleGroupCapacities) {
       total += moduleCombination.occurrence;
       if (random <= total) {
         return moduleCombination;
       }
     }
-    return area.productDefinition.moduleCombinations.last;
+    return area.productDefinition.moduleGroupCapacities.last;
   }
 
   double _totalOccurrence() {
     var totalOccurrence = 0.0;
-    for (var moduleCombination in area.productDefinition.moduleCombinations) {
+    for (var moduleCombination
+        in area.productDefinition.moduleGroupCapacities) {
       totalOccurrence += moduleCombination.occurrence;
     }
     return totalOccurrence;

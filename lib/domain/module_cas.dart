@@ -23,15 +23,17 @@ class ModuleCas extends StateMachineCell {
     required this.doorDirection,
     this.closeSlideDoorDuration = const Duration(seconds: 3),
     this.openSlideDoorDuration = const Duration(seconds: 3),
-    Duration inFeedDuration = const Duration(seconds: 14),
-    Duration outFeedDuration = const Duration(seconds: 14),
+    Duration? inFeedDuration,
+    Duration? outFeedDuration,
   }) : super(
           area: area,
           position: position,
           seqNr: seqNr,
           initialState: WaitToFeedIn(),
-          inFeedDuration: inFeedDuration,
-          outFeedDuration: outFeedDuration,
+          inFeedDuration: inFeedDuration ??
+              area.productDefinition.moduleType.casTransportDuration,
+          outFeedDuration: outFeedDuration ??
+              area.productDefinition.moduleType.casTransportDuration,
         ) {
     _verifyDirections();
     _verifyCasRecipeIsDefined();
@@ -131,6 +133,14 @@ class CasRecipe {
           Duration(seconds: 40), //34%
           Duration(seconds: 40), //43%
           Duration(seconds: 120) //67%
+        ], const Duration(seconds: 30));
+
+  const CasRecipe.turkeyRecipeAtIndrol()
+      : this(const [
+          Duration(seconds: 35), //35%
+          Duration(seconds: 35), //43%
+          Duration(seconds: 30), //58%
+          Duration(seconds: 110) //72%
         ], const Duration(seconds: 30));
 }
 

@@ -24,10 +24,10 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
       required this.inFeedDirection,
       required this.birdDirection,
       this.checkIfEmptyDuration = const Duration(seconds: 18),
-      Duration inFeedDuration = const Duration(seconds: 12),
+      Duration? inFeedDuration,
       this.tiltForwardDuration = const Duration(seconds: 9),
       this.tiltBackDuration = const Duration(seconds: 5),
-      Duration outFeedDuration = const Duration(seconds: 12),
+      Duration? outFeedDuration,
       required this.minBirdsOnDumpBeltBuffer})
       : maxBirdsOnDumpBelt = minBirdsOnDumpBeltBuffer,
         super(
@@ -35,8 +35,10 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
           position: position,
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
-          inFeedDuration: inFeedDuration,
-          outFeedDuration: outFeedDuration,
+          inFeedDuration: inFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
+          outFeedDuration: outFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
         ) {
     _verifyDirections();
   }

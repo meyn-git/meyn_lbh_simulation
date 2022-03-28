@@ -35,22 +35,24 @@ class ModuleRotatingConveyor extends StateMachineCell {
     required LiveBirdHandlingArea area,
     required Position position,
     int? seqNr,
-
-    /// 6 seconds per 90 degrees = 15 degrees per second.
-    this.degreesPerSecond = 15,
+    int? degreesPerSecond,
     this.defaultPositionWhenIdle,
     this.oppositeInFeeds = const [],
     this.oppositeOutFeeds = const [],
-    Duration inFeedDuration = const Duration(seconds: 12),
-    Duration outFeedDuration = const Duration(seconds: 12),
+    Duration? inFeedDuration,
+    Duration? outFeedDuration,
   })  : currentDirection = calculateBeginPosition(defaultPositionWhenIdle),
+        degreesPerSecond = degreesPerSecond ??
+            area.productDefinition.moduleType.turnTableDegreesPerSecond,
         super(
           area: area,
           position: position,
           seqNr: seqNr,
           initialState: TurnToInFeed(),
-          inFeedDuration: inFeedDuration,
-          outFeedDuration: outFeedDuration,
+          inFeedDuration: inFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
+          outFeedDuration: outFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
         );
 
   bool get moduleGroupFeedingIn => area.moduleGroups

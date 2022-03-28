@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:meyn_lbh_simulation/domain/module_de_stacker.dart';
+
 import 'life_bird_handling_area.dart';
 import 'state_machine.dart';
 import 'title_builder.dart';
@@ -254,86 +256,179 @@ class Module {
       .toString();
 }
 
-class MeynTurkeyModule extends ModuleType {
-  MeynTurkeyModule()
+class MeynEvoContainer extends ModuleType {
+  MeynEvoContainer()
       : super(
-          name: '$MeynTurkeyModule',
           shape: ModuleShape.rectangularStacked,
-          birdType: BirdType.turkey,
-          maxKgPerCompartment: 300,
-          numberOfCompartments: 3,
+          birdType: BirdType.chicken,
           compartmentType: CompartmentType.door,
+
+          //following durations are based on measurements at: 7113-Tyson Union city
+          stackerInFeedDuration: const Duration(seconds: 14),
+          conveyorTransportDuration: const Duration(seconds: 12),
+          casTransportDuration: const Duration(seconds: 14),
+          turnTableDegreesPerSecond: (90 / 6).round(),
         );
 }
 
-class StorkSquare4LayerChickenModule extends ModuleType {
-  StorkSquare4LayerChickenModule()
+class MeynOmniTurkeyModule extends ModuleType {
+  static const maxKgPerCompartment = 300;
+  static const numberOfCompartments = 3;
+
+  MeynOmniTurkeyModule()
       : super(
-          name: '$StorkSquare4LayerChickenModule',
+            shape: ModuleShape.rectangularStacked,
+            birdType: BirdType.turkey,
+            compartmentType: CompartmentType.door,
+            //following durations are based on measurements at: 8052-Indrol Grodzisk
+            conveyorTransportDuration: const Duration(seconds: 19),
+            stackerInFeedDuration: const Duration(seconds: 19),
+            casTransportDuration: const Duration(seconds: 19),
+            turnTableDegreesPerSecond: (90 / 11.25).round());
+}
+
+class AngliaAutoFlowModule extends ModuleType {
+  AngliaAutoFlowModule()
+      : super(
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.chicken,
+          compartmentType: CompartmentType.drawer,
+
+          //following durations are based on measurements at: 7113-Tyson Union city
+          stackerInFeedDuration: const Duration(seconds: 14),
+          conveyorTransportDuration: const Duration(seconds: 12),
+          casTransportDuration: const Duration(seconds: 14),
+          turnTableDegreesPerSecond: (90 / 6).round(),
+        );
+}
+
+class StorkSquareModule extends ModuleType {
+  StorkSquareModule()
+      : super(
           shape: ModuleShape.squareSideBySide,
           birdType: BirdType.chicken,
-          maxKgPerCompartment: 99999,
-          //unknown
-          numberOfCompartments: 4,
           compartmentType: CompartmentType.door,
+
+          //following durations are based on measurements at: 7696-Dabe-Germanyk
+          conveyorTransportDuration: const Duration(milliseconds: 13400),
+          stackerInFeedDuration: const Duration(milliseconds: 18700),
+          casTransportDuration: const Duration(milliseconds: 18700),
+          turnTableDegreesPerSecond: (90 / 9).round(),
         );
 }
 
-class StorkSquare5LayerChickenModule extends ModuleType {
-  StorkSquare5LayerChickenModule()
-      : super(
-          name: '$StorkSquare5LayerChickenModule',
-          shape: ModuleShape.squareSideBySide,
-          birdType: BirdType.chicken,
-          maxKgPerCompartment: 99999,
-          //unknown
-          numberOfCompartments: 5,
-          compartmentType: CompartmentType.door,
-        );
-}
+// class StorkSquare4LayerChickenModule extends ModuleCapacity {
+//   StorkSquare4LayerChickenModule()
+//       : super(
+//           name: '$StorkSquare4LayerChickenModule',
+//           shape: ModuleShape.squareSideBySide,
+//           birdType: BirdType.chicken,
+//           maxKgPerCompartment: 99999,
+//           //unknown
+//           numberOfCompartments: 4,
+//           compartmentType: CompartmentType.door,
+//         );
+// }
+//
+// class StorkSquare5LayerChickenModule extends ModuleCapacity {
+//   StorkSquare5LayerChickenModule()
+//       : super(
+//           name: '$StorkSquare5LayerChickenModule',
+//           shape: ModuleShape.squareSideBySide,
+//           birdType: BirdType.chicken,
+//           maxKgPerCompartment: 99999,
+//           //unknown
+//           numberOfCompartments: 5,
+//           compartmentType: CompartmentType.door,
+//         );
+// }
 
-class AngliaAutoFlow4LayerChickenModule extends ModuleType {
-  AngliaAutoFlow4LayerChickenModule()
-      : super(
-          name: '$AngliaAutoFlow4LayerChickenModule',
-          shape: ModuleShape.rectangularStacked,
-          birdType: BirdType.chicken,
-          maxKgPerCompartment: 99999,
-          //unknown
-          numberOfCompartments: 4,
-          compartmentType: CompartmentType.drawer,
-        );
-}
-
-class AngliaAutoFlow5LayerChickenModule extends ModuleType {
-  AngliaAutoFlow5LayerChickenModule()
-      : super(
-          name: '$AngliaAutoFlow5LayerChickenModule',
-          shape: ModuleShape.rectangularStacked,
-          birdType: BirdType.chicken,
-          maxKgPerCompartment: 99999,
-          //unknown
-          numberOfCompartments: 5,
-          compartmentType: CompartmentType.drawer,
-        );
-}
+// class AngliaAutoFlow4LayerChickenModule extends AngliaAutoFlowModuleType
+//     implements ModuleCapacity {
+//   @override
+//   BirdType get birdType => BirdType.chicken;
+//
+//   @override
+//   double get maxKgPerCompartment => 99999; // unknown
+//
+//   @override
+//   int get numberOfCompartments => 4;
+// }
+//
+// class AngliaAutoFlow5LayerChickenModule extends ModuleCapacity {
+//   AngliaAutoFlow5LayerChickenModule()
+//       : super(
+//           name: '$AngliaAutoFlow5LayerChickenModule',
+//           shape: ModuleShape.rectangularStacked,
+//           birdType: BirdType.chicken,
+//           maxKgPerCompartment: 99999,
+//           //unknown
+//           numberOfCompartments: 5,
+//           compartmentType: CompartmentType.drawer,
+//         );
+// }
 
 class ModuleType {
-  final String name;
   final ModuleShape shape;
-  final BirdType birdType;
-  final int numberOfCompartments;
-  final double maxKgPerCompartment;
   final CompartmentType compartmentType;
+  final BirdType birdType;
+  final Duration conveyorTransportDuration;
+
+  /// [stackerInFeedDuration] is also used for [ModuleDeStacker]
+  final Duration stackerInFeedDuration;
+  final Duration casTransportDuration;
+  final int turnTableDegreesPerSecond;
 
   ModuleType({
-    required this.name,
     required this.shape,
-    required this.birdType,
-    required this.numberOfCompartments,
-    required this.maxKgPerCompartment,
     required this.compartmentType,
+    required this.birdType,
+    required this.conveyorTransportDuration, //= const Duration(seconds: 12),
+    required this.stackerInFeedDuration, //= const Duration(seconds: 14),
+    required this.casTransportDuration, //= const Duration(seconds: 14),
+    required this.turnTableDegreesPerSecond, //= 15,
   });
+
+  String get name => '$runtimeType';
+}
+
+class ModuleCapacity {
+  static const unknown = -1.0;
+
+  final int numberOfCompartments;
+  final int numberOfBirdsPerCompartment;
+  final double maxKgPerCompartment;
+
+  ModuleCapacity({
+    required this.numberOfCompartments,
+    required this.numberOfBirdsPerCompartment,
+    this.maxKgPerCompartment = unknown,
+  });
+
+  int get numberOfBirds => numberOfCompartments * numberOfBirdsPerCompartment;
+
+  @override
+  String toString() {
+    return "ModuleCapacity{numberOfCompartments: $numberOfCompartments, numberOfBirdsPerCompartment: $numberOfBirdsPerCompartment, ${maxKgPerCompartment == unknown ? '' : 'maxKgPerCompartment: $maxKgPerCompartment'}' }";
+  }
+}
+
+class ModuleGroupCapacity {
+  /// how often this Module Combination is loaded on to the system
+  /// 1=100% of the time, 1/4=25% of the time
+  final double occurrence;
+  final ModuleCapacity firstModule;
+  final ModuleCapacity? secondModule;
+
+  ModuleGroupCapacity({
+    this.occurrence = 1,
+    required this.firstModule,
+    this.secondModule,
+  });
+
+  int get numberOfBirds =>
+      firstModule.numberOfBirds +
+      (secondModule == null ? 0 : secondModule!.numberOfBirds);
 }
 
 enum ModuleShape { squareSideBySide, rectangularStacked }

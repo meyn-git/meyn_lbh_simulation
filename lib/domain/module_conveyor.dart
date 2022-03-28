@@ -15,15 +15,17 @@ class ModuleConveyor extends StateMachineCell {
     int? seqNr,
     required this.inFeedDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration inFeedDuration = const Duration(seconds: 12),
-    Duration outFeedDuration = const Duration(seconds: 12),
+    Duration? inFeedDuration,
+    Duration? outFeedDuration,
   }) : super(
           area: area,
           position: position,
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
-          inFeedDuration: inFeedDuration,
-          outFeedDuration: outFeedDuration,
+          inFeedDuration: inFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
+          outFeedDuration: outFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
         );
 
   Cell get receivingNeighbour =>

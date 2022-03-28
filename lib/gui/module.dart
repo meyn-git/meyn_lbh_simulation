@@ -125,17 +125,25 @@ class ModuleGroupPainter extends CustomPainter {
 
   void _paintRectangleModules(Canvas canvas, Size size) {
     if (moduleGroup.numberOfModules == 1) {
-      _paintSingleRectangularModule(canvas, size);
+      _paintSingleRectangularModule(
+        canvas: canvas,
+        size: size,
+        paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+      );
     } else {
-      _paintStackedRectangularModules(canvas, size);
+      _paintStackedRectangularModules(
+        canvas: canvas,
+        size: size,
+        paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+      );
     }
   }
 
-  void _paintSingleRectangularModule(
-    Canvas canvas,
-    Size size, {
+  void _paintSingleRectangularModule({
+    required Canvas canvas,
+    required Size size,
     Offset offset = Offset.zero,
-    paintTriangle = true,
+    required bool paintTriangle,
   }) {
     var x1 = size.width * 0.2 + offset.dx;
     var y1 = (size.width * (1 - compartmentSize)) / 2 + offset.dy;
@@ -144,7 +152,7 @@ class ModuleGroupPainter extends CustomPainter {
       size: size,
       factor: compartmentSize,
       offset: Offset(x1, y1),
-      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+      paintTriangle: paintTriangle,
     );
     var x2 = size.width * (0.2 + compartmentSize) + offset.dx;
     var y2 = y1;
@@ -153,26 +161,31 @@ class ModuleGroupPainter extends CustomPainter {
       size: size,
       factor: compartmentSize,
       offset: Offset(x2, y2),
-      paintTriangle: moduleGroup.type.compartmentType == CompartmentType.door,
+      paintTriangle: paintTriangle,
     );
   }
 
-  void _paintStackedRectangularModules(Canvas canvas, Size size) {
+  void _paintStackedRectangularModules({
+    required Canvas canvas,
+    required Size size,
+    required bool paintTriangle,
+  }) {
     var moduleOffset = 0.015;
     var x1 = -size.width * moduleOffset;
     var y1 = -size.width * moduleOffset;
     _paintSingleRectangularModule(
-      canvas,
-      size,
+      canvas: canvas,
+      size: size,
       offset: Offset(x1, y1),
       paintTriangle: false,
     );
     var x2 = size.width * moduleOffset;
     var y2 = size.width * moduleOffset;
     _paintSingleRectangularModule(
-      canvas,
-      size,
+      canvas: canvas,
+      size: size,
       offset: Offset(x2, y2),
+      paintTriangle: paintTriangle,
     );
   }
 }

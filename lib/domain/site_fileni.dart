@@ -42,12 +42,13 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               loadFactor: LoadFactor.average,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: StorkSquare4LayerChickenModule(),
-                  firstModuleNumberOfBirds: 4 * 26,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
-                  secondModuleNumberOfBirds: 5 * 26,
+              moduleType: StorkSquareModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 26),
+                  secondModule: ModuleCapacity(
+                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 26),
                 )
               ]),
           ProductDefinition(
@@ -56,12 +57,13 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               loadFactor: LoadFactor.average,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: StorkSquare4LayerChickenModule(),
-                  firstModuleNumberOfBirds: 4 * 33,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
-                  secondModuleNumberOfBirds: 5 * 33,
+              moduleType: StorkSquareModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 33),
+                  secondModule: ModuleCapacity(
+                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 33),
                 )
               ]),
           ProductDefinition(
@@ -70,12 +72,13 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               loadFactor: LoadFactor.average,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: StorkSquare4LayerChickenModule(),
-                  firstModuleNumberOfBirds: 4 * 52,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
-                  secondModuleNumberOfBirds: 5 * 52,
+              moduleType: StorkSquareModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 52),
+                  secondModule: ModuleCapacity(
+                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 52),
                 )
               ]),
           ProductDefinition(
@@ -84,12 +87,13 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               loadFactor: LoadFactor.average,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: StorkSquare4LayerChickenModule(),
-                  firstModuleNumberOfBirds: 4 * 54,
-                  secondModuleType: StorkSquare5LayerChickenModule(),
-                  secondModuleNumberOfBirds: 5 * 54,
+              moduleType: StorkSquareModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: ModuleCapacity(
+                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 54),
+                  secondModule: ModuleCapacity(
+                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 54),
                 )
               ]),
         ]);
@@ -100,12 +104,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
 }
 
 class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  static const conveyorTransportDuration =
-      Duration(milliseconds: 13400); // Based on measurements @ Dabe
-  static const turnTableDegreesPerSecond = 10; //Based on measurements @ Dabe
-  static const casTransportDuration =
-      Duration(milliseconds: 18700); // Based on measurements @ Dabe
-
   FileniLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Chicken Line',
@@ -132,8 +130,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
-      inFeedDuration: casTransportDuration,
-      outFeedDuration: casTransportDuration,
     ));
 
     put(ModuleCas(
@@ -142,8 +138,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 3,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
-      inFeedDuration: casTransportDuration,
-      outFeedDuration: casTransportDuration,
     ));
 
     put(ModuleCas(
@@ -152,8 +146,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 5,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
-      inFeedDuration: casTransportDuration,
-      outFeedDuration: casTransportDuration,
     ));
   }
 
@@ -169,8 +161,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       position: const Position(2, 2),
       seqNr: 3,
       inFeedDirection: CardinalDirection.east,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
     ));
 
     put(ModuleTilter(
@@ -181,8 +171,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       birdDirection: CardinalDirection.north,
       minBirdsOnDumpBeltBuffer:
           productDefinition.averageProductsPerModuleGroup.round(),
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
     ));
 
     /// mimicking a de-merging conveyor: 1 [ModuleGroup] => 2x [ModuleGroup] to tilter
@@ -200,8 +188,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       },
       supportsCloseDuration: Duration.zero,
       supportsOpenDuration: Duration.zero,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
     ));
 
     put(ModuleRotatingConveyor(
@@ -211,9 +197,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.west,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
-      degreesPerSecond: turnTableDegreesPerSecond,
     ));
 
     put(ModuleRotatingConveyor(
@@ -223,9 +206,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.west,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
-      degreesPerSecond: turnTableDegreesPerSecond,
     ));
 
     put(ModuleRotatingConveyor(
@@ -234,9 +214,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 1,
       oppositeInFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.north,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
-      degreesPerSecond: turnTableDegreesPerSecond,
     ));
   }
 
@@ -247,8 +224,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 2,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
-      inFeedDuration: casTransportDuration,
-      outFeedDuration: casTransportDuration,
     ));
 
     put(ModuleCas(
@@ -257,8 +232,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 4,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
-      inFeedDuration: casTransportDuration,
-      outFeedDuration: casTransportDuration,
     ));
 
     /// mimicking a merging conveyor: 2 x singe [ModuleGroup] from fork lift truck into 1
@@ -276,8 +249,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       },
       supportsCloseDuration: Duration.zero,
       supportsOpenDuration: Duration.zero,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
     ));
   }
 
@@ -287,8 +258,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       position: const Position(7, 4),
       seqNr: 1,
       inFeedDirection: CardinalDirection.south,
-      inFeedDuration: conveyorTransportDuration,
-      outFeedDuration: conveyorTransportDuration,
     ));
   }
 

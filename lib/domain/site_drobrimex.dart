@@ -19,7 +19,7 @@ class DobrimexSite extends Site {
   DobrimexSite()
       : super(
           meynLayoutNumber: 5674,
-          organizationName: 'Dobrimex',
+          organizationName: 'Drobrimex',
           city: 'Szczecin',
           country: 'Poland',
           productDefinitions: DobrimexProductDefinitions(),
@@ -34,17 +34,17 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Chicken',
               loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 15000,
-              moduleCombinations: [
-                ModuleCombination(
-                  firstModuleType: AngliaAutoFlow4LayerChickenModule(),
-                  firstModuleNumberOfBirds:
-                      AngliaAutoFlow4LayerChickenModule().numberOfCompartments *
-                          45,
-                  secondModuleType: AngliaAutoFlow5LayerChickenModule(),
-                  secondModuleNumberOfBirds:
-                      AngliaAutoFlow5LayerChickenModule().numberOfCompartments *
-                          45,
-                )
+              moduleType: AngliaAutoFlowModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                    firstModule: ModuleCapacity(
+                      numberOfCompartments: 4,
+                      numberOfBirdsPerCompartment: 45,
+                    ),
+                    secondModule: ModuleCapacity(
+                      numberOfCompartments: 5,
+                      numberOfBirdsPerCompartment: 45,
+                    ))
               ])
         ]);
 

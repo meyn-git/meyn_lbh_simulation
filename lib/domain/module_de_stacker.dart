@@ -21,23 +21,25 @@ class ModuleDeStacker extends StateMachineCell {
     required this.inFeedDirection,
     this.supportsCloseDuration = const Duration(seconds: 3),
     this.supportsOpenDuration = const Duration(seconds: 3),
-    Duration inFeedDuration = const Duration(seconds: 14),
-    Duration outFeedDuration = const Duration(seconds: 12),
+    Duration? inFeedDuration,
+    Duration? outFeedDuration,
     this.currentHeightInCentiMeter = 150,
     this.liftSpeedInCentiMeterPerSecond = 30,
     this.heightsInCentiMeter = const {
       LiftPosition.inFeed: 150,
       LiftPosition.outFeed: 150,
-      LiftPosition.supportTopModule: 150 + 150,
-      LiftPosition.pickUpTopModule: 150 + 150 + 20
+      LiftPosition.supportTopModule: 150 + 150 + 30,
+      LiftPosition.pickUpTopModule: 150 + 30
     },
   }) : super(
           area: area,
           position: position,
           seqNr: seqNr,
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
-          inFeedDuration: inFeedDuration,
-          outFeedDuration: outFeedDuration,
+          inFeedDuration: inFeedDuration ??
+              area.productDefinition.moduleType.stackerInFeedDuration,
+          outFeedDuration: outFeedDuration ??
+              area.productDefinition.moduleType.conveyorTransportDuration,
         );
 
   Cell get receivingNeighbour =>
