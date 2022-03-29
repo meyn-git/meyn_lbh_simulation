@@ -87,7 +87,6 @@ class _PlayerPageState extends State<PlayerPage> {
               setState(() {
                 var authorizationService=GetIt.instance<AuthorizationService>();
                 authorizationService.logout();
-                player.pause();
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

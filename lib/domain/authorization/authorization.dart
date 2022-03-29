@@ -26,6 +26,7 @@ class AuthorizationService {
       _loggedInUser=foundUser;
       var player=GetIt.instance<Player>();
       player.scenario=Scenario.first();
+      player.play();
     }
   }
 
@@ -37,6 +38,10 @@ class AuthorizationService {
 
   void logout() {
     _loggedInUser=null;
+    var player=GetIt.instance<Player>();
+    player.pause();
+    player.scenario=null;
+
   }
 
 }
