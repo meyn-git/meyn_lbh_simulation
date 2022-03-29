@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
@@ -32,21 +33,20 @@ class _PlayerPageState extends State<PlayerPage> {
           if (!player.playing) buildPlayButton(),
           if (player.playing) buildPauseButton(),
           buildSpeedButton(),
-          buildInfoButton(),
-          buildLogoutButton(),
-          const SizedBox(
-            width: 40,
-          ),
+          if (kDebugMode) const SizedBox(width: 40),
         ],
       ),
+      drawer: const Menu(),
       body: areaWidget,
     );
   }
 
-  String get title =>
-      player.scenario == null
-          ? 'No scenario!'
-          : player.scenario!.site.toString();
+
+
+
+  String get title => player.scenario == null
+      ? 'No scenario!'
+      : player.scenario!.site.toString();
 
   IconButton buildPauseButton() {
     return IconButton(
@@ -60,39 +60,6 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 
-  IconButton buildInfoButton() =>
-      IconButton(
-          icon: const Icon(Icons.info_outline),
-          tooltip: 'Info',
-          onPressed: () {
-            setState(() {
-              showAboutDialog(
-                  context: context,
-                  applicationLegalese: 'The 3-Clause BSD License:\n\n'
-                      'Copyright 2021 Meyn Foodprocessing Technology\n\n'
-                      'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
-                      '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
-                      '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'
-                      '3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\n'
-                      'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.');
-            });
-          });
-
-  IconButton buildLogoutButton()
-    =>
-        IconButton(
-            icon: const Icon(Icons.logout_outlined),
-            tooltip: 'Log out',
-            onPressed: () {
-              setState(() {
-                var authorizationService=GetIt.instance<AuthorizationService>();
-                authorizationService.logout();
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const LoginPage()));
-              });
-            });
 
 
   IconButton buildPlayButton() {
@@ -140,8 +107,6 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   Player get player => GetIt.instance<Player>();
-
-
 }
 
 class ProjectSelectionDialog extends StatelessWidget {
@@ -150,8 +115,7 @@ class ProjectSelectionDialog extends StatelessWidget {
   const ProjectSelectionDialog(this.player, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) =>
-      AlertDialog(
+  Widget build(BuildContext context) => AlertDialog(
         title: const Text('Select project'),
         content: SizedBox(
           height: 300.0, // Change as per your requirement
@@ -166,9 +130,7 @@ class ProjectSelectionDialog extends StatelessWidget {
 
   List<Widget> _createListItems(Player player) {
     List<Widget> listItems = [];
-    var sites = GetIt
-        .instance<AuthorizationService>()
-        .sitesThatCanBeViewed;
+    var sites = GetIt.instance<AuthorizationService>().sitesThatCanBeViewed;
     for (var site in sites) {
       listItems.add(SiteTile(site));
       for (var scenario in site.scenarios) {
@@ -191,8 +153,7 @@ class ScenarioTile extends StatefulWidget {
 
 class _ScenarioTileState extends State<ScenarioTile> {
   @override
-  Widget build(BuildContext context) =>
-      ListTile(
+  Widget build(BuildContext context) => ListTile(
         title: Text(
           widget.scenario.area.toString(),
         ),
@@ -215,8 +176,7 @@ class SiteTile extends StatelessWidget {
   const SiteTile(this.site, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) =>
-      ListTile(
+  Widget build(BuildContext context) => ListTile(
         title: Align(
           child: Text(
             site.toString(),
@@ -284,5 +244,67 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
         }).toList(),
       ),
     );
+  }
+}
+
+class Menu extends StatefulWidget {
+  const Menu({Key? key}) : super(key: key);
+
+  @override
+  State<Menu> createState() => _MenuState();
+}
+
+class _MenuState extends State<Menu> {
+  @override
+  Widget build(BuildContext context) => Drawer(
+    child: ListView(
+      // Important: Remove any padding from the ListView.
+      padding: EdgeInsets.zero,
+      children: [
+        AppBar(
+          title: const Text('Menu'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.logout_outlined),
+          title: const Text('Logout'),
+          onTap: () {
+            setState(() {
+              _hideMenu(context);
+              _logout(context);
+            });
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: const Text('About'),
+          onTap: () {
+            setState(() {
+              _hideMenu(context);
+              _showAboutDialog();
+            });
+          },
+        ),
+      ],
+    ),
+  );
+
+  void _hideMenu(BuildContext context) {
+    Navigator.pop(context);
+  }
+  void _showAboutDialog() => showAboutDialog(
+        context: context,
+        applicationLegalese: 'The 3-Clause BSD License:\n\n'
+            'Copyright 2021 Meyn Foodprocessing Technology\n\n'
+            'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
+            '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
+            '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'
+            '3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\n'
+            'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.');
+
+  void _logout(BuildContext context) {
+    var authorizationService = GetIt.instance<AuthorizationService>();
+    authorizationService.logout();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => const LoginPage()));
   }
 }
