@@ -44,28 +44,32 @@ class _AreaWidgetState extends State<AreaWidget> {
   _AreaWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        player.scenario.area.onUpdateToNextPointInTime(player.jump);
+        if (player.scenario!=null) {
+          player.scenario!.area.onUpdateToNextPointInTime(player.jump);
+        }
       });
     });
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        color: Colors.grey.shade200,
-        child: Column(
-          children: [
-            FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Text(player.scenario.area.toString(),
-                    style: const TextStyle(fontSize: 25))),
-            Expanded(
-              child: CustomMultiChildLayout(
-                  delegate: AreaWidgetDelegate(player.scenario.area),
-                  children: createChildren(player.scenario.area)),
-            )
-          ],
-        ),
-      );
+  Widget build(BuildContext context) => player.scenario == null
+      ? const Text("No scenario's")
+      : Container(
+          color: Colors.grey.shade200,
+          child: Column(
+            children: [
+              FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text(player.scenario!.area.toString(),
+                      style: const TextStyle(fontSize: 25))),
+              Expanded(
+                child: CustomMultiChildLayout(
+                    delegate: AreaWidgetDelegate(player.scenario!.area),
+                    children: createChildren(player.scenario!.area)),
+              )
+            ],
+          ),
+        );
 
   static List<Widget> createChildren(LiveBirdHandlingArea area) {
     List<Widget> children = [];

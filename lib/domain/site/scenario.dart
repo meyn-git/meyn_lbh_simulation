@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
+import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 
 import 'site.dart';
 
@@ -20,7 +21,7 @@ class Scenario {
           area: firstSite.productDefinitions.first.areas.first,
         );
 
-  static Site get firstSite => GetIt.instance<Sites>().first;
+  static Site get firstSite => GetIt.instance<AuthorizationService>().sitesThatCanBeViewed.first;
 
   Scenario withNewArea() {
     var newAreas = productDefinition.areaFactory(productDefinition);

@@ -40,6 +40,10 @@ abstract class Site {
     return scenarios;
   }
 
+  /// converts the [meynLayoutNumber] to a 4 digit string
+  /// (with optional leading 0's)
+  get meynLayoutCode => meynLayoutNumber.toString().padLeft(4,'0');
+
   @override
   String toString() {
     return '$meynLayoutNumber-$organizationName-$city-$country';

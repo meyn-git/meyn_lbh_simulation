@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
+import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
 
@@ -23,7 +24,7 @@ class _PlayerPageState extends State<PlayerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(player.scenario.site.toString()),
+        title: Text(title),
         actions: [
           buildOpenButton(),
           buildRestartButton(),
@@ -39,6 +40,10 @@ class _PlayerPageState extends State<PlayerPage> {
       body: areaWidget,
     );
   }
+
+  String get title => player.scenario == null
+      ? 'No scenario!'
+      : player.scenario!.site.toString();
 
   IconButton buildPauseButton() {
     return IconButton(
@@ -139,7 +144,7 @@ class ProjectSelectionDialog extends StatelessWidget {
 
   List<Widget> _createListItems(Player player) {
     List<Widget> listItems = [];
-    var sites = GetIt.instance<Sites>();
+    var sites = GetIt.instance<AuthorizationService>().sitesThatCanBeViewed;
     for (var site in sites) {
       listItems.add(SiteTile(site));
       for (var scenario in site.scenarios) {
