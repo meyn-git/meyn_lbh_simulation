@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meyn_lbh_simulation/domain/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 
 main() {
   group('class ShackleLine', () {

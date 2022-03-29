@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:meyn_lbh_simulation/domain/player.dart';
-import 'package:meyn_lbh_simulation/domain/site.dart';
-import 'package:meyn_lbh_simulation/gui/login.dart';
+import 'package:meyn_lbh_simulation/domain/area/player.dart';
+import 'package:meyn_lbh_simulation/gui/login/login.dart';
 
-import 'gui/player.dart';
+import 'domain/site/site.dart';
+import 'gui/area/player.dart';
 
 void main() {
   GetIt.instance.registerSingleton<Sites>(Sites());
@@ -23,9 +23,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: title, theme: _createThemeData(), home: const LoginScaffold()
-        //const PlayerWidget(),
-        );
+      title: title, theme: _createThemeData(), home: //const LoginPage(),
+      const PlayerPage(),
+    );
   }
 
   ThemeData _createThemeData() {
