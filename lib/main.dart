@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/player.dart';
 import 'package:meyn_lbh_simulation/domain/site.dart';
+import 'package:meyn_lbh_simulation/gui/login.dart';
 
 import 'gui/player.dart';
 
@@ -22,16 +23,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: title,
-      theme: _createThemeData(),
-      home: const PlayerWidget(),
-    );
+        title: title, theme: _createThemeData(), home: const LoginScaffold()
+        //const PlayerWidget(),
+        );
   }
 
   ThemeData _createThemeData() {
     return ThemeData(
       primarySwatch: _createMeynMaterialColor(),
-    );
+      //colorScheme: ColorScheme.fromSwatch(backgroundColor: meynColor )
+    ); //.copyWith(textButtonTheme: TextButtonThemeData(style: ButtonStyle(foregroundColor: MaterialStateProperty.resolveWith((states) => (state)=> meynColor))) );
   }
 
   MaterialColor _createMeynMaterialColor() {

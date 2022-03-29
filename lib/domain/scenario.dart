@@ -28,6 +28,4 @@ class Scenario {
     return Scenario(
         site: site, productDefinition: productDefinition, area: newArea);
   }
-
-
 }
