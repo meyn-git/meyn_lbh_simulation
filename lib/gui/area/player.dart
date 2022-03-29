@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
@@ -28,7 +27,6 @@ class _PlayerPageState extends State<PlayerPage> {
       appBar: AppBar(
         title: Text(title),
         actions: [
-          buildOpenButton(),
           buildRestartButton(),
           if (!player.playing) buildPlayButton(),
           if (player.playing) buildPauseButton(),
@@ -40,9 +38,6 @@ class _PlayerPageState extends State<PlayerPage> {
       body: areaWidget,
     );
   }
-
-
-
 
   String get title => player.scenario == null
       ? 'No scenario!'
@@ -60,8 +55,6 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 
-
-
   IconButton buildPlayButton() {
     return IconButton(
       icon: const Icon(Icons.play_arrow_rounded),
@@ -69,22 +62,6 @@ class _PlayerPageState extends State<PlayerPage> {
       onPressed: () {
         setState(() {
           player.play();
-        });
-      },
-    );
-  }
-
-  IconButton buildOpenButton() {
-    return IconButton(
-      icon: const Icon(Icons.folder_open_rounded),
-      tooltip: 'Open other $LiveBirdHandlingArea',
-      onPressed: () {
-        setState(() {
-          showDialog(
-              context: context,
-              builder: (BuildContext b) {
-                return ProjectSelectionDialog(player);
-              });
         });
       },
     );
@@ -109,38 +86,6 @@ class _PlayerPageState extends State<PlayerPage> {
   Player get player => GetIt.instance<Player>();
 }
 
-class ProjectSelectionDialog extends StatelessWidget {
-  final Player player;
-
-  const ProjectSelectionDialog(this.player, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Select project'),
-        content: SizedBox(
-          height: 300.0, // Change as per your requirement
-          width: 300.0, // Change as per your requirement
-          child: ListView(
-            // shrinkWrap: true,
-            // physics: AlwaysScrollableScrollPhysics(),
-            children: _createListItems(player),
-          ),
-        ),
-      );
-
-  List<Widget> _createListItems(Player player) {
-    List<Widget> listItems = [];
-    var sites = GetIt.instance<AuthorizationService>().sitesThatCanBeViewed;
-    for (var site in sites) {
-      listItems.add(SiteTile(site));
-      for (var scenario in site.scenarios) {
-        listItems.add(ScenarioTile(scenario, player));
-      }
-    }
-    return listItems;
-  }
-}
-
 class ScenarioTile extends StatefulWidget {
   final Scenario scenario;
   final Player player;
@@ -154,9 +99,7 @@ class ScenarioTile extends StatefulWidget {
 class _ScenarioTileState extends State<ScenarioTile> {
   @override
   Widget build(BuildContext context) => ListTile(
-        title: Text(
-          widget.scenario.area.toString(),
-        ),
+        title: Text(_createText()),
         onTap: () {
           setState(() {
             _closeDialog(context);
@@ -168,6 +111,10 @@ class _ScenarioTileState extends State<ScenarioTile> {
   void _closeDialog(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
   }
+
+  String _createText() => '${widget.scenario.area.lineName}\n'
+      '${widget.scenario.area.productDefinition.birdType}\n'
+      '${widget.scenario.area.productDefinition.lineSpeedInShacklesPerHour}b/h ${widget.scenario.area.productDefinition.loadFactor}';
 }
 
 class SiteTile extends StatelessWidget {
@@ -177,14 +124,25 @@ class SiteTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-        title: Align(
-          child: Text(
-            site.toString(),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          alignment: const Alignment(-1.6, 0),
+        title: Text(
+          _createText(),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.mail_outline),
+          tooltip: 'Send invitation e-mail',
+          onPressed: () {
+           _sendEmail();
+          },
         ),
       );
+
+  String _createText() => '${site.meynLayoutCode}-${site.organizationName}\n'
+      '${site.city}-${site.country}';
+
+  void _sendEmail() {
+    print('Send email using url and url launcher');
+  }
 }
 
 class SpeedDropDownButton extends StatefulWidget {
@@ -255,55 +213,80 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
+  Player get _player => GetIt.instance<Player>();
+
+  final _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) => Drawer(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        AppBar(
-          title: const Text('Menu'),
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Menu'),
+          ),
+          body: Scrollbar(
+            isAlwaysShown: true,
+            controller: _scrollController,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              controller: _scrollController,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.logout_outlined),
+                  title: const Text('Logout'),
+                  onTap: () {
+                    setState(() {
+                      _hideMenu(context);
+                      _logout(context);
+                    });
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('About'),
+                  onTap: () {
+                    setState(() {
+                      _hideMenu(context);
+                      _showAboutDialog();
+                    });
+                  },
+                ),
+                ..._createListItems(_player),
+              ],
+            ),
+          ),
         ),
-        ListTile(
-          leading: const Icon(Icons.logout_outlined),
-          title: const Text('Logout'),
-          onTap: () {
-            setState(() {
-              _hideMenu(context);
-              _logout(context);
-            });
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.info_outline),
-          title: const Text('About'),
-          onTap: () {
-            setState(() {
-              _hideMenu(context);
-              _showAboutDialog();
-            });
-          },
-        ),
-      ],
-    ),
-  );
+      );
 
   void _hideMenu(BuildContext context) {
     Navigator.pop(context);
   }
+
   void _showAboutDialog() => showAboutDialog(
-        context: context,
-        applicationLegalese: 'The 3-Clause BSD License:\n\n'
-            'Copyright 2021 Meyn Foodprocessing Technology\n\n'
-            'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
-            '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
-            '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'
-            '3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\n'
-            'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.');
+      context: context,
+      applicationLegalese: 'The 3-Clause BSD License:\n\n'
+          'Copyright 2021 Meyn Foodprocessing Technology\n\n'
+          'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
+          '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
+          '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'
+          '3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\n'
+          'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.');
 
   void _logout(BuildContext context) {
     var authorizationService = GetIt.instance<AuthorizationService>();
     authorizationService.logout();
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (_) => const LoginPage()));
+  }
+
+  List<Widget> _createListItems(Player player) {
+    List<Widget> listItems = [];
+    var sites = GetIt.instance<AuthorizationService>().sitesThatCanBeViewed;
+    for (var site in sites) {
+      listItems.add(SiteTile(site));
+      for (var scenario in site.scenarios) {
+        listItems.add(ScenarioTile(scenario, player));
+      }
+    }
+    return listItems;
   }
 }
