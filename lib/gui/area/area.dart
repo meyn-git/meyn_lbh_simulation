@@ -44,7 +44,7 @@ class _AreaWidgetState extends State<AreaWidget> {
   _AreaWidgetState() {
     player.timerListener((Timer t) {
       setState(() {
-        if (player.scenario!=null) {
+        if (player.scenario != null) {
           player.scenario!.area.onUpdateToNextPointInTime(player.jump);
         }
       });

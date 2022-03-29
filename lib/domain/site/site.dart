@@ -4,9 +4,7 @@ import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
 import 'site_drobrimex.dart';
 import 'site_fileni.dart';
-import 'site_fileni_extended.dart';
 import 'site_indrol.dart';
-
 
 /// A ISO88/ISO99 A [Site] is a production location/plant of one of out customers
 
@@ -42,7 +40,7 @@ abstract class Site {
 
   /// converts the [meynLayoutNumber] to a 4 digit string
   /// (with optional leading 0's)
-  get meynLayoutCode => meynLayoutNumber.toString().padLeft(4,'0');
+  get meynLayoutCode => meynLayoutNumber.toString().padLeft(4, '0');
 
   @override
   String toString() {
@@ -56,6 +54,5 @@ class Sites extends DelegatingList<Site> {
           DobrimexSite(),
           IndrolSite(),
           FileniSite(),
-          FileniExtendedSite(),
         ]);
 }

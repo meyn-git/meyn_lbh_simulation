@@ -1,6 +1,5 @@
 import 'dart:math';
 
-
 import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
 
 import 'life_bird_handling_area.dart';

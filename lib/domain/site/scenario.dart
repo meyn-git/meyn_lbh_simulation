@@ -21,7 +21,8 @@ class Scenario {
           area: firstSite.productDefinitions.first.areas.first,
         );
 
-  static Site get firstSite => GetIt.instance<AuthorizationService>().sitesThatCanBeViewed.first;
+  static Site get firstSite =>
+      GetIt.instance<AuthorizationService>().sitesThatCanBeViewed.first;
 
   Scenario withNewArea() {
     var newAreas = productDefinition.areaFactory(productDefinition);

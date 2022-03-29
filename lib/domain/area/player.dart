@@ -8,7 +8,7 @@ class Player {
   Duration jump = _calculateJump(1);
   void Function(Timer t)? listener;
   Timer? timer;
-  Scenario? scenario ;
+  Scenario? scenario;
 
   Player() {
     updateTimer();
@@ -64,7 +64,7 @@ class Player {
           (speed / maxSpeed * maxJumpResolution.inMicroseconds).round());
 
   void restart() {
-    if (scenario!=null) {
+    if (scenario != null) {
       scenario = scenario!.withNewArea();
     }
   }
