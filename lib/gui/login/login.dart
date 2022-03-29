@@ -16,12 +16,12 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   String loginException='';
 
-  // @override
-  // void dispose() {
-  //   nameController.dispose();
-  //   passwordController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    nameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
                       controller: nameController,
+                        autofocus: true,
                         textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
