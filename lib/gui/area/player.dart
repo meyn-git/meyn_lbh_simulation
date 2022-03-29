@@ -258,7 +258,6 @@ class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) => Drawer(
     child: ListView(
-      // Important: Remove any padding from the ListView.
       padding: EdgeInsets.zero,
       children: [
         AppBar(
