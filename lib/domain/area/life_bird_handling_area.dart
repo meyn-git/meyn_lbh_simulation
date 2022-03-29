@@ -439,7 +439,7 @@ class ProductDefinition {
 
   @override
   String toString() {
-    return '$birdType-$loadFactor-${lineSpeedInShacklesPerHour}b/h';
+    return '$birdType-${lineSpeedInShacklesPerHour}b/h-$loadFactor';
   }
 }
 
