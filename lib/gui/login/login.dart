@@ -14,13 +14,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
+  String loginException='';
 
-  @override
-  void dispose() {
-    nameController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   nameController.dispose();
+  //   passwordController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,10 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  if (loginException.isNotEmpty) Text(loginException, style: TextStyle(color: Theme.of(context).errorColor),),
+                  if (loginException.isNotEmpty) const SizedBox(
+                    height: 20,
+                  ),
                   Padding(
                     //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -69,19 +74,22 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      var authorizationService =
-                          GetIt.instance<AuthorizationService>();
-                      try {
-                        authorizationService.login(
-                            name: nameController.text,
-                            passWord: passwordController.text);
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const PlayerPage()));
-                      } on LoginException catch (e) {
-                        print(e.message);
-                      }
+                      setState(() {
+                        var authorizationService =
+                        GetIt.instance<AuthorizationService>();
+                        try {
+                          authorizationService.login(
+                              name: nameController.text,
+                              passWord: passwordController.text);
+                          loginException='';
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const PlayerPage()));
+                        } on LoginException catch (e) {
+                          loginException=e.message;
+                        }
+                      });
                     },
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
