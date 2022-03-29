@@ -14,7 +14,7 @@ void main() {
   runApp(const MyApp());
 }
 
-const title = 'Meyn Live Bird Handling Simulator';
+const applicationTitle = 'Meyn Live Bird Handling Simulator';
 const meynColor = Color.fromRGBO(0, 118, 90, 1);
 
 class MyApp extends StatelessWidget {
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: title,
+      title: applicationTitle,
       theme: _createThemeData(),
       home: const LoginPage(),
     );

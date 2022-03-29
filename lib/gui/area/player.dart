@@ -5,6 +5,8 @@ import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
 import 'package:meyn_lbh_simulation/gui/login/login.dart';
+import 'package:meyn_lbh_simulation/main.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/area/player.dart';
 import 'area.dart';
@@ -99,7 +101,10 @@ class ScenarioTile extends StatefulWidget {
 class _ScenarioTileState extends State<ScenarioTile> {
   @override
   Widget build(BuildContext context) => ListTile(
-        title: Text(_createText()),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(_createText()),
+        ),
         onTap: () {
           setState(() {
             _closeDialog(context);
@@ -122,27 +127,46 @@ class SiteTile extends StatelessWidget {
 
   const SiteTile(this.site, {Key? key}) : super(key: key);
 
+  String get _emailSubject => 'Invitation to the $applicationTitle';
+
+  String get _emailBody => 'Dear Madam or Sir,\n\n'
+      'We would like to invite you to look at the: $applicationTitle.\n\n'
+      'Please:\n'
+      '- Open it on the following link: https://nils-ten-hoeve.github.io/meyn_lbh_simulation_web/\n'
+      '- Enter the following name: ${site.organizationName.trim().toLowerCase()}\n'
+      '- Enter the following password: ${site.meynLayoutCode}\n\n'
+      'Kind regards,\n\n'
+      'The Meyn life bird handling team';
+
   @override
   Widget build(BuildContext context) => ListTile(
         title: Text(
           _createText(),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.mail_outline),
-          tooltip: 'Send invitation e-mail',
-          onPressed: () {
-           _sendEmail();
-          },
-        ),
+        trailing: _isAdmin
+            ? IconButton(
+                icon: const Icon(Icons.mail_outline),
+                tooltip: 'Send invitation e-mail',
+                onPressed: () {
+                  _sendEmail();
+                },
+              )
+            : null,
       );
 
   String _createText() => '${site.meynLayoutCode}-${site.organizationName}\n'
       '${site.city}-${site.country}';
 
-  void _sendEmail() {
-    print('Send email using url and url launcher');
+  Future<void> _sendEmail() async {
+    String emailUrl = _createEmailUrl();
+    await launch(emailUrl);
   }
+
+  bool get _isAdmin => GetIt.instance<AuthorizationService>().isAdmin;
+
+  String _createEmailUrl() =>
+      Uri.encodeFull('mailto:?subject=$_emailSubject&body=$_emailBody');
 }
 
 class SpeedDropDownButton extends StatefulWidget {
