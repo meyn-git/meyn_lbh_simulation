@@ -47,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
                       controller: nameController,
+                        textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'Name',
@@ -62,6 +63,10 @@ class _LoginPageState extends State<LoginPage> {
                     //padding: EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
                       controller: passwordController,
+                      textInputAction: TextInputAction.go,
+                      onSubmitted:(_)  {
+                        _login(context);
+                      },
                       obscureText: true,
                       decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -74,22 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        var authorizationService =
-                        GetIt.instance<AuthorizationService>();
-                        try {
-                          authorizationService.login(
-                              name: nameController.text,
-                              passWord: passwordController.text);
-                          loginException='';
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const PlayerPage()));
-                        } on LoginException catch (e) {
-                          loginException=e.message;
-                        }
-                      });
+                      _login(context);
                     },
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
@@ -104,5 +94,24 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ));
+  }
+
+  void _login(BuildContext context) {
+     setState(() {
+      var authorizationService =
+      GetIt.instance<AuthorizationService>();
+      try {
+        authorizationService.login(
+            name: nameController.text,
+            passWord: passwordController.text);
+        loginException='';
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const PlayerPage()));
+      } on LoginException catch (e) {
+        loginException=e.message;
+      }
+    });
   }
 }
