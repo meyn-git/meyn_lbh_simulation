@@ -5,7 +5,6 @@ import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/gui/login/login.dart';
 
 import 'domain/site/site.dart';
-import 'gui/area/player.dart';
 
 void main() {
   GetIt.instance.registerSingleton<Sites>(Sites());
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
       title: title,
       theme: _createThemeData(),
       home: const LoginPage(),
-      // const PlayerPage(),
     );
   }
 

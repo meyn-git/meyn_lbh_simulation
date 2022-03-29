@@ -14,13 +14,13 @@ class AuthorizationService {
     var foundUser=_users.firstWhereOrNull((user) => _nameMatches(user, name) && _passwordMatches(user, passWord));
     if (foundUser==null) {
       if (!_users.any((user) => _nameMatches(user, name))) {
-        throw LoginException('Invalid user name.');
+        throw LoginException('Login failed: Invalid user name.');
       }
       if (!_users.any((user) => _passwordMatches(user, passWord))) {
-        throw LoginException('Invalid password.');
+        throw LoginException('Login failed: Invalid password.');
       }
       if (sitesThatCanBeViewed.isNotEmpty) {
-        throw LoginException('You are not allowed to view anything.');
+        throw LoginException('Login failed: You are not allowed to view anything.');
       }
     } else {
       _loggedInUser=foundUser;
@@ -34,6 +34,10 @@ class AuthorizationService {
   bool _nameMatches(User user, String name) => user.name.toLowerCase()==name.toLowerCase();
 
   List<Site> get sitesThatCanBeViewed => _loggedInUser==null?[]:_loggedInUser!.sitesThatCanBeViewed;
+
+  void logout() {
+    _loggedInUser=null;
+  }
 
 }
 
