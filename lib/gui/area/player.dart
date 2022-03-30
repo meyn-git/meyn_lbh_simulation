@@ -33,7 +33,7 @@ class _PlayerPageState extends State<PlayerPage> {
           if (!player.playing) buildPlayButton(),
           if (player.playing) buildPauseButton(),
           buildSpeedButton(),
-          if (kDebugMode) const SizedBox(width: 40),
+          const SizedBox(width: 40),
         ],
       ),
       drawer: const Menu(),
@@ -132,7 +132,7 @@ class SiteTile extends StatelessWidget {
   String get _emailBody => 'Dear Madam or Sir,\n\n'
       'We would like to invite you to look at the: $applicationTitle.\n\n'
       'Please:\n'
-      '- Open it on the following link: https://nils-ten-hoeve.github.io/meyn_lbh_simulation_web/\n'
+      '- Open it on the following link: https://meyn-git.github.io/meyn_lbh_simulation_web/\n'
       '- Enter the following name: ${site.organizationName.trim().toLowerCase()}\n'
       '- Enter the following password: ${site.meynLayoutCode}\n\n'
       'Kind regards,\n\n'

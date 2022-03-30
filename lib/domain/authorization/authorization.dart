@@ -77,8 +77,9 @@ class UserFactory {
   List<User> createAll() {
     List<User> _users = [];
 
-    _users.add(_createAdminUser(name: 'nilsth', password: 'Maxiload'));
     _users.add(_createAdminUser(name: 'massimoz', password: 'Maxiload'));
+    _users.add(_createAdminUser(name: 'nilsth', password: 'Maxiload'));
+    _users.add(_createAdminUser(name: 'wietsel', password: 'Maxiload'));
     _users.addAll(_createSiteUsers());
     return _users;
   }
