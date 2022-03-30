@@ -18,10 +18,6 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
-  var areaWidget = createAreaWidget();
-
-  static AreaWidget createAreaWidget() => AreaWidget(key: UniqueKey());
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +32,7 @@ class _PlayerPageState extends State<PlayerPage> {
         ],
       ),
       drawer: const Menu(),
-      body: areaWidget,
+      body: PlayerPanel(),
     );
   }
 
@@ -85,6 +81,62 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   Player get player => GetIt.instance<Player>();
+}
+
+class PlayerPanel extends StatelessWidget {
+  final player = GetIt.instance<Player>();
+  final areaPanel = AreaPanel(key: UniqueKey());
+
+  PlayerPanel({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
+        if (_tooSmallForExtraPanels(constraints)) {
+          return areaPanel;
+        } else {
+          if (_mostSpaceHorizontally(constraints)) {
+            return Row(
+              children: [
+                Expanded(child: areaPanel),
+                Container(
+                    color: Colors.white,
+                    width: constraints.maxWidth * 0.25,
+                    child: const ExtraPanel())
+              ],
+            );
+          } else {
+            return Column(
+              children: [
+                Expanded(child: areaPanel),
+                Container(
+                    color: Colors.white,
+                    height: constraints.maxHeight * 0.25,
+                    child: const ExtraPanel())
+              ],
+            );
+          }
+        }
+      });
+
+  bool _mostSpaceHorizontally(BoxConstraints constraints) {
+    var cellRange = player.scenario!.area.cellRange;
+    return (constraints.maxWidth) > (constraints.maxHeight);
+  }
+
+  static const _minimumSizeForExtraPanels = 600;
+
+  bool _tooSmallForExtraPanels(BoxConstraints constraints) =>
+      constraints.maxWidth < _minimumSizeForExtraPanels ||
+      constraints.maxHeight < _minimumSizeForExtraPanels;
+}
+
+class ExtraPanel extends StatelessWidget {
+  const ExtraPanel({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) =>
+      const Text('Extra panel, e.g.: Property View, Property Editor, Logger');
 }
 
 class ScenarioTile extends StatefulWidget {

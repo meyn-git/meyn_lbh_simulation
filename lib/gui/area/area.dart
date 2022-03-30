@@ -31,17 +31,17 @@ import 'module_conveyor.dart';
 import 'module_rotating_conveyor.dart';
 import 'module_stacker.dart';
 
-class AreaWidget extends StatefulWidget {
-  const AreaWidget({required Key key}) : super(key: key);
+class AreaPanel extends StatefulWidget {
+  const AreaPanel({required Key key}) : super(key: key);
 
   @override
-  _AreaWidgetState createState() => _AreaWidgetState();
+  _AreaPanelState createState() => _AreaPanelState();
 }
 
-class _AreaWidgetState extends State<AreaWidget> {
+class _AreaPanelState extends State<AreaPanel> {
   Player get player => GetIt.instance<Player>();
 
-  _AreaWidgetState() {
+  _AreaPanelState() {
     player.timerListener((Timer t) {
       setState(() {
         if (player.scenario != null) {
@@ -104,12 +104,12 @@ class EmptyCellWidget extends StatelessWidget {
 
 /// Sizes (lets the children do their layout in given [BoxConstraints])
 /// and positions all the child widgets ([Cell]s and [ModuleGroup]s)
-/// within the given [AreaWidget] size
+/// within the given [AreaPanel] size
 class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   final LiveBirdHandlingArea area;
-  final CellRange cellRange;
+  final CellRange cashedCellRange;
 
-  AreaWidgetDelegate(this.area) : cellRange = CellRange(area.cells);
+  AreaWidgetDelegate(this.area) : cashedCellRange = area.cellRange;
 
   @override
   void performLayout(Size size) {
@@ -139,15 +139,15 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 
   Offset _offsetForAllChildren(Size size, Size childSize) {
     var offSet = Offset(
-      (size.width - (childSize.width * cellRange.width)) / 2,
-      (size.height - (childSize.height * cellRange.height)) / 2,
+      (size.width - (childSize.width * cashedCellRange.width)) / 2,
+      (size.height - (childSize.height * cashedCellRange.height)) / 2,
     );
     return offSet;
   }
 
   Size _childSize(Size area) {
-    var childWidth = area.width / cellRange.width;
-    var childHeight = area.height / cellRange.height;
+    var childWidth = area.width / cashedCellRange.width;
+    var childHeight = area.height / cashedCellRange.height;
     var childSide = min(childWidth, childHeight);
     return Size(childSide, childSide);
   }
@@ -171,8 +171,8 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 
   Offset _createCellOffset(Position position, Size childSize, Offset offSet) {
     return Offset(
-      (position.x - cellRange.minX) * childSize.width + offSet.dx,
-      (position.y - cellRange.minY) * childSize.height + offSet.dy,
+      (position.x - cashedCellRange.minX) * childSize.width + offSet.dx,
+      (position.y - cashedCellRange.minY) * childSize.height + offSet.dy,
     );
   }
 

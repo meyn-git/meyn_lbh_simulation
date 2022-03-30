@@ -21,6 +21,8 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
 
   String get name => '$lineName-$productDefinition';
 
+  CellRange get cellRange => CellRange(cells);
+
   Cell neighbouringCell(ActiveCell cell, CardinalDirection direction) {
     Position relativePosition = cell.position.neighbour(direction);
     return cellForPosition(relativePosition);

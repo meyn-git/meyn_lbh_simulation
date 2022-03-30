@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
+import 'package:meyn_lbh_simulation/gui/area/player.dart';
 import 'package:meyn_lbh_simulation/gui/login/login.dart';
 
 import 'domain/site/site.dart';
@@ -24,10 +26,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      var authorizationService = GetIt.instance<AuthorizationService>();
+      authorizationService.login(name: 'nilsth', passWord: 'Maxiload');
+    }
     return MaterialApp(
       title: applicationTitle,
       theme: _createThemeData(),
-      home: const LoginPage(),
+      home: kDebugMode ? const PlayerPage() : const LoginPage(),
     );
   }
 
