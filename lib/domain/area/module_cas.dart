@@ -39,7 +39,7 @@ class ModuleCas extends StateMachineCell {
         ) {
     _verifyDirections();
     _verifyCasRecipeIsDefined();
-    recipe = area.casRecipe!;
+    recipe = area.productDefinition.casRecipe!;
   }
 
   StateMachineCell get neighbour =>
@@ -107,7 +107,7 @@ class ModuleCas extends StateMachineCell {
   }
 
   void _verifyCasRecipeIsDefined() {
-    if (area.casRecipe == null) {
+    if (area.productDefinition.casRecipe == null) {
       throw ArgumentError(
           '$LiveBirdHandlingArea error: You must specify the casRecipe in the layout when it contains one or more $ModuleCas');
     }

@@ -9,7 +9,6 @@ import 'state_machine.dart';
 abstract class LiveBirdHandlingArea implements TimeProcessor {
   final String lineName;
   final ProductDefinition productDefinition;
-  final CasRecipe? casRecipe;
   final List<ActiveCell> cells = [];
   final List<ModuleGroup> moduleGroups = [];
   Duration durationSinceStart = Duration.zero;
@@ -18,7 +17,6 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   LiveBirdHandlingArea({
     required this.lineName,
     required this.productDefinition,
-    this.casRecipe,
   });
 
   String get name => '$lineName-$productDefinition';
@@ -411,6 +409,7 @@ class ProductDefinition {
   final int lineSpeedInShacklesPerHour;
   final ModuleType moduleType;
   final List<ModuleGroupCapacity> moduleGroupCapacities;
+  final CasRecipe? casRecipe;
   final List<LiveBirdHandlingArea> Function(ProductDefinition) areaFactory;
 
   ProductDefinition({
@@ -420,6 +419,7 @@ class ProductDefinition {
     required this.lineSpeedInShacklesPerHour,
     required this.moduleType,
     required this.moduleGroupCapacities,
+    required this.casRecipe,
   });
 
   List<LiveBirdHandlingArea> get areas => areaFactory(this);

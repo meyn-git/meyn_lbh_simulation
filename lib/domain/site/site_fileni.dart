@@ -40,6 +40,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaFactory(),
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -55,6 +56,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaFactory(),
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -70,6 +72,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaFactory(),
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -85,6 +88,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaFactory(),
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -100,6 +104,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaWithExtraBufferFactory(),
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -115,6 +120,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaWithExtraBufferFactory(),
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -130,6 +136,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaWithExtraBufferFactory(),
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -145,6 +152,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaWithExtraBufferFactory(),
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
@@ -171,7 +179,6 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       : super(
           lineName: 'Chicken line',
           productDefinition: productDefinition,
-          casRecipe: const CasRecipe.standardChickenRecipe(),
         ) {
     _row1();
     _row2();
@@ -362,7 +369,6 @@ class FileniLiveBirdHandlingAreaWithExtraBuffer extends LiveBirdHandlingArea {
       : super(
           lineName: 'Chicken line with extra buffer',
           productDefinition: productDefinition,
-          casRecipe: const CasRecipe.standardChickenRecipe(),
         ) {
     _row1();
     _row2();

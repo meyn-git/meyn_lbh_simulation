@@ -33,6 +33,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Chicken',
               loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 15000,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleType: AngliaAutoFlowModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -57,7 +58,6 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,
-          casRecipe: const CasRecipe.standardChickenRecipe(),
         ) {
     _row1();
     _row2();
