@@ -12,10 +12,13 @@ main() async {
  
     # Remove old files in: ..\\meyn_lbh_simulation_web
     DEL "..\\meyn_lbh_simulation_web\\*.*" /Q
-  
-    # Change path to: ..\\meyn_lbh_simulation_web
-    CD ..\\meyn_lbh_simulation_web
-  
+
+    # Copy build files to: ..\\meyn_lbh_simulation_web
+    XCOPY ".\\build\\web" "..\\meyn_lbh_simulation_web" /S
+  ''');
+
+  shell=Shell(workingDirectory: '..\\meyn_lbh_simulation_web');
+  await shell.run('''
     # Add all files to git
     git add .
   
@@ -24,10 +27,7 @@ main() async {
  
     # Push to git
     git push
-    
-    # Change path to: ..\\meyn_lbh_simulation
-    CD ..\\meyn_lbh_simulation
-    
+
     @echo Published on: https://meyn-git.github.io/meyn_lbh_simulation_web
   ''');
 
