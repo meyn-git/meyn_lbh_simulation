@@ -388,7 +388,7 @@ class ModuleType {
     required this.turnTableDegreesPerSecond, //= 15,
   });
 
-  String get name => '$runtimeType';
+  String get name => '$shape-$compartmentType-$birdType';
 }
 
 class ModuleCapacity {

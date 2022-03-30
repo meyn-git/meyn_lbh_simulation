@@ -58,7 +58,7 @@ class BirdHangingConveyor extends ActiveCell {
   ModuleGroup? get moduleGroup => null;
 
   @override
-  String get name => runtimeType.toString();
+  String get name => 'BirdHangingConveyor';
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
