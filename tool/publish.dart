@@ -13,9 +13,6 @@ main() async {
     # Remove old files in: ..\\meyn_lbh_simulation_web
     DEL "..\\meyn_lbh_simulation_web\\*.*" /Q
   
-    # Copy build files to: ..\\meyn_lbh_simulation_web
-    DEL "..\\meyn_lbh_simulation_web\\*.*" /Q
-  
     # Change path to: ..\\meyn_lbh_simulation_web
     CD ..\\meyn_lbh_simulation_web
   
@@ -31,7 +28,7 @@ main() async {
     # Change path to: ..\\meyn_lbh_simulation
     CD ..\\meyn_lbh_simulation
     
-    # Published on: https://meyn-git.github.io/meyn_lbh_simulation_web
+    @echo Published on: https://meyn-git.github.io/meyn_lbh_simulation_web
   ''');
 
 }
