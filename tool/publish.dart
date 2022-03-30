@@ -1,4 +1,3 @@
-import 'package:process_run/process_run.dart';
 import 'package:process_run/shell.dart';
 
 main() async {
