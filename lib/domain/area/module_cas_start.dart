@@ -20,7 +20,7 @@ class ModuleCasStart extends ActiveCell {
   }) : super(area, position);
 
   @override
-  String get name => runtimeType.toString();
+  String get name => "ModuleCasStart";
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;

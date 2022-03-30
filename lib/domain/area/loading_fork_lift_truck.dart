@@ -14,6 +14,9 @@ class LoadingForkLiftTruck extends StateMachineCell {
   final bool loadsSingeModule;
   var sequenceNumber = 0;
 
+  @override
+  String get name => "LoadingForkLiftTruck${seqNr ?? ''}";
+
   LoadingForkLiftTruck({
     required LiveBirdHandlingArea area,
     required Position position,
@@ -136,6 +139,9 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
             nextStateFunction: (forkLiftTruck) => WaitingForEmptyConveyor());
 
   @override
+  String get name => 'GetModuleGroupFromTruck';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
     if (forkLiftTruck.moduleGroup == null) {
@@ -169,9 +175,7 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
     StateMachineCell destination,
   ) {
     var area = forkLiftTruck.area;
-    if (destination is! StateMachineCell) {
-      throw ArgumentError("stack.destination must point to a none empty cell");
-    }
+
     var route = area.findRoute(source: forkLiftTruck, destination: destination);
     if (route == null) {
       throw ArgumentError(
@@ -182,11 +186,15 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
 
 class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
+  String get name => 'WaitingForEmptyConveyor';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
     if (_neighbourCanFeedIn(forkLiftTruck)) {
       return PutModuleGroupOnConveyor();
     }
+    return null;
   }
 
   bool _neighbourCanFeedIn(LoadingForkLiftTruck forkLiftTruck) {
@@ -200,6 +208,9 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
 /// drive backward to clear lifting spoons
 /// push button to feed in
 class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
+  @override
+  String get name => 'PutModuleGroupOnConveyor';
+
   @override
   // ignore: avoid_renaming_method_parameters
   void onStart(LoadingForkLiftTruck forkLiftTruck) {
@@ -226,6 +237,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
     } else if (_transportCompleted(forkLiftTruck)) {
       return GetModuleGroupFromTruck();
     }
+    return null;
   }
 
   bool _transportCompleted(LoadingForkLiftTruck forkLiftTruck) =>

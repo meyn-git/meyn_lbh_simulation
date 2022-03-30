@@ -9,6 +9,9 @@ class ModuleConveyor extends StateMachineCell {
 
   final Duration checkIfEmptyDuration;
 
+  @override
+  String get name => "ModuleConveyor${seqNr ?? ''}";
+
   ModuleConveyor({
     required LiveBirdHandlingArea area,
     required Position position,
@@ -58,15 +61,22 @@ class CheckIfEmpty extends DurationState<ModuleConveyor> {
             durationFunction: (moduleConveyor) =>
                 moduleConveyor.checkIfEmptyDuration,
             nextStateFunction: (moduleConveyor) => WaitToFeedIn());
+
+  @override
+  String get name => 'CheckIfEmpty';
 }
 
 class WaitToFeedIn extends State<ModuleConveyor> {
+  @override
+  String get name => 'WaitToFeedIn';
+
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_moduleGroupTransportedTo(moduleConveyor)) {
       return FeedIn();
     }
+    return null;
   }
 
   bool _moduleGroupTransportedTo(ModuleConveyor moduleConveyor) {
@@ -77,11 +87,15 @@ class WaitToFeedIn extends State<ModuleConveyor> {
 
 class FeedIn extends State<ModuleConveyor> {
   @override
+  String get name => 'FeedIn';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_transportCompleted(moduleConveyor)) {
       return WaitToFeedOut();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleConveyor moduleConveyor) =>
@@ -90,12 +104,16 @@ class FeedIn extends State<ModuleConveyor> {
 
 class WaitToFeedOut extends State<ModuleConveyor> {
   @override
+  String get name => 'WaitToFeedOut';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
     if (_neighbourCanFeedIn(moduleConveyor) &&
         !_moduleGroupAtDestination(moduleConveyor)) {
       return FeedOut();
     }
+    return null;
   }
 
   bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
@@ -107,6 +125,9 @@ class WaitToFeedOut extends State<ModuleConveyor> {
 }
 
 class FeedOut extends State<ModuleConveyor> {
+  @override
+  String get name => 'FeedOut';
+
   ModuleGroup? transportedModuleGroup;
 
   @override
@@ -124,6 +145,7 @@ class FeedOut extends State<ModuleConveyor> {
     if (_transportCompleted(moduleConveyor)) {
       return WaitToFeedIn();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleConveyor moduleConveyor) =>

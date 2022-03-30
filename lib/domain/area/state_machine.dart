@@ -25,10 +25,6 @@ abstract class StateMachineCell extends ActiveCell {
     initialState.onStart(this);
   }
 
-  //TODO word spacing
-  @override
-  String get name => "${runtimeType.toString()}${seqNr ?? ''}";
-
   /// This method gets called with a regular time interval by the [LiveBirdHandlingArea]
   /// to update the [StateMachineCell]
   @override
@@ -54,7 +50,7 @@ abstract class StateMachineCell extends ActiveCell {
 }
 
 abstract class State<T extends StateMachineCell> {
-  String get name => runtimeType.toString();
+  String get name;
 
   /// this method is called when the state starts
   /// (when another [State.nextState] method returned this [State]).
@@ -82,7 +78,7 @@ abstract class State<T extends StateMachineCell> {
   String toString() => name;
 }
 
-class DurationState<T extends StateMachineCell> extends State<T> {
+abstract class DurationState<T extends StateMachineCell> extends State<T> {
   final Duration Function(T) durationFunction;
   final State<T> Function(T) nextStateFunction;
   Duration? _remainingDuration;
@@ -110,6 +106,7 @@ class DurationState<T extends StateMachineCell> extends State<T> {
     if (_remainingDuration != null && _remainingDuration == Duration.zero) {
       return nextStateFunction(stateMachine);
     }
+    return null;
   }
 
   @override

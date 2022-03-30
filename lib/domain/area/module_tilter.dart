@@ -17,6 +17,9 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
 
+  @override
+  String get name => "ModuleTilter${seqNr ?? ''}";
+
   ModuleTilter(
       {required LiveBirdHandlingArea area,
       required Position position,
@@ -97,6 +100,9 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
 }
 
 class CheckIfEmpty extends DurationState<ModuleTilter> {
+  @override
+  String get name => 'CheckIfEmpty';
+
   CheckIfEmpty()
       : super(
             durationFunction: (tilter) => tilter.checkIfEmptyDuration,
@@ -105,11 +111,15 @@ class CheckIfEmpty extends DurationState<ModuleTilter> {
 
 class WaitToFeedIn extends State<ModuleTilter> {
   @override
+  String get name => 'WaitToFeedIn';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_moduleGroupTransportedTo(tilter)) {
       return FeedIn();
     }
+    return null;
   }
 
   bool _moduleGroupTransportedTo(ModuleTilter tilter) {
@@ -120,11 +130,15 @@ class WaitToFeedIn extends State<ModuleTilter> {
 
 class FeedIn extends State<ModuleTilter> {
   @override
+  String get name => 'FeedIn';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_transportCompleted(tilter)) {
       return WaitToTilt();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleTilter tilter) => tilter.moduleGroup != null;
@@ -147,15 +161,22 @@ class FeedIn extends State<ModuleTilter> {
 
 class WaitToTilt extends State<ModuleTilter> {
   @override
+  String get name => 'WaitToTilt';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (tilter.dumpBeltCanReceiveBirds) {
       return TiltForward();
     }
+    return null;
   }
 }
 
 class TiltForward extends DurationState<ModuleTilter> {
+  @override
+  String get name => 'TiltForward';
+
   TiltForward()
       : super(
             durationFunction: (tilter) => tilter.tiltForwardDuration,
@@ -171,6 +192,9 @@ class TiltForward extends DurationState<ModuleTilter> {
 }
 
 class TiltBack extends DurationState<ModuleTilter> {
+  @override
+  String get name => 'TiltBack';
+
   TiltBack()
       : super(
             durationFunction: (tilter) => tilter.tiltBackDuration,
@@ -179,11 +203,15 @@ class TiltBack extends DurationState<ModuleTilter> {
 
 class WaitToFeedOut extends State<ModuleTilter> {
   @override
+  String get name => 'WaitToFeedOut';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_neighbourCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
       return FeedOut();
     }
+    return null;
   }
 
   bool _moduleGroupAtDestination(ModuleTilter tilter) =>
@@ -194,6 +222,9 @@ class WaitToFeedOut extends State<ModuleTilter> {
 }
 
 class FeedOut extends State<ModuleTilter> {
+  @override
+  String get name => 'FeedOut';
+
   ModuleGroup? transportedModuleGroup;
 
   @override
@@ -211,6 +242,7 @@ class FeedOut extends State<ModuleTilter> {
     if (_transportCompleted(tilter)) {
       return WaitToFeedIn();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleTilter tilter) =>

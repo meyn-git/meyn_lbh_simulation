@@ -71,9 +71,6 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
     required StateMachineCell destination,
     Route routeSoFar = const Route.empty(),
   }) {
-    if (source is! StateMachineCell || destination is! StateMachineCell) {
-      return null;
-    }
     if (source.position == destination.position) {
       return Route([...routeSoFar, destination]);
     }

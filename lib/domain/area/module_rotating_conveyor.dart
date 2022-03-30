@@ -31,6 +31,9 @@ class ModuleRotatingConveyor extends StateMachineCell {
     CardinalDirection.west: Duration.zero,
   };
 
+  @override
+  String get name => "ModuleRotatingConveyor${seqNr ?? ''}";
+
   ModuleRotatingConveyor({
     required LiveBirdHandlingArea area,
     required Position position,
@@ -240,7 +243,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
       var neighbour = area.neighbouringCell(this, direction);
 
       if (neighbour is StateMachineCell &&
-          destination is StateMachineCell &&
           neighbour.isFeedIn(direction.opposite)) {
         var route = area.findRoute(
           source: neighbour,
@@ -313,6 +315,8 @@ class ModuleRotatingConveyor extends StateMachineCell {
 }
 
 class TurnToInFeed extends State<ModuleRotatingConveyor> {
+  @override
+  String get name => 'TurnToInFeed';
   Duration elapsedTurnTime = Duration.zero;
 
   @override
@@ -342,6 +346,7 @@ class TurnToInFeed extends State<ModuleRotatingConveyor> {
     if (rotatingConveyor.moduleGroupFeedingIn) {
       return FeedIn();
     }
+    return null;
   }
 
   void turn(ModuleRotatingConveyor rotatingConveyor,
@@ -395,12 +400,15 @@ bool _rotateClockWise(
 
 class FeedIn extends State<ModuleRotatingConveyor> {
   @override
+  String get name => 'FeedIn';
+  @override
   State<ModuleRotatingConveyor>? nextState(
       // ignore: avoid_renaming_method_parameters
       ModuleRotatingConveyor rotatingConveyor) {
     if (_transportCompleted(rotatingConveyor)) {
       return TurnToFeedOut();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>
@@ -408,6 +416,9 @@ class FeedIn extends State<ModuleRotatingConveyor> {
 }
 
 class TurnToFeedOut extends State<ModuleRotatingConveyor> {
+  @override
+  String get name => 'TurnToFeedOut';
+
   Duration elapsedTurnTime = Duration.zero;
 
   @override
@@ -429,6 +440,7 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
         rotatingConveyor.moduleGroup!.destination != rotatingConveyor) {
       return FeedOut();
     }
+    return null;
   }
 
   bool _doneRotating(ModuleRotatingConveyor rotatingConveyor) {
@@ -504,6 +516,8 @@ class TurnToFeedOut extends State<ModuleRotatingConveyor> {
 
 class FeedOut extends State<ModuleRotatingConveyor> {
   @override
+  String get name => 'FeedOut';
+  @override
   // ignore: avoid_renaming_method_parameters
   void onStart(ModuleRotatingConveyor rotatingConveyor) {
     var transportedModuleGroup = rotatingConveyor.moduleGroup;
@@ -522,6 +536,7 @@ class FeedOut extends State<ModuleRotatingConveyor> {
     if (_transportCompleted(rotatingConveyor)) {
       return TurnToInFeed();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleRotatingConveyor rotatingConveyor) =>

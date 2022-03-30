@@ -14,6 +14,9 @@ class ModuleCas extends StateMachineCell {
   final Duration openSlideDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
 
+  @override
+  String get name => "ModuleCas${seqNr ?? ''}";
+
   ModuleCas({
     required LiveBirdHandlingArea area,
     required Position position,
@@ -145,11 +148,15 @@ class CasRecipe {
 
 class WaitToFeedIn extends State<ModuleCas> {
   @override
+  String get name => 'WaitToFeedIn';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_moduleGroupTransportedTo(cas)) {
       return FeedIn();
     }
+    return null;
   }
 
   bool _moduleGroupTransportedTo(ModuleCas cas) => cas.area.moduleGroups
@@ -158,11 +165,15 @@ class WaitToFeedIn extends State<ModuleCas> {
 
 class FeedIn extends State<ModuleCas> {
   @override
+  String get name => 'FeedIn';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_transportCompleted(cas)) {
       return WaitForStart();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleCas cas) => cas.moduleGroup != null;
@@ -184,6 +195,9 @@ class FeedIn extends State<ModuleCas> {
 }
 
 class WaitForStart extends State<ModuleCas> {
+  @override
+  String get name => 'WaitForStart';
+
   bool _start = false;
 
   @override
@@ -193,6 +207,7 @@ class WaitForStart extends State<ModuleCas> {
       _start = false;
       return CloseSlideDoor();
     }
+    return null;
   }
 
   void start() {
@@ -206,6 +221,9 @@ class CloseSlideDoor extends DurationState<ModuleCas> {
           durationFunction: (cas) => cas.closeSlideDoorDuration,
           nextStateFunction: (cas) => StunStage(1),
         );
+
+  @override
+  String get name => 'CloseSlideDoor';
 }
 
 class StunStage extends DurationState<ModuleCas> {
@@ -237,7 +255,7 @@ class StunStage extends DurationState<ModuleCas> {
   }
 
   @override
-  String get name => '${super.name}$stageNumber';
+  String get name => 'StunStage$stageNumber';
 
   @override
   String toString() => '$name (remaining: ${remainingDuration.inSeconds}sec)';
@@ -259,6 +277,9 @@ class ExhaustStage extends DurationState<ModuleCas> {
             nextStateFunction: (cas) => OpenSlideDoor());
 
   @override
+  String get name => 'ExhaustStage';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     super.onStart(cas);
@@ -274,15 +295,22 @@ class OpenSlideDoor extends DurationState<ModuleCas> {
           durationFunction: (cas) => cas.openSlideDoorDuration,
           nextStateFunction: (cas) => WaitToFeedOut(),
         );
+
+  @override
+  String get name => 'OpenSlideDoor';
 }
 
 class WaitToFeedOut extends State<ModuleCas> {
+  @override
+  String get name => 'WaitToFeedOut';
+
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_neighbourOkToFeedIn(cas)) {
       return FeedOut();
     }
+    return null;
   }
 
   bool _neighbourOkToFeedIn(ModuleCas cas) =>
@@ -290,6 +318,9 @@ class WaitToFeedOut extends State<ModuleCas> {
 }
 
 class FeedOut extends State<ModuleCas> {
+  @override
+  String get name => 'FeedOut';
+
   @override
   // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
@@ -303,6 +334,7 @@ class FeedOut extends State<ModuleCas> {
     if (_transportCompleted(cas)) {
       return WaitToFeedIn();
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleCas cas) => cas.moduleGroup == null;

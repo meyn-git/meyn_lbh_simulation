@@ -14,6 +14,9 @@ class ModuleDeStacker extends StateMachineCell {
   final Duration supportsOpenDuration;
   ModuleGroup? moduleGroupOnSupports;
 
+  @override
+  String get name => "ModuleDeStacker${seqNr ?? ''}";
+
   ModuleDeStacker({
     required LiveBirdHandlingArea area,
     required Position position,
@@ -103,15 +106,22 @@ class MoveLift extends DurationState<ModuleDeStacker> {
     deStacker.currentHeightInCentiMeter =
         deStacker.heightsInCentiMeter[goToPosition]!;
   }
+
+  @override
+  String get name => 'MoveLift';
 }
 
 class WaitToFeedIn extends State<ModuleDeStacker> {
+  @override
+  String get name => 'WaitToFeedIn';
+
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_moduleGroupTransportedTo(deStacker)) {
       return FeedIn();
     }
+    return null;
   }
 
   bool _moduleGroupTransportedTo(ModuleDeStacker deStacker) {
@@ -122,6 +132,9 @@ class WaitToFeedIn extends State<ModuleDeStacker> {
 
 class FeedIn extends State<ModuleDeStacker> {
   @override
+  String get name => 'FeedIn';
+
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_transportCompleted(deStacker)) {
@@ -131,6 +144,7 @@ class FeedIn extends State<ModuleDeStacker> {
         return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
       }
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleDeStacker deStacker) =>
@@ -138,6 +152,9 @@ class FeedIn extends State<ModuleDeStacker> {
 }
 
 class CloseModuleSupports extends DurationState<ModuleDeStacker> {
+  @override
+  String get name => 'CloseModuleSupports';
+
   CloseModuleSupports()
       : super(
           durationFunction: (deStacker) => deStacker.supportsCloseDuration,
@@ -154,6 +171,9 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
 }
 
 class OpenModuleSupports extends DurationState<ModuleDeStacker> {
+  @override
+  String get name => 'OpenModuleSupports';
+
   OpenModuleSupports()
       : super(
           durationFunction: (deStacker) => deStacker.supportsOpenDuration,
@@ -170,12 +190,15 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
 
 class WaitToFeedOut extends State<ModuleDeStacker> {
   @override
+  String get name => 'WaitToFeedOut';
+  @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_neighbourCanFeedIn(deStacker) &&
         !_moduleGroupAtDestination(deStacker)) {
       return FeedOut();
     }
+    return null;
   }
 
   bool _moduleGroupAtDestination(ModuleDeStacker deStacker) =>
@@ -186,6 +209,8 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
 }
 
 class FeedOut extends State<ModuleDeStacker> {
+  @override
+  String get name => 'FeedOut';
   ModuleGroup? transportedModuleGroup;
 
   @override
@@ -207,6 +232,7 @@ class FeedOut extends State<ModuleDeStacker> {
         return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());
       }
     }
+    return null;
   }
 
   bool _transportCompleted(ModuleDeStacker deStacker) =>

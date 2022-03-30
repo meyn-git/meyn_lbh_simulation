@@ -5,6 +5,9 @@ import 'state_machine.dart';
 class UnLoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection inFeedDirection;
 
+  @override
+  String get name => "UnLoadingForkLiftTruck${seqNr ?? ''}";
+
   UnLoadingForkLiftTruck({
     required LiveBirdHandlingArea area,
     required Position position,
@@ -44,12 +47,16 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
 
 class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck> {
   @override
+  String get name => 'WaitingForFullConveyor';
+
+  @override
   State<UnLoadingForkLiftTruck>? nextState(
       // ignore: avoid_renaming_method_parameters
       UnLoadingForkLiftTruck forkLiftTruck) {
     if (_neighbourCanFeedOut(forkLiftTruck)) {
       return GetModuleGroupFromConveyor();
     }
+    return null;
   }
 
   bool _neighbourCanFeedOut(UnLoadingForkLiftTruck forkLiftTruck) {
@@ -60,6 +67,8 @@ class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck> {
 
 class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck> {
   @override
+  String get name => 'GetModuleGroupFromConveyor';
+
   @override
   State<UnLoadingForkLiftTruck>? nextState(
       // ignore: avoid_renaming_method_parameters
@@ -67,6 +76,7 @@ class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck> {
     if (_transportCompleted(forkLiftTruck)) {
       return PutModuleGroupOnTruck();
     }
+    return null;
   }
 
   bool _transportCompleted(UnLoadingForkLiftTruck forkLiftTruck) =>
@@ -75,6 +85,9 @@ class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck> {
 }
 
 class PutModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
+  @override
+  String get name => 'PutModuleGroupOnTruck';
+
   PutModuleGroupOnTruck()
       : super(
             durationFunction: (forkLiftTruck) => forkLiftTruck.inFeedDuration,

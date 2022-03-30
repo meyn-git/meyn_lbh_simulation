@@ -1,7 +1,7 @@
 import 'package:process_run/shell.dart';
 
 main() async {
-  var shell = Shell();
+  var shell = Shell(commentVerbose: true);
   await shell.run('''
     # Build web files
     flutter build web
@@ -16,7 +16,10 @@ main() async {
     XCOPY ".\\build\\web" "..\\meyn_lbh_simulation_web" /S
   ''');
 
-  shell=Shell(workingDirectory: '..\\meyn_lbh_simulation_web');
+  shell = Shell(
+    workingDirectory: '..\\meyn_lbh_simulation_web',
+    commentVerbose: true,
+  );
   await shell.run('''
     # Add all files to git
     git add .
@@ -27,8 +30,6 @@ main() async {
     # Push to git
     git push
 
-    @echo Published on: https://meyn-git.github.io/meyn_lbh_simulation_web
+    # Published on: https://meyn-git.github.io/meyn_lbh_simulation_web
   ''');
-
 }
-

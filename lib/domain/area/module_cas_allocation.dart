@@ -21,7 +21,7 @@ class ModuleCasAllocation extends ActiveCell {
   }
 
   @override
-  String get name => runtimeType.toString();
+  String get name => 'ModuleCasAllocation';
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
