@@ -120,7 +120,6 @@ class PlayerPanel extends StatelessWidget {
       });
 
   bool _mostSpaceHorizontally(BoxConstraints constraints) {
-    var cellRange = player.scenario!.area.cellRange;
     return (constraints.maxWidth) > (constraints.maxHeight);
   }
 

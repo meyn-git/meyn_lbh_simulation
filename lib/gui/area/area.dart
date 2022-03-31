@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -38,17 +37,17 @@ class AreaPanel extends StatefulWidget {
   _AreaPanelState createState() => _AreaPanelState();
 }
 
-class _AreaPanelState extends State<AreaPanel> {
+class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
   Player get player => GetIt.instance<Player>();
 
   _AreaPanelState() {
-    player.timerListener((Timer t) {
-      setState(() {
-        if (player.scenario != null) {
-          player.scenario!.area.onUpdateToNextPointInTime(player.jump);
-        }
-      });
-    });
+    player.addUpdateListener(this);
+  }
+
+  @override
+  void dispose() {
+    player.removeUpdateListener(this);
+    super.dispose();
   }
 
   @override
@@ -92,6 +91,15 @@ class _AreaPanelState extends State<AreaPanel> {
             LayoutId(id: cell, child: CellWidgetFactory.createFor(cell)))
         .toList();
     return cellWidgets;
+  }
+
+  @override
+  void onUpdate() {
+    setState(() {
+      if (player.scenario != null) {
+        player.scenario!.area.onUpdateToNextPointInTime(player.jump);
+      }
+    });
   }
 }
 

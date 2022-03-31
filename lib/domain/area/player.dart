@@ -1,14 +1,17 @@
 import 'dart:async';
 
+import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
 class Player {
   int _speed = 1;
   bool playing = true;
   Duration jump = _calculateJump(1);
-  void Function(Timer t)? listener;
+  final List<UpdateListener> _updateListeners = [];
   Timer? timer;
   Scenario? scenario;
+
+  StateMachineCell? selectedStateMachineCell;
 
   Player() {
     updateTimer();
@@ -38,19 +41,27 @@ class Player {
     updateTimer();
   }
 
-  void timerListener(void Function(Timer t) listener) {
-    this.listener = listener;
+  void addUpdateListener(UpdateListener updateListener) {
+    _updateListeners.add(updateListener);
+
+    /// start timer if not started yet
     updateTimer();
+  }
+
+  void removeUpdateListener(UpdateListener updateListener) {
+    _updateListeners.remove(updateListener);
   }
 
   void updateTimer() {
     if (playing) {
-      if (listener != null) {
+      if (_updateListeners.isNotEmpty) {
         if (timer != null) {
           timer!.cancel();
         }
         jump = _calculateJump(speed);
-        timer = Timer.periodic(timerInterval, listener!);
+        timer = Timer.periodic(timerInterval, (timer) {
+          _callListeners(timer);
+        });
       }
     } else {
       if (timer != null) {
@@ -72,4 +83,14 @@ class Player {
   void start(Scenario scenario) {
     this.scenario = scenario;
   }
+
+  void _callListeners(Timer timer) {
+    for (var updateListener in _updateListeners) {
+      updateListener.onUpdate();
+    }
+  }
+}
+
+abstract class UpdateListener {
+  void onUpdate();
 }

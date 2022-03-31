@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
+
+import '../../domain/area/player.dart';
 
 class ModuleCasWidget extends StatelessWidget {
   final ModuleCas cas;
@@ -9,8 +12,8 @@ class ModuleCasWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: cas.toString(),
+    return InkWell(
+      onTap: () {GetIt.instance<Player>().selectedStateMachineCell=cas;},
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
             cas.inAndOutFeedDirection.toCompassDirection().degrees / 360),

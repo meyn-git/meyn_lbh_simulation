@@ -15,6 +15,7 @@ dependencies:
   get_it: ^7.2.0
   url_launcher: ^6.0.20
   process_run: ^0.12.3+2
+  user_command: ^0.0.4
 
 
 dev_dependencies:
