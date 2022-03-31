@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
+
+import '../../domain/area/player.dart';
 
 class ModuleStackerWidget extends StatelessWidget {
   final ModuleStacker stacker;
@@ -9,8 +12,10 @@ class ModuleStackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-        message: stacker.toString(),
+    return InkWell(
+        onTap: () {
+          GetIt.instance<Player>().selectedStateMachineCell = stacker;
+        },
         child: RotationTransition(
             turns: AlwaysStoppedAnimation(
                 stacker.inFeedDirection.opposite.toCompassDirection().degrees /

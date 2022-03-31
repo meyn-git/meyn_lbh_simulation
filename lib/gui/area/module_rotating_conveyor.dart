@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
+
+import '../../domain/area/player.dart';
 
 class ModuleRotatingConveyorWidget extends StatelessWidget {
   final ModuleRotatingConveyor rotatingConveyor;
@@ -9,8 +12,10 @@ class ModuleRotatingConveyorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: rotatingConveyor.toString(),
+    return InkWell(
+      onTap: () {
+        GetIt.instance<Player>().selectedStateMachineCell = rotatingConveyor;
+      },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
             rotatingConveyor.currentDirection.degrees / 360),

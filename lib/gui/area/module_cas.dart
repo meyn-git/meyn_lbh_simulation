@@ -13,7 +13,9 @@ class ModuleCasWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {GetIt.instance<Player>().selectedStateMachineCell=cas;},
+      onTap: () {
+        GetIt.instance<Player>().selectedStateMachineCell = cas;
+      },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
             cas.inAndOutFeedDirection.toCompassDirection().degrees / 360),

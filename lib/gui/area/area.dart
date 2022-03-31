@@ -124,7 +124,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     var childSize = _childSize(size);
     var childOffset = _offsetForAllChildren(size, childSize);
     _layoutAndPositionModuleGroups(childSize, childOffset);
-    //positioning cells last so they are on top so that the tooltips work
+    //positioning cells last so they are on top so that the inkwells can be activated
     _layoutAndPositionCells(childSize, childOffset);
   }
 

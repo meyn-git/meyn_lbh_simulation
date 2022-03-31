@@ -102,7 +102,7 @@ class PlayerPanel extends StatelessWidget {
                 Container(
                     color: Colors.white,
                     width: constraints.maxWidth * 0.25,
-                    child: const ExtraPanel())
+                    child: const ViewCellPropertiesPanel())
               ],
             );
           } else {
@@ -112,7 +112,7 @@ class PlayerPanel extends StatelessWidget {
                 Container(
                     color: Colors.white,
                     height: constraints.maxHeight * 0.25,
-                    child: const ExtraPanel())
+                    child: const ViewCellPropertiesPanel())
               ],
             );
           }
@@ -130,12 +130,45 @@ class PlayerPanel extends StatelessWidget {
       constraints.maxHeight < _minimumSizeForExtraPanels;
 }
 
-class ExtraPanel extends StatelessWidget {
-  const ExtraPanel({Key? key}) : super(key: key);
+class ViewCellPropertiesPanel extends StatefulWidget {
+  const ViewCellPropertiesPanel({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) =>
-      const Text('Extra panel, e.g.: Property View, Property Editor, Logger');
+  State<ViewCellPropertiesPanel> createState() =>
+      _ViewCellPropertiesPanelState();
+}
+
+class _ViewCellPropertiesPanelState extends State<ViewCellPropertiesPanel>
+    implements UpdateListener {
+  String propertyText = '';
+
+  Player get player => GetIt.instance<Player>();
+
+  @override
+  void initState() {
+    player.addUpdateListener(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    player.removeUpdateListener(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(child: Text(propertyText));
+
+  @override
+  void onUpdate() {
+    setState(() {
+      if (player.selectedStateMachineCell == null) {
+        propertyText = '';
+      } else {
+        propertyText = player.selectedStateMachineCell.toString();
+      }
+    });
+  }
 }
 
 class ScenarioTile extends StatefulWidget {

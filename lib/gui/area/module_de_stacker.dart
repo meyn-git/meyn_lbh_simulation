@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
+
+import '../../domain/area/player.dart';
 
 class ModuleDeStackerWidget extends StatelessWidget {
   final ModuleDeStacker deStacker;
@@ -9,8 +12,10 @@ class ModuleDeStackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-        message: deStacker.toString(),
+    return InkWell(
+        onTap: () {
+          GetIt.instance<Player>().selectedStateMachineCell = deStacker;
+        },
         child: RotationTransition(
             turns: AlwaysStoppedAnimation(deStacker.inFeedDirection.opposite
                     .toCompassDirection()

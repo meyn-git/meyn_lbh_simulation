@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+
+import '../../domain/area/player.dart';
 
 class UnLoadingForkLiftTruckWidget extends StatelessWidget {
   final UnLoadingForkLiftTruck forkLiftTruck;
@@ -10,8 +13,10 @@ class UnLoadingForkLiftTruckWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: forkLiftTruck.toString(),
+    return InkWell(
+      onTap: () {
+        GetIt.instance<Player>().selectedStateMachineCell = forkLiftTruck;
+      },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(paintDirection.degrees / 360),
         child: CustomPaint(painter: UnLoadingForkLiftTruckPainter()),

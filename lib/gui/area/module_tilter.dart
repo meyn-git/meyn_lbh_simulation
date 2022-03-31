@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
+
+import '../../domain/area/player.dart';
 
 class ModuleTilterWidget extends StatelessWidget {
   final ModuleTilter tilter;
@@ -9,8 +12,10 @@ class ModuleTilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tilter.toString(),
+    return InkWell(
+      onTap: () {
+        GetIt.instance<Player>().selectedStateMachineCell = tilter;
+      },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
             tilter.inFeedDirection.opposite.toCompassDirection().degrees / 360),
