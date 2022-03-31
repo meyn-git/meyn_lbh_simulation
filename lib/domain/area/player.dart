@@ -9,7 +9,6 @@ class Player {
   Duration jump = _calculateJump(1);
   final List<UpdateListener> _updateListeners = [];
   Timer? timer;
-  Scenario? scenario;
 
   StateMachineCell? selectedStateMachineCell;
 
@@ -21,6 +20,19 @@ class Player {
   static const maxJumpResolution = Duration(seconds: 1);
   static final timerInterval = Duration(
       microseconds: (1 / maxSpeed * maxJumpResolution.inMicroseconds).round());
+
+  Scenario? _scenario;
+
+  Scenario? get scenario => _scenario;
+
+  set scenario(Scenario? scenario) {
+    _scenario = scenario;
+    if (scenario != null) {
+      var stateMachines = scenario.area.cells.whereType<StateMachineCell>();
+      selectedStateMachineCell =
+          stateMachines.isEmpty ? null : stateMachines.first;
+    }
+  }
 
   int get speed => _speed;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
@@ -101,7 +102,7 @@ class PlayerPanel extends StatelessWidget {
                 Expanded(child: areaPanel),
                 Container(
                     color: Colors.white,
-                    width: constraints.maxWidth * 0.25,
+                    width: _minimumSizeForExtraPanels,
                     child: const ViewCellPropertiesPanel())
               ],
             );
@@ -111,7 +112,7 @@ class PlayerPanel extends StatelessWidget {
                 Expanded(child: areaPanel),
                 Container(
                     color: Colors.white,
-                    height: constraints.maxHeight * 0.25,
+                    height: _minimumSizeForExtraPanels,
                     child: const ViewCellPropertiesPanel())
               ],
             );
@@ -120,14 +121,16 @@ class PlayerPanel extends StatelessWidget {
       });
 
   bool _mostSpaceHorizontally(BoxConstraints constraints) {
-    return (constraints.maxWidth) > (constraints.maxHeight);
+    var cellRange = player.scenario!.area.cellRange;
+    return (constraints.maxWidth / cellRange.width) >
+        (constraints.maxHeight / cellRange.height);
   }
 
-  static const _minimumSizeForExtraPanels = 600;
+  static const _minimumSizeForExtraPanels = 350.0;
 
   bool _tooSmallForExtraPanels(BoxConstraints constraints) =>
-      constraints.maxWidth < _minimumSizeForExtraPanels ||
-      constraints.maxHeight < _minimumSizeForExtraPanels;
+      constraints.maxWidth < (_minimumSizeForExtraPanels * 2) ||
+      constraints.maxHeight < (_minimumSizeForExtraPanels * 2);
 }
 
 class ViewCellPropertiesPanel extends StatefulWidget {
