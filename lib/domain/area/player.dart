@@ -31,8 +31,7 @@ class Player {
     _scenario = scenario;
     if (scenario != null) {
       var stateMachines = scenario.area.cells.whereType<StateMachineCell>();
-      selectedCell =
-          stateMachines.isEmpty ? null : stateMachines.first;
+      selectedCell = stateMachines.isEmpty ? null : stateMachines.first;
     }
   }
 

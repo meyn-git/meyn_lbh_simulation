@@ -1,3 +1,4 @@
+import '../util/title_builder.dart';
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
@@ -97,6 +98,15 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
       return false;
     }
   }
+
+  @override
+  String toString() => TitleBuilder(name)
+      .appendProperty('currentState', currentState)
+      .appendProperty('maxBirdsOnDumpBelt', maxBirdsOnDumpBelt)
+      .appendProperty('minBirdsOnDumpBeltBuffer', minBirdsOnDumpBeltBuffer)
+      .appendProperty('birdsOnDumpBelt', birdsOnDumpBelt)
+      .appendProperty('moduleGroup', moduleGroup)
+      .toString();
 }
 
 class CheckIfEmpty extends DurationState<ModuleTilter> {

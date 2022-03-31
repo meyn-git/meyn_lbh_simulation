@@ -137,5 +137,4 @@ class ShackleLine {
         .appendProperty('lineEfficiency', lineEfficiency)
         .toString();
   }
-
 }
