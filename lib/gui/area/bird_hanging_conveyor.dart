@@ -16,7 +16,7 @@ class BirdHangingConveyorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        CommandPopupMenu(context, _commands, title: "Popup Menu");
+        CommandPopupMenu(context, _commands, title: "Bird Hanging Conveyor");
       },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
