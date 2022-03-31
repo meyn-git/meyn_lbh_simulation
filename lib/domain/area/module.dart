@@ -56,6 +56,9 @@ class ModuleGroup extends TimeProcessor {
     if (sinceStartStun != null) {
       sinceStartStun = sinceStartStun! + jump;
     }
+    if (sinceEndStun != null) {
+      sinceEndStun = sinceEndStun! + jump;
+    }
     if (sinceBirdsUnloaded != null) {
       sinceBirdsUnloaded = sinceBirdsUnloaded! + jump;
     }
