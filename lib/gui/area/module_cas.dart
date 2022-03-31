@@ -14,7 +14,7 @@ class ModuleCasWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        GetIt.instance<Player>().selectedStateMachineCell = cas;
+        GetIt.instance<Player>().selectedCell = cas;
       },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(

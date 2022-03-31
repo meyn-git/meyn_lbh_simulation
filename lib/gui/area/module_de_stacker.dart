@@ -14,7 +14,7 @@ class ModuleDeStackerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
-          GetIt.instance<Player>().selectedStateMachineCell = deStacker;
+          GetIt.instance<Player>().selectedCell = deStacker;
         },
         child: RotationTransition(
             turns: AlwaysStoppedAnimation(deStacker.inFeedDirection.opposite

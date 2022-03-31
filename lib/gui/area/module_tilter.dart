@@ -14,7 +14,7 @@ class ModuleTilterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        GetIt.instance<Player>().selectedStateMachineCell = tilter;
+        GetIt.instance<Player>().selectedCell = tilter;
       },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(

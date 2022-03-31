@@ -14,7 +14,7 @@ class ModuleStackerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
-          GetIt.instance<Player>().selectedStateMachineCell = stacker;
+          GetIt.instance<Player>().selectedCell = stacker;
         },
         child: RotationTransition(
             turns: AlwaysStoppedAnimation(

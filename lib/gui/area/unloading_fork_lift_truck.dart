@@ -15,7 +15,7 @@ class UnLoadingForkLiftTruckWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        GetIt.instance<Player>().selectedStateMachineCell = forkLiftTruck;
+        GetIt.instance<Player>().selectedCell = forkLiftTruck;
       },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(paintDirection.degrees / 360),

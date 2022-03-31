@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
+import 'package:user_command/user_command.dart';
+
+import '../../domain/area/player.dart';
 
 class BirdHangingConveyorWidget extends StatelessWidget {
   final BirdHangingConveyor birdHangingConveyor;
@@ -12,20 +16,47 @@ class BirdHangingConveyorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        birdHangingConveyor.running = !birdHangingConveyor.running;
+        CommandPopupMenu(context, _commands, title: "Popup Menu");
       },
-      child: Tooltip(
-        //TODO
-        message: birdHangingConveyor.toString(),
-        child: RotationTransition(
-          turns: AlwaysStoppedAnimation(
-              birdHangingConveyor.direction.toCompassDirection().degrees / 360),
-          child: CustomPaint(
-              painter: BirdHangingConveyorPainter(birdHangingConveyor)),
-        ),
+      child: RotationTransition(
+        turns: AlwaysStoppedAnimation(
+            birdHangingConveyor.direction.toCompassDirection().degrees / 360),
+        child: CustomPaint(
+            painter: BirdHangingConveyorPainter(birdHangingConveyor)),
       ),
     );
   }
+
+  List<Command> get _commands => [_startCommand, _stopCommand, _monitorCommand];
+
+  Command get _startCommand => Command.dynamic(
+        name: () => 'Start line',
+        visible: () => !birdHangingConveyor.running,
+        icon: () => null,
+        action: () {
+          birdHangingConveyor.running = true;
+        },
+      );
+
+  Command get _stopCommand => Command.dynamic(
+        name: () => 'Stop line',
+        visible: () => birdHangingConveyor.running,
+        icon: () => null,
+        action: () {
+          birdHangingConveyor.running = false;
+        },
+      );
+
+  Player get player => GetIt.instance<Player>();
+
+  Command get _monitorCommand => Command.dynamic(
+        name: () => 'Monitor',
+        visible: () => player.selectedCell != birdHangingConveyor,
+        icon: () => null,
+        action: () {
+          player.selectedCell = birdHangingConveyor;
+        },
+      );
 }
 
 class BirdHangingConveyorPainter extends CustomPainter {

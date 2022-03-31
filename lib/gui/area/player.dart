@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
@@ -165,10 +164,10 @@ class _ViewCellPropertiesPanelState extends State<ViewCellPropertiesPanel>
   @override
   void onUpdate() {
     setState(() {
-      if (player.selectedStateMachineCell == null) {
+      if (player.selectedCell == null) {
         propertyText = '';
       } else {
-        propertyText = player.selectedStateMachineCell.toString();
+        propertyText = player.selectedCell.toString();
       }
     });
   }

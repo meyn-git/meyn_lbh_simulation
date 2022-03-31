@@ -14,7 +14,7 @@ class ModuleConveyorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        GetIt.instance<Player>().selectedStateMachineCell = moduleConveyor;
+        GetIt.instance<Player>().selectedCell = moduleConveyor;
       },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(moduleConveyor.inFeedDirection.opposite

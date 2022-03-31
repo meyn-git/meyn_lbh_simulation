@@ -1,3 +1,5 @@
+import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_tilter.dart';
@@ -78,6 +80,14 @@ class BirdHangingConveyor extends ActiveCell {
 
   @override
   bool waitingToFeedOut(CardinalDirection direction) => false;
+
+  @override
+  String toString() {
+    return TitleBuilder(name)
+        .appendProperty('shacklesPerHour', shacklesPerHour)
+        .appendProperty('shackleLine', shackleLine)
+        .toString();
+  }
 }
 
 class ShackleLine {
@@ -118,4 +128,14 @@ class ShackleLine {
       return _shackles[shackleIndex];
     }
   }
+
+  @override
+  String toString() {
+    return TitleBuilder('ShackleLine')
+        .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
+        .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
+        .appendProperty('lineEfficiency', lineEfficiency)
+        .toString();
+  }
+
 }
