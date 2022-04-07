@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
-import 'site_drobrimex.dart';
-import 'site_fileni.dart';
-import 'site_indrol.dart';
+import 'site_5674_drobrimex.dart';
+import 'site_7324_fileni.dart';
+import 'site_8052_indrol.dart';
 
 /// A ISO88/ISO99 A [Site] is a production location/plant of one of out customers
 
