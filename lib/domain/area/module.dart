@@ -319,6 +319,21 @@ class StorkSquareModule extends ModuleType {
         );
 }
 
+class StorkSquareGpModule extends ModuleType {
+  StorkSquareGpModule()
+      : super(
+    shape: ModuleShape.rectangularStacked,
+    birdType: BirdType.chicken,
+    compartmentType: CompartmentType.door,
+
+    //following durations are based on measurements at: 7113-Tyson Union city
+    stackerInFeedDuration: const Duration(seconds: 14),
+    conveyorTransportDuration: const Duration(seconds: 12),
+    casTransportDuration: const Duration(seconds: 14),
+    turnTableDegreesPerSecond: (90 / 6).round(),
+  );
+}
+
 // class StorkSquare4LayerChickenModule extends ModuleCapacity {
 //   StorkSquare4LayerChickenModule()
 //       : super(

@@ -98,16 +98,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
                 numberOfBirdsPerCompartment: 45,
               ),
               secondModule: ModuleCapacity(
-                numberOfCompartments: 4,
+                numberOfCompartments: 5,
                 numberOfBirdsPerCompartment: 45,
               ))
         ]),
     ProductDefinition(
         areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
         birdType: 'Chicken',
-        /// Runs 15400 b/h theoretically (see previous product definition),
-        /// Assuming we need 10% margin = 15400 *0.9=13860 b/h
-        lineSpeedInShacklesPerHour: 13860  ,
+        /// Runs 17100 b/h theoretically (see previous product definition),
+        /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
+        lineSpeedInShacklesPerHour: 15390  ,
         casRecipe: const CasRecipe.standardChickenRecipe(),
         moduleType: AngliaAutoFlowModule(),
         moduleGroupCapacities: [
@@ -117,7 +117,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
                 numberOfBirdsPerCompartment: 45,
               ),
               secondModule: ModuleCapacity(
-                numberOfCompartments: 4,
+                numberOfCompartments: 5,
                 numberOfBirdsPerCompartment: 45,
               ))
         ])

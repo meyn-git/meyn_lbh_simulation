@@ -23,8 +23,8 @@ class ModuleCas extends StateMachineCell {
     int? seqNr,
     required this.inAndOutFeedDirection,
     required this.doorDirection,
-    this.closeSlideDoorDuration = const Duration(seconds: 3),
-    this.openSlideDoorDuration = const Duration(seconds: 3),
+    this.closeSlideDoorDuration = const Duration(seconds: 6),
+    this.openSlideDoorDuration = const Duration(seconds: 6),
     Duration? inFeedDuration,
     Duration? outFeedDuration,
   }) : super(
