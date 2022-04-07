@@ -407,7 +407,6 @@ abstract class BirdBuffer {
 
 class ProductDefinition {
   final String birdType;
-  final LoadFactor loadFactor;
   final int lineSpeedInShacklesPerHour;
   final ModuleType moduleType;
   final List<ModuleGroupCapacity> moduleGroupCapacities;
@@ -417,7 +416,6 @@ class ProductDefinition {
   ProductDefinition({
     required this.areaFactory,
     required this.birdType,
-    required this.loadFactor,
     required this.lineSpeedInShacklesPerHour,
     required this.moduleType,
     required this.moduleGroupCapacities,
@@ -438,7 +436,7 @@ class ProductDefinition {
 
   @override
   String toString() {
-    return '$birdType-${lineSpeedInShacklesPerHour}b/h-$loadFactor';
+    return '$birdType-${lineSpeedInShacklesPerHour}b/h-${moduleGroupCapacities.join(' ')}';
   }
 }
 

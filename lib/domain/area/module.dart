@@ -410,9 +410,7 @@ class ModuleCapacity {
   int get numberOfBirds => numberOfCompartments * numberOfBirdsPerCompartment;
 
   @override
-  String toString() {
-    return "ModuleCapacity{numberOfCompartments: $numberOfCompartments, numberOfBirdsPerCompartment: $numberOfBirdsPerCompartment, ${maxKgPerCompartment == unknown ? '' : 'maxKgPerCompartment: $maxKgPerCompartment'}' }";
-  }
+  String toString() => '${numberOfCompartments}x$numberOfBirdsPerCompartment';
 }
 
 class ModuleGroupCapacity {
@@ -431,6 +429,18 @@ class ModuleGroupCapacity {
   int get numberOfBirds =>
       firstModule.numberOfBirds +
       (secondModule == null ? 0 : secondModule!.numberOfBirds);
+
+  @override
+  String toString() {
+    if (secondModule==null) {
+      return firstModule.toString();
+    } if (firstModule.toString()==secondModule.toString()) {
+      return '2x$firstModule';
+    } else {
+      return '$firstModule+$secondModule';
+    }
+  }
+
 }
 
 enum ModuleShape { squareSideBySide, rectangularStacked }

@@ -50,8 +50,15 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
     super.dispose();
   }
 
+  String get title => player.scenario == null
+      ? 'No scenario!'
+      : player.scenario!.site.toString();
+
+  String get _title => '${player.scenario!.site}-${player.scenario!.area}';
+
   @override
-  Widget build(BuildContext context) => player.scenario == null
+  Widget build(BuildContext context) {
+    return player.scenario == null
       ? const Text("No scenario's")
       : Container(
           color: Colors.grey.shade200,
@@ -59,7 +66,7 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
             children: [
               FittedBox(
                   fit: BoxFit.fitWidth,
-                  child: Text(player.scenario!.area.toString(),
+                  child: Text(_title,
                       style: const TextStyle(fontSize: 25))),
               Expanded(
                 child: CustomMultiChildLayout(
@@ -69,6 +76,7 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
             ],
           ),
         );
+  }
 
   static List<Widget> createChildren(LiveBirdHandlingArea area) {
     List<Widget> children = [];

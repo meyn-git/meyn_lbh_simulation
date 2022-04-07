@@ -13,14 +13,13 @@ class BirdHangingConveyor extends ActiveCell {
   static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
   Duration timePerBird;
 
-  bool running;
+  bool _running = false;
 
   BirdHangingConveyor({
     required LiveBirdHandlingArea area,
     required Position position,
     required this.direction,
-  })  : running = true,
-        shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
+  })  : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
         timePerBird = Duration(
             microseconds: (hourInMicroSeconds /
                     area.productDefinition.lineSpeedInShacklesPerHour)
@@ -28,7 +27,18 @@ class BirdHangingConveyor extends ActiveCell {
         super(
           area,
           position,
-        );
+        ) {
+    running = true;
+  }
+
+  bool get running => _running;
+
+  set running(bool running) {
+    _running = running;
+    if (running) {
+      shackleLine.startLine();
+    }
+  }
 
   BirdBuffer get birdBuffer {
     return _cashedBirdBuffer ?? _findBirdBuffer();
@@ -65,6 +75,7 @@ class BirdHangingConveyor extends ActiveCell {
   @override
   onUpdateToNextPointInTime(Duration jump) {
     if (running) {
+      shackleLine.addRunningTime(jump);
       elapsedTime += jump;
 
       while (elapsedTime > timePerBird) {
@@ -95,6 +106,8 @@ class ShackleLine {
   final List<bool> _shackles = []; // true if shackle has a bird, false if not
   int hangedBirdsSinceStart = 0;
   int emptyShacklesSinceStart = 0;
+  bool _waitForFirstBird = true;
+  Duration _runningTime = Duration.zero;
 
   nextShackle({required bool hasBird}) {
     _shackles.insert(0, hasBird);
@@ -103,7 +116,8 @@ class ShackleLine {
     }
     if (hasBird) {
       hangedBirdsSinceStart++;
-    } else {
+      _waitForFirstBird = false;
+    } else if (!_waitForFirstBird) {
       emptyShacklesSinceStart++;
     }
   }
@@ -129,12 +143,37 @@ class ShackleLine {
     }
   }
 
+  int get hangedBirdsPerHourSinceStart {
+    try {
+      return (hangedBirdsSinceStart / runningTimeInHours).round();
+    } on Exception {
+      return 0;
+    }
+  }
+
+  double get runningTimeInHours =>
+      _runningTime.inMilliseconds / const Duration(hours: 1).inMilliseconds;
+
   @override
   String toString() {
     return TitleBuilder('ShackleLine')
+        .appendProperty('runningTime', _runningTime)
         .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
+        .appendProperty(
+            'hangedBirdsPerHourSinceStart', hangedBirdsPerHourSinceStart)
         .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
         .appendProperty('lineEfficiency', lineEfficiency)
         .toString();
+  }
+
+  void startLine() {
+    _shackles.clear();
+    _waitForFirstBird = true;
+  }
+
+  void addRunningTime(Duration jump) {
+    if (!_waitForFirstBird) {
+      _runningTime = _runningTime + jump;
+    }
   }
 }

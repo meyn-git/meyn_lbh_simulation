@@ -22,7 +22,7 @@ class _PlayerPageState extends State<PlayerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: const Text(applicationTitle),
         actions: [
           buildRestartButton(),
           if (!player.playing) buildPlayButton(),
@@ -36,9 +36,6 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 
-  String get title => player.scenario == null
-      ? 'No scenario!'
-      : player.scenario!.site.toString();
 
   IconButton buildPauseButton() {
     return IconButton(
@@ -204,7 +201,7 @@ class _ScenarioTileState extends State<ScenarioTile> {
 
   String _createText() => '${widget.scenario.area.lineName}\n'
       '${widget.scenario.area.productDefinition.birdType}\n'
-      '${widget.scenario.area.productDefinition.lineSpeedInShacklesPerHour}b/h ${widget.scenario.area.productDefinition.loadFactor}';
+      '${widget.scenario.area.productDefinition.lineSpeedInShacklesPerHour}b/h ${widget.scenario.area.productDefinition.moduleGroupCapacities.join(' ')}';
 }
 
 class SiteTile extends StatelessWidget {

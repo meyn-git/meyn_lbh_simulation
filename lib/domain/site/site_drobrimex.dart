@@ -29,9 +29,8 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
   DobrimexProductDefinitions()
       : super([
           ProductDefinition(
-              areaFactory: _areaFactory(),
+              areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
               birdType: 'Chicken',
-              loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 15000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleType: AngliaAutoFlowModule(),
@@ -45,22 +44,102 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
                       numberOfCompartments: 5,
                       numberOfBirdsPerCompartment: 45,
                     ))
-              ])
+              ]),
+    ProductDefinition(
+        areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
+        birdType: 'Chicken',
+        /// Running a too high line speed so we can determine the actual
+        /// hanged birds/hour, by monitoring the [ShackleLine].
+        lineSpeedInShacklesPerHour: 16500 ,
+        casRecipe: const CasRecipe.standardChickenRecipe(),
+        moduleType: AngliaAutoFlowModule(),
+        moduleGroupCapacities: [
+          ModuleGroupCapacity(
+              firstModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ),
+              secondModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ))
+        ]),
+    ProductDefinition(
+        areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
+        birdType: 'Chicken',
+        /// Runs 14200 b/h theoretically (see previous product definition),
+        /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
+        lineSpeedInShacklesPerHour: 12780,
+        casRecipe: const CasRecipe.standardChickenRecipe(),
+        moduleType: AngliaAutoFlowModule(),
+        moduleGroupCapacities: [
+          ModuleGroupCapacity(
+              firstModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ),
+              secondModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ))
+        ]),
+    ProductDefinition(
+        areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+        birdType: 'Chicken',
+        /// Running a too high line speed so we can determine the actual
+        /// hanged birds/hour, by monitoring the [ShackleLine].
+        lineSpeedInShacklesPerHour: 19800  ,
+        casRecipe: const CasRecipe.standardChickenRecipe(),
+        moduleType: AngliaAutoFlowModule(),
+        moduleGroupCapacities: [
+          ModuleGroupCapacity(
+              firstModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ),
+              secondModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ))
+        ]),
+    ProductDefinition(
+        areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+        birdType: 'Chicken',
+        /// Runs 15400 b/h theoretically (see previous product definition),
+        /// Assuming we need 10% margin = 15400 *0.9=13860 b/h
+        lineSpeedInShacklesPerHour: 13860  ,
+        casRecipe: const CasRecipe.standardChickenRecipe(),
+        moduleType: AngliaAutoFlowModule(),
+        moduleGroupCapacities: [
+          ModuleGroupCapacity(
+              firstModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ),
+              secondModule: ModuleCapacity(
+                numberOfCompartments: 4,
+                numberOfBirdsPerCompartment: 45,
+              ))
+        ])
         ]);
 
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [DobrimexLiveBirdHandlingArea(productDefinition)];
+  static List<LiveBirdHandlingArea> Function(ProductDefinition) _areaFactory(
+          DobrimexAreaType areaType) =>
+      (ProductDefinition productDefinition) =>
+          [DobrimexLiveBirdHandlingArea(productDefinition, areaType)];
 }
 
+enum DobrimexAreaType { fiveCasUnits, sixCasUnits }
+
 class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  DobrimexLiveBirdHandlingArea(ProductDefinition productDefinition)
+  DobrimexLiveBirdHandlingArea(
+      ProductDefinition productDefinition, DobrimexAreaType areaType)
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,
         ) {
     _row1();
-    _row2();
+    _row2(areaType);
     _row3();
     _row4();
   }
@@ -91,14 +170,16 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     ));
   }
 
-  void _row2() {
-    put(ModuleCas(
-      area: this,
-      position: const Position(1, 2),
-      seqNr: 6,
-      inAndOutFeedDirection: CardinalDirection.east,
-      doorDirection: CardinalDirection.south,
-    ));
+  void _row2(DobrimexAreaType areaType) {
+    if (areaType == DobrimexAreaType.sixCasUnits) {
+      put(ModuleCas(
+        area: this,
+        position: const Position(1, 2),
+        seqNr: 6,
+        inAndOutFeedDirection: CardinalDirection.east,
+        doorDirection: CardinalDirection.south,
+      ));
+    }
 
     put(ModuleRotatingConveyor(
       area: this,

@@ -81,7 +81,6 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
-              loadFactor: LoadFactor.minimum,
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
@@ -102,7 +101,6 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
-              loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
@@ -124,7 +122,6 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Female Turkey',
-              loadFactor: LoadFactor.max,
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
@@ -147,7 +144,6 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Male Turkey',
-              loadFactor: LoadFactor.minimum,
               lineSpeedInShacklesPerHour: 1800,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
@@ -170,7 +166,6 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Male Turkey',
-              loadFactor: LoadFactor.average,
               lineSpeedInShacklesPerHour: 1800,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
@@ -193,7 +188,6 @@ class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Male Turkey',
-              loadFactor: LoadFactor.max,
               lineSpeedInShacklesPerHour: 1800,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),

@@ -41,7 +41,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -57,7 +56,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -73,7 +71,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -89,7 +86,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -105,7 +101,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -121,7 +116,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -137,7 +131,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
@@ -153,7 +146,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              loadFactor: LoadFactor.average,
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
