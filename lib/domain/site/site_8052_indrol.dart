@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
@@ -22,7 +23,7 @@ class IndrolSite extends Site {
           organizationName: 'Indrol',
           city: 'Grodzisk',
           country: 'Poland',
-          productDefinitions: IndrolProductDefinitions(),
+          productDefinitions: ProductDefinitions(),
         );
 }
 
@@ -45,177 +46,104 @@ class IndrolSite extends Site {
 ///  - avr birds: 300/20kg= 15 birds/level x 3 levels= 45 birds per module
 ///  - max birds: 300/18kg= 16 birds/level x 3 levels= 48 birds per module
 
-class IndrolProductDefinitions extends DelegatingList<ProductDefinition> {
-  static const double femaleTurkeyMaxWeightInKg = 11.5;
-  static final int femaleTurkeysMinimumPerCompartment =
-      (MeynOmniTurkeyModule.maxKgPerCompartment / femaleTurkeyMaxWeightInKg)
-          .truncate();
+class ProductDefinitions extends DelegatingList<ProductDefinition> {
+  static final ModuleCapacity femaleTurkeyMaxWeightCapacity =
+      MeynOmniTurkeyModule().levels(3).capacityInWinter(kilo.grams(11.5));
+  static final ModuleCapacity femaleTurkeyAverageWeightCapacity =
+      MeynOmniTurkeyModule().levels(3).capacityInWinter(kilo.grams(10.0));
+  static final ModuleCapacity femaleTurkeyMinWeightCapacity =
+      MeynOmniTurkeyModule().levels(3).capacityInWinter(kilo.grams(8.5));
 
-  static const double femaleTurkeyAverageWeightInKg = 10;
-  static final int femaleTurkeysAveragePerCompartment =
-      (MeynOmniTurkeyModule.maxKgPerCompartment / femaleTurkeyAverageWeightInKg)
-          .truncate();
+  static final ModuleCapacity maleTurkeyMaxWeightCapacity =
+      MeynOmniTurkeyModule().levels(3).capacityInWinter(kilo.grams(23));
+  static final ModuleCapacity maleTurkeyAverageWeightCapacity =
+      MeynOmniTurkeyModule().levels(3).capacityInWinter(kilo.grams(20));
+  static final ModuleCapacity maleTurkeyMinWeightCapacity =
+      MeynOmniTurkeyModule().levels(3).capacityInWinter(kilo.grams(18));
 
-  static const double femaleTurkeyMinWeightInKg = 8.5;
-  static final int femaleTurkeysMaximumPerCompartment =
-      (MeynOmniTurkeyModule.maxKgPerCompartment / femaleTurkeyMinWeightInKg)
-          .truncate();
-
-  static const double maleTurkeyMaxWeightInKg = 23;
-  static final int maleTurkeysMinimumPerCompartment =
-      (MeynOmniTurkeyModule.maxKgPerCompartment / maleTurkeyMaxWeightInKg)
-          .truncate();
-
-  static const double maleTurkeyAverageWeightInKg = 20;
-  static final int maleTurkeysAveragePerCompartment =
-      (MeynOmniTurkeyModule.maxKgPerCompartment / maleTurkeyAverageWeightInKg)
-          .truncate();
-
-  static const double maleTurkeyMinWeightInKg = 18;
-  static final int maleTurkeysMaximumPerCompartment =
-      (MeynOmniTurkeyModule.maxKgPerCompartment / maleTurkeyMinWeightInKg)
-          .truncate();
-
-  IndrolProductDefinitions()
+  ProductDefinitions()
       : super([
           ProductDefinition(
               areaFactory: _areaFactory(),
-              birdType: 'Female Turkey',
+              birdType: 'Female Turkey min weight',
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments:
-                          MeynOmniTurkeyModule.numberOfCompartments,
-                      numberOfBirdsPerCompartment:
-                          femaleTurkeysMinimumPerCompartment),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments:
-                          MeynOmniTurkeyModule.numberOfCompartments,
-                      numberOfBirdsPerCompartment:
-                          femaleTurkeysMinimumPerCompartment),
+                  firstModule: femaleTurkeyMinWeightCapacity,
+                  secondModule: femaleTurkeyMinWeightCapacity,
                 )
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
-              birdType: 'Female Turkey',
+              birdType: 'Female Turkey avr weight',
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                    firstModule: ModuleCapacity(
-                      numberOfCompartments:
-                          MeynOmniTurkeyModule.numberOfCompartments,
-                      numberOfBirdsPerCompartment:
-                          femaleTurkeysAveragePerCompartment,
-                    ),
-                    secondModule: ModuleCapacity(
-                      numberOfCompartments:
-                          MeynOmniTurkeyModule.numberOfCompartments,
-                      numberOfBirdsPerCompartment:
-                          femaleTurkeysAveragePerCompartment,
-                    ))
+                  firstModule: femaleTurkeyAverageWeightCapacity,
+                  secondModule: femaleTurkeyAverageWeightCapacity,
+                )
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
-              birdType: 'Female Turkey',
+              birdType: 'Female Turkey max weight',
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        femaleTurkeysMaximumPerCompartment,
-                  ),
-                  secondModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        femaleTurkeysMaximumPerCompartment,
-                  ),
-                )
+                  firstModule: femaleTurkeyMaxWeightCapacity,
+                  secondModule: femaleTurkeyMaxWeightCapacity,
+                ),
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
-              birdType: 'Male Turkey',
+              birdType: 'Male Turkey min weight',
               lineSpeedInShacklesPerHour: 1800,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        maleTurkeysMinimumPerCompartment,
-                  ),
-                  secondModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        maleTurkeysMinimumPerCompartment,
-                  ),
+                  firstModule: maleTurkeyMinWeightCapacity,
+                  secondModule: maleTurkeyMinWeightCapacity,
                 )
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
-              birdType: 'Male Turkey',
+              birdType: 'Male Turkey average weight',
               lineSpeedInShacklesPerHour: 1800,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        maleTurkeysAveragePerCompartment,
-                  ),
-                  secondModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        maleTurkeysAveragePerCompartment,
-                  ),
+                  firstModule: maleTurkeyAverageWeightCapacity,
+                  secondModule: maleTurkeyAverageWeightCapacity,
                 )
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
-              birdType: 'Male Turkey',
+              birdType: 'Male Turkey max weight',
               lineSpeedInShacklesPerHour: 1800,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleType: MeynOmniTurkeyModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        maleTurkeysMaximumPerCompartment,
-                  ),
-                  secondModule: ModuleCapacity(
-                    numberOfCompartments:
-                        MeynOmniTurkeyModule.numberOfCompartments,
-                    numberOfBirdsPerCompartment:
-                        maleTurkeysMaximumPerCompartment,
-                  ),
+                  firstModule: maleTurkeyMaxWeightCapacity,
+                  secondModule: maleTurkeyMaxWeightCapacity,
                 )
               ]),
         ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [IndrolLiveBirdHandlingArea(productDefinition)];
+      _areaFactory() =>
+          (ProductDefinition productDefinition) => [Area(productDefinition)];
 }
 
-class IndrolLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  IndrolLiveBirdHandlingArea(ProductDefinition productDefinition)
+class Area extends LiveBirdHandlingArea {
+  Area(ProductDefinition productDefinition)
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,

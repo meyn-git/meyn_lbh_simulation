@@ -36,91 +36,80 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: AngliaAutoFlowModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                    firstModule: ModuleCapacity(
-                      numberOfCompartments: 4,
-                      numberOfBirdsPerCompartment: 45,
-                    ),
-                    secondModule: ModuleCapacity(
-                      numberOfCompartments: 5,
-                      numberOfBirdsPerCompartment: 45,
-                    ))
+                  firstModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                  secondModule: AngliaAutoFlowModule().levels(5)
+                      .capacity(birdsPerCompartment: 15),
+                )
               ]),
-    ProductDefinition(
-        areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
-        birdType: 'Chicken',
-        /// Running a too high line speed so we can determine the actual
-        /// hanged birds/hour, by monitoring the [ShackleLine].
-        lineSpeedInShacklesPerHour: 16500 ,
-        casRecipe: const CasRecipe.standardChickenRecipe(),
-        moduleType: AngliaAutoFlowModule(),
-        moduleGroupCapacities: [
-          ModuleGroupCapacity(
-              firstModule: ModuleCapacity(
-                numberOfCompartments: 4,
-                numberOfBirdsPerCompartment: 45,
-              ),
-              secondModule: ModuleCapacity(
-                numberOfCompartments: 4,
-                numberOfBirdsPerCompartment: 45,
-              ))
-        ]),
-    ProductDefinition(
-        areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
-        birdType: 'Chicken',
-        /// Runs 14200 b/h theoretically (see previous product definition),
-        /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
-        lineSpeedInShacklesPerHour: 12780,
-        casRecipe: const CasRecipe.standardChickenRecipe(),
-        moduleType: AngliaAutoFlowModule(),
-        moduleGroupCapacities: [
-          ModuleGroupCapacity(
-              firstModule: ModuleCapacity(
-                numberOfCompartments: 4,
-                numberOfBirdsPerCompartment: 45,
-              ),
-              secondModule: ModuleCapacity(
-                numberOfCompartments: 4,
-                numberOfBirdsPerCompartment: 45,
-              ))
-        ]),
-    ProductDefinition(
-        areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
-        birdType: 'Chicken',
-        /// Running a too high line speed so we can determine the actual
-        /// hanged birds/hour, by monitoring the [ShackleLine].
-        lineSpeedInShacklesPerHour: 19800  ,
-        casRecipe: const CasRecipe.standardChickenRecipe(),
-        moduleType: AngliaAutoFlowModule(),
-        moduleGroupCapacities: [
-          ModuleGroupCapacity(
-              firstModule: ModuleCapacity(
-                numberOfCompartments: 4,
-                numberOfBirdsPerCompartment: 45,
-              ),
-              secondModule: ModuleCapacity(
-                numberOfCompartments: 5,
-                numberOfBirdsPerCompartment: 45,
-              ))
-        ]),
-    ProductDefinition(
-        areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
-        birdType: 'Chicken',
-        /// Runs 17100 b/h theoretically (see previous product definition),
-        /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
-        lineSpeedInShacklesPerHour: 15390  ,
-        casRecipe: const CasRecipe.standardChickenRecipe(),
-        moduleType: AngliaAutoFlowModule(),
-        moduleGroupCapacities: [
-          ModuleGroupCapacity(
-              firstModule: ModuleCapacity(
-                numberOfCompartments: 4,
-                numberOfBirdsPerCompartment: 45,
-              ),
-              secondModule: ModuleCapacity(
-                numberOfCompartments: 5,
-                numberOfBirdsPerCompartment: 45,
-              ))
-        ])
+          ProductDefinition(
+              areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
+              birdType: 'Chicken',
+
+              /// Running a too high line speed so we can determine the actual
+              /// hanged birds/hour, by monitoring the [ShackleLine].
+              lineSpeedInShacklesPerHour: 16500,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              moduleType: AngliaAutoFlowModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                  secondModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                )
+              ]),
+          ProductDefinition(
+              areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
+              birdType: 'Chicken',
+
+              /// Runs 14200 b/h theoretically (see previous product definition),
+              /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
+              lineSpeedInShacklesPerHour: 12780,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              moduleType: AngliaAutoFlowModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                  secondModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                )
+              ]),
+          ProductDefinition(
+              areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+              birdType: 'Chicken',
+
+              /// Running a too high line speed so we can determine the actual
+              /// hanged birds/hour, by monitoring the [ShackleLine].
+              lineSpeedInShacklesPerHour: 19800,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              moduleType: AngliaAutoFlowModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                  secondModule: AngliaAutoFlowModule().levels(5)
+                      .capacity(birdsPerCompartment: 15),
+                )
+              ]),
+          ProductDefinition(
+              areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+              birdType: 'Chicken',
+
+              /// Runs 17100 b/h theoretically (see previous product definition),
+              /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
+              lineSpeedInShacklesPerHour: 15390,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              moduleType: AngliaAutoFlowModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: AngliaAutoFlowModule().levels(4)
+                      .capacity(birdsPerCompartment: 15),
+                  secondModule: AngliaAutoFlowModule().levels(5)
+                      .capacity(birdsPerCompartment: 15),
+                )
+              ])
         ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition) _areaFactory(

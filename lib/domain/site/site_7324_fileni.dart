@@ -44,10 +44,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 26),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 26),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 26),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 26),
                 )
               ]),
           ProductDefinition(
@@ -59,10 +61,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 33),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 33),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 33),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 33),
                 )
               ]),
           ProductDefinition(
@@ -74,10 +78,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 52),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 52),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 52),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 52),
                 )
               ]),
           ProductDefinition(
@@ -89,10 +95,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 54),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 54),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 54),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 54),
                 )
               ]),
           ProductDefinition(
@@ -104,10 +112,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 26),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 26),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 26),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 26),
                 )
               ]),
           ProductDefinition(
@@ -119,10 +129,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 33),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 33),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 33),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 33),
                 )
               ]),
           ProductDefinition(
@@ -134,10 +146,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 52),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 52),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 52),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 52),
                 )
               ]),
           ProductDefinition(
@@ -149,10 +163,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleType: StorkSquareModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: ModuleCapacity(
-                      numberOfCompartments: 4, numberOfBirdsPerCompartment: 54),
-                  secondModule: ModuleCapacity(
-                      numberOfCompartments: 5, numberOfBirdsPerCompartment: 54),
+                  firstModule: StorkSquareModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 54),
+                  secondModule: StorkSquareModule()
+                      .levels(5)
+                      .capacity(birdsPerCompartment: 54),
                 )
               ]),
         ]);

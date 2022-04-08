@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
 
 import 'life_bird_handling_area.dart';
@@ -258,13 +259,44 @@ class Module {
       .toString();
 }
 
-class MeynEvoContainer extends ModuleType {
-  MeynEvoContainer()
+class MeynEvoContainers extends ModuleType {
+  MeynEvoContainers()
       : super(
           shape: ModuleShape.rectangularStacked,
           birdType: BirdType.chicken,
           compartmentType: CompartmentType.door,
+          sizes: [
+            ModuleSize(compartmentsPerLevel: 1, levels: 4),
+            ModuleSize(compartmentsPerLevel: 1, levels: 5),
+          ],
+          //following durations are based on measurements at: 7113-Tyson Union city
+          stackerInFeedDuration: const Duration(seconds: 14),
+          conveyorTransportDuration: const Duration(seconds: 12),
 
+          casTransportDuration: const Duration(seconds: 14),
+
+          turnTableDegreesPerSecond: (90 / 6).round(),
+        );
+}
+
+class MeynGrandeDrawerModule extends ModuleType {
+  MeynGrandeDrawerModule()
+      : super(
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.chicken,
+          compartmentType: CompartmentType.drawer,
+          sizes: [
+            ModuleSize(
+                compartmentsPerLevel: 2,
+                levels: 4,
+                maxWeightPerCompartment: kilo.grams(76),
+                emptyWeight: kilo.grams(380)),
+            ModuleSize(
+                compartmentsPerLevel: 2,
+                levels: 5,
+                maxWeightPerCompartment: kilo.grams(76),
+                emptyWeight: kilo.grams(430)),
+          ],
           //following durations are based on measurements at: 7113-Tyson Union city
           stackerInFeedDuration: const Duration(seconds: 14),
           conveyorTransportDuration: const Duration(seconds: 12),
@@ -273,15 +305,47 @@ class MeynEvoContainer extends ModuleType {
         );
 }
 
-class MeynOmniTurkeyModule extends ModuleType {
-  static const maxKgPerCompartment = 300;
-  static const numberOfCompartments = 3;
+class MeynMaxiLoadModule extends ModuleType {
+  MeynMaxiLoadModule()
+      : super(
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.chicken,
+          compartmentType: CompartmentType.drawer,
+          sizes: [
+            ModuleSize(
+                compartmentsPerLevel: 2,
+                levels: 4,
+                maxWeightPerCompartment: kilo.grams(85),
+                emptyWeight: kilo.grams(393)),
+            ModuleSize(
+                compartmentsPerLevel: 2,
+                levels: 5,
+                maxWeightPerCompartment: kilo.grams(85),
+                emptyWeight: kilo.grams(457)),
+          ],
+          //following durations are based on measurements at: 7113-Tyson Union city
+          stackerInFeedDuration: const Duration(seconds: 14),
+          conveyorTransportDuration: const Duration(seconds: 12),
 
+          casTransportDuration: const Duration(seconds: 14),
+
+          turnTableDegreesPerSecond: (90 / 6).round(),
+        );
+}
+
+class MeynOmniTurkeyModule extends ModuleType {
   MeynOmniTurkeyModule()
       : super(
             shape: ModuleShape.rectangularStacked,
             birdType: BirdType.turkey,
             compartmentType: CompartmentType.door,
+            sizes: [
+              ModuleSize(
+                compartmentsPerLevel: 1,
+                levels: 3,
+                maxWeightPerCompartment: kilo.grams(300),
+              )
+            ],
             //following durations are based on measurements at: 8052-Indrol Grodzisk
             conveyorTransportDuration: const Duration(seconds: 19),
             stackerInFeedDuration: const Duration(seconds: 19),
@@ -295,7 +359,10 @@ class AngliaAutoFlowModule extends ModuleType {
           shape: ModuleShape.rectangularStacked,
           birdType: BirdType.chicken,
           compartmentType: CompartmentType.drawer,
-
+          sizes: [
+            ModuleSize(compartmentsPerLevel: 3, levels: 4),
+            ModuleSize(compartmentsPerLevel: 3, levels: 5),
+          ],
           //following durations are based on measurements at: 7113-Tyson Union city
           stackerInFeedDuration: const Duration(seconds: 14),
           conveyorTransportDuration: const Duration(seconds: 12),
@@ -310,7 +377,10 @@ class StorkSquareModule extends ModuleType {
           shape: ModuleShape.squareSideBySide,
           birdType: BirdType.chicken,
           compartmentType: CompartmentType.door,
-
+          sizes: [
+            ModuleSize(compartmentsPerLevel: 1, levels: 4),
+            ModuleSize(compartmentsPerLevel: 1, levels: 5),
+          ],
           //following durations are based on measurements at: 7696-Dabe-Germanyk
           conveyorTransportDuration: const Duration(milliseconds: 13400),
           stackerInFeedDuration: const Duration(milliseconds: 18700),
@@ -319,87 +389,39 @@ class StorkSquareModule extends ModuleType {
         );
 }
 
-class StorkSquareGpModule extends ModuleType {
-  StorkSquareGpModule()
+class StorkRectangularGpModule extends ModuleType {
+  StorkRectangularGpModule()
       : super(
-    shape: ModuleShape.rectangularStacked,
-    birdType: BirdType.chicken,
-    compartmentType: CompartmentType.door,
+          shape: ModuleShape.rectangularStacked,
+          birdType: BirdType.chicken,
+          compartmentType: CompartmentType.door,
+          sizes: [ModuleSize(compartmentsPerLevel: 2, levels: 4)],
 
-    //following durations are based on measurements at: 7113-Tyson Union city
-    stackerInFeedDuration: const Duration(seconds: 14),
-    conveyorTransportDuration: const Duration(seconds: 12),
-    casTransportDuration: const Duration(seconds: 14),
-    turnTableDegreesPerSecond: (90 / 6).round(),
-  );
+          //following durations are based on measurements at: 7113-Tyson Union city
+          stackerInFeedDuration: const Duration(seconds: 14),
+          conveyorTransportDuration: const Duration(seconds: 12),
+          casTransportDuration: const Duration(seconds: 14),
+          turnTableDegreesPerSecond: (90 / 6).round(),
+        );
 }
-
-// class StorkSquare4LayerChickenModule extends ModuleCapacity {
-//   StorkSquare4LayerChickenModule()
-//       : super(
-//           name: '$StorkSquare4LayerChickenModule',
-//           shape: ModuleShape.squareSideBySide,
-//           birdType: BirdType.chicken,
-//           maxKgPerCompartment: 99999,
-//           //unknown
-//           numberOfCompartments: 4,
-//           compartmentType: CompartmentType.door,
-//         );
-// }
-//
-// class StorkSquare5LayerChickenModule extends ModuleCapacity {
-//   StorkSquare5LayerChickenModule()
-//       : super(
-//           name: '$StorkSquare5LayerChickenModule',
-//           shape: ModuleShape.squareSideBySide,
-//           birdType: BirdType.chicken,
-//           maxKgPerCompartment: 99999,
-//           //unknown
-//           numberOfCompartments: 5,
-//           compartmentType: CompartmentType.door,
-//         );
-// }
-
-// class AngliaAutoFlow4LayerChickenModule extends AngliaAutoFlowModuleType
-//     implements ModuleCapacity {
-//   @override
-//   BirdType get birdType => BirdType.chicken;
-//
-//   @override
-//   double get maxKgPerCompartment => 99999; // unknown
-//
-//   @override
-//   int get numberOfCompartments => 4;
-// }
-//
-// class AngliaAutoFlow5LayerChickenModule extends ModuleCapacity {
-//   AngliaAutoFlow5LayerChickenModule()
-//       : super(
-//           name: '$AngliaAutoFlow5LayerChickenModule',
-//           shape: ModuleShape.rectangularStacked,
-//           birdType: BirdType.chicken,
-//           maxKgPerCompartment: 99999,
-//           //unknown
-//           numberOfCompartments: 5,
-//           compartmentType: CompartmentType.drawer,
-//         );
-// }
 
 class ModuleType {
   final ModuleShape shape;
   final CompartmentType compartmentType;
   final BirdType birdType;
-  final Duration conveyorTransportDuration;
+  final List<ModuleSize> sizes;
 
   /// [stackerInFeedDuration] is also used for [ModuleDeStacker]
   final Duration stackerInFeedDuration;
+  final Duration conveyorTransportDuration;
   final Duration casTransportDuration;
   final int turnTableDegreesPerSecond;
 
   ModuleType({
     required this.shape,
-    required this.compartmentType,
     required this.birdType,
+    required this.compartmentType,
+    required this.sizes,
     required this.conveyorTransportDuration, //= const Duration(seconds: 12),
     required this.stackerInFeedDuration, //= const Duration(seconds: 14),
     required this.casTransportDuration, //= const Duration(seconds: 14),
@@ -407,25 +429,69 @@ class ModuleType {
   });
 
   String get name => '$shape-$compartmentType-$birdType';
+
+  ModuleSize levels(int levels) =>
+      sizes.where((size) => size.levels == levels).first;
+}
+
+class ModuleSize {
+  final int compartmentsPerLevel;
+  final int levels;
+  final Mass? emptyWeight;
+  final Mass? maxWeightPerCompartment;
+
+  ModuleSize({
+    required this.compartmentsPerLevel,
+    required this.levels,
+    this.emptyWeight,
+    this.maxWeightPerCompartment,
+  });
+
+  /// Calculates the [ModuleCapacity] when  <30ºC
+  ModuleCapacity capacityInWinter(Mass maxBirdWeight) => ModuleCapacity(
+      compartmentsPerLevel: compartmentsPerLevel,
+      levels: levels,
+      birdsPerCompartment: birdsPerCompartment(maxBirdWeight));
+
+  /// Calculates the [ModuleCapacity] when  >30ºC (capacity is 90% of normal)
+  ModuleCapacity capacityInSummer(Mass maxBirdWeight) => ModuleCapacity(
+      compartmentsPerLevel: compartmentsPerLevel,
+      levels: levels,
+      birdsPerCompartment: birdsPerCompartment(maxBirdWeight) * 0.9.truncate());
+
+  ModuleCapacity capacity({required int birdsPerCompartment}) => ModuleCapacity(
+      compartmentsPerLevel: compartmentsPerLevel,
+      levels: levels,
+      birdsPerCompartment: birdsPerCompartment);
+
+  int birdsPerCompartment(Mass maxBirdWeight) {
+    if (maxWeightPerCompartment == null) {
+      throw Exception(
+          'Could not calculate the module capacity because the maxWeightPerCompartment is unknown for this ModuleType');
+    }
+    return (maxWeightPerCompartment!.as(grams) / maxBirdWeight.as(grams))
+        .truncate();
+  }
 }
 
 class ModuleCapacity {
-  static const unknown = -1.0;
-
-  final int numberOfCompartments;
-  final int numberOfBirdsPerCompartment;
-  final double maxKgPerCompartment;
+  final int compartmentsPerLevel;
+  final int birdsPerCompartment;
+  final int levels;
 
   ModuleCapacity({
-    required this.numberOfCompartments,
-    required this.numberOfBirdsPerCompartment,
-    this.maxKgPerCompartment = unknown,
+    required this.compartmentsPerLevel,
+    required this.levels,
+    required this.birdsPerCompartment,
   });
 
-  int get numberOfBirds => numberOfCompartments * numberOfBirdsPerCompartment;
+  int get numberOfBirds => compartments * birdsPerCompartment;
+
+  int get compartments => compartmentsPerLevel * levels;
 
   @override
-  String toString() => '${numberOfCompartments}x$numberOfBirdsPerCompartment';
+  String toString() =>
+      '$levels${compartmentsPerLevel == 1 ? '' : 'x$compartmentsPerLevel'}x$birdsPerCompartment';
 }
 
 class ModuleGroupCapacity {
@@ -447,15 +513,15 @@ class ModuleGroupCapacity {
 
   @override
   String toString() {
-    if (secondModule==null) {
+    if (secondModule == null) {
       return firstModule.toString();
-    } if (firstModule.toString()==secondModule.toString()) {
+    }
+    if (firstModule.toString() == secondModule.toString()) {
       return '2x$firstModule';
     } else {
       return '$firstModule+$secondModule';
     }
   }
-
 }
 
 enum ModuleShape { squareSideBySide, rectangularStacked }

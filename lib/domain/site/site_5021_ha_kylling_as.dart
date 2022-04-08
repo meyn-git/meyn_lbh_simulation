@@ -32,39 +32,38 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: (ProductDefinition productDefinition) =>
                   [Area(productDefinition)],
               birdType: 'Chicken',
+
               /// To measure max birds/hour at [ShackleLine]
               lineSpeedInShacklesPerHour: 20000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareGpModule(),
+              moduleType: StorkRectangularGpModule(),
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                    firstModule: ModuleCapacity(
-                      numberOfCompartments: 2 * 4,
-                      numberOfBirdsPerCompartment: 37,
-                    ),
-                    secondModule: ModuleCapacity(
-                      numberOfCompartments: 2 * 4,
-                      numberOfBirdsPerCompartment: 37,
-                    ))
+                  firstModule: StorkRectangularGpModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 37),
+                  secondModule: StorkRectangularGpModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 37),
+                )
               ]),
-    ProductDefinition(
-        areaFactory: (ProductDefinition productDefinition) =>
-        [Area(productDefinition)],
-        birdType: 'Chicken',
-        lineSpeedInShacklesPerHour: 9300,
-        casRecipe: const CasRecipe.standardChickenRecipe(),
-        moduleType: StorkSquareGpModule(),
-        moduleGroupCapacities: [
-          ModuleGroupCapacity(
-              firstModule: ModuleCapacity(
-                numberOfCompartments: 2 * 4,
-                numberOfBirdsPerCompartment: 37,
-              ),
-              secondModule: ModuleCapacity(
-                numberOfCompartments: 2 * 4,
-                numberOfBirdsPerCompartment: 37,
-              ))
-        ]),
+          ProductDefinition(
+              areaFactory: (ProductDefinition productDefinition) =>
+                  [Area(productDefinition)],
+              birdType: 'Chicken',
+              lineSpeedInShacklesPerHour: 9300,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              moduleType: StorkRectangularGpModule(),
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: StorkRectangularGpModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 37),
+                  secondModule: StorkRectangularGpModule()
+                      .levels(4)
+                      .capacity(birdsPerCompartment: 37),
+                )
+              ]),
         ]);
 }
 
