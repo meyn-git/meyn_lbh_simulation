@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
 
@@ -434,9 +435,120 @@ class ModuleType {
       sizes.where((size) => size.levels == levels).first;
 }
 
+class LoadDensity extends DerivedMeasurement<Area, Mass> {
+  final Supplier standardOwner;
+  final BirdType birdType;
+  final LoadDensityType type;
+
+  LoadDensity(
+      {required this.standardOwner,
+      required this.birdType,
+      required this.type,
+
+      /// The area for 1 kilo gram live weight at 100% loading
+      required Area area})
+      : super.divide(_calculateArea(area, type), grams(1000));
+
+  double get squareMeterPerKgLiveWeight => as(Area.square(meters), kilo.grams);
+
+  @override
+  String toString() {
+    return 'LoadDensity{standardOwner: $standardOwner, birdType: $birdType, type: $type, squareMeterPerKgLiveWeight: $squareMeterPerKgLiveWeight}';
+  }
+
+  static Area _calculateArea(Area area, LoadDensityType type) {
+    var factor = 100 / type.percentage;
+    var side = meters(area.as(meters, meters) * factor);
+    return Area.of(side, meters(1));
+  }
+}
+
+enum Supplier { meyn, marel, linco, baader }
+
+class LoadDensityType {
+  final String name;
+  final int percentage;
+
+
+  LoadDensityType.max()
+      : name = 'Max',
+        percentage = 100;
+
+  LoadDensityType.summer({required this.percentage}) : name = 'Summer';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LoadDensityType &&
+          runtimeType == other.runtimeType &&
+          percentage == other.percentage &&
+          name == other.name;
+
+  @override
+  int get hashCode => percentage.hashCode ^ name.hashCode;
+
+  @override
+  String toString() {
+    return 'LoadDensityType{name: $name, percentage: $percentage}';
+  }
+}
+
+class LoadDensities extends DelegatingList<LoadDensity> {
+  static Area _createArea(double squareCentimeters) => Area.of(centi.meters(squareCentimeters), centi.meters(1) );
+
+  LoadDensities()
+      : super([
+          LoadDensity(
+              standardOwner: Supplier.meyn,
+              birdType: BirdType.chicken,
+              type: LoadDensityType.max(),
+              area: _createArea(16)),
+          LoadDensity(
+              standardOwner: Supplier.meyn,
+              birdType: BirdType.chicken,
+              type: LoadDensityType.summer(percentage: 90),
+              area: _createArea(16)),
+          LoadDensity(
+              standardOwner: Supplier.meyn,
+              birdType: BirdType.turkey,
+              type: LoadDensityType.max(),
+              area: _createArea(10.5)),
+          LoadDensity(
+              standardOwner: Supplier.meyn,
+              birdType: BirdType.chicken,
+              type: LoadDensityType.summer(percentage: 90),
+              area: _createArea(10.5)),
+          LoadDensity(
+              standardOwner: Supplier.marel,
+              birdType: BirdType.chicken,
+              type: LoadDensityType.max(),
+              area: _createArea(17)),
+          LoadDensity(
+              standardOwner: Supplier.marel,
+              birdType: BirdType.chicken,
+              type: LoadDensityType.summer(percentage: 70),
+              area: _createArea(17)),
+        ]);
+
+}
+
 class ModuleSize {
   final int compartmentsPerLevel;
   final int levels;
+
+  /// emptyWeight
+  /// TODO change to Area liveBirdCompartmentArea
+  /// TODO add method to calculate Mass maxCompartmentLoad using LoadDensity cm2/kg = (liveBirdCompartmentArea/ loadDensity *1000?):
+  /// * Meyn Chicken Max	100%	160 cm2/kg live weight
+  /// * Meyn Chicken Summer	90%	178 cm2/kg live weight
+  /// * Meyn Turkey Max	100%	105 cm2/kg live weight
+  /// * Meyn Turkey Summer	90%	117 cm2/kg live weight
+  /// * Marel Chicken Max	100%	170 cm2/kg live weight
+  /// * Marel Chicken Summer	70%	243 cm2/kg live weight
+  /// TODO change birdsPerCompartment= ((maxCompartmentLoad(loadDensity)/averageBirdWeighHeaviestFlock).truncate)
+  /// TODO remove capacityInWinter
+  /// TODO remove capacityInSummer
+  /// TODO change capacity (use birdsPerCompartment method)
   final Mass? emptyWeight;
   final Mass? maxWeightPerCompartment;
 
