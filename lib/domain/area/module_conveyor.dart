@@ -26,9 +26,9 @@ class ModuleConveyor extends StateMachineCell {
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
           inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
           outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
   Cell get receivingNeighbour =>

@@ -68,7 +68,7 @@ class LoadingForkLiftTruck extends StateMachineCell {
     var moduleGroupCapacity = _randomModuleGroupCapacity();
 
     var moduleGroup = ModuleGroup(
-        type: area.productDefinition.moduleType,
+        moduleFamily: area.productDefinition.moduleFamily,
         firstModule: Module(
           nrOfBirds: moduleGroupCapacity.firstModule.numberOfBirds,
           sequenceNumber: ++sequenceNumber,

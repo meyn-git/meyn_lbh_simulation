@@ -46,16 +46,16 @@ class ModuleRotatingConveyor extends StateMachineCell {
     Duration? outFeedDuration,
   })  : currentDirection = calculateBeginPosition(defaultPositionWhenIdle),
         degreesPerSecond = degreesPerSecond ??
-            area.productDefinition.moduleType.turnTableDegreesPerSecond,
+            area.productDefinition.moduleSystem.turnTableDegreesPerSecond,
         super(
           area: area,
           position: position,
           seqNr: seqNr,
           initialState: TurnToInFeed(),
           inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
           outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
   bool get moduleGroupFeedingIn => area.moduleGroups

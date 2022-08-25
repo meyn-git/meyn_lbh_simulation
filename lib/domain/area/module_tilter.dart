@@ -40,9 +40,9 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
           seqNr: seqNr,
           initialState: CheckIfEmpty(),
           inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
           outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
         ) {
     _verifyDirections();
   }
@@ -161,7 +161,7 @@ class FeedIn extends State<ModuleTilter> {
 
   void _verifyDoorDirection(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroup!;
-    var hasDoors = moduleGroup.type.compartmentType == CompartmentType.door;
+    var hasDoors = moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
     if (hasDoors &&
         moduleGroup.direction.toCardinalDirection() != tilter.birdDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');

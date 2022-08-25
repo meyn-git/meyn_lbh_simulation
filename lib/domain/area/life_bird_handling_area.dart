@@ -408,19 +408,23 @@ abstract class BirdBuffer {
 class ProductDefinition {
   final String birdType;
   final int lineSpeedInShacklesPerHour;
-  final ModuleType moduleType;
+   final ModuleFamily moduleFamily;
   final List<ModuleGroupCapacity> moduleGroupCapacities;
   final CasRecipe? casRecipe;
+  final ModuleSystem moduleSystem;
   final List<LiveBirdHandlingArea> Function(ProductDefinition) areaFactory;
 
   ProductDefinition({
     required this.areaFactory,
+    required this.moduleSystem,
     required this.birdType,
     required this.lineSpeedInShacklesPerHour,
-    required this.moduleType,
+    required this.moduleFamily,
     required this.moduleGroupCapacities,
     required this.casRecipe,
-  });
+  }) {
+    _verifyModuleGroupCapacities();
+  }
 
   List<LiveBirdHandlingArea> get areas => areaFactory(this);
 
@@ -437,6 +441,12 @@ class ProductDefinition {
   @override
   String toString() {
     return '$birdType-${lineSpeedInShacklesPerHour}b/h-${moduleGroupCapacities.join(' ')}';
+  }
+
+  void _verifyModuleGroupCapacities() {
+    if (moduleGroupCapacities.isEmpty) {
+      throw ArgumentError('May not be empty','moduleGroupCapacities');
+    }
   }
 }
 

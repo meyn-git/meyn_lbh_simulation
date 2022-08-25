@@ -33,9 +33,9 @@ class ModuleCas extends StateMachineCell {
           seqNr: seqNr,
           initialState: WaitToFeedIn(),
           inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleType.casTransportDuration,
+              area.productDefinition.moduleSystem.casTransportDuration,
           outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleType.casTransportDuration,
+              area.productDefinition.moduleSystem.casTransportDuration,
         ) {
     _verifyDirections();
     _verifyCasRecipeIsDefined();
@@ -186,7 +186,7 @@ class FeedIn extends State<ModuleCas> {
 
   void _verifyDoorDirection(ModuleCas cas) {
     var moduleGroup = cas.moduleGroup!;
-    var hasDoors = moduleGroup.type.compartmentType == CompartmentType.door;
+    var hasDoors = moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
     if (hasDoors &&
         moduleGroup.direction.toCardinalDirection() != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');

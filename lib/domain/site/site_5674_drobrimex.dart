@@ -33,13 +33,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Chicken',
               lineSpeedInShacklesPerHour: 15000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: AngliaAutoFlowModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
-                  secondModule: AngliaAutoFlowModule().levels(5)
-                      .capacity(birdsPerCompartment: 15),
+                  firstModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
+                  secondModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
                 )
               ]),
           ProductDefinition(
@@ -50,13 +53,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// hanged birds/hour, by monitoring the [ShackleLine].
               lineSpeedInShacklesPerHour: 16500,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: AngliaAutoFlowModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
-                  secondModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
+                  firstModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
+                  secondModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
                 )
               ]),
           ProductDefinition(
@@ -67,13 +73,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
               lineSpeedInShacklesPerHour: 12780,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: AngliaAutoFlowModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
-                  secondModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
+                  firstModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
+                  secondModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
                 )
               ]),
           ProductDefinition(
@@ -84,13 +93,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// hanged birds/hour, by monitoring the [ShackleLine].
               lineSpeedInShacklesPerHour: 19800,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: AngliaAutoFlowModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
-                  secondModule: AngliaAutoFlowModule().levels(5)
-                      .capacity(birdsPerCompartment: 15),
+                  firstModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
+                  secondModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
                 )
               ]),
           ProductDefinition(
@@ -101,15 +113,18 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
               lineSpeedInShacklesPerHour: 15390,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: AngliaAutoFlowModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowModule().levels(4)
-                      .capacity(birdsPerCompartment: 15),
-                  secondModule: AngliaAutoFlowModule().levels(5)
-                      .capacity(birdsPerCompartment: 15),
+                  firstModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
+                  secondModule: AngliaAutoFlowChickenSmall4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(15),
                 )
-              ])
+              ]),
         ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition) _areaFactory(

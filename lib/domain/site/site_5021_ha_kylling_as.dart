@@ -36,16 +36,17 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               /// To measure max birds/hour at [ShackleLine]
               lineSpeedInShacklesPerHour: 20000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkRectangularGpModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.marelGpRectangular,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkRectangularGpModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 37),
-                  secondModule: StorkRectangularGpModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 37),
-                )
+                    firstModule: MarelGpStainlessSteelRectangular4LevelChicken()
+                        .dimensions
+                        .capacityWithBirdsPerCompartment(37),
+                    secondModule:
+                        MarelGpStainlessSteelRectangular4LevelChicken()
+                            .dimensions
+                            .capacityWithBirdsPerCompartment(37))
               ]),
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
@@ -53,16 +54,17 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Chicken',
               lineSpeedInShacklesPerHour: 9300,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkRectangularGpModule(),
+              moduleSystem: ModuleSystem.meynVdlRectangularContainers,
+              moduleFamily: ModuleFamily.marelGpRectangular,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkRectangularGpModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 37),
-                  secondModule: StorkRectangularGpModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 37),
-                )
+                    firstModule: MarelGpStainlessSteelRectangular4LevelChicken()
+                        .dimensions
+                        .capacityWithBirdsPerCompartment(37),
+                    secondModule:
+                        MarelGpStainlessSteelRectangular4LevelChicken()
+                            .dimensions
+                            .capacityWithBirdsPerCompartment(37))
               ]),
         ]);
 }

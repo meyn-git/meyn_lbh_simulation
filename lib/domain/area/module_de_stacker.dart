@@ -40,9 +40,9 @@ class ModuleDeStacker extends StateMachineCell {
           seqNr: seqNr,
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
           inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleType.stackerInFeedDuration,
+              area.productDefinition.moduleSystem.stackerInFeedDuration,
           outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleType.conveyorTransportDuration,
+              area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
   Cell get receivingNeighbour =>

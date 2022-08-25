@@ -36,7 +36,6 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 
-
   IconButton buildPauseButton() {
     return IconButton(
       icon: const Icon(Icons.pause_rounded),
@@ -241,14 +240,14 @@ class SiteTile extends StatelessWidget {
       '${site.city}-${site.country}';
 
   Future<void> _sendEmail() async {
-    String emailUrl = _createEmailUrl();
-    await launch(emailUrl);
+    Uri emailUrl = _createEmailUrl();
+    await launchUrl(emailUrl);
   }
 
   bool get _isAdmin => GetIt.instance<AuthorizationService>().isAdmin;
 
-  String _createEmailUrl() =>
-      Uri.encodeFull('mailto:?subject=$_emailSubject&body=$_emailBody');
+  Uri _createEmailUrl() => Uri.parse(
+      Uri.encodeFull('mailto:?subject=$_emailSubject&body=$_emailBody'));
 }
 
 class SpeedDropDownButton extends StatefulWidget {

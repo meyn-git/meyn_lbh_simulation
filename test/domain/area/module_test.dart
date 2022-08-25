@@ -40,5 +40,3 @@ main() {
   });
 }
 
-Area _createArea(int squareCentimeters) =>
-    Area.of(centi.meters(squareCentimeters), centi.meters(1));

@@ -41,15 +41,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 26),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 26),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 26),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 26),
                 )
               ]),
           ProductDefinition(
@@ -58,15 +55,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 33),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 33),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 33),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 33),
                 )
               ]),
           ProductDefinition(
@@ -75,15 +69,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 52),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 52),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 52),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 52),
                 )
               ]),
           ProductDefinition(
@@ -92,15 +83,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 54),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 54),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 54),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 54),
                 )
               ]),
           ProductDefinition(
@@ -109,15 +97,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 26),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 26),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 26),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 26),
                 )
               ]),
           ProductDefinition(
@@ -126,15 +111,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 33),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 33),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 33),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 33),
                 )
               ]),
           ProductDefinition(
@@ -143,15 +125,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 52),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 52),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 52),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 52),
                 )
               ]),
           ProductDefinition(
@@ -160,15 +139,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleType: StorkSquareModule(),
+              moduleSystem: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: StorkSquareModule()
-                      .levels(4)
-                      .capacity(birdsPerCompartment: 54),
-                  secondModule: StorkSquareModule()
-                      .levels(5)
-                      .capacity(birdsPerCompartment: 54),
+                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 54),
+                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 54),
                 )
               ]),
         ]);
