@@ -77,9 +77,9 @@ class UserFactory {
   List<User> createAll() {
     List<User> _users = [];
 
-    _users.add(_createAdminUser(name: 'massimoz', password: 'Maxiload'));
     _users.add(_createAdminUser(name: 'nilsth', password: 'Maxiload'));
-    _users.add(_createAdminUser(name: 'wietsel', password: 'Maxiload'));
+    _users.add(_createViewAllUser(name: 'sebastiaans', password: 'Maxiload'));
+    _users.add(_createViewAllUser(name: 'erikc', password: 'Maxiload'));
     _users.addAll(_createSiteUsers());
     return _users;
   }
@@ -97,9 +97,23 @@ class UserFactory {
         sitesThatCanBeViewed: sites,
       );
 
+  User _createViewAllUser({
+    required String name,
+    required String password,
+  }) =>
+      User(
+        name: name,
+        password: password,
+        isAdmin: false,
+        sitesThatCanBeViewed: sites,
+      );
+
+
   Iterable<User> _createSiteUsers() => sites.map((site) => User(
       name: site.organizationName.trim().toLowerCase(),
       password: site.meynLayoutCode,
       isAdmin: false,
       sitesThatCanBeViewed: [site]));
+
+
 }
