@@ -575,8 +575,8 @@ class MarelGpSquareModule6LevelTurkey extends ModuleType {
       birdType: BirdType.turkey,
       dimensions: ModuleDimensions(
         length: meters(1.420),
-        width: meters(1.20),
-        heightWithoutCam: meters(2),//TODO unknown
+        width: meters(1.210),
+        heightWithoutCam: meters(2.560),
         camHeight: meters(0.1),
         levels: 6,
         compartmentsPerLevel: 1,
