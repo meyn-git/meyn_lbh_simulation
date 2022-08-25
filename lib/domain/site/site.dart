@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_5021_ha_kylling_as.dart';
+import 'package:meyn_lbh_simulation/domain/site/site_7696_dabe.dart';
 
 import 'site_5674_drobrimex.dart';
 import 'site_7324_fileni.dart';
@@ -56,5 +57,6 @@ class Sites extends DelegatingList<Site> {
           IndrolSite(),
           FileniSite(),
           HaKyllingAsSite(),
+          DabeSite(),
         ]);
 }

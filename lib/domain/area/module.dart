@@ -568,6 +568,22 @@ class MarelGpSquareModule5Level extends ModuleType {
             ));
 }
 
+class MarelGpSquareModule6LevelTurkey extends ModuleType {
+  MarelGpSquareModule6LevelTurkey()
+      : super(
+      moduleFamily: ModuleFamily.marelGpSquare,
+      birdType: BirdType.turkey,
+      dimensions: ModuleDimensions(
+        length: meters(1.420),
+        width: meters(1.20),
+        heightWithoutCam: meters(2),//TODO unknown
+        camHeight: meters(0.1),
+        levels: 6,
+        compartmentsPerLevel: 1,
+        liveBirdCompartmentArea: Area.of(meters(1.530), meters(1)),
+        emptyWeight: kilo.grams(280),//TODO unknown
+      ));
+}
 class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
   MarelGpGalvanizedSteelRectangular4LevelChicken()
       : super(
