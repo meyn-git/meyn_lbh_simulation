@@ -261,8 +261,8 @@ class Module {
 }
 
 enum ModuleSystem {
+  ///following durations are based on measurements at: 7113-Tyson Union city
   meynVdlRectangularContainers(
-    //following durations are based on measurements at: 7113-Tyson Union city
     stackerInFeedDuration: Duration(seconds: 14),
     deStackerInFeedDuration: Duration(seconds: 14),
     conveyorTransportDuration: Duration(seconds: 12),
@@ -271,8 +271,20 @@ enum ModuleSystem {
     // 90 degrees in 6 seconds
     ,
   ),
+
+  /// Same as [meynVdlRectangularContainers]
+  meynGrandeDrawerContainers(
+    stackerInFeedDuration: Duration(seconds: 14),
+    deStackerInFeedDuration: Duration(seconds: 14),
+    conveyorTransportDuration: Duration(seconds: 12),
+    casTransportDuration: Duration(seconds: 14),
+    turnTableDegreesPerSecond: 15
+    // 90 degrees in 6 seconds
+    ,
+  ),
+
+  ///following durations are based on measurements at: 8052-Indrol Grodzisk
   meynOmni(
-      //following durations are based on measurements at: 8052-Indrol Grodzisk
       conveyorTransportDuration: Duration(seconds: 19),
       stackerInFeedDuration: Duration(seconds: 19),
       deStackerInFeedDuration: Duration(seconds: 19),
@@ -280,8 +292,9 @@ enum ModuleSystem {
       turnTableDegreesPerSecond: 8
       // 90 degrees in 11.5 seconds
       ),
+
+  ///following durations are based on measurements at: 7696-Dabe-Germanyk
   meynVdlSquareContainers(
-      //following durations are based on measurements at: 7696-Dabe-Germanyk
       conveyorTransportDuration: Duration(milliseconds: 13400),
       stackerInFeedDuration: Duration(milliseconds: 18700),
       deStackerInFeedDuration: Duration(milliseconds: 18700),
@@ -571,19 +584,20 @@ class MarelGpSquareModule5Level extends ModuleType {
 class MarelGpSquareModule6LevelTurkey extends ModuleType {
   MarelGpSquareModule6LevelTurkey()
       : super(
-      moduleFamily: ModuleFamily.marelGpSquare,
-      birdType: BirdType.turkey,
-      dimensions: ModuleDimensions(
-        length: meters(1.420),
-        width: meters(1.210),
-        heightWithoutCam: meters(2.560),
-        camHeight: meters(0.1),
-        levels: 6,
-        compartmentsPerLevel: 1,
-        liveBirdCompartmentArea: Area.of(meters(1.530), meters(1)),
-        emptyWeight: kilo.grams(280),//TODO unknown
-      ));
+            moduleFamily: ModuleFamily.marelGpSquare,
+            birdType: BirdType.turkey,
+            dimensions: ModuleDimensions(
+              length: meters(1.420),
+              width: meters(1.210),
+              heightWithoutCam: meters(2.560),
+              camHeight: meters(0.1),
+              levels: 6,
+              compartmentsPerLevel: 1,
+              liveBirdCompartmentArea: Area.of(meters(1.530), meters(1)),
+              emptyWeight: kilo.grams(280), //TODO unknown
+            ));
 }
+
 class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
   MarelGpGalvanizedSteelRectangular4LevelChicken()
       : super(
@@ -832,7 +846,7 @@ class ModuleCapacity {
       'x${birdsPerCompartment}B';
 
   void _verifyNumberOfBirds() {
-    if (numberOfBirds<1) {
+    if (numberOfBirds < 1) {
       throw ArgumentError('Container must contain birds', 'numberOfBirds');
     }
   }
