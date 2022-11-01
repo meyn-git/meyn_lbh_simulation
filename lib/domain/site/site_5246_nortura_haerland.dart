@@ -171,7 +171,7 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
       area: this,
       position: const Position(7, 4),
       seqNr: 1,
-      defaultPositionWhenIdle: CardinalDirection.south,
+      defaultPositionWhenIdle: CardinalDirection.north,
     ));
 
   }
