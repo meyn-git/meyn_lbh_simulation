@@ -26,8 +26,10 @@ class HaerlandSite extends Site {
 }
 
 class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
+  static int birdsPerCompartment=34*2;
+
   HaerlandProductDefinitions()
-      : super([
+    : super([
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Chickens',
@@ -39,10 +41,10 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(64),
+                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
                   secondModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(64),
+                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
                 )
               ]),
           ProductDefinition(
@@ -56,10 +58,10 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(64),
+                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
                   secondModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(64),
+                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
                 )
               ]),
         ]);
@@ -80,145 +82,177 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
     _row3();
     _row4();
     _row5();
+    _row6();
   }
+
 
   void _row1() {
-    put(BirdHangingConveyor(
+    put(UnLoadingForkLiftTruck(
       area: this,
-      position: const Position(3, 1),
-      direction: CardinalDirection.west,
+      position: const Position(2, 1),
+      inFeedDirection: CardinalDirection.south,
     ));
+
   }
 
-  void _row2() {
-    put(ModuleRotatingConveyor(
-      area: this,
-      position: const Position(1, 2),
-      seqNr: 5,
-      defaultPositionWhenIdle: CardinalDirection.north,
-    ));
 
-    put(ModuleDeStacker(
-      area: this,
-      position: const Position(2, 2),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.west,
-    ));
+
+  void _row2() {
 
     put(ModuleTilter(
       area: this,
-      position: const Position(3, 2),
+      position: const Position(2, 2),
       seqNr: 1,
-      inFeedDirection: CardinalDirection.west,
-      birdDirection: CardinalDirection.north,
+      inFeedDirection: CardinalDirection.south,
+      birdDirection: CardinalDirection.east,
       minBirdsOnDumpBeltBuffer:
-          productDefinition.averageProductsPerModuleGroup.round(),
+      productDefinition.averageProductsPerModuleGroup.round(),
     ));
 
-    put(ModuleConveyor(
+    put(BirdHangingConveyor(
       area: this,
-      position: const Position(4, 2),
-      seqNr: 3,
-      inFeedDirection: CardinalDirection.west,
-    ));
-
-    put(UnLoadingForkLiftTruck(
-      area: this,
-      position: const Position(5, 2),
-      inFeedDirection: CardinalDirection.west,
+      position: const Position(3, 2),
+      direction: CardinalDirection.north,
     ));
   }
 
+
   void _row3() {
-    put(ModuleRotatingConveyor(
-      area: this,
-      position: const Position(1, 3),
-      seqNr: 4,
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
-
-    put(ModuleRotatingConveyor(
-      area: this,
-      position: const Position(2, 3),
-      seqNr: 3,
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
-
-    put(ModuleRotatingConveyor(
-      area: this,
-      position: const Position(3, 3),
-      seqNr: 2,
-
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
-
-    put(ModuleRotatingConveyor(
-      area: this,
-      position: const Position(4, 3),
-      seqNr: 1,
-
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
-
     put(ModuleConveyor(
       area: this,
-      position: const Position(5, 3),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.east,
+      position: const Position(2, 3),
+      inFeedDirection: CardinalDirection.south,
     ));
 
-    put(LoadingForkLiftTruck(
-      area: this,
-      position: const Position(6, 3),
-      outFeedDirection: CardinalDirection.west,
-      doorDirection: CardinalDirection.north,
-    ));
   }
 
   void _row4() {
-    put(ModuleCas(
-      area: this,
-      position: const Position(1, 4),
-      seqNr: 4,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
-    ));
-
-    put(ModuleCas(
+    put(ModuleDeStacker(
       area: this,
       position: const Position(2, 4),
-      seqNr: 3,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.south,
     ));
 
     put(ModuleCas(
       area: this,
-      position: const Position(3, 4),
+      position: const Position(3,4),
       seqNr: 2,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
+      inAndOutFeedDirection: CardinalDirection.south,
+      doorDirection: CardinalDirection.east,
     ));
 
     put(ModuleCas(
       area: this,
       position: const Position(4, 4),
-      seqNr: 1,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
+      seqNr: 3,
+      inAndOutFeedDirection: CardinalDirection.south,
+      doorDirection: CardinalDirection.east,
     ));
+
+    put(ModuleCas(
+      area: this,
+      position: const Position(5, 4),
+      seqNr: 4,
+      inAndOutFeedDirection: CardinalDirection.south,
+      doorDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(6, 4),
+      seqNr: 2,
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(7, 4),
+      seqNr: 1,
+      defaultPositionWhenIdle: CardinalDirection.south,
+    ));
+
   }
 
   void _row5() {
-    put(ModuleCasAllocation(
+
+    put(ModuleCas(
       area: this,
       position: const Position(1, 5),
-      positionToAllocate: const Position(5, 3),
+      seqNr: 1,
+      inAndOutFeedDirection: CardinalDirection.east,
+      doorDirection: CardinalDirection.north,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(2, 5),
+      seqNr: 7,
+      oppositeInFeeds: [CardinalDirection.west],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(3, 5),
+      seqNr: 6,
+      oppositeInFeeds: [CardinalDirection.north],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(4, 5),
+      seqNr: 5,
+      oppositeInFeeds: [CardinalDirection.north],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(5, 5),
+      seqNr: 4,
+      oppositeInFeeds: [CardinalDirection.north],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(6, 5),
+      seqNr: 3,
+      oppositeInFeeds: [CardinalDirection.north],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleConveyor(
+      area: this,
+      position: const Position(7, 5),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.south,
+    ));
+
+  }
+
+  void _row6() {
+    put(ModuleCasAllocation(
+      area: this,
+      position: const Position(1, 6),
+      positionToAllocate: const Position(6, 5),
     ));
 
     put(ModuleCasStart(
       area: this,
-      position: const Position(2, 5),
+      position: const Position(2, 6),
+    ));
+
+
+    put(LoadingForkLiftTruck(
+      area: this,
+      position: const Position(7, 6),
+      outFeedDirection: CardinalDirection.north,
+      doorDirection: CardinalDirection.east,
     ));
   }
 }
