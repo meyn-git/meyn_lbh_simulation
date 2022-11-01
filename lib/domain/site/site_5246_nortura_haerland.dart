@@ -18,7 +18,7 @@ class HaerlandSite extends Site {
   HaerlandSite()
       : super(
           meynLayoutNumber: 5246,
-          organizationName: 'Haerland',
+          organizationName: 'Nortura',
           city: 'Haerland',
           country: 'Norway',
           productDefinitions: HaerlandProductDefinitions(),
