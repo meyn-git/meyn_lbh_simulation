@@ -59,23 +59,22 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
   @override
   Widget build(BuildContext context) {
     return player.scenario == null
-      ? const Text("No scenario's")
-      : Container(
-          color: Colors.grey.shade200,
-          child: Column(
-            children: [
-              FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text(_title,
-                      style: const TextStyle(fontSize: 25))),
-              Expanded(
-                child: CustomMultiChildLayout(
-                    delegate: AreaWidgetDelegate(player.scenario!.area),
-                    children: createChildren(player.scenario!.area)),
-              )
-            ],
-          ),
-        );
+        ? const Text("No scenario's")
+        : Container(
+            color: Colors.grey.shade200,
+            child: Column(
+              children: [
+                FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(_title, style: const TextStyle(fontSize: 25))),
+                Expanded(
+                  child: CustomMultiChildLayout(
+                      delegate: AreaWidgetDelegate(player.scenario!.area),
+                      children: createChildren(player.scenario!.area)),
+                )
+              ],
+            ),
+          );
   }
 
   static List<Widget> createChildren(LiveBirdHandlingArea area) {

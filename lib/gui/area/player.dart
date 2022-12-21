@@ -329,7 +329,7 @@ class _MenuState extends State<Menu> {
             title: const Text('Menu'),
           ),
           body: Scrollbar(
-            isAlwaysShown: true,
+            thumbVisibility: true,
             controller: _scrollController,
             child: ListView(
               padding: EdgeInsets.zero,

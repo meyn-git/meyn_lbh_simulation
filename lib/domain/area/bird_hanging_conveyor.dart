@@ -46,7 +46,7 @@ class BirdHangingConveyor extends ActiveCell {
 
   BirdBuffer _findBirdBuffer() {
     for (var neighbourDirection in CardinalDirection.values) {
-      var neighbour = area.neighbouringCell(this, neighbourDirection);
+      var neighbour = area.neighboringCell(this, neighbourDirection);
       if (neighbour is BirdBuffer &&
           (neighbour as BirdBuffer).birdDirection ==
               neighbourDirection.opposite) {

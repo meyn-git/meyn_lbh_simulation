@@ -98,7 +98,8 @@ class ModuleGroupPainter extends CustomPainter {
       size: size,
       factor: compartmentSize,
       offset: Offset(x1, y1),
-      paintTriangle: moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
+      paintTriangle:
+          moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
     );
   }
 
@@ -110,7 +111,8 @@ class ModuleGroupPainter extends CustomPainter {
       size: size,
       factor: compartmentSize,
       offset: Offset(x1, y1),
-      paintTriangle: moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
+      paintTriangle:
+          moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
     );
     var x2 = size.width * (0.15 + compartmentSize + 0.1);
     var y2 = y1;
@@ -119,7 +121,8 @@ class ModuleGroupPainter extends CustomPainter {
       size: size,
       factor: compartmentSize,
       offset: Offset(x2, y2),
-      paintTriangle: moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
+      paintTriangle:
+          moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
     );
   }
 
@@ -128,13 +131,15 @@ class ModuleGroupPainter extends CustomPainter {
       _paintSingleRectangularModule(
         canvas: canvas,
         size: size,
-        paintTriangle: moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
+        paintTriangle:
+            moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
       );
     } else {
       _paintStackedRectangularModules(
         canvas: canvas,
         size: size,
-        paintTriangle: moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
+        paintTriangle:
+            moduleGroup.moduleFamily.compartmentType == CompartmentType.door,
       );
     }
   }

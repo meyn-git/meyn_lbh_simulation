@@ -46,9 +46,9 @@ class ModuleDeStacker extends StateMachineCell {
         );
 
   Cell get receivingNeighbour =>
-      area.neighbouringCell(this, inFeedDirection.opposite);
+      area.neighboringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => area.neighbouringCell(this, inFeedDirection);
+  Cell get sendingNeighbour => area.neighboringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;

@@ -45,8 +45,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 26),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 26),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(26),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(26),
                 )
               ]),
           ProductDefinition(
@@ -59,8 +63,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 33),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 33),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(33),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(33),
                 )
               ]),
           ProductDefinition(
@@ -73,8 +81,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 52),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 52),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(52),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(52),
                 )
               ]),
           ProductDefinition(
@@ -87,8 +99,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 54),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 54),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(54),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(54),
                 )
               ]),
           ProductDefinition(
@@ -101,8 +117,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 26),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 26),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(26),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(26),
                 )
               ]),
           ProductDefinition(
@@ -115,8 +135,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 33),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 33),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(33),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(33),
                 )
               ]),
           ProductDefinition(
@@ -129,8 +153,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 52),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 52),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(52),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(52),
                 )
               ]),
           ProductDefinition(
@@ -143,8 +171,12 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level().dimensions.capacityWithBirdsPerCompartment( 54),
-                  secondModule: MarelGpSquareModule5Level().dimensions.capacityWithBirdsPerCompartment( 54),
+                  firstModule: MarelGpSquareModule4Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(54),
+                  secondModule: MarelGpSquareModule5Level()
+                      .dimensions
+                      .capacityWithBirdsPerCompartment(54),
                 )
               ]),
         ]);

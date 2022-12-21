@@ -23,7 +23,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
 
   CellRange get cellRange => CellRange(cells);
 
-  Cell neighbouringCell(ActiveCell cell, CardinalDirection direction) {
+  Cell neighboringCell(ActiveCell cell, CardinalDirection direction) {
     Position relativePosition = cell.position.neighbour(direction);
     return cellForPosition(relativePosition);
   }
@@ -76,7 +76,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
     }
     routeSoFar = Route([...routeSoFar, source]);
     for (var direction in CardinalDirection.values) {
-      var neighbour = neighbouringCell(source, direction);
+      var neighbour = neighboringCell(source, direction);
       if (neighbour is StateMachineCell &&
           neighbour.isFeedIn(direction.opposite) &&
           !routeSoFar.contains(neighbour)) {
@@ -408,7 +408,7 @@ abstract class BirdBuffer {
 class ProductDefinition {
   final String birdType;
   final int lineSpeedInShacklesPerHour;
-   final ModuleFamily moduleFamily;
+  final ModuleFamily moduleFamily;
   final List<ModuleGroupCapacity> moduleGroupCapacities;
   final CasRecipe? casRecipe;
   final ModuleSystem moduleSystem;
@@ -445,7 +445,7 @@ class ProductDefinition {
 
   void _verifyModuleGroupCapacities() {
     if (moduleGroupCapacities.isEmpty) {
-      throw ArgumentError('May not be empty','moduleGroupCapacities');
+      throw ArgumentError('May not be empty', 'moduleGroupCapacities');
     }
   }
 }

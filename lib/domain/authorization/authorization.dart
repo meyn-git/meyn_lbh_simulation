@@ -108,12 +108,9 @@ class UserFactory {
         sitesThatCanBeViewed: sites,
       );
 
-
   Iterable<User> _createSiteUsers() => sites.map((site) => User(
       name: site.organizationName.trim().toLowerCase(),
       password: site.meynLayoutCode,
       isAdmin: false,
       sitesThatCanBeViewed: [site]));
-
-
 }

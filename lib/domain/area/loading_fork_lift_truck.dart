@@ -45,8 +45,8 @@ class LoadingForkLiftTruck extends StateMachineCell {
     }
   }
 
-  StateMachineCell get receivingNeighbour =>
-      area.neighbouringCell(this, outFeedDirection) as StateMachineCell;
+  StateMachineCell get receivingNeighbor =>
+      area.neighboringCell(this, outFeedDirection) as StateMachineCell;
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -109,7 +109,7 @@ class LoadingForkLiftTruck extends StateMachineCell {
   }
 
   ModulePosition _createModulePosition() =>
-      ModulePosition.forCel(receivingNeighbour);
+      ModulePosition.forCel(receivingNeighbor);
 
   StateMachineCell _findModuleDestination() {
     var moduleCasAllocation = _findModuleCasAllocation();
@@ -191,14 +191,14 @@ class WaitingForEmptyConveyor extends State<LoadingForkLiftTruck> {
   @override
   // ignore: avoid_renaming_method_parameters
   State<LoadingForkLiftTruck>? nextState(LoadingForkLiftTruck forkLiftTruck) {
-    if (_neighbourCanFeedIn(forkLiftTruck)) {
+    if (_neighborCanFeedIn(forkLiftTruck)) {
       return PutModuleGroupOnConveyor();
     }
     return null;
   }
 
-  bool _neighbourCanFeedIn(LoadingForkLiftTruck forkLiftTruck) {
-    return forkLiftTruck.receivingNeighbour
+  bool _neighborCanFeedIn(LoadingForkLiftTruck forkLiftTruck) {
+    return forkLiftTruck.receivingNeighbor
         .waitingToFeedIn(forkLiftTruck.outFeedDirection.opposite);
   }
 }
@@ -224,7 +224,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
 
     moduleGroup.position = ModulePosition.betweenCells(
         source: forkLiftTruck,
-        destination: forkLiftTruck.receivingNeighbour,
+        destination: forkLiftTruck.receivingNeighbor,
         duration: forkLiftTruck.outFeedDuration);
     moduleGroup.loadedOnToSystem();
   }
@@ -248,6 +248,6 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck> {
       forkLiftTruck.loadsSingeModule &&
       forkLiftTruck.moduleGroup != null &&
       forkLiftTruck.moduleGroup!.numberOfModules == 1 &&
-      forkLiftTruck.receivingNeighbour
+      forkLiftTruck.receivingNeighbor
           .waitingToFeedIn(forkLiftTruck.outFeedDirection.opposite);
 }

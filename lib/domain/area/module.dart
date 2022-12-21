@@ -383,14 +383,14 @@ class MeynEvoChicken4Level extends ModuleType {
           moduleFamily: ModuleFamily.meynEvo,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-            length: meters(2.4),
-            width: meters(1.2),
+            lengthLongSide: meters(2.4),
+            widthShortSide: meters(1.2),
             heightWithoutCam: meters(1.23),
             camHeight: meters(0.065),
             headHeight: meters(0.249),
             levels: 4,
             compartmentsPerLevel: 2,
-            liveBirdCompartmentArea: Area.of(meters(1.311), meters(1)),
+            birdFloorSpacePerCompartment: Area.of(meters(1.311), meters(1)),
             emptyWeight: kilo.grams(340),
           ),
         );
@@ -402,14 +402,14 @@ class MeynEvoChicken5Level extends ModuleType {
           moduleFamily: ModuleFamily.meynEvo,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-            length: meters(2.4),
-            width: meters(1.2),
+            lengthLongSide: meters(2.4),
+            widthShortSide: meters(1.2),
             heightWithoutCam: meters(1.483),
             camHeight: meters(0.065),
             headHeight: meters(0.249),
             levels: 5,
             compartmentsPerLevel: 2,
-            liveBirdCompartmentArea: Area.of(meters(1.311), meters(1)),
+            birdFloorSpacePerCompartment: Area.of(meters(1.311), meters(1)),
             emptyWeight: kilo.grams(395),
           ),
         );
@@ -421,15 +421,15 @@ class MeynGrandeDrawerChicken4Level extends ModuleType {
           moduleFamily: ModuleFamily.meynGrandeDrawer,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-            length: meters(2.43),
-            width: meters(1.18),
+            lengthLongSide: meters(2.43),
+            widthShortSide: meters(1.18),
             heightWithoutCam: meters(1.31),
             camHeight: meters(0.065),
             //TODO Unknown! Find out and change!
             headHeight: meters(0.255),
             levels: 4,
             compartmentsPerLevel: 2,
-            liveBirdCompartmentArea: Area.of(meters(1.221), meters(1)),
+            birdFloorSpacePerCompartment: Area.of(meters(1.221), meters(1)),
             emptyWeight: kilo.grams(346),
           ),
         );
@@ -441,15 +441,15 @@ class MeynGrandeDrawerChicken5Level extends ModuleType {
           moduleFamily: ModuleFamily.meynGrandeDrawer,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-            length: meters(2.43),
-            width: meters(1.18),
+            lengthLongSide: meters(2.43),
+            widthShortSide: meters(1.18),
             heightWithoutCam: meters(1.59),
             camHeight: meters(0.065),
             //TODO Unknown! Find out and change!
             headHeight: meters(0.255),
             levels: 5,
             compartmentsPerLevel: 2,
-            liveBirdCompartmentArea: Area.of(meters(1.221), meters(1)),
+            birdFloorSpacePerCompartment: Area.of(meters(1.221), meters(1)),
             emptyWeight: kilo.grams(404),
           ),
         );
@@ -462,14 +462,14 @@ class MeynOmniTurkey3Level extends ModuleType {
           moduleFamily: ModuleFamily.meynOmni,
           birdType: BirdType.turkey,
           dimensions: ModuleDimensions(
-              length: meters(2.43),
-              width: meters(1.35),
+              lengthLongSide: meters(2.43),
+              widthShortSide: meters(1.35),
               heightWithoutCam: meters(1.345),
               camHeight: meters(0.059),
               headHeight: meters(0.380),
               levels: 3,
               compartmentsPerLevel: 2,
-              liveBirdCompartmentArea: Area.of(meters(2.1), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(2.1), meters(1)),
               //TODO verify. 2.1m2 seems small
               emptyWeight: kilo.grams(420)),
         );
@@ -481,14 +481,14 @@ class AngliaAutoFlowChickenSmall4Level extends ModuleType {
           moduleFamily: ModuleFamily.angliaAutoFlow,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-              length: meters(2.438),
-              width: meters(1.165),
+              lengthLongSide: meters(2.438),
+              widthShortSide: meters(1.165),
               heightWithoutCam: meters(1.152),
               camHeight: meters(0.1),
               headHeight: meters(0.22),
               levels: 4,
               compartmentsPerLevel: 3,
-              liveBirdCompartmentArea: Area.of(meters(0.8), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
               emptyWeight: kilo.grams(330)),
         );
 }
@@ -499,14 +499,14 @@ class AngliaAutoFlowChickenSmall5Level extends ModuleType {
           moduleFamily: ModuleFamily.angliaAutoFlow,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-              length: meters(2.438),
-              width: meters(1.165),
+              lengthLongSide: meters(2.438),
+              widthShortSide: meters(1.165),
               heightWithoutCam: meters(1.397),
               camHeight: meters(0.1),
               headHeight: meters(0.22),
               levels: 5,
               compartmentsPerLevel: 3,
-              liveBirdCompartmentArea: Area.of(meters(0.8), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
               emptyWeight: kilo.grams(390)),
         );
 }
@@ -517,14 +517,14 @@ class AngliaAutoFlowChickenLarge4Level extends ModuleType {
           moduleFamily: ModuleFamily.angliaAutoFlow,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-              length: meters(2.438),
-              width: meters(1.165),
+              lengthLongSide: meters(2.438),
+              widthShortSide: meters(1.165),
               heightWithoutCam: meters(1.292),
               camHeight: meters(0.1),
               headHeight: meters(0.255),
               levels: 4,
               compartmentsPerLevel: 3,
-              liveBirdCompartmentArea: Area.of(meters(0.8), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
               emptyWeight: kilo.grams(350)),
         );
 }
@@ -535,14 +535,14 @@ class AngliaAutoFlowChickenLarge5Level extends ModuleType {
           moduleFamily: ModuleFamily.angliaAutoFlow,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
-              length: meters(2.438),
-              width: meters(1.165),
+              lengthLongSide: meters(2.438),
+              widthShortSide: meters(1.165),
               heightWithoutCam: meters(1.572),
               camHeight: meters(0.1),
               headHeight: meters(0.255),
               levels: 5,
               compartmentsPerLevel: 3,
-              liveBirdCompartmentArea: Area.of(meters(0.8), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
               emptyWeight: kilo.grams(410)),
         );
 }
@@ -553,13 +553,13 @@ class MarelGpSquareModule4Level extends ModuleType {
             moduleFamily: ModuleFamily.marelGpSquare,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
-              length: meters(1.420),
-              width: meters(1.20),
+              lengthLongSide: meters(1.420),
+              widthShortSide: meters(1.20),
               heightWithoutCam: meters(1.260),
               camHeight: meters(0.1),
               levels: 4,
               compartmentsPerLevel: 1,
-              liveBirdCompartmentArea: Area.of(meters(1.530), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
               emptyWeight: kilo.grams(204),
             ));
 }
@@ -570,13 +570,13 @@ class MarelGpSquareModule5Level extends ModuleType {
             moduleFamily: ModuleFamily.marelGpSquare,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
-              length: meters(1.420),
-              width: meters(1.20),
+              lengthLongSide: meters(1.420),
+              widthShortSide: meters(1.20),
               heightWithoutCam: meters(1.540),
               camHeight: meters(0.1),
               levels: 5,
               compartmentsPerLevel: 1,
-              liveBirdCompartmentArea: Area.of(meters(1.530), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
               emptyWeight: kilo.grams(235),
             ));
 }
@@ -587,13 +587,13 @@ class MarelGpSquareModule6LevelTurkey extends ModuleType {
             moduleFamily: ModuleFamily.marelGpSquare,
             birdType: BirdType.turkey,
             dimensions: ModuleDimensions(
-              length: meters(1.420),
-              width: meters(1.210),
+              lengthLongSide: meters(1.420),
+              widthShortSide: meters(1.210),
               heightWithoutCam: meters(2.560),
               camHeight: meters(0.1),
               levels: 6,
               compartmentsPerLevel: 1,
-              liveBirdCompartmentArea: Area.of(meters(1.530), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
               emptyWeight: kilo.grams(280), //TODO unknown
             ));
 }
@@ -604,13 +604,13 @@ class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
             moduleFamily: ModuleFamily.marelGpRectangular,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
-              length: meters(2.430),
-              width: meters(1.20),
+              lengthLongSide: meters(2.430),
+              widthShortSide: meters(1.20),
               heightWithoutCam: meters(1.260),
               camHeight: meters(0.1),
               levels: 4,
               compartmentsPerLevel: 2,
-              liveBirdCompartmentArea: Area.of(meters(1.275), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
               emptyWeight: kilo.grams(399),
             ));
 }
@@ -621,13 +621,13 @@ class MarelGpStainlessSteelRectangular4LevelChicken extends ModuleType {
             moduleFamily: ModuleFamily.marelGpRectangular,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
-              length: meters(2.430),
-              width: meters(1.20),
+              lengthLongSide: meters(2.430),
+              widthShortSide: meters(1.20),
               heightWithoutCam: meters(1.260),
               camHeight: meters(0.1),
               levels: 4,
               compartmentsPerLevel: 2,
-              liveBirdCompartmentArea: Area.of(meters(1.275), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
               emptyWeight: kilo.grams(385),
             ));
 }
@@ -638,13 +638,13 @@ class MarelGpRectangular5LevelChicken extends ModuleType {
             moduleFamily: ModuleFamily.marelGpRectangular,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
-              length: meters(2.430),
-              width: meters(1.20),
+              lengthLongSide: meters(2.430),
+              widthShortSide: meters(1.20),
               heightWithoutCam: meters(1.365),
               camHeight: meters(0.1),
               levels: 4,
               compartmentsPerLevel: 2,
-              liveBirdCompartmentArea: Area.of(meters(1.275), meters(1)),
+              birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
               emptyWeight: kilo.grams(430),
             ));
 }
@@ -670,28 +670,58 @@ class ModuleTypes extends DelegatingList<ModuleType> {
 }
 
 class LoadDensity extends DerivedMeasurement<Area, Mass> {
-  final Supplier standardOwner;
-  final BirdType birdType;
-  final LoadDensityType type;
+  LoadDensity({
+    required Area minFloorSpacePerKgLiveWeight,
 
-  LoadDensity(
-      {required this.standardOwner,
-      required this.birdType,
-      required this.type,
+    /// max=100%, in summer the loading density is normally 70-90%
+    required int loadingPercentage,
+  }) : super.divide(
+            _calculateArea(minFloorSpacePerKgLiveWeight, loadingPercentage),
+            grams(1000));
 
-      /// The area for 1 kilo gram live weight at 100% loading
-      required Area area})
-      : super.divide(_calculateArea(area, type), grams(1000));
+  LoadDensity.floorSpaceInCm2({
+    required double minCm2FloorSpacePerKgLiveWeight,
+
+    /// max=100%, in summer the loading density is normally 70-90%
+    required int loadingPercentage,
+  }) : super.divide(
+            _calculateArea(
+                _areaFromSquareCentimeters(minCm2FloorSpacePerKgLiveWeight),
+                loadingPercentage),
+            grams(1000));
+
+  /// legal density according to European regulation EEC64.32
+  factory LoadDensity.eec64_432(Mass averageBirdWeight, int loadingPercentage) {
+    if (averageBirdWeight <= grams(1600)) {
+      return LoadDensity.floorSpaceInCm2(
+          loadingPercentage: loadingPercentage,
+          minCm2FloorSpacePerKgLiveWeight: 180);
+    } else if (averageBirdWeight <= grams(3000)) {
+      return LoadDensity.floorSpaceInCm2(
+          loadingPercentage: loadingPercentage,
+          minCm2FloorSpacePerKgLiveWeight: 160);
+    } else if (averageBirdWeight <= grams(5000)) {
+      return LoadDensity.floorSpaceInCm2(
+          loadingPercentage: loadingPercentage,
+          minCm2FloorSpacePerKgLiveWeight: 115);
+    } else {}
+    return LoadDensity.floorSpaceInCm2(
+        loadingPercentage: loadingPercentage,
+        minCm2FloorSpacePerKgLiveWeight: 150);
+  }
+
+  static Area _areaFromSquareCentimeters(double squareCentimeters) =>
+      Area.of(centi.meters(squareCentimeters), centi.meters(1));
 
   double get squareMeterPerKgLiveWeight => as(Area.square(meters), kilo.grams);
 
   @override
   String toString() {
-    return 'LoadDensity{standardOwner: $standardOwner, birdType: $birdType, type: $type, squareMeterPerKgLiveWeight: $squareMeterPerKgLiveWeight}';
+    return 'LoadDensity{squareMeterPerKgLiveWeight: $squareMeterPerKgLiveWeight}';
   }
 
-  static Area _calculateArea(Area area, LoadDensityType type) {
-    var factor = 100 / type.percentage;
+  static Area _calculateArea(Area area, int loadingPercentage) {
+    var factor = 100 / loadingPercentage;
     var side = meters(area.as(meters, meters) * factor);
     return Area.of(side, meters(1));
   }
@@ -699,101 +729,32 @@ class LoadDensity extends DerivedMeasurement<Area, Mass> {
 
 enum Supplier { meyn, marel, linco, baader, angliaAutoFlow }
 
-class LoadDensityType {
-  final String name;
-  final int percentage;
-
-  LoadDensityType.max()
-      : name = 'Max',
-        percentage = 100;
-
-  LoadDensityType.summer({required this.percentage}) : name = 'Summer';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is LoadDensityType &&
-          runtimeType == other.runtimeType &&
-          percentage == other.percentage &&
-          name == other.name;
-
-  @override
-  int get hashCode => percentage.hashCode ^ name.hashCode;
-
-  @override
-  String toString() {
-    return 'LoadDensityType{name: $name, percentage: $percentage}';
-  }
-}
-
-class LoadDensities extends DelegatingList<LoadDensity> {
-  static Area _createArea(double squareCentimeters) =>
-      Area.of(centi.meters(squareCentimeters), centi.meters(1));
-
-  LoadDensities()
-      : super([
-          LoadDensity(
-              standardOwner: Supplier.meyn,
-              birdType: BirdType.chicken,
-              type: LoadDensityType.max(),
-              area: _createArea(16)),
-          LoadDensity(
-              standardOwner: Supplier.meyn,
-              birdType: BirdType.chicken,
-              type: LoadDensityType.summer(percentage: 90),
-              area: _createArea(16)),
-          LoadDensity(
-              standardOwner: Supplier.meyn,
-              birdType: BirdType.turkey,
-              type: LoadDensityType.max(),
-              area: _createArea(10.5)),
-          LoadDensity(
-              standardOwner: Supplier.meyn,
-              birdType: BirdType.chicken,
-              type: LoadDensityType.summer(percentage: 90),
-              area: _createArea(10.5)),
-          LoadDensity(
-              standardOwner: Supplier.marel,
-              birdType: BirdType.chicken,
-              type: LoadDensityType.max(),
-              area: _createArea(17)),
-          LoadDensity(
-              standardOwner: Supplier.marel,
-              birdType: BirdType.chicken,
-              type: LoadDensityType.summer(percentage: 70),
-              area: _createArea(17)),
-        ]);
-}
-
 class ModuleDimensions {
-  ///[length] is normally longer than [width]
-  final Distance length;
-
-  ///[width] is normally shorter than [length]
-  final Distance width;
+  final Distance lengthLongSide;
+  final Distance widthShortSide;
   final Distance heightWithoutCam;
   final Distance camHeight;
   final Distance? headHeight;
 
   final int compartmentsPerLevel;
   final int levels;
-  final Area liveBirdCompartmentArea;
+  final Area birdFloorSpacePerCompartment;
   final Mass emptyWeight;
 
   const ModuleDimensions({
-    required this.length,
-    required this.width,
+    required this.lengthLongSide,
+    required this.widthShortSide,
     required this.heightWithoutCam,
     required this.camHeight,
     this.headHeight,
     required this.levels,
     required this.compartmentsPerLevel,
-    required this.liveBirdCompartmentArea,
+    required this.birdFloorSpacePerCompartment,
     required this.emptyWeight,
   });
 
   Mass maxWeightPerCompartment(LoadDensity loadDensity) =>
-      kilo.grams(liveBirdCompartmentArea.as(meters, meters) /
+      kilo.grams(birdFloorSpacePerCompartment.as(meters, meters) /
           loadDensity.squareMeterPerKgLiveWeight);
 
   int birdsPerCompartment({
@@ -804,17 +765,16 @@ class ModuleDimensions {
               averageBirdWeightOfHeaviestFlock.as(grams))
           .truncate();
 
-  ModuleCapacity capacityWithDensity({
-    required LoadDensity loadDensity,
-    required Mass averageBirdWeightOfHeaviestFlock,
-  }) =>
+  ModuleCapacity capacityWithDensity(
+    LoadDensity loadDensity,
+    Mass averageBirdWeight,
+  ) =>
       ModuleCapacity(
           compartmentsPerLevel: compartmentsPerLevel,
           levels: levels,
           birdsPerCompartment: birdsPerCompartment(
               loadDensity: loadDensity,
-              averageBirdWeightOfHeaviestFlock:
-                  averageBirdWeightOfHeaviestFlock));
+              averageBirdWeightOfHeaviestFlock: averageBirdWeight));
 
   ModuleCapacity capacityWithBirdsPerCompartment(int birdsPerCompartment) =>
       ModuleCapacity(

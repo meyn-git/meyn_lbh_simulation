@@ -67,9 +67,9 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   }
 
   Cell get receivingNeighbour =>
-      area.neighbouringCell(this, inFeedDirection.opposite);
+      area.neighboringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => area.neighbouringCell(this, inFeedDirection);
+  Cell get sendingNeighbour => area.neighboringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -161,7 +161,8 @@ class FeedIn extends State<ModuleTilter> {
 
   void _verifyDoorDirection(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroup!;
-    var hasDoors = moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
+    var hasDoors =
+        moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
     if (hasDoors &&
         moduleGroup.direction.toCardinalDirection() != tilter.birdDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');

@@ -26,7 +26,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
             outFeedDuration: getStackFromConveyorDuration);
 
   StateMachineCell get sendingNeighbour =>
-      area.neighbouringCell(this, inFeedDirection) as StateMachineCell;
+      area.neighboringCell(this, inFeedDirection) as StateMachineCell;
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;

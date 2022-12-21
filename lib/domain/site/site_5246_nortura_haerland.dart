@@ -26,10 +26,10 @@ class HaerlandSite extends Site {
 }
 
 class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
-  static int birdsPerCompartment=34*2;
+  static int birdsPerCompartment = 34 * 2;
 
   HaerlandProductDefinitions()
-    : super([
+      : super([
           ProductDefinition(
               areaFactory: _areaFactory(),
               birdType: 'Chickens',
@@ -85,20 +85,15 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
     _row6();
   }
 
-
   void _row1() {
     put(UnLoadingForkLiftTruck(
       area: this,
       position: const Position(2, 1),
       inFeedDirection: CardinalDirection.south,
     ));
-
   }
 
-
-
   void _row2() {
-
     put(ModuleTilter(
       area: this,
       position: const Position(2, 2),
@@ -106,7 +101,7 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.south,
       birdDirection: CardinalDirection.east,
       minBirdsOnDumpBeltBuffer:
-      productDefinition.averageProductsPerModuleGroup.round(),
+          productDefinition.averageProductsPerModuleGroup.round(),
     ));
 
     put(BirdHangingConveyor(
@@ -116,14 +111,12 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
     ));
   }
 
-
   void _row3() {
     put(ModuleConveyor(
       area: this,
       position: const Position(2, 3),
       inFeedDirection: CardinalDirection.south,
     ));
-
   }
 
   void _row4() {
@@ -136,7 +129,7 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: const Position(3,4),
+      position: const Position(3, 4),
       seqNr: 2,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.east,
@@ -166,18 +159,15 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
       defaultPositionWhenIdle: CardinalDirection.west,
     ));
 
-
     put(ModuleRotatingConveyor(
       area: this,
       position: const Position(7, 4),
       seqNr: 1,
       defaultPositionWhenIdle: CardinalDirection.north,
     ));
-
   }
 
   void _row5() {
-
     put(ModuleCas(
       area: this,
       position: const Position(1, 5),
@@ -232,7 +222,6 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 1,
       inFeedDirection: CardinalDirection.south,
     ));
-
   }
 
   void _row6() {
@@ -246,7 +235,6 @@ class HaerlandLiveBirdHandlingArea extends LiveBirdHandlingArea {
       area: this,
       position: const Position(2, 6),
     ));
-
 
     put(LoadingForkLiftTruck(
       area: this,

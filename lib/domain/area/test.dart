@@ -15,7 +15,6 @@ enum Vehicle implements Comparable<Vehicle> {
 
   int get carbonFootprint => (carbonPerKilometer / passengers).round();
 
-
   @override
   int compareTo(Vehicle other) => carbonFootprint - other.carbonFootprint;
 }
