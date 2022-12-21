@@ -20,7 +20,7 @@ class TaravisSite extends Site {
   TaravisSite()
       : super(
           meynLayoutNumber: 4054,
-          organizationName: 'Taravis kft',
+          organizationName: 'Taravis',
           city: 'Sárvár',
           country: 'Hungary',
           productDefinitions: ProductDefinitions(),
