@@ -40,7 +40,8 @@ class _LoginPageState extends State<LoginPage> {
                   if (loginException.isNotEmpty)
                     Text(
                       loginException,
-                      style: TextStyle(color: Theme.of(context).errorColor),
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
                     ),
                   if (loginException.isNotEmpty)
                     const SizedBox(
