@@ -145,7 +145,9 @@ class ShackleLine {
 
   int get hangedBirdsPerHourSinceStart {
     try {
-      return (hangedBirdsSinceStart / runningTimeInHours).round();
+      return runningTimeInHours == 0
+          ? 0
+          : (hangedBirdsSinceStart / runningTimeInHours).round();
     } on Exception {
       return 0;
     }

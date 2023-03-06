@@ -206,7 +206,7 @@ class _ScenarioTileState extends State<ScenarioTile> {
 class SiteTile extends StatelessWidget {
   final Site site;
 
-  const SiteTile(this.site, {Key? key}) : super(key: key);
+  SiteTile(this.site, {Key? key}) : super(key: key);
 
   String get _emailSubject => 'Invitation to the $applicationTitle';
 
@@ -214,8 +214,11 @@ class SiteTile extends StatelessWidget {
       'We would like to invite you to look at the: $applicationTitle.\n\n'
       'Please:\n'
       '- Open it on the following link: https://meyn-git.github.io/meyn_lbh_simulation_web/\n'
-      '- Enter the following name: ${site.organizationName.trim().toLowerCase()}\n'
-      '- Enter the following password: ${site.meynLayoutCode}\n\n'
+      '- Enter the following name: ${AuthorizationService.userNameForSite(site)}\n'
+      '- Enter the following password: ${AuthorizationService.passwordForSite(site)}\n\n'
+      'You can:\n'
+      '- select different scenarios with the menu if applicable (open and close with the ☰ button on the top left)\n'
+      '- start, pause, and increase the speed with the buttons on the top right\n\n'
       'Kind regards,\n\n'
       'The Meyn life bird handling team';
 

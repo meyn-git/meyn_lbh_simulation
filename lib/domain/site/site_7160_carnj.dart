@@ -17,32 +17,33 @@ import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
 import 'site.dart';
 
-class AgricolaSite extends Site {
-  AgricolaSite()
+class CarnjSite extends Site {
+  CarnjSite()
       : super(
           meynLayoutNumber: 7324,
-          organizationName: 'CARNJ Soc. Coop. Agricola',
+          organizationName: 'Carnj Soc. Coop. Agricola',
           city: 'Jesi-Ancona',
           country: 'Italy',
-          productDefinitions: AgricolaProductDefinitions(),
+          productDefinitions: CarnjProductDefinitions(),
         );
 }
 
-/// Fileni chicken: ModuleGroup = 4 and 5 compartment module
-/// Pollo Bio:                  26 birds/compartment @ 8000 birds/hour
-/// Pollo RUSTICANELLO Pesante: 33 birds/compartment @ 6000 birds/hour
-/// Pollo RUSTICANELLO :        52 birds/compartment @ 7000 birds/hour
-/// Pollo PICCOLO:              54 birds/compartment @ 10000 birds/hour
-class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
-  AgricolaProductDefinitions()
+class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
+  static int maxBirdPerHour = 8000,
+      exceedingMaxBirdPerHour = maxBirdPerHour + 1000;
+
+  CarnjProductDefinitions()
       : super([
 // Without buffer conveyor between tilter and turntable
 
           ProductDefinition(
-              //2,82286 stacks per hour
+              // 3.5 kg/bird average
+              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+              // 10080 birds/hour / 112 birds/cont = 90 cont/hour
               areaFactory: _areaFactory(),
-              birdType: 'Pollo Bio',
-              lineSpeedInShacklesPerHour: 8000,
+              birdType: 'Pollo Grosso',
+              lineSpeedInShacklesPerHour: maxBirdPerHour,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily.marelGpSquare,
@@ -50,53 +51,20 @@ class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(26),
+                      .capacityWithBirdsPerCompartment(25),
                   secondModule: MarelGpSquareModule5Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(26),
+                      .capacityWithBirdsPerCompartment(25),
                 )
               ]),
           ProductDefinition(
-              // 1,3 stacks per hour
+              // 1.65 kg/bird average
+              // 9 levels * 54 birds = 486 birds / 2 cont = average 243 birds/cont
+              // 243 birds/cont * 2 cont * 7.5 CAS cycle/hour * 3 CAS units = 10935 birds/hour
+              // 10935 birds/hour / 243 birds/cont = 45 cont/hour
               areaFactory: _areaFactory(),
-              birdType: 'Pollo RUSTICANELLO Pesante',
-              lineSpeedInShacklesPerHour: 6000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(33),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(33),
-                )
-              ]),
-          ProductDefinition(
-              //0.6319997 stacks per hour
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo RUSTICANELLO',
-              lineSpeedInShacklesPerHour: 7000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(52),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(52),
-                )
-              ]),
-          ProductDefinition(
-              //0,8379
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo PICCOLO',
-              lineSpeedInShacklesPerHour: 10000,
+              birdType: 'Pollo Piccolo',
+              lineSpeedInShacklesPerHour: maxBirdPerHour,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily.marelGpSquare,
@@ -114,10 +82,13 @@ class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
 // With buffer conveyor between tilter and turntable
 
           ProductDefinition(
-              //2,82286 stacks per hour
+              // 3.5 kg/bird average
+              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+              // 10080 birds/hour / 112 birds/cont = 90 cont/hour
               areaFactory: _areaWithExtraBufferFactory(),
-              birdType: 'Pollo Bio',
-              lineSpeedInShacklesPerHour: 8000,
+              birdType: 'Pollo Grosso',
+              lineSpeedInShacklesPerHour: maxBirdPerHour,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily.marelGpSquare,
@@ -125,17 +96,20 @@ class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(26),
+                      .capacityWithBirdsPerCompartment(25),
                   secondModule: MarelGpSquareModule5Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(26),
+                      .capacityWithBirdsPerCompartment(25),
                 )
               ]),
           ProductDefinition(
-              // 1,3 stacks per hour
+              // 1.65 kg/bird average
+              // 9 levels * 54 birds = 486 birds / 2 cont = average 243 birds/cont
+              // 243 birds/cont * 2 cont * 7.5 CAS cycle/hour * 3 CAS units = 10935 birds/hour
+              // 10935 birds/hour / 243 birds/cont = 45 cont/hour
               areaFactory: _areaWithExtraBufferFactory(),
-              birdType: 'Pollo RUSTICANELLO Pesante',
-              lineSpeedInShacklesPerHour: 6000,
+              birdType: 'Pollo Piccolo',
+              lineSpeedInShacklesPerHour: maxBirdPerHour,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily.marelGpSquare,
@@ -143,17 +117,21 @@ class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(33),
+                      .capacityWithBirdsPerCompartment(54),
                   secondModule: MarelGpSquareModule5Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(33),
+                      .capacityWithBirdsPerCompartment(54),
                 )
               ]),
+
           ProductDefinition(
-              //0.6319997 stacks per hour
+              // 3.5 kg/bird average
+              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+              // 10080 birds/hour / 112 birds/cont = 90 cont/hour
               areaFactory: _areaWithExtraBufferFactory(),
-              birdType: 'Pollo RUSTICANELLO',
-              lineSpeedInShacklesPerHour: 7000,
+              birdType: 'Pollo Grosso',
+              lineSpeedInShacklesPerHour: exceedingMaxBirdPerHour,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily.marelGpSquare,
@@ -161,17 +139,20 @@ class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(52),
+                      .capacityWithBirdsPerCompartment(25),
                   secondModule: MarelGpSquareModule5Level()
                       .dimensions
-                      .capacityWithBirdsPerCompartment(52),
+                      .capacityWithBirdsPerCompartment(25),
                 )
               ]),
           ProductDefinition(
-              //0,8379
+              // 1.65 kg/bird average
+              // 9 levels * 54 birds = 486 birds / 2 cont = average 243 birds/cont
+              // 243 birds/cont * 2 cont * 7.5 CAS cycle/hour * 3 CAS units = 10935 birds/hour
+              // 10935 birds/hour / 243 birds/cont = 45 cont/hour
               areaFactory: _areaWithExtraBufferFactory(),
-              birdType: 'Pollo PICCOLO',
-              lineSpeedInShacklesPerHour: 10000,
+              birdType: 'Pollo Piccolo',
+              lineSpeedInShacklesPerHour: exceedingMaxBirdPerHour,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily.marelGpSquare,
@@ -189,15 +170,15 @@ class AgricolaProductDefinitions extends DelegatingList<ProductDefinition> {
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
       _areaFactory() => (ProductDefinition productDefinition) =>
-          [AgricolaLiveBirdHandlingArea(productDefinition)];
+          [CarnjLiveBirdHandlingArea(productDefinition)];
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
       _areaWithExtraBufferFactory() => (ProductDefinition productDefinition) =>
-          [AgricolaLiveBirdHandlingAreaWithExtraConveyor(productDefinition)];
+          [CarnjLiveBirdHandlingAreaWithExtraConveyor(productDefinition)];
 }
 
-class AgricolaLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  AgricolaLiveBirdHandlingArea(ProductDefinition productDefinition)
+class CarnjLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  CarnjLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Without buffer for tilter',
           productDefinition: productDefinition,
@@ -366,9 +347,8 @@ class AgricolaLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 }
 
-class AgricolaLiveBirdHandlingAreaWithExtraConveyor
-    extends LiveBirdHandlingArea {
-  AgricolaLiveBirdHandlingAreaWithExtraConveyor(
+class CarnjLiveBirdHandlingAreaWithExtraConveyor extends LiveBirdHandlingArea {
+  CarnjLiveBirdHandlingAreaWithExtraConveyor(
       ProductDefinition productDefinition)
       : super(
           lineName: 'With buffer for tilter',

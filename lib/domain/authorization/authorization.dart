@@ -37,10 +37,10 @@ class AuthorizationService {
   }
 
   bool _passwordMatches(User user, String passWord) =>
-      user.password == passWord;
+      user.password == passWord.trim();
 
   bool _nameMatches(User user, String name) =>
-      user.name.toLowerCase() == name.toLowerCase();
+      user.name.toLowerCase() == name.toLowerCase().trim();
 
   List<Site> get sitesThatCanBeViewed =>
       _loggedInUser == null ? [] : _loggedInUser!.sitesThatCanBeViewed;
@@ -51,6 +51,14 @@ class AuthorizationService {
     player.pause();
     player.scenario = null;
   }
+
+  static userNameForSite(Site site) =>
+      _removeAllAfterFirstSpace(site.organizationName.trim().toLowerCase());
+
+  static String _removeAllAfterFirstSpace(String siteName) =>
+      siteName.replaceAll(RegExp(r"\s[^]*"), "");
+
+  static passwordForSite(Site site) => site.meynLayoutCode.trim();
 }
 
 class LoginException implements Exception {
@@ -109,8 +117,8 @@ class UserFactory {
       );
 
   Iterable<User> _createSiteUsers() => sites.map((site) => User(
-      name: site.organizationName.trim().toLowerCase(),
-      password: site.meynLayoutCode,
+      name: AuthorizationService.userNameForSite(site),
+      password: AuthorizationService.passwordForSite(site),
       isAdmin: false,
       sitesThatCanBeViewed: [site]));
 }
