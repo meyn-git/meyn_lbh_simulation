@@ -20,8 +20,8 @@ import 'site.dart';
 class CarnjSite extends Site {
   CarnjSite()
       : super(
-          meynLayoutNumber: 7324,
-          organizationName: 'Carnj Soc. Coop. Agricola',
+          meynLayoutNumber: 7160,
+          organizationName: 'Carnj Soc. Coop. Agricola (Fileni-Cingoli)',
           city: 'Jesi-Ancona',
           country: 'Italy',
           productDefinitions: CarnjProductDefinitions(),
