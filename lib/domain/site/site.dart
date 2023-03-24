@@ -6,6 +6,7 @@ import 'package:meyn_lbh_simulation/domain/site/site_5021_ha_kylling_as.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_5246_nortura_haerland.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_7160_carnj.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_7696_dabe.dart';
+import 'package:meyn_lbh_simulation/domain/site/site_9164_micarna.dart';
 
 import 'site_5674_drobrimex.dart';
 import 'site_7324_fileni.dart';
@@ -56,6 +57,7 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
       : super([
+          MicarnaSite(),
           CarnjSite(),
           TaravisSite(),
           FileniSite(),
