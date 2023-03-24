@@ -9,9 +9,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_lift_position.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
@@ -82,16 +80,6 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
 
 
 class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  // static final birdsPerHour = 8000;
-  // static final birdsPerModule1 = ((4 + 5) / 2 * 26).round();
-  // static final birdsPerModule2 = ((4 + 5) / 2 * 26).round();
-  //
-  // static const conveyorTransportDuration =
-  //     Duration(milliseconds: 13400); // Based on measurements @ Dabe
-  // static const turnTableDegreesPerSecond =
-  //     10; //Based on measurements @ Dabe: 90 degrees in 9 seconds
-  // static const casTransportDuration =
-  //     Duration(milliseconds: 18700); // Based on measurements @ Dabe
 
   MicarnaLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
