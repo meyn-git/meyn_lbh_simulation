@@ -95,7 +95,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
   MicarnaLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
-          lineName: 'Chicken line with extra buffer',
+          lineName: 'Line1',
           productDefinition: productDefinition,
         ) {
     _row1();
