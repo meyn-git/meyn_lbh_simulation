@@ -20,7 +20,7 @@ import 'site.dart';
 class MicarnaSite extends Site {
   MicarnaSite()
       : super(
-          meynLayoutNumber: 7324,
+          meynLayoutNumber: 9164,
           organizationName: 'Micarna',
           city: 'Courtepin',
           country: 'Switzerland',
