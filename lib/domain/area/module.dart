@@ -511,6 +511,7 @@ class AngliaAutoFlowChickenSmall5Level extends ModuleType {
         );
 }
 
+
 class AngliaAutoFlowChickenLarge4Level extends ModuleType {
   AngliaAutoFlowChickenLarge4Level()
       : super(
@@ -529,6 +530,8 @@ class AngliaAutoFlowChickenLarge4Level extends ModuleType {
         );
 }
 
+
+
 class AngliaAutoFlowChickenLarge5Level extends ModuleType {
   AngliaAutoFlowChickenLarge5Level()
       : super(
@@ -544,6 +547,24 @@ class AngliaAutoFlowChickenLarge5Level extends ModuleType {
               compartmentsPerLevel: 3,
               birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
               emptyWeight: kilo.grams(410)),
+        );
+}
+
+class AngliaAutoFlowTurkey3Level extends ModuleType {
+  AngliaAutoFlowTurkey3Level()
+      : super(
+          moduleFamily: ModuleFamily.angliaAutoFlow,
+          birdType: BirdType.turkey,
+          dimensions: ModuleDimensions(
+              lengthLongSide: meters(2.438),
+              widthShortSide: meters(1.165),
+              heightWithoutCam: meters(1.292),
+              camHeight: meters(0.1),
+              headHeight: meters(0.355),
+              levels: 3,
+              compartmentsPerLevel: 3,
+              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
+              emptyWeight: kilo.grams(340)),
         );
 }
 

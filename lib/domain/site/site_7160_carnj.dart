@@ -36,183 +36,183 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
       : super([
 // Without buffer conveyor between tilter and turntable
 
-          ProductDefinition(
-              // 3.5 kg/bird average
-              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
-              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
-              // 10080 birds/hour / 112 birds/cont = 90 cont/hour
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo Grosso',
-              lineSpeedInShacklesPerHour: 8000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                )
-              ]),
-          ProductDefinition(
-              // 2.6 kg/bird average
-              // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
-              // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
-              // 11000 birds/hour / 153 birds/cont = 72 cont/hour
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo Medio',
-              lineSpeedInShacklesPerHour: 10000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                )
-              ]),
+//           ProductDefinition(
+//               // 3.5 kg/bird average
+//               // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+//               // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+//               // 10080 birds/hour / 112 birds/cont = 90 cont/hour
+//               areaFactory: _areaFactory(),
+//               birdType: 'Pollo Grosso',
+//               lineSpeedInShacklesPerHour: 8000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                 )
+//               ]),
+//           ProductDefinition(
+//               // 2.6 kg/bird average
+//               // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
+//               // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
+//               // 11000 birds/hour / 153 birds/cont = 72 cont/hour
+//               areaFactory: _areaFactory(),
+//               birdType: 'Pollo Medio',
+//               lineSpeedInShacklesPerHour: 10000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                 )
+//               ]),
 
-// With buffer conveyor between tilter and turntable but lower feasible speed
+// // With buffer conveyor between tilter and turntable but lower feasible speed
 
-          ProductDefinition(
-              // 3.5 kg/bird average
-              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
-              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
-              // 10080 birds/hour / 112 birds/cont = 90 cont/hour
-              areaFactory: _areaWithExtraConveyorFactory(),
-              birdType: 'Pollo Grosso',
-              lineSpeedInShacklesPerHour: 8000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                )
-              ]),
-          ProductDefinition(
-              // 2.6 kg/bird average
-              // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
-              // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
-              // 11000 birds/hour / 153 birds/cont = 72 cont/hour
-              areaFactory: _areaWithExtraConveyorFactory(),
-              birdType: 'Pollo Medio',
-              lineSpeedInShacklesPerHour: 10000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                )
-              ]),
+//           ProductDefinition(
+//               // 3.5 kg/bird average
+//               // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+//               // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+//               // 10080 birds/hour / 112 birds/cont = 90 cont/hour
+//               areaFactory: _areaWithExtraConveyorFactory(),
+//               birdType: 'Pollo Grosso',
+//               lineSpeedInShacklesPerHour: 8000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                 )
+//               ]),
+//           ProductDefinition(
+//               // 2.6 kg/bird average
+//               // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
+//               // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
+//               // 11000 birds/hour / 153 birds/cont = 72 cont/hour
+//               areaFactory: _areaWithExtraConveyorFactory(),
+//               birdType: 'Pollo Medio',
+//               lineSpeedInShacklesPerHour: 10000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                 )
+//               ]),
 
-// With buffer conveyor between tilter and turntable but with unfeasible requested speed
+// // With buffer conveyor between tilter and turntable but with unfeasible requested speed
 
-          ProductDefinition(
-              // 3.5 kg/bird average
-              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
-              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
-              // 9000 birds/hour / 112 birds/cont = 81 cont/hour
-              areaFactory: _areaWithExtraConveyorFactory(),
-              birdType: 'Pollo Grosso',
-              lineSpeedInShacklesPerHour: 9000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                )
-              ]),
-          ProductDefinition(
-              // 2.6 kg/bird average
-              // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
-              // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
-              // 11000 birds/hour / 153 birds/cont = 72 cont/hour
-              areaFactory: _areaWithExtraConveyorFactory(),
-              birdType: 'Pollo Medio',
-              lineSpeedInShacklesPerHour: 11000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                )
-              ]),
+//           ProductDefinition(
+//               // 3.5 kg/bird average
+//               // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+//               // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+//               // 9000 birds/hour / 112 birds/cont = 81 cont/hour
+//               areaFactory: _areaWithExtraConveyorFactory(),
+//               birdType: 'Pollo Grosso',
+//               lineSpeedInShacklesPerHour: 9000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                 )
+//               ]),
+//           ProductDefinition(
+//               // 2.6 kg/bird average
+//               // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
+//               // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
+//               // 11000 birds/hour / 153 birds/cont = 72 cont/hour
+//               areaFactory: _areaWithExtraConveyorFactory(),
+//               birdType: 'Pollo Medio',
+//               lineSpeedInShacklesPerHour: 11000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                 )
+//               ]),
 
-// With buffer conveyor between tilter and turntable , extra CAS unit but with unfeasible requested speed
+// // With buffer conveyor between tilter and turntable , extra CAS unit but with unfeasible requested speed
 
-          ProductDefinition(
-              // 3.5 kg/bird average
-              // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
-              // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
-              // 9000 birds/hour / 112 birds/cont = 81 cont/hour
-              areaFactory: _areaWithExtraCasAndConveyorFactory(),
-              birdType: 'Pollo Grosso',
-              lineSpeedInShacklesPerHour: 9000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                )
-              ]),
-          ProductDefinition(
-              // 2.6 kg/bird average
-              // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
-              // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
-              // 11000 birds/hour / 153 birds/cont = 72 cont/hour
-              areaFactory: _areaWithExtraCasAndConveyorFactory(),
-              birdType: 'Pollo Medio',
-              lineSpeedInShacklesPerHour: 11000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                  secondModule: MarelGpSquareModule5Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                )
-              ]),
+//           ProductDefinition(
+//               // 3.5 kg/bird average
+//               // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
+//               // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
+//               // 9000 birds/hour / 112 birds/cont = 81 cont/hour
+//               areaFactory: _areaWithExtraCasAndConveyorFactory(),
+//               birdType: 'Pollo Grosso',
+//               lineSpeedInShacklesPerHour: 9000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(25),
+//                 )
+//               ]),
+//           ProductDefinition(
+//               // 2.6 kg/bird average
+//               // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
+//               // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
+//               // 11000 birds/hour / 153 birds/cont = 72 cont/hour
+//               areaFactory: _areaWithExtraCasAndConveyorFactory(),
+//               birdType: 'Pollo Medio',
+//               lineSpeedInShacklesPerHour: 11000,
+//               casRecipe: const CasRecipe.standardChickenRecipe(),
+//               moduleSystem: ModuleSystem.meynVdlSquareContainers,
+//               moduleFamily: ModuleFamily.marelGpSquare,
+//               moduleGroupCapacities: [
+//                 ModuleGroupCapacity(
+//                   firstModule: MarelGpSquareModule4Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                   secondModule: MarelGpSquareModule5Level()
+//                       .dimensions
+//                       .capacityWithBirdsPerCompartment(34),
+//                 )
+//               ]),
 
                ProductDefinition(
               // 3.5 kg/bird average
@@ -861,7 +861,7 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
       direction: CardinalDirection.east,
     ));
 
-    put(ModuleCas(
+put(ModuleCas(
       area: this,
       position: const Position(4, 3),
       seqNr: 1,
@@ -872,6 +872,14 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
     put(ModuleCas(
       area: this,
       position: const Position(5, 3),
+      seqNr: 2,
+      inAndOutFeedDirection: CardinalDirection.south,
+      doorDirection: CardinalDirection.west,
+    ));
+
+    put(ModuleCas(
+      area: this,
+      position: const Position(6, 3),
       seqNr: 3,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -915,10 +923,20 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
       supportsOpenDuration: Duration.zero,
     ));
 
-    put(ModuleRotatingConveyor(
+put(ModuleRotatingConveyor(
       area: this,
       position: const Position(4, 4),
-      seqNr: 4,
+      seqNr: 3,
+      oppositeInFeeds: [CardinalDirection.south],
+      oppositeOutFeeds: [CardinalDirection.north],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(5, 4),
+      seqNr: 2,
       oppositeInFeeds: [CardinalDirection.south],
       oppositeOutFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.west,
@@ -926,8 +944,8 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: const Position(5, 4),
-      seqNr: 3,
+      position: const Position(6, 4),
+      seqNr: 1,
       oppositeInFeeds: [CardinalDirection.south],
       oppositeOutFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.west,
@@ -937,13 +955,21 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
 
      put(ModuleConveyor(
       area: this,
-      position: const Position(6, 4),
+      position: const Position(7, 4),
+      seqNr: 2,
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleConveyor(
+      area: this,
+      position: const Position(8, 4),
+      seqNr: 1,
       inFeedDirection: CardinalDirection.east,
     ));
 
      put(LoadingForkLiftTruck(
       area: this,
-      position: const Position(7, 4),
+      position: const Position(9, 4),
       outFeedDirection: CardinalDirection.west,
       doorDirection: CardinalDirection.south,
       loadsSingeModule: false,
@@ -954,22 +980,13 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
     put(ModuleCasAllocation(
       area: this,
       position: const Position(1, 5),
-      positionToAllocate: const Position(6, 4),
+      positionToAllocate: const Position(7, 4),
     ));
 
     put(ModuleCasStart(
       area: this,
       position: const Position(2, 5),
     ));
-
-    put(ModuleCas(
-      area: this,
-      position: const Position(4, 5),
-      seqNr: 2,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
-    ));
-
   
   }
 }
