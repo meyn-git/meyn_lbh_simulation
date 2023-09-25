@@ -213,10 +213,11 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
       seqNr: 1,
       inFeedDirection: CardinalDirection.north,
       birdDirection: CardinalDirection.east,
-      minBirdsOnDumpBeltBuffer:
-          (productDefinition.averageProductsPerModuleGroup/2).round(), //REDUCED buffer size to 4.5 drawers due to limited buffer space!!!!
+      minBirdsOnDumpBeltBuffer: (productDefinition
+                  .averageProductsPerModuleGroup /
+              2)
+          .round(), //REDUCED buffer size to 4.5 drawers due to limited buffer space!!!!
     ));
-
 
     put(BirdHangingConveyor(
       area: this,

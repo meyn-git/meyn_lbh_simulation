@@ -214,7 +214,7 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
 //                 )
 //               ]),
 
-               ProductDefinition(
+          ProductDefinition(
               // 3.5 kg/bird average
               // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
               // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
@@ -223,16 +223,20 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Grosso',
               lineSpeedInShacklesPerHour: 9000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers, //Actually: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer, //Actually: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem
+                  .meynGrandeDrawerContainers, //Actually: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily
+                  .meynGrandeDrawer, //Actually: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule:  MeynGrandeDrawerChicken4Level()// Actually 2x MarelGpSquareModule4Level() with 2x25 birds per level
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
-                  secondModule: MeynGrandeDrawerChicken5Level()// Actually 2x MarelGpSquareModule5Level() with 2x25 birds per level
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(25),
+                  firstModule:
+                      MeynGrandeDrawerChicken4Level() // Actually 2x MarelGpSquareModule4Level() with 2x25 birds per level
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(25),
+                  secondModule:
+                      MeynGrandeDrawerChicken5Level() // Actually 2x MarelGpSquareModule5Level() with 2x25 birds per level
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(25),
                 )
               ]),
           ProductDefinition(
@@ -244,16 +248,20 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Medio',
               lineSpeedInShacklesPerHour: 11000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlRectangularContainers, //Actually: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer, //Actually: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem
+                  .meynVdlRectangularContainers, //Actually: ModuleSystem.meynVdlSquareContainers,
+              moduleFamily: ModuleFamily
+                  .meynGrandeDrawer, //Actually: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()// Actually 2x MarelGpSquareModule4Level() with 2x34 birds per level
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
-                  secondModule: MeynGrandeDrawerChicken5Level()// Actually 2x MarelGpSquareModule5Level() with 2x34 birds per level
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(34),
+                  firstModule:
+                      MeynGrandeDrawerChicken4Level() // Actually 2x MarelGpSquareModule4Level() with 2x34 birds per level
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(34),
+                  secondModule:
+                      MeynGrandeDrawerChicken5Level() // Actually 2x MarelGpSquareModule5Level() with 2x34 birds per level
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(34),
                 )
               ]),
         ]);
@@ -272,10 +280,12 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               productDefinition) =>
           [CarnjLiveBirdHandlingAreaWithExtraCasAndConveyor(productDefinition)];
 
-           static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaWithComparableToAvimeccFactory() => (ProductDefinition
-              productDefinition) =>
-          [CarnjLiveBirdHandlingAreaComparableToAvimeccFactory(productDefinition)];
+  static List<LiveBirdHandlingArea> Function(ProductDefinition)
+      _areaWithComparableToAvimeccFactory() =>
+          (ProductDefinition productDefinition) => [
+                CarnjLiveBirdHandlingAreaComparableToAvimeccFactory(
+                    productDefinition)
+              ];
 }
 
 class CarnjLiveBirdHandlingArea extends LiveBirdHandlingArea {
@@ -837,8 +847,6 @@ class CarnjLiveBirdHandlingAreaWithExtraCasAndConveyor
   }
 }
 
-
-
 class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
     extends LiveBirdHandlingArea {
   CarnjLiveBirdHandlingAreaComparableToAvimeccFactory(
@@ -847,12 +855,10 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
           lineName: '4 containers on a plate, comparable to 9018 Avimecc',
           productDefinition: productDefinition,
         ) {
-  
     _row3();
     _row4();
     _row5();
   }
-
 
   void _row3() {
     put(BirdHangingConveyor(
@@ -861,7 +867,7 @@ class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
       direction: CardinalDirection.east,
     ));
 
-put(ModuleCas(
+    put(ModuleCas(
       area: this,
       position: const Position(4, 3),
       seqNr: 1,
@@ -884,9 +890,6 @@ put(ModuleCas(
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
     ));
-
-   
-  
   }
 
   void _row4() {
@@ -923,7 +926,7 @@ put(ModuleCas(
       supportsOpenDuration: Duration.zero,
     ));
 
-put(ModuleRotatingConveyor(
+    put(ModuleRotatingConveyor(
       area: this,
       position: const Position(4, 4),
       seqNr: 3,
@@ -931,7 +934,6 @@ put(ModuleRotatingConveyor(
       oppositeOutFeeds: [CardinalDirection.north],
       defaultPositionWhenIdle: CardinalDirection.west,
     ));
-
 
     put(ModuleRotatingConveyor(
       area: this,
@@ -951,9 +953,7 @@ put(ModuleRotatingConveyor(
       defaultPositionWhenIdle: CardinalDirection.west,
     ));
 
-  
-
-     put(ModuleConveyor(
+    put(ModuleConveyor(
       area: this,
       position: const Position(7, 4),
       seqNr: 2,
@@ -967,7 +967,7 @@ put(ModuleRotatingConveyor(
       inFeedDirection: CardinalDirection.east,
     ));
 
-     put(LoadingForkLiftTruck(
+    put(LoadingForkLiftTruck(
       area: this,
       position: const Position(9, 4),
       outFeedDirection: CardinalDirection.west,
@@ -987,6 +987,5 @@ put(ModuleRotatingConveyor(
       area: this,
       position: const Position(2, 5),
     ));
-  
   }
 }

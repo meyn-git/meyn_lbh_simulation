@@ -511,7 +511,6 @@ class AngliaAutoFlowChickenSmall5Level extends ModuleType {
         );
 }
 
-
 class AngliaAutoFlowChickenLarge4Level extends ModuleType {
   AngliaAutoFlowChickenLarge4Level()
       : super(
@@ -529,8 +528,6 @@ class AngliaAutoFlowChickenLarge4Level extends ModuleType {
               emptyWeight: kilo.grams(350)),
         );
 }
-
-
 
 class AngliaAutoFlowChickenLarge5Level extends ModuleType {
   AngliaAutoFlowChickenLarge5Level()

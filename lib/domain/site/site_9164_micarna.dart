@@ -27,11 +27,11 @@ class MicarnaSite extends Site {
 }
 
 class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
-  
-  static final maxBirdWeight=2.5.kilo.grams;
-  static const summerLoadPercentage=90;
-  static final  minLoadDensity=LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
-  
+  static final maxBirdWeight = 2.5.kilo.grams;
+  static const summerLoadPercentage = 90;
+  static final minLoadDensity =
+      LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
+
   MicarnaProductDefinitions()
       : super([
           ProductDefinition(
@@ -52,7 +52,6 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
                       .capacityWithDensity(minLoadDensity, maxBirdWeight),
                 )
               ]),
-       
           ProductDefinition(
               //15000 b/h
               areaFactory: _areaFactory(),
@@ -78,9 +77,7 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
           [MicarnaLiveBirdHandlingArea(productDefinition)];
 }
 
-
 class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
-
   MicarnaLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Line1',
@@ -94,18 +91,15 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 
   void _row1() {
-  put(UnLoadingForkLiftTruck(
+    put(UnLoadingForkLiftTruck(
       area: this,
       position: const Position(6, 1),
       inFeedDirection: CardinalDirection.south,
     ));
-
-
   }
 
   void _row2() {
-  
-     put(ModuleCas(
+    put(ModuleCas(
       area: this,
       position: const Position(1, 2),
       seqNr: 5,
@@ -121,8 +115,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       doorDirection: CardinalDirection.west,
     ));
 
-
-put(ModuleCas(
+    put(ModuleCas(
       area: this,
       position: const Position(3, 2),
       seqNr: 1,
@@ -130,7 +123,7 @@ put(ModuleCas(
       doorDirection: CardinalDirection.west,
     ));
 
- put(ModuleTilter(
+    put(ModuleTilter(
       area: this,
       position: const Position(6, 2),
       seqNr: 1,
@@ -145,13 +138,10 @@ put(ModuleCas(
       position: const Position(7, 2),
       direction: CardinalDirection.north,
     ));
-
- 
   }
 
   void _row3() {
-
- put(ModuleRotatingConveyor(
+    put(ModuleRotatingConveyor(
       area: this,
       position: const Position(1, 3),
       seqNr: 1,
@@ -159,7 +149,6 @@ put(ModuleCas(
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.north,
     ));
-
 
     put(ModuleRotatingConveyor(
       area: this,
@@ -169,7 +158,6 @@ put(ModuleCas(
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
-
 
     put(ModuleRotatingConveyor(
       area: this,
@@ -187,7 +175,6 @@ put(ModuleCas(
       inFeedDirection: CardinalDirection.west,
     ));
 
-   
     put(ModuleDeStacker(
       area: this,
       position: const Position(5, 3),
@@ -203,7 +190,6 @@ put(ModuleCas(
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.east,
     ));
-
   }
 
   void _row4() {
@@ -229,9 +215,7 @@ put(ModuleCas(
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
     ));
-
   }
-
 
   void _row5() {
     put(LoadingForkLiftTruck(
