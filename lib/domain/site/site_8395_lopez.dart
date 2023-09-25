@@ -82,7 +82,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
 class AreaWith2CASUnits extends LiveBirdHandlingArea {
   AreaWith2CASUnits(ProductDefinition productDefinition)
       : super(
-          lineName: 'Line 1',
+          lineName: 'With 2 CAS units',
           productDefinition: productDefinition,
         ) {
     _row1();
@@ -188,7 +188,7 @@ class AreaWith2CASUnits extends LiveBirdHandlingArea {
 class AreaWith3CASUnits extends LiveBirdHandlingArea {
   AreaWith3CASUnits(ProductDefinition productDefinition)
       : super(
-          lineName: 'Line 1',
+          lineName: 'With 3 CAS units',
           productDefinition: productDefinition,
         ) {
     _row1();
