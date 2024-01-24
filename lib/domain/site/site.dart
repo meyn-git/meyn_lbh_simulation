@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_4054_taravis_sarvar.dart';
+import 'package:meyn_lbh_simulation/domain/site/site_4649_gut_bergmark.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_5021_ha_kylling_as.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_5246_nortura_haerland.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_7160_carnj.dart';
@@ -58,6 +59,7 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
       : super([
+          GutBergmarkSite(),
           LopezSite(),
           HaerlandSite(),
           MicarnaSite(),
