@@ -25,7 +25,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
             inFeedDuration: putModuleGroupOnTruckDuration,
             outFeedDuration: getStackFromConveyorDuration);
 
-  StateMachineCell get sendingNeighbour =>
+  StateMachineCell get sendingneighbor =>
       area.neighboringCell(this, inFeedDirection) as StateMachineCell;
 
   @override
@@ -53,13 +53,13 @@ class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck> {
   State<UnLoadingForkLiftTruck>? nextState(
       // ignore: avoid_renaming_method_parameters
       UnLoadingForkLiftTruck forkLiftTruck) {
-    if (_neighbourCanFeedOut(forkLiftTruck)) {
+    if (_neighborCanFeedOut(forkLiftTruck)) {
       return GetModuleGroupFromConveyor();
     }
     return null;
   }
 
-  bool _neighbourCanFeedOut(UnLoadingForkLiftTruck forkLiftTruck) {
+  bool _neighborCanFeedOut(UnLoadingForkLiftTruck forkLiftTruck) {
     return forkLiftTruck.area.moduleGroups.any(
         (moduleGroup) => moduleGroup.position.destination == forkLiftTruck);
   }

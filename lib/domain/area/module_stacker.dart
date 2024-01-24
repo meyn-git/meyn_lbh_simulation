@@ -47,10 +47,10 @@ class ModuleStacker extends StateMachineCell {
               area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
-  Cell get receivingNeighbour =>
+  Cell get receivingneighbor =>
       area.neighboringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => area.neighboringCell(this, inFeedDirection);
+  Cell get sendingneighbor => area.neighboringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -212,7 +212,7 @@ class WaitToFeedOut extends State<ModuleStacker> {
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
-    if (_neighbourCanFeedIn(stacker) && !_moduleGroupAtDestination(stacker)) {
+    if (_neighborCanFeedIn(stacker) && !_moduleGroupAtDestination(stacker)) {
       return FeedOut();
     }
     return null;
@@ -221,8 +221,8 @@ class WaitToFeedOut extends State<ModuleStacker> {
   bool _moduleGroupAtDestination(ModuleStacker stacker) =>
       stacker.moduleGroup!.destination == stacker;
 
-  _neighbourCanFeedIn(ModuleStacker stacker) =>
-      stacker.receivingNeighbour.waitingToFeedIn(stacker.inFeedDirection);
+  _neighborCanFeedIn(ModuleStacker stacker) =>
+      stacker.receivingneighbor.waitingToFeedIn(stacker.inFeedDirection);
 }
 
 class FeedOut extends State<ModuleStacker> {
@@ -237,7 +237,7 @@ class FeedOut extends State<ModuleStacker> {
     transportedModuleGroup = stacker.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
         source: stacker,
-        destination: stacker.receivingNeighbour as StateMachineCell);
+        destination: stacker.receivingneighbor as StateMachineCell);
   }
 
   @override

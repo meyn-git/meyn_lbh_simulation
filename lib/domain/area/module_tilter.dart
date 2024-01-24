@@ -66,10 +66,10 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
     }
   }
 
-  Cell get receivingNeighbour =>
+  Cell get receivingneighbor =>
       area.neighboringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingNeighbour => area.neighboringCell(this, inFeedDirection);
+  Cell get sendingneighbor => area.neighboringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -219,7 +219,7 @@ class WaitToFeedOut extends State<ModuleTilter> {
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (_neighbourCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
+    if (_neighborCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
       return FeedOut();
     }
     return null;
@@ -228,8 +228,8 @@ class WaitToFeedOut extends State<ModuleTilter> {
   bool _moduleGroupAtDestination(ModuleTilter tilter) =>
       tilter.moduleGroup!.destination == tilter;
 
-  _neighbourCanFeedIn(ModuleTilter tilter) =>
-      tilter.receivingNeighbour.waitingToFeedIn(tilter.inFeedDirection);
+  _neighborCanFeedIn(ModuleTilter tilter) =>
+      tilter.receivingneighbor.waitingToFeedIn(tilter.inFeedDirection);
 }
 
 class FeedOut extends State<ModuleTilter> {
@@ -244,7 +244,7 @@ class FeedOut extends State<ModuleTilter> {
     transportedModuleGroup = tilter.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
         source: tilter,
-        destination: tilter.receivingNeighbour as StateMachineCell);
+        destination: tilter.receivingneighbor as StateMachineCell);
   }
 
   @override

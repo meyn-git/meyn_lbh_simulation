@@ -42,7 +42,7 @@ class ModuleCas extends StateMachineCell {
     recipe = area.productDefinition.casRecipe!;
   }
 
-  StateMachineCell get neighbour =>
+  StateMachineCell get neighbor =>
       area.neighboringCell(this, inAndOutFeedDirection) as StateMachineCell;
 
   @override
@@ -308,14 +308,14 @@ class WaitToFeedOut extends State<ModuleCas> {
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
-    if (_neighbourOkToFeedIn(cas)) {
+    if (_neighborOkToFeedIn(cas)) {
       return FeedOut();
     }
     return null;
   }
 
-  bool _neighbourOkToFeedIn(ModuleCas cas) =>
-      cas.neighbour.waitingToFeedIn(cas.inAndOutFeedDirection.opposite);
+  bool _neighborOkToFeedIn(ModuleCas cas) =>
+      cas.neighbor.waitingToFeedIn(cas.inAndOutFeedDirection.opposite);
 }
 
 class FeedOut extends State<ModuleCas> {
@@ -326,7 +326,7 @@ class FeedOut extends State<ModuleCas> {
   // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     cas.moduleGroup!.position =
-        ModulePosition.betweenCells(source: cas, destination: cas.neighbour);
+        ModulePosition.betweenCells(source: cas, destination: cas.neighbor);
   }
 
   @override

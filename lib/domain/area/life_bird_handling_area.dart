@@ -24,7 +24,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   CellRange get cellRange => CellRange(cells);
 
   Cell neighboringCell(ActiveCell cell, CardinalDirection direction) {
-    Position relativePosition = cell.position.neighbour(direction);
+    Position relativePosition = cell.position.neighbor(direction);
     return cellForPosition(relativePosition);
   }
 
@@ -76,13 +76,13 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
     }
     routeSoFar = Route([...routeSoFar, source]);
     for (var direction in CardinalDirection.values) {
-      var neighbour = neighboringCell(source, direction);
-      if (neighbour is StateMachineCell &&
-          neighbour.isFeedIn(direction.opposite) &&
-          !routeSoFar.contains(neighbour)) {
+      var neighbor = neighboringCell(source, direction);
+      if (neighbor is StateMachineCell &&
+          neighbor.isFeedIn(direction.opposite) &&
+          !routeSoFar.contains(neighbor)) {
         // recursive call
         var foundRoute = findRoute(
-          source: neighbour,
+          source: neighbor,
           destination: destination,
           routeSoFar: routeSoFar,
         );
@@ -159,7 +159,7 @@ class Position {
     return 'Position{x: $x, y: $y}';
   }
 
-  Position neighbour(CardinalDirection relativePosition) {
+  Position neighbor(CardinalDirection relativePosition) {
     switch (relativePosition) {
       case CardinalDirection.north:
         return Position(x, y - 1);
