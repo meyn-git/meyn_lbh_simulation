@@ -239,6 +239,7 @@ class ModulePosition {
 class Module {
   final int sequenceNumber;
   int nrOfBirds;
+  int levels;
   Duration? sinceLoadedOnSystem;
   Duration? sinceStartStun;
   Duration? sinceEndStun;
@@ -247,6 +248,7 @@ class Module {
   Module({
     required this.sequenceNumber,
     required this.nrOfBirds,
+    required this.levels,
   });
 
   @override

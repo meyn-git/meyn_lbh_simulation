@@ -71,12 +71,14 @@ class LoadingForkLiftTruck extends StateMachineCell {
         moduleFamily: area.productDefinition.moduleFamily,
         firstModule: Module(
           nrOfBirds: moduleGroupCapacity.firstModule.numberOfBirds,
+          levels: moduleGroupCapacity.firstModule.levels,
           sequenceNumber: ++sequenceNumber,
         ),
         secondModule: moduleGroupCapacity.secondModule == null
             ? null
             : Module(
                 nrOfBirds: moduleGroupCapacity.secondModule!.numberOfBirds,
+                levels: moduleGroupCapacity.secondModule!.levels,
                 sequenceNumber: ++sequenceNumber,
               ),
         direction: doorDirection.toCompassDirection(),

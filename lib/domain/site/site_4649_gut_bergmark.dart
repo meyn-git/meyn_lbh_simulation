@@ -9,9 +9,9 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
 import 'site.dart';
@@ -73,7 +73,13 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     _row5();
   }
 
-  void _row1() {}
+  void _row1() {
+    put(BirdHangingConveyor(
+      area: this,
+      position: const Position(7, 1),
+      direction: CardinalDirection.west,
+    ));
+  }
 
   void _row2() {
     put(ModuleCas(
@@ -100,10 +106,13 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       doorDirection: CardinalDirection.west,
     ));
 
-    put(BirdHangingConveyor(
+    put(UnloaderDrawerLift(
       area: this,
       position: const Position(7, 2),
-      direction: CardinalDirection.west,
+      birdDirection: CardinalDirection.north,
+      maxDrawersPerHour: 650,
+
+      ///FOR NOW!
     ));
   }
 
@@ -156,14 +165,12 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(ModuleTilter(
+    put(ModuleDrawerUnloader(
       area: this,
       position: const Position(7, 3),
       seqNr: 1,
       inFeedDirection: CardinalDirection.west,
       birdDirection: CardinalDirection.north,
-      minBirdsOnDumpBeltBuffer:
-          productDefinition.averageProductsPerModuleGroup.round(),
     ));
 
     put(ModuleConveyor(
@@ -203,7 +210,6 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
-//outfeed
     put(ModuleConveyor(
       area: this,
       position: const Position(13, 3),
