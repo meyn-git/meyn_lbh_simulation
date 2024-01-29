@@ -31,10 +31,10 @@ class ModuleConveyor extends StateMachineCell {
               area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
-  Cell get receivingneighbor =>
+  Cell get receivingNeighbor =>
       area.neighboringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingneighbor => area.neighboringCell(this, inFeedDirection);
+  Cell get sendingNeighbor => area.neighboringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -120,7 +120,7 @@ class WaitToFeedOut extends State<ModuleConveyor> {
       moduleConveyor.moduleGroup!.destination == moduleConveyor;
 
   _neighborCanFeedIn(ModuleConveyor moduleConveyor) =>
-      moduleConveyor.receivingneighbor
+      moduleConveyor.receivingNeighbor
           .waitingToFeedIn(moduleConveyor.inFeedDirection);
 }
 
@@ -136,7 +136,7 @@ class FeedOut extends State<ModuleConveyor> {
     transportedModuleGroup = moduleConveyor.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
         source: moduleConveyor,
-        destination: moduleConveyor.receivingneighbor as StateMachineCell);
+        destination: moduleConveyor.receivingNeighbor as StateMachineCell);
   }
 
   @override

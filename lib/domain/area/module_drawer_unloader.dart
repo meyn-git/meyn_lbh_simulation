@@ -62,6 +62,10 @@ class ModuleDrawerUnloader extends StateMachineCell {
     drawerLift = cell;
   }
 
+  get inFeedNeighbor => area.neighboringCell(this, inFeedDirection);
+
+  get outFeedNeighbor => area.neighboringCell(this, inFeedDirection.opposite);
+
   @override
   void onUpdateToNextPointInTime(Duration jump) {
     super.onUpdateToNextPointInTime(jump);
@@ -87,7 +91,11 @@ class ModuleDrawerUnloader extends StateMachineCell {
 
   @override
   bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection && currentState is WaitToFeedIn;
+      direction == inFeedDirection &&
+      currentState is FeedOutAndFeedInToFirstColumnSimultaneously &&
+      (currentState as FeedOutAndFeedInToFirstColumnSimultaneously)
+              .inFeedState ==
+          InFeedState.waitingOnNeighbor;
 
   @override
   bool isFeedOut(CardinalDirection direction) =>
@@ -98,7 +106,11 @@ class ModuleDrawerUnloader extends StateMachineCell {
 
   @override
   bool waitingToFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
+      direction == inFeedDirection.opposite &&
+      currentState is FeedOutAndFeedInToFirstColumnSimultaneously &&
+      (currentState as FeedOutAndFeedInToFirstColumnSimultaneously)
+              .outFeedState ==
+          InFeedState.waitingOnNeighbor;
 
   @override
   String toString() => TitleBuilder(name)
@@ -121,43 +133,97 @@ class CheckIfEmpty extends DurationState<ModuleDrawerUnloader> {
   CheckIfEmpty()
       : super(
             durationFunction: (unloader) => unloader.checkIfEmptyDuration,
-            nextStateFunction: (unloader) => WaitToFeedIn());
+            nextStateFunction: (unloader) =>
+                FeedOutAndFeedInToFirstColumnSimultaneously());
 }
 
-class WaitToFeedIn extends State<ModuleDrawerUnloader> {
+class FeedOutAndFeedInToFirstColumnSimultaneously
+    extends State<ModuleDrawerUnloader> {
   @override
-  String get name => 'WaitToFeedIn';
+  String get name => 'FeedInAndFeedOutSimultaneously';
+
+  ModuleGroup? moduleGroupTransportedOut;
+  InFeedState inFeedState = InFeedState.waitingToFeedOut;
+  OutFeedState outFeedState = OutFeedState.waitingOnNeighbor;
 
   @override
   // ignore: avoid_renaming_method_parameters
-  State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
-    if (_moduleGroupTransportedTo(unloader)) {
-      return FeedInFirstColumn();
-    }
-    return null;
+  void onStart(ModuleDrawerUnloader unloader) {
+    outFeedState = unloader.moduleGroup == null
+        ? OutFeedState.done
+        : OutFeedState.waitingOnNeighbor;
   }
 
-  bool _moduleGroupTransportedTo(ModuleDrawerUnloader unloader) {
+  @override
+  void onUpdateToNextPointInTime(ModuleDrawerUnloader unloader, Duration jump) {
+    processInFeedState(unloader, jump);
+    processOutFeedState(unloader, jump);
+    print('$inFeedState : $outFeedState');
+  }
+
+  void processInFeedState(ModuleDrawerUnloader unloader, Duration jump) {
+    switch (inFeedState) {
+      case InFeedState.waitingToFeedOut:
+        if (outFeedState != OutFeedState.waitingOnNeighbor) {
+          inFeedState = InFeedState.waitingOnNeighbor;
+        }
+      case InFeedState.waitingOnNeighbor:
+        if (_inFeedStarted(unloader)) {
+          inFeedState = InFeedState.transporting;
+        }
+        break;
+      case InFeedState.transporting:
+        if (_inFeedCompleted(unloader)) {
+          inFeedState = InFeedState.done;
+        }
+        break;
+      default:
+    }
+  }
+
+  bool _inFeedCompleted(ModuleDrawerUnloader unloader) =>
+      unloader.moduleGroup != null;
+
+  bool _inFeedStarted(ModuleDrawerUnloader unloader) {
     return unloader.area.moduleGroups
         .any((moduleGroup) => moduleGroup.position.destination == unloader);
   }
-}
 
-class FeedInFirstColumn extends State<ModuleDrawerUnloader> {
-  @override
-  String get name => 'FeedInFirstColumn';
+  void processOutFeedState(ModuleDrawerUnloader unloader, Duration jump) {
+    switch (outFeedState) {
+      case OutFeedState.waitingOnNeighbor:
+        if (_outFeedStarted(unloader)) {
+          outFeedState = OutFeedState.transporting;
+          transportModuleOut(unloader);
+        }
+        break;
+      case OutFeedState.transporting:
+        if (_outFeedCompleted(unloader)) {
+          outFeedState = OutFeedState.done;
+        }
+        break;
+      default:
+    }
+  }
+
+  void transportModuleOut(ModuleDrawerUnloader unloader) {
+    moduleGroupTransportedOut = unloader.moduleGroup;
+    moduleGroupTransportedOut!.position = ModulePosition.betweenCells(
+        source: unloader,
+        destination: unloader.outFeedNeighbor as StateMachineCell);
+  }
+
+  _outFeedStarted(ModuleDrawerUnloader unloader) =>
+      unloader.receivingNeighbor.waitingToFeedIn(unloader.inFeedDirection);
 
   @override
   // ignore: avoid_renaming_method_parameters
   State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
-    if (_transportCompleted(unloader)) {
+    if (inFeedState == InFeedState.done && outFeedState == OutFeedState.done) {
       return WaitToUnloadFirstColumn();
     }
     return null;
   }
-
-  bool _transportCompleted(ModuleDrawerUnloader unloader) =>
-      unloader.moduleGroup != null;
 
   @override
   // ignore: avoid_renaming_method_parameters
@@ -174,7 +240,16 @@ class FeedInFirstColumn extends State<ModuleDrawerUnloader> {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${unloader.name}');
     }
   }
+
+  bool _outFeedCompleted(ModuleDrawerUnloader unloader) =>
+      moduleGroupTransportedOut != null &&
+      moduleGroupTransportedOut!.position.destination ==
+          unloader.outFeedNeighbor;
 }
+
+enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
+
+enum OutFeedState { waitingOnNeighbor, transporting, done }
 
 class WaitToUnloadFirstColumn extends State<ModuleDrawerUnloader> {
   @override
@@ -289,57 +364,15 @@ class PusherInSecondColumn extends DurationState<ModuleDrawerUnloader> {
   PusherInSecondColumn()
       : super(
             durationFunction: (unloader) => unloader.pusherInDuration,
-            nextStateFunction: (unloader) => WaitToFeedOut());
-}
-
-class WaitToFeedOut extends State<ModuleDrawerUnloader> {
-  @override
-  String get name => 'WaitToFeedOut';
+            nextStateFunction: (unloader) =>
+                FeedOutAndFeedInToFirstColumnSimultaneously());
 
   @override
   // ignore: avoid_renaming_method_parameters
-  State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
-    if (_neighborCanFeedIn(unloader) && !_moduleGroupAtDestination(unloader)) {
-      return FeedOut();
-    }
-    return null;
+  void onCompleted(ModuleDrawerUnloader unloader) {
+    super.onCompleted(unloader);
+    unloader.onEndOfCycle();
   }
-
-  bool _moduleGroupAtDestination(ModuleDrawerUnloader unloader) =>
-      unloader.moduleGroup!.destination == unloader;
-
-  _neighborCanFeedIn(ModuleDrawerUnloader unloader) =>
-      unloader.receivingNeighbor.waitingToFeedIn(unloader.inFeedDirection);
-}
-
-class FeedOut extends State<ModuleDrawerUnloader> {
-  @override
-  String get name => 'FeedOut';
-
-  ModuleGroup? transportedModuleGroup;
-
-  @override
-  // ignore: avoid_renaming_method_parameters
-  void onStart(ModuleDrawerUnloader unloader) {
-    transportedModuleGroup = unloader.moduleGroup;
-    transportedModuleGroup!.position = ModulePosition.betweenCells(
-        source: unloader,
-        destination: unloader.receivingNeighbor as StateMachineCell);
-  }
-
-  @override
-  // ignore: avoid_renaming_method_parameters
-  State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
-    if (_transportCompleted(unloader)) {
-      unloader.onEndOfCycle();
-      return WaitToFeedIn();
-    }
-    return null;
-  }
-
-  bool _transportCompleted(ModuleDrawerUnloader unloader) =>
-      transportedModuleGroup != null &&
-      transportedModuleGroup!.position.source != unloader;
 }
 
 class UnloaderDrawerLift extends StateMachineCell implements BirdBuffer {
@@ -493,8 +526,8 @@ class UnloaderDrawerLift extends StateMachineCell implements BirdBuffer {
   }
 
   bool get canPushOut {
-    print(
-        '$drawerPushOutCycle >= $minimumInterval ${(drawerPushOutCycle >= minimumInterval)}');
+    // print(
+    //     '$drawerPushOutCycle >= $minimumInterval ${(drawerPushOutCycle >= minimumInterval)}');
     return drawerPushOutCycleBuffer >= minimumInterval;
   }
 }
