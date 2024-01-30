@@ -78,7 +78,7 @@ class ModuleGroupPainter extends CustomPainter {
       case ModuleContents.birdsBeingStunned:
         return Colors.orange;
       case ModuleContents.awakeBirds:
-        return Colors.green; // awake birds
+        return Colors.green;
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
@@ -18,6 +19,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/gui/area/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
@@ -82,6 +84,7 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
   static List<Widget> createChildren(LiveBirdHandlingArea area) {
     List<Widget> children = [];
     children.addAll(createModuleGroupWidgets(area));
+    children.addAll(createDrawerConveyorWidgets(area));
     children.addAll(createCellWidgets(area));
     return children;
   }
@@ -92,6 +95,18 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
             LayoutId(id: moduleGroup, child: ModuleGroupWidget(moduleGroup)))
         .toList();
     return moduleGroupWidgets;
+  }
+
+  static List<Widget> createDrawerConveyorWidgets(LiveBirdHandlingArea area) {
+    List<Widget> widgets = [];
+    var allDrawerConveyors = area.cells.whereType<DrawerConveyors>();
+    for (var drawerConveyors in allDrawerConveyors) {
+      for (var drawerConveyor in drawerConveyors.conveyors) {
+        widgets.add(LayoutId(
+            id: drawerConveyor, child: DrawerConveyorWidget(drawerConveyor)));
+      }
+    }
+    return widgets;
   }
 
   static List<Widget> createCellWidgets(LiveBirdHandlingArea area) {
@@ -133,8 +148,27 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     var childSize = _childSize(size);
     var childOffset = _offsetForAllChildren(size, childSize);
     _layoutAndPositionModuleGroups(childSize, childOffset);
+    _layoutAndPositionDrawerConveyors(childSize, childOffset);
     //positioning cells last so they are on top so that the inkwells can be activated
     _layoutAndPositionCells(childSize, childOffset);
+  }
+
+  void _layoutAndPositionDrawerConveyors(Size childSize, Offset childOffset) {
+    var sizeFactor = childSize.width / 2.5; //assuming 1 child size == 2.5 meter
+    var allDrawerConveyors = area.cells.whereType<DrawerConveyors>();
+    for (var drawerConveyors in allDrawerConveyors) {
+      var offSet = Offset((drawerConveyors.position.x - 0.5) * childSize.width,
+          (drawerConveyors.position.y + 0.5) * childSize.height);
+      for (var drawerConveyor in drawerConveyors.conveyors) {
+        var down = drawerConveyor.vector.y * sizeFactor;
+        var right = drawerConveyor.vector.x * sizeFactor;
+        var size = Size(right.abs(), down.abs());
+        layoutChild(drawerConveyor, BoxConstraints.tight(size));
+        offSet = offSet + Offset(right < 0 ? right : 0, down < 0 ? down : 0);
+        positionChild(drawerConveyor, offSet);
+        offSet = offSet + Offset(right > 0 ? right : 0, down > 0 ? down : 0);
+      }
+    }
   }
 
   void _layoutAndPositionModuleGroups(Size childSize, Offset childOffset) {

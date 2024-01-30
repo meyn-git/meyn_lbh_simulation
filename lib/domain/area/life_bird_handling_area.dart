@@ -225,6 +225,8 @@ class EmptyCell extends Cell {
 
 enum CardinalDirection { north, east, south, west }
 
+enum CardinalDiagonalDirection { northEast, southEast, southWest, northWest }
+
 extension CardinalDirectionExtension on CardinalDirection {
   CompassDirection toCompassDirection() {
     switch (this) {

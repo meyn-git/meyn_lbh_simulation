@@ -17,6 +17,7 @@ dependencies:
   process_run: ^0.12.3+2
   user_command: ^0.0.4
   fling_units: ^2.0.2
+  flame: ^1.14.0
 
 
 dev_dependencies:

@@ -13,6 +13,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
 
 import 'site.dart';
 
@@ -79,6 +80,79 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       position: const Position(7, 1),
       direction: CardinalDirection.west,
     ));
+
+    var metersPerSecond = 0.7;
+    put(DrawerConveyors(area: this, position: const Position(6, 1), conveyors: [
+      // weigher
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.north,
+          metersPerSecond: metersPerSecond),
+
+      /// buffer conveyor before hanging (bend)
+      DrawerConveyor.corner(
+          meters: 2,
+          direction: CardinalDiagonalDirection.northWest,
+          metersPerSecond: metersPerSecond),
+
+      /// buffer conveyor before hanging
+      DrawerConveyor.straight(
+          meters: 3,
+          direction: CardinalDirection.west,
+          metersPerSecond: metersPerSecond),
+      // // hanging conveyor
+      DrawerConveyor.straight(
+          meters: 6 * 1, // 11 hangers for 15000?
+          direction: CardinalDirection.west,
+          metersPerSecond: metersPerSecond),
+      // weigher
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.west,
+          metersPerSecond: metersPerSecond),
+      // drawer turner
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.west,
+          metersPerSecond: metersPerSecond),
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.east,
+          metersPerSecond: metersPerSecond),
+      // drawer soaker
+      DrawerConveyor.straight(
+          meters: 10,
+
+          ///TODO
+          direction: CardinalDirection.east,
+          metersPerSecond: metersPerSecond),
+
+      /// drawer main washer
+      DrawerConveyor.straight(
+          meters: 10,
+
+          ///TODO
+          direction: CardinalDirection.east,
+          metersPerSecond: metersPerSecond),
+      // drawer turner
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.east,
+          metersPerSecond: metersPerSecond),
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.west,
+          metersPerSecond: metersPerSecond),
+      // conveyor to reloader
+      DrawerConveyor.corner(
+          meters: 2,
+          direction: CardinalDiagonalDirection.southWest,
+          metersPerSecond: metersPerSecond),
+      DrawerConveyor.straight(
+          meters: 1,
+          direction: CardinalDirection.south,
+          metersPerSecond: metersPerSecond),
+    ]));
   }
 
   void _row2() {
