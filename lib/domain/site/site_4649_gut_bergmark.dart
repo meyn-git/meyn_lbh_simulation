@@ -83,73 +83,48 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var metersPerSecond = 0.7;
     put(DrawerConveyors(area: this, position: const Position(6, 1), conveyors: [
-      // weigher
-      DrawerConveyor.straight(
-          meters: 1,
-          direction: CardinalDirection.north,
+      DrawerWeighingConveyor(
+          direction: CardinalDirection.north, metersPerSecond: metersPerSecond),
+      DrawerConveyor90Degrees(
+          lengthInMeters: 3,
+          startDirection: CardinalDirection.north,
+          clockwise: false,
           metersPerSecond: metersPerSecond),
-
-      /// buffer conveyor before hanging (bend)
-      DrawerConveyor.corner(
-          meters: 2,
-          direction: CardinalDiagonalDirection.northWest,
-          metersPerSecond: metersPerSecond),
-
-      /// buffer conveyor before hanging
-      DrawerConveyor.straight(
-          meters: 3,
+      DrawerConveyorStraight(
+          lengthInMeters: 3,
           direction: CardinalDirection.west,
           metersPerSecond: metersPerSecond),
-      // // hanging conveyor
-      DrawerConveyor.straight(
-          meters: 6 * 1, // 11 hangers for 15000?
+      DrawerHangingConveyor(
+          hangers: 11, // TODO 11 hangers for 15000?
           direction: CardinalDirection.west,
           metersPerSecond: metersPerSecond),
-      // weigher
-      DrawerConveyor.straight(
-          meters: 1,
+      DrawerConveyorStraight(
           direction: CardinalDirection.west,
-          metersPerSecond: metersPerSecond),
-      // drawer turner
-      DrawerConveyor.straight(
-          meters: 1,
-          direction: CardinalDirection.west,
-          metersPerSecond: metersPerSecond),
-      DrawerConveyor.straight(
-          meters: 1,
+          metersPerSecond: metersPerSecond,
+          lengthInMeters: 1),
+      DrawerWeighingConveyor(
+          direction: CardinalDirection.west, metersPerSecond: metersPerSecond),
+      DrawerTurningConveyor(startDirection: CardinalDirection.west),
+      DrawerSoakingConveyor(
+          direction: CardinalDirection.east, metersPerSecond: metersPerSecond),
+      DrawerConveyorStraight(
           direction: CardinalDirection.east,
-          metersPerSecond: metersPerSecond),
-      // drawer soaker
-      DrawerConveyor.straight(
-          meters: 10,
-
-          ///TODO
+          metersPerSecond: metersPerSecond,
+          lengthInMeters: 3),
+      DrawerWashingConveyor(
+          direction: CardinalDirection.east, metersPerSecond: metersPerSecond),
+      DrawerConveyorStraight(
           direction: CardinalDirection.east,
+          metersPerSecond: metersPerSecond,
+          lengthInMeters: 1),
+      DrawerTurningConveyor(startDirection: CardinalDirection.east),
+      DrawerConveyor90Degrees(
+          lengthInMeters: 3,
+          startDirection: CardinalDirection.west,
+          clockwise: false,
           metersPerSecond: metersPerSecond),
-
-      /// drawer main washer
-      DrawerConveyor.straight(
-          meters: 10,
-
-          ///TODO
-          direction: CardinalDirection.east,
-          metersPerSecond: metersPerSecond),
-      // drawer turner
-      DrawerConveyor.straight(
-          meters: 1,
-          direction: CardinalDirection.east,
-          metersPerSecond: metersPerSecond),
-      DrawerConveyor.straight(
-          meters: 1,
-          direction: CardinalDirection.west,
-          metersPerSecond: metersPerSecond),
-      // conveyor to reloader
-      DrawerConveyor.corner(
-          meters: 2,
-          direction: CardinalDiagonalDirection.southWest,
-          metersPerSecond: metersPerSecond),
-      DrawerConveyor.straight(
-          meters: 1,
+      DrawerConveyorStraight(
+          lengthInMeters: 1.5,
           direction: CardinalDirection.south,
           metersPerSecond: metersPerSecond),
     ]));

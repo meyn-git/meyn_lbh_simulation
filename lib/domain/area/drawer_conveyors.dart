@@ -1,4 +1,7 @@
-  // ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:math';
+
+import 'package:collection/collection.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
@@ -11,73 +14,195 @@ class DrawerConveyor {
   /// * x: number of meters in west/east direction, e.g.:
   ///   * -3 = 3 meters west
   ///   * +2 = 2 meters east
-  final Vector2 vector;
+  final Vectors vectors;
   double metersPerSecond;
+  final double machineProtrudesInMeters; //must be less than 2 meters!!!
 
-  factory DrawerConveyor.straight(
-      {required double meters,
-      required CardinalDirection direction,
-      required double metersPerSecond}) {
-    return DrawerConveyor(
-        metersPerSecond: metersPerSecond,
-        vector: _createStraightVector(direction, meters));
-  }
+  DrawerConveyor(
+      {required this.vectors,
+      required this.metersPerSecond,
 
-  factory DrawerConveyor.corner(
-      {required double meters,
-      required CardinalDiagonalDirection direction,
-      required double metersPerSecond}) {
-    return DrawerConveyor(
-        metersPerSecond: metersPerSecond,
-        vector: _createDiagonalVector(direction, meters));
-  }
+      /// simple drawer conveyors protrude 0m
+      /// drawer weighers, washers, rotators protrude 0,3m?
+      /// hanging platform protrude 1m?
+      this.machineProtrudesInMeters = 0});
+}
 
-  DrawerConveyor({
-    required this.vector,
-    required this.metersPerSecond,
-  });
+class DrawerConveyorStraight extends DrawerConveyor {
+  final CardinalDirection direction;
+  DrawerConveyorStraight({
+    required double lengthInMeters,
+    required this.direction,
+    required double metersPerSecond,
+    double machineProtrudesInMeters = 0,
+  }) : super(
+            metersPerSecond: metersPerSecond,
+            vectors: Vectors.straight(direction, lengthInMeters),
+            machineProtrudesInMeters: machineProtrudesInMeters);
+}
 
-  static Vector2 _createStraightVector(
-      CardinalDirection direction, double distanceInMeters) {
+class DrawerConveyor90Degrees extends DrawerConveyor {
+  final double lengthInMeters;
+  final CardinalDirection startDirection;
+  late CardinalDirection endDirection = startDirection
+      .toCompassDirection()
+      .rotate(clockwise ? 90 : -90)
+      .toCardinalDirection()!;
+  final bool clockwise;
+  DrawerConveyor90Degrees(
+      {required this.lengthInMeters,
+      required this.startDirection,
+      required this.clockwise,
+      required super.metersPerSecond})
+      : super(
+            vectors: Vectors.ninetyDegreeCorner(
+                startDirection, clockwise, lengthInMeters));
+}
+
+class DrawerHangingConveyor extends DrawerConveyorStraight {
+  DrawerHangingConveyor({
+    required int hangers,
+    required super.direction,
+    required double metersPerSecond,
+    double machineProtrudesInMeters = 1,
+  }) : super(
+          //TODO
+          lengthInMeters: (hangers / 2).ceil() * 1,
+          metersPerSecond: metersPerSecond,
+          machineProtrudesInMeters: machineProtrudesInMeters,
+        );
+}
+
+class DrawerSoakingConveyor extends DrawerConveyorStraight {
+  DrawerSoakingConveyor({
+    //TODO fixed length or min recidence time?
+    double meters = 10,
+    required super.direction,
+    required double metersPerSecond,
+    double machineProtrudesInMeters = 0.3,
+  }) : super(
+          lengthInMeters: meters,
+          metersPerSecond: metersPerSecond,
+          machineProtrudesInMeters: machineProtrudesInMeters,
+        );
+}
+
+class DrawerWashingConveyor extends DrawerConveyorStraight {
+  DrawerWashingConveyor({
+    //TODO fixed length or min recidence time?
+    double meters = 10,
+    required super.direction,
+    required double metersPerSecond,
+    double machineProtrudesInMeters = 0.3,
+  }) : super(
+          lengthInMeters: meters,
+          metersPerSecond: metersPerSecond,
+          machineProtrudesInMeters: machineProtrudesInMeters,
+        );
+}
+
+class DrawerWeighingConveyor extends DrawerConveyorStraight {
+  DrawerWeighingConveyor({
+    double meters = 1.4,
+    required super.direction,
+    required double metersPerSecond,
+    double machineProtrudesInMeters = 0.2,
+  }) : super(
+            lengthInMeters: meters,
+            metersPerSecond: metersPerSecond,
+            machineProtrudesInMeters: machineProtrudesInMeters);
+}
+
+class DrawerTurningConveyor extends DrawerConveyorStraight {
+  DrawerTurningConveyor({
+    required CardinalDirection startDirection,
+    double diameter = 1,
+    super.metersPerSecond = 2,
+    super.machineProtrudesInMeters = 0.2,
+  }) : super(
+          lengthInMeters: diameter,
+          direction: startDirection,
+        );
+}
+
+class Vectors extends DelegatingList<Vector2> {
+  Vectors(super.base);
+
+  factory Vectors.straight(CardinalDirection direction, double meters) {
     switch (direction) {
       case CardinalDirection.north:
-        return Vector2(0, -distanceInMeters);
+        return Vectors([Vector2(0, -meters)]);
       case CardinalDirection.east:
-        return Vector2(distanceInMeters, 0);
+        return Vectors([Vector2(meters, 0)]);
       case CardinalDirection.south:
-        return Vector2(0, distanceInMeters);
+        return Vectors([Vector2(0, meters)]);
       case CardinalDirection.west:
-        return Vector2(-distanceInMeters, 0);
+        return Vectors([Vector2(-meters, 0)]);
       default:
         throw Exception('Unknown direction');
     }
   }
 
-  static Vector2 _createDiagonalVector(
-    CardinalDiagonalDirection direction,
-    double distanceInMeters,
-  ) {
-    switch (direction) {
-      case CardinalDiagonalDirection.northEast:
-        var vector = Vector2(1, -1);
-        vector.length = distanceInMeters;
-        return vector;
-      case CardinalDiagonalDirection.southEast:
-        var vector = Vector2(1, 1);
-        vector.length = distanceInMeters;
-        return vector;
-      case CardinalDiagonalDirection.southWest:
-        var vector = Vector2(-1, 1);
-        vector.length = distanceInMeters;
-        return vector;
-      case CardinalDiagonalDirection.northWest:
-        var vector = Vector2(-1, -1);
-        vector.length = distanceInMeters;
-        return vector;
-      default:
-        throw Exception('Unknown direction');
+  factory Vectors.ninetyDegreeCorner(
+      CardinalDirection startDirection, bool clockwise, double lengthInMeters) {
+    const steps = 6; //preferably a multitude of 3 (360 degrees)
+    var vectors = <Vector2>[];
+    var angle = startDirection.toCompassDirection();
+    for (int i = 0; i < steps; i++) {
+      var stepRotationInDegrees =
+          (90 / (steps + 1)).round() * (clockwise ? 1 : -1);
+      angle = angle.rotate(stepRotationInDegrees);
+      var x = sin(angle.radians);
+      var y = -cos(angle.radians); //up is negative
+      var vector = Vector2(x, y);
+      vector.length = lengthInMeters / steps;
+      vectors.add(vector);
     }
+    return Vectors(vectors);
   }
+
+  late Outward outWard = Outward.forVectors(this);
+}
+
+class Outward {
+  final double up;
+  final double right;
+  final double down;
+  final double left;
+
+  Outward({
+    required this.up,
+    required this.right,
+    required this.down,
+    required this.left,
+  });
+
+  factory Outward.forVectors(List<Vector2> vectors) {
+    var left = 0.0;
+    var right = 0.0;
+    var up = 0.0;
+    var down = 0.0;
+    var point = Vector2.zero();
+    for (var vector in vectors) {
+      point += vector;
+      if (point.x < 0) {
+        left = min(left, point.x);
+      }
+      if (point.x > 0) {
+        right = max(right, point.x);
+      }
+      if (point.y < 0) {
+        up = min(up, point.y);
+      }
+      if (point.y > 0) {
+        down = max(down, point.y);
+      }
+    }
+    return Outward(up: up, right: right, down: down, left: left);
+  }
+
+  late double width = (left - right).abs();
+  late double height = (up - down).abs();
 }
 
 class Drawer {
@@ -101,7 +226,7 @@ class DrawerConveyors extends ActiveCell {
   /// conveyors[2] = drawer conveyor after conveyor[1]
   /// conveyors[3] = etc
   final List<DrawerConveyor> conveyors;
-  late double totalLengthInMeters = length(conveyors.map((c) => c.vector));
+  late double totalLengthInMeters = length(conveyors.map((c) => c.vectors));
 
   /// [drawers] in the REVERSE order of how they travel trough the system
   /// drawers[0] = drawer at the end of the conveyors
@@ -206,7 +331,7 @@ class DrawerConveyors extends ActiveCell {
     }
     var lastDrawer = drawers.last;
     var lastConveyor = conveyors.first;
-    if (lastDrawer.outSideLengthInMeters < lastConveyor.vector.length) {
+    if (lastDrawer.outSideLengthInMeters < lastConveyor.vectors.length) {
       throw Exception('We assume the first conveyor is longer than a drawer. '
           'If not this method needs to be changed');
     }
@@ -214,7 +339,7 @@ class DrawerConveyors extends ActiveCell {
       return true;
     }
     var emptySpace =
-        lastConveyor.vector.length - lastDrawer.remainingMetersOnConveyor;
+        lastConveyor.vectors.length - lastDrawer.remainingMetersOnConveyor;
     return emptySpace > lastDrawer.outSideLengthInMeters;
   }
 }

@@ -225,8 +225,6 @@ class EmptyCell extends Cell {
 
 enum CardinalDirection { north, east, south, west }
 
-enum CardinalDiagonalDirection { northEast, southEast, southWest, northWest }
-
 extension CardinalDirectionExtension on CardinalDirection {
   CompassDirection toCompassDirection() {
     switch (this) {
@@ -267,8 +265,8 @@ class CompassDirection {
 
   CompassDirection(int degrees) : degrees = degrees % max;
 
-  CompassDirection rotate(int rotation) {
-    return CompassDirection(degrees + rotation);
+  CompassDirection rotate(int rotationInDegrees) {
+    return CompassDirection(degrees + rotationInDegrees);
   }
 
   CardinalDirection? toCardinalDirection() {
@@ -296,6 +294,8 @@ class CompassDirection {
     }
   }
 
+  double get radians =>  degrees/360 * 2 * pi;
+  
   @override
   String toString() => degrees.toString();
 }
