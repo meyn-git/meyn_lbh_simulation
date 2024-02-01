@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart' as tilter;
 
 import 'life_bird_handling_area.dart';

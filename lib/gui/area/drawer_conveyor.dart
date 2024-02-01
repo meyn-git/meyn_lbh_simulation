@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
-import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 
 class DrawerConveyorWidget extends StatelessWidget {
   final DrawerConveyor drawerConveyor;
@@ -202,8 +202,8 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
     var sizePerMeter = size.width / widthInMeters;
     var halveConveyorWidth =
         DrawerConveyorPainter.conveyorWidthInMeters / 2 * sizePerMeter;
-    var shortRadius = size.width/2 - halveConveyorWidth;
-    var longRadius = size.width/2 + halveConveyorWidth;
+    var shortRadius = size.width / 2 - halveConveyorWidth;
+    var longRadius = size.width / 2 + halveConveyorWidth;
     var centerPosition = _centerPosition(size);
     addQuarterCircleToPath(path, shortRadius, centerPosition);
     addQuarterCircleToPath(path, longRadius, centerPosition);
@@ -216,8 +216,8 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
 
     var stepInDegrees = drawerConveyor.clockwise ? 10 : -10;
     for (int i = 0; i < 9; i++) {
-      rotation=rotation.rotate(stepInDegrees);
-      position=circlePosition(centerPosition, radius, rotation);
+      rotation = rotation.rotate(stepInDegrees);
+      position = circlePosition(centerPosition, radius, rotation);
       path.lineTo(position.dx, position.dy);
     }
   }

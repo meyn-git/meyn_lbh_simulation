@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:user_command/user_command.dart';
 
 import '../../domain/area/player.dart';

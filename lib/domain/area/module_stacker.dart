@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';

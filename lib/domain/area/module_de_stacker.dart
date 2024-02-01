@@ -1,3 +1,5 @@
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_lift_position.dart';
@@ -45,10 +47,10 @@ class ModuleDeStacker extends StateMachineCell {
               area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
-  Cell get receivingneighbor =>
+  Cell get receivingNeighbor =>
       area.neighboringCell(this, inFeedDirection.opposite);
 
-  Cell get sendingneighbor => area.neighboringCell(this, inFeedDirection);
+  Cell get sendingNeighbor => area.neighboringCell(this, inFeedDirection);
 
   @override
   bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
@@ -205,7 +207,7 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
       deStacker.moduleGroup!.destination == deStacker;
 
   _neighborCanFeedIn(ModuleDeStacker deStacker) =>
-      deStacker.receivingneighbor.waitingToFeedIn(deStacker.inFeedDirection);
+      deStacker.receivingNeighbor.waitingToFeedIn(deStacker.inFeedDirection);
 }
 
 class FeedOut extends State<ModuleDeStacker> {
@@ -219,7 +221,7 @@ class FeedOut extends State<ModuleDeStacker> {
     transportedModuleGroup = deStacker.moduleGroup;
     transportedModuleGroup!.position = ModulePosition.betweenCells(
         source: deStacker,
-        destination: deStacker.receivingneighbor as StateMachineCell);
+        destination: deStacker.receivingNeighbor as StateMachineCell);
   }
 
   @override

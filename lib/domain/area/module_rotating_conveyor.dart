@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_cas.dart';

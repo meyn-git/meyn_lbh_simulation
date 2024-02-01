@@ -157,8 +157,9 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     var sizePerMeter = childSize.width / 3; //assuming 1 child == 2.5 meter
     var allDrawerConveyors = area.cells.whereType<DrawerConveyors>();
     for (var drawerConveyors in allDrawerConveyors) {
-      var position = childOffset+ Offset((drawerConveyors.position.x - 0.5) * childSize.width,
-          (drawerConveyors.position.y + 0.5) * childSize.height);
+      var position = childOffset +
+          Offset((drawerConveyors.position.x - 0.5) * childSize.width,
+              (drawerConveyors.position.y + 0.5) * childSize.height);
       for (var drawerConveyor in drawerConveyors.conveyors) {
         var painter = createDrawerConveyorPainter(drawerConveyor);
         var size = painter.size(sizePerMeter);
