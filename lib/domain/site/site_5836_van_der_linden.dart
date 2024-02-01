@@ -239,7 +239,8 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 }
 
-class VanDerLindenLiveBirdHandlingAreaWithExtraBuffer extends LiveBirdHandlingArea {
+class VanDerLindenLiveBirdHandlingAreaWithExtraBuffer
+    extends LiveBirdHandlingArea {
   // static final birdsPerHour = 8000;
   // static final birdsPerModule1 = ((4 + 5) / 2 * 26).round();
   // static final birdsPerModule2 = ((4 + 5) / 2 * 26).round();
@@ -251,7 +252,8 @@ class VanDerLindenLiveBirdHandlingAreaWithExtraBuffer extends LiveBirdHandlingAr
   // static const casTransportDuration =
   //     Duration(milliseconds: 18700); // Based on measurements @ Dabe
 
-  VanDerLindenLiveBirdHandlingAreaWithExtraBuffer(ProductDefinition productDefinition)
+  VanDerLindenLiveBirdHandlingAreaWithExtraBuffer(
+      ProductDefinition productDefinition)
       : super(
           lineName: 'Chicken line with extra buffer',
           productDefinition: productDefinition,
