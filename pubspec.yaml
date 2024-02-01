@@ -14,18 +14,18 @@ dependencies:
   collection: ^1.15.0
   get_it: ^7.2.0
   url_launcher: ^6.1.2
-  process_run: ^0.12.3+2
   user_command: ^0.0.4
   fling_units: ^2.0.2
   flame: ^1.14.0
+  process_run: ^0.14.1+3
 
 
 dev_dependencies:
-  flutter_lints: ^1.0.4
   flutter_test:
     sdk: flutter
   given_when_then_unit_test: ^0.2.1
   shouldly: ^0.5.0+1
+  flutter_lints: ^3.0.1
 
 
 

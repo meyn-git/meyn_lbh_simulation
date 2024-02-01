@@ -206,7 +206,7 @@ class _ScenarioTileState extends State<ScenarioTile> {
 class SiteTile extends StatelessWidget {
   final Site site;
 
-  SiteTile(this.site, {Key? key}) : super(key: key);
+  const SiteTile(this.site, {Key? key}) : super(key: key);
 
   String get _emailSubject => 'Invitation to the $applicationTitle';
 

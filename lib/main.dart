@@ -40,6 +40,11 @@ class MyApp extends StatelessWidget {
   ThemeData _createThemeData() {
     return ThemeData(
       primarySwatch: _createMeynMaterialColor(),
+      appBarTheme: const AppBarTheme(
+        //iconTheme: IconThemeData(color: Colors.white),
+        color: meynColor,
+        foregroundColor: Colors.white,
+      ),
     );
   }
 

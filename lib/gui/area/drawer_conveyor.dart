@@ -271,21 +271,6 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
     }
   }
 
-  // TODO Offset startPosition(Size size) {
-  //   switch (drawerConveyor.startDirection) {
-  //     case CardinalDirection.north:
-  //       return Offset(size.width / 2, size.height);
-  //     case CardinalDirection.east:
-  //       return Offset(0, size.height / 2);
-  //     case CardinalDirection.south:
-  //       return Offset(size.width / 2, 0);
-  //     case CardinalDirection.west:
-  //       return Offset(size.width, size.height / 2);
-  //     default:
-  //       throw Exception('Not supported direction');
-  //   }
-  // }
-
   Offset _centerPosition(Size size) {
     switch (drawerConveyor.startDirection) {
       case CardinalDirection.north:
