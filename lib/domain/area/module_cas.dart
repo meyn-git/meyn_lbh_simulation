@@ -15,13 +15,12 @@ class ModuleCas extends StateMachineCell {
   final Duration openSlideDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
 
-  @override
-  String get name => "ModuleCas${seqNr ?? ''}";
-
+  
   ModuleCas({
     required LiveBirdHandlingArea area,
-    required Position position,
-    int? seqNr,
+    required super.position,
+    super.name='ModuleCas',
+    super.seqNr,
     required this.inAndOutFeedDirection,
     required this.doorDirection,
     this.closeSlideDoorDuration = const Duration(seconds: 6),
@@ -30,8 +29,6 @@ class ModuleCas extends StateMachineCell {
     Duration? outFeedDuration,
   }) : super(
           area: area,
-          position: position,
-          seqNr: seqNr,
           initialState: WaitToFeedIn(),
           inFeedDuration: inFeedDuration ??
               area.productDefinition.moduleSystem.casTransportDuration,

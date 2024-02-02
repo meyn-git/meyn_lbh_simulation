@@ -34,12 +34,10 @@ class DrawerConveyorStraight extends DrawerConveyor {
   DrawerConveyorStraight({
     required double lengthInMeters,
     required this.direction,
-    required double metersPerSecond,
-    double machineProtrudesInMeters = 0,
+    required super.metersPerSecond,
+    super.machineProtrudesInMeters,
   }) : super(
-            metersPerSecond: metersPerSecond,
-            vectors: Vectors.straight(direction, lengthInMeters),
-            machineProtrudesInMeters: machineProtrudesInMeters);
+            vectors: Vectors.straight(direction, lengthInMeters));
 }
 
 class DrawerConveyor90Degrees extends DrawerConveyor {
@@ -64,41 +62,35 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
   DrawerHangingConveyor({
     required int hangers,
     required super.direction,
-    required double metersPerSecond,
-    double machineProtrudesInMeters = 1,
+    required super.metersPerSecond,
+    super.machineProtrudesInMeters = 1,
   }) : super(
           //TODO
           lengthInMeters: (hangers / 2).ceil() * 1,
-          metersPerSecond: metersPerSecond,
-          machineProtrudesInMeters: machineProtrudesInMeters,
         );
 }
 
 class DrawerSoakingConveyor extends DrawerConveyorStraight {
   DrawerSoakingConveyor({
-    //TODO fixed length or min recidence time?
+    //TODO fixed length or min residence time?
     double meters = 10,
     required super.direction,
-    required double metersPerSecond,
-    double machineProtrudesInMeters = 0.3,
+    required super.metersPerSecond,
+    super.machineProtrudesInMeters = 0.3,
   }) : super(
           lengthInMeters: meters,
-          metersPerSecond: metersPerSecond,
-          machineProtrudesInMeters: machineProtrudesInMeters,
         );
 }
 
 class DrawerWashingConveyor extends DrawerConveyorStraight {
   DrawerWashingConveyor({
-    //TODO fixed length or min recidence time?
+    //TODO fixed length or min residence time?
     double meters = 10,
     required super.direction,
-    required double metersPerSecond,
-    double machineProtrudesInMeters = 0.3,
+    required super.metersPerSecond,
+    super.machineProtrudesInMeters = 0.3,
   }) : super(
           lengthInMeters: meters,
-          metersPerSecond: metersPerSecond,
-          machineProtrudesInMeters: machineProtrudesInMeters,
         );
 }
 
@@ -106,12 +98,10 @@ class DrawerWeighingConveyor extends DrawerConveyorStraight {
   DrawerWeighingConveyor({
     double meters = 1.4,
     required super.direction,
-    required double metersPerSecond,
-    double machineProtrudesInMeters = 0.2,
+    required super.metersPerSecond,
+    super.machineProtrudesInMeters = 0.2,
   }) : super(
-            lengthInMeters: meters,
-            metersPerSecond: metersPerSecond,
-            machineProtrudesInMeters: machineProtrudesInMeters);
+            lengthInMeters: meters);
 }
 
 class DrawerTurningConveyor extends DrawerConveyorStraight {
@@ -220,7 +210,16 @@ class Drawer {
   double remainingMetersOnConveyor;
 }
 
-class DrawerConveyors extends ActiveCell {
+class DrawerConveyors implements ActiveCell {
+  @override
+  late LiveBirdHandlingArea area;
+  
+  @override
+  late Position position;
+  
+  @override
+  late String name="DrawerConveyors";
+
   /// [conveyors]  in order that the drawers travel through them:
   /// conveyors[0] = drawer conveyor after unloader
   /// conveyors[1] = drawer conveyor after conveyor[0]
@@ -240,10 +239,9 @@ class DrawerConveyors extends ActiveCell {
   Drawer? drawerAtEnd;
 
   DrawerConveyors(
-      {required LiveBirdHandlingArea area,
-      required Position position,
-      required this.conveyors})
-      : super(area, position);
+      {required this.area,
+      required this.position,
+      required this.conveyors});
 
   // returns the length of the vectors in meters.
   double length(Iterable<dynamic> vectors) =>
@@ -271,10 +269,7 @@ class DrawerConveyors extends ActiveCell {
   // TODO: implement moduleGroup
   ModuleGroup? get moduleGroup => throw UnimplementedError();
 
-  @override
-  // TODO: implement name
-  String get name => 'DrawerConveyors';
-
+  
   @override
   void onUpdateToNextPointInTime(Duration jump) {
     for (var drawer in drawers) {
@@ -304,13 +299,13 @@ class DrawerConveyors extends ActiveCell {
     } else {
       var remainingDuration = Duration(
           microseconds: metersPerSecond / remainingMetersOnConveyor ~/ 1000000);
-      var _nextConveyor = nextConveyor(drawer.conveyor);
-      if (_nextConveyor == null) {
+      var nextConveyor = findNextConveyor(drawer.conveyor);
+      if (nextConveyor == null) {
         drawerAtEnd = drawer;
         //TODO remove when loaded into ReloaderDrawerLift
         drawers.remove(drawer);
       } else {
-        drawer.conveyor = _nextConveyor;
+        drawer.conveyor = nextConveyor;
         // recursive call
         moveDrawer(drawer, remainingDuration);
       }
@@ -318,7 +313,7 @@ class DrawerConveyors extends ActiveCell {
     //TODO do not overlap other drawers!
   }
 
-  DrawerConveyor? nextConveyor(DrawerConveyor previousConveyor) {
+  DrawerConveyor? findNextConveyor(DrawerConveyor previousConveyor) {
     int nextIndex = conveyors.indexOf(previousConveyor) + 1;
     if (nextIndex >= conveyors.length) {
       return null;
@@ -343,4 +338,6 @@ class DrawerConveyors extends ActiveCell {
         lastConveyor.vectors.length - lastDrawer.remainingMetersOnConveyor;
     return emptySpace > lastDrawer.outSideLengthInMeters;
   }
+  
+  
 }

@@ -5,7 +5,14 @@ import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_tilter.dart';
 
-class BirdHangingConveyor extends ActiveCell {
+class BirdHangingConveyor implements ActiveCell {
+  @override
+  late LiveBirdHandlingArea area;
+  @override
+  late Position position;
+  @override
+  late String name="BirdHangingConveyor${seqNr??''}";
+  final int? seqNr;
   final CardinalDirection direction;
   final int shacklesPerHour;
   ShackleLine shackleLine = ShackleLine();
@@ -17,18 +24,16 @@ class BirdHangingConveyor extends ActiveCell {
   bool _running = false;
 
   BirdHangingConveyor({
-    required LiveBirdHandlingArea area,
-    required Position position,
+    required this.area,
+    required this.position,
     required this.direction,
+    this.seqNr,
   })  : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
         timePerBird = Duration(
             microseconds: (hourInMicroSeconds /
                     area.productDefinition.lineSpeedInShacklesPerHour)
-                .round()),
-        super(
-          area,
-          position,
-        ) {
+                .round())
+ {
     running = true;
   }
 
@@ -71,9 +76,6 @@ class BirdHangingConveyor extends ActiveCell {
   ModuleGroup? get moduleGroup => null;
 
   @override
-  String get name => 'BirdHangingConveyor';
-
-  @override
   onUpdateToNextPointInTime(Duration jump) {
     if (running) {
       shackleLine.addRunningTime(jump);
@@ -100,6 +102,8 @@ class BirdHangingConveyor extends ActiveCell {
         .appendProperty('shackleLine', shackleLine)
         .toString();
   }
+  
+  
 }
 
 class ShackleLine {

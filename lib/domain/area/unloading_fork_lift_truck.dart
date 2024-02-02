@@ -1,33 +1,28 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 
-import 'life_bird_handling_area.dart';
 import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
 class UnLoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection inFeedDirection;
 
-  @override
-  String get name => "UnLoadingForkLiftTruck${seqNr ?? ''}";
-
+  
   UnLoadingForkLiftTruck({
-    required LiveBirdHandlingArea area,
-    required Position position,
-    int? seqNr,
+    required super.area,
+    required super.position,
+    super.name='UnLoadingForkLiftTruck',
+    super.seqNr,
     required this.inFeedDirection,
     Duration putModuleGroupOnTruckDuration =
         const Duration(seconds: 5), //TODO 30s?
     Duration getStackFromConveyorDuration =
         const Duration(seconds: 5), //TODO 15s?
   }) : super(
-            area: area,
-            position: position,
-            seqNr: seqNr,
             initialState: WaitingForFullConveyor(),
             inFeedDuration: putModuleGroupOnTruckDuration,
             outFeedDuration: getStackFromConveyorDuration);
 
-  StateMachineCell get sendingneighbor =>
+  StateMachineCell get sendingNeighbor =>
       area.neighboringCell(this, inFeedDirection) as StateMachineCell;
 
   @override

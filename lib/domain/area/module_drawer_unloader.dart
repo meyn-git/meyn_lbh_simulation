@@ -22,13 +22,11 @@ class ModuleDrawerUnloader extends StateMachineCell {
 
   Durations durationsPerModule = Durations(maxSize: 8);
 
-  @override
-  String get name => "ModuleDrawerUnloader${seqNr ?? ''}";
-
   ModuleDrawerUnloader({
     required LiveBirdHandlingArea area,
     required Position position,
-    int? seqNr,
+    super.name='ModuleDrawerUnloader',
+    super.seqNr,
     required this.inFeedDirection,
     required this.birdDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
@@ -48,7 +46,6 @@ class ModuleDrawerUnloader extends StateMachineCell {
   }) : super(
           area: area,
           position: position,
-          seqNr: seqNr,
           initialState: CheckIfEmpty(),
           inFeedDuration: inFeedDuration ??
               area.productDefinition.moduleSystem.conveyorTransportDuration,
@@ -406,6 +403,8 @@ class UnloaderDrawerLift extends StateMachineCell implements BirdBuffer {
   UnloaderDrawerLift(
       {required super.area,
       required super.position,
+      super.name='UnloaderDrawerLift',
+      super.seqNr,
       required this.birdDirection,
       this.upDuration = const Duration(
           milliseconds:
@@ -438,9 +437,6 @@ class UnloaderDrawerLift extends StateMachineCell implements BirdBuffer {
 
   @override
   ModuleGroup? get moduleGroup => null;
-
-  @override
-  String get name => 'UnloaderDrawerLift';
 
   @override
   bool waitingToFeedIn(CardinalDirection direction) {

@@ -175,6 +175,8 @@ class Position {
 }
 
 abstract class Cell {
+//FIXME: Cell should not have these methods because it could be empty or not handle Modules
+
   /// whether a given direction can feed out modules
   bool isFeedIn(CardinalDirection direction);
 
@@ -193,12 +195,12 @@ abstract class Cell {
   bool waitingToFeedOut(CardinalDirection direction);
 
   /// to be increased with [nrOfModules] when the StateMachine has fed out
-  int nrOfModulesMoved = 0;
+  /// TODO can we do without?: int nrOfModulesMoved = 0;
 
   ModuleGroup? get moduleGroup;
 }
 
-class EmptyCell extends Cell {
+class EmptyCell implements Cell {
   static final EmptyCell _emptyCell = EmptyCell._();
 
   EmptyCell._();
@@ -229,13 +231,10 @@ abstract class TimeProcessor {
   void onUpdateToNextPointInTime(Duration jump);
 }
 
-abstract class ActiveCell extends Cell implements TimeProcessor {
-  final LiveBirdHandlingArea area;
-  final Position position;
-
-  ActiveCell(this.area, this.position);
-
-  String get name;
+abstract class ActiveCell  implements Cell, TimeProcessor {
+  late LiveBirdHandlingArea area;
+  late Position position;
+  late String name;
 }
 
 /// A list of [StateMachineCell]s to get to a [ModuleCas] within a [LiveBirdHandlingArea]

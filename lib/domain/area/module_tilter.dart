@@ -20,13 +20,12 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
 
-  @override
-  String get name => "ModuleTilter${seqNr ?? ''}";
 
   ModuleTilter(
-      {required LiveBirdHandlingArea area,
-      required Position position,
-      int? seqNr,
+      {required super.area,
+      required super.position,
+      super.name='ModuleTilter',
+      super.seqNr,
       required this.inFeedDirection,
       required this.birdDirection,
       this.checkIfEmptyDuration = const Duration(seconds: 18),
@@ -37,9 +36,6 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
       required this.minBirdsOnDumpBeltBuffer})
       : maxBirdsOnDumpBelt = minBirdsOnDumpBeltBuffer,
         super(
-          area: area,
-          position: position,
-          seqNr: seqNr,
           initialState: CheckIfEmpty(),
           inFeedDuration: inFeedDuration ??
               area.productDefinition.moduleSystem.conveyorTransportDuration,

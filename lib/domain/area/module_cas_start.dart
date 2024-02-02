@@ -8,7 +8,14 @@ import 'module_cas.dart';
 
 /// Starts CAS units depending on the line speed, nr of birds per module
 /// (=modules/hour) compensated for the number of stunned modules waiting
-class ModuleCasStart extends ActiveCell {
+class ModuleCasStart implements ActiveCell {
+  @override
+  late LiveBirdHandlingArea area ;
+  @override
+  late Position  position;
+  @override
+  late String name;
+
   static const Duration hold = Duration(seconds: 999999999);
 
   Duration elapsedTime = Duration.zero;
@@ -16,13 +23,12 @@ class ModuleCasStart extends ActiveCell {
   static const Duration maxElapsedTime = Duration(minutes: 30);
 
   ModuleCasStart({
-    required LiveBirdHandlingArea area,
-    required Position position,
-  }) : super(area, position);
+    required this.area,
+    required this.position,
+    this.name="ModuleCasStart"
+  }) ;
 
-  @override
-  String get name => "ModuleCasStart";
-
+  
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 

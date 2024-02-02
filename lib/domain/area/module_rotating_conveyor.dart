@@ -33,13 +33,12 @@ class ModuleRotatingConveyor extends StateMachineCell {
     CardinalDirection.west: Duration.zero,
   };
 
-  @override
-  String get name => "ModuleRotatingConveyor${seqNr ?? ''}";
-
+  
   ModuleRotatingConveyor({
-    required LiveBirdHandlingArea area,
-    required Position position,
-    int? seqNr,
+    required super.area,
+    required super.position,
+    super.name='ModuleRotatingConveyor',
+    super.seqNr,
     int? degreesPerSecond,
     this.defaultPositionWhenIdle,
     this.oppositeInFeeds = const [],
@@ -51,9 +50,6 @@ class ModuleRotatingConveyor extends StateMachineCell {
         degreesPerSecond = degreesPerSecond ??
             area.productDefinition.moduleSystem.turnTableDegreesPerSecond,
         super(
-          area: area,
-          position: position,
-          seqNr: seqNr,
           initialState: initialState ?? TurnToInFeed(),
           inFeedDuration: inFeedDuration ??
               area.productDefinition.moduleSystem.conveyorTransportDuration,

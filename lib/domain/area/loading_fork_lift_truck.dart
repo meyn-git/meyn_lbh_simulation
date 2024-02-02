@@ -16,12 +16,12 @@ class LoadingForkLiftTruck extends StateMachineCell {
   var sequenceNumber = 0;
 
   @override
-  String get name => "LoadingForkLiftTruck${seqNr ?? ''}";
-
+  
   LoadingForkLiftTruck({
-    required LiveBirdHandlingArea area,
-    required Position position,
-    int? seqNr,
+    required super.area,
+    required super.position,
+     super.name='LoadingForkLiftTruck',
+    super.seqNr,
     required this.outFeedDirection,
     required this.doorDirection,
     Duration getModuleGroupOnTruckDuration =
@@ -30,9 +30,6 @@ class LoadingForkLiftTruck extends StateMachineCell {
         const Duration(seconds: 5), //TODO 15s?
     this.loadsSingeModule = false,
   }) : super(
-            area: area,
-            position: position,
-            seqNr: seqNr,
             initialState: GetModuleGroupFromTruck(),
             inFeedDuration: getModuleGroupOnTruckDuration,
             outFeedDuration: putModuleGroupOnConveyorDuration) {

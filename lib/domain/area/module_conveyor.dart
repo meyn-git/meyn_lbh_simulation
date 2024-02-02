@@ -11,21 +11,17 @@ class ModuleConveyor extends StateMachineCell {
 
   final Duration checkIfEmptyDuration;
 
-  @override
-  String get name => "ModuleConveyor${seqNr ?? ''}";
-
+  
   ModuleConveyor({
-    required LiveBirdHandlingArea area,
-    required Position position,
-    int? seqNr,
+    required super.area,
+    required super.position,
+    super.name='ModuleConveyor',
+    super.seqNr,
     required this.inFeedDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration,
     Duration? outFeedDuration,
   }) : super(
-          area: area,
-          position: position,
-          seqNr: seqNr,
           initialState: CheckIfEmpty(),
           inFeedDuration: inFeedDuration ??
               area.productDefinition.moduleSystem.conveyorTransportDuration,

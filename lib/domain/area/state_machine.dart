@@ -4,26 +4,38 @@ import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 
-abstract class StateMachineCell extends ActiveCell {
+abstract class StateMachine {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
-  final int? seqNr;
   State currentState;
 
-  final Duration inFeedDuration;
+  StateMachine({
+    required State initialState,
+  }) : currentState = initialState {
+    initialState.onStart(this);
+  }
+}
 
+abstract class StateMachineCell extends StateMachine implements ActiveCell {
+  /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
+  @override
+  late LiveBirdHandlingArea area;
+  @override
+  late Position position;
+  @override
+  late String name;
+  final int? seqNr;
+  final Duration inFeedDuration;
   final Duration outFeedDuration;
 
   StateMachineCell({
-    required LiveBirdHandlingArea area,
-    required Position position,
+    required this.area,
+    required this.position,
+    required String name,
     this.seqNr,
-    required State initialState,
+    required super.initialState,
     required this.inFeedDuration,
     required this.outFeedDuration,
-  })  : currentState = initialState,
-        super(area, position) {
-    initialState.onStart(this);
-  }
+  }) : name = "$name${seqNr ?? ''}";
 
   /// This method gets called with a regular time interval by the [LiveBirdHandlingArea]
   /// to update the [StateMachineCell]
@@ -49,7 +61,7 @@ abstract class StateMachineCell extends ActiveCell {
       .firstWhereOrNull((moduleGroup) => moduleGroup.position.equals(this));
 }
 
-abstract class State<T extends StateMachineCell> {
+abstract class State<T extends StateMachine> {
   String get name;
 
   /// this method is called when the state starts

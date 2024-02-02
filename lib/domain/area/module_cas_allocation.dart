@@ -9,20 +9,30 @@ import 'module_cas.dart';
 /// Allocates the destination of a [ModuleGroup] of a given location depending on the
 /// state of the [ModuleCas] units and transport modules between this position
 /// and the [ModuleCas] units
-class ModuleCasAllocation extends ActiveCell {
+class ModuleCasAllocation implements ActiveCell {
+
+  
+  @override
+  late LiveBirdHandlingArea area;
+  
+  @override
+  late Position position;
+  
+  @override
+  late String name;
+
   final Position positionToAllocate;
   List<Route> _cashedRoutesToCasUnits = [];
 
   ModuleCasAllocation({
-    required LiveBirdHandlingArea area,
-    required Position position,
+    required this.area,
+    required this.position,
+    this.name='ModuleCasAllocation',
     required this.positionToAllocate,
-  }) : super(area, position) {
+  })  {
     validatePositionToAllocateIsStateMachineCell();
   }
 
-  @override
-  String get name => 'ModuleCasAllocation';
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -115,4 +125,5 @@ class ModuleCasAllocation extends ActiveCell {
           '$ModuleCasAllocation positionToAllocate=$positionToAllocate does not point to a $StateMachineCell');
     }
   }
+  
 }

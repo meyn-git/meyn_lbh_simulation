@@ -17,13 +17,11 @@ class ModuleStacker extends StateMachineCell {
   final Duration supportsOpenDuration;
   ModuleGroup? moduleGroupOnSupports;
 
-  @override
-  String get name => "ModuleStacker${seqNr ?? ''}";
-
   ModuleStacker({
-    required LiveBirdHandlingArea area,
-    required Position position,
-    int? seqNr,
+    required super.area,
+    required super.position,
+    super.name='ModuleStacker',
+    super.seqNr,
     required this.inFeedDirection,
     this.supportsCloseDuration = const Duration(seconds: 3),
     this.supportsOpenDuration = const Duration(seconds: 3),
@@ -38,9 +36,6 @@ class ModuleStacker extends StateMachineCell {
       LiftPosition.supportTopModule: 150 + 150 + 20,
     },
   }) : super(
-          area: area,
-          position: position,
-          seqNr: seqNr,
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
           inFeedDuration: inFeedDuration ??
               area.productDefinition.moduleSystem.stackerInFeedDuration,
