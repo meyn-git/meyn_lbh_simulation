@@ -10,14 +10,12 @@ import 'module_cas.dart';
 /// state of the [ModuleCas] units and transport modules between this position
 /// and the [ModuleCas] units
 class ModuleCasAllocation implements ActiveCell {
-
-  
   @override
   late LiveBirdHandlingArea area;
-  
+
   @override
   late Position position;
-  
+
   @override
   late String name;
 
@@ -27,12 +25,11 @@ class ModuleCasAllocation implements ActiveCell {
   ModuleCasAllocation({
     required this.area,
     required this.position,
-    this.name='ModuleCasAllocation',
+    this.name = 'ModuleCasAllocation',
     required this.positionToAllocate,
-  })  {
+  }) {
     validatePositionToAllocateIsStateMachineCell();
   }
-
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -125,5 +122,4 @@ class ModuleCasAllocation implements ActiveCell {
           '$ModuleCasAllocation positionToAllocate=$positionToAllocate does not point to a $StateMachineCell');
     }
   }
-  
 }

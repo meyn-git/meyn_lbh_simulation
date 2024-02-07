@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
+import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/login/login.dart';
 import 'package:meyn_lbh_simulation/main.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../domain/area/player.dart';
-import 'area.dart';
 
 class PlayerPage extends StatefulWidget {
   const PlayerPage({Key? key}) : super(key: key);

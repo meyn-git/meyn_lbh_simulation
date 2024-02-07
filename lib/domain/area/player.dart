@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
-import 'life_bird_handling_area.dart';
-
 class Player {
   int _speed = 1;
   bool playing = true;
@@ -12,7 +10,7 @@ class Player {
   final List<UpdateListener> _updateListeners = [];
   Timer? timer;
 
-  ActiveCell? selectedCell;
+  Object? selectedCell;
 
   Player() {
     updateTimer();

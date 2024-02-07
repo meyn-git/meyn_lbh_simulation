@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
@@ -19,6 +21,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/gui/area/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/area/drawer.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
@@ -85,6 +88,7 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
     List<Widget> children = [];
     children.addAll(createModuleGroupWidgets(area));
     children.addAll(createDrawerConveyorWidgets(area));
+    children.addAll(createDrawerWidgets(area));
     children.addAll(createCellWidgets(area));
     return children;
   }
@@ -109,10 +113,19 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
     return widgets;
   }
 
+  static List<Widget> createDrawerWidgets(LiveBirdHandlingArea area) {
+    List<Widget> widgets = [];
+    var drawers = area.drawers;
+    for (var drawer in drawers) {
+      widgets.add(LayoutId(id: drawer, child: GrandeDrawerWidget(drawer)));
+    }
+    return widgets;
+  }
+
   static List<Widget> createCellWidgets(LiveBirdHandlingArea area) {
     var cellWidgets = area.cells
-        .map<Widget>((cell) =>
-            LayoutId(id: cell, child: CellWidgetFactory.createFor(cell)))
+        .map<Widget>(
+            (cell) => LayoutId(id: cell, child: createCellWidgetFor(cell)))
         .toList();
     return cellWidgets;
   }
@@ -128,7 +141,7 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
 }
 
 class EmptyCellWidget extends StatelessWidget {
-  const EmptyCellWidget({Key? key}) : super(key: key);
+  const EmptyCellWidget({super.key});
 
   @override
   Widget build(BuildContext context) => SizedBox.fromSize(size: Size.zero);
@@ -141,6 +154,8 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   final LiveBirdHandlingArea area;
   final CellRange cashedCellRange;
 
+  Map<DrawerConveyor, Offset> topLeftPositionOfConveyors = {};
+
   AreaWidgetDelegate(this.area) : cashedCellRange = area.cellRange;
 
   @override
@@ -149,27 +164,35 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     var childOffset = _offsetForAllChildren(size, childSize);
     _layoutAndPositionModuleGroups(childSize, childOffset);
     _layoutAndPositionDrawerConveyors(childSize, childOffset);
+    _layoutAndPositionDrawers(childSize, childOffset);
+
     //positioning cells last so they are on top so that the inkwells can be activated
     _layoutAndPositionCells(childSize, childOffset);
   }
 
   void _layoutAndPositionDrawerConveyors(Size childSize, Offset childOffset) {
-    var sizePerMeter = childSize.width / 3; //assuming 1 child == 2.5 meter
+    var sizePerMeter = _sizePerMeter(childSize);
     var allDrawerConveyors = area.cells.whereType<DrawerConveyors>();
     for (var drawerConveyors in allDrawerConveyors) {
       var position = childOffset +
           Offset((drawerConveyors.position.x - 0.5) * childSize.width,
               (drawerConveyors.position.y + 0.5) * childSize.height);
       for (var drawerConveyor in drawerConveyors.conveyors) {
-        var painter = createDrawerConveyorPainter(drawerConveyor);
-        var size = painter.size(sizePerMeter);
+        var size = drawerConveyor.size * sizePerMeter;
         layoutChild(drawerConveyor, BoxConstraints.tight(size));
-        position = position + painter.conveyorStartToTopLeft(size);
+        var startToTopLeft =
+            (drawerConveyor.conveyorStartToTopLeft * sizePerMeter);
+        position = position + startToTopLeft;
+        topLeftPositionOfConveyors[drawerConveyor] = position;
         positionChild(drawerConveyor, position);
-        position = position + painter.topLeftToConveyorEnd(size);
+        var topLeftToEnd = (drawerConveyor.topLeftToConveyorEnd * sizePerMeter);
+        position = position + topLeftToEnd;
       }
     }
   }
+
+  double _sizePerMeter(Size childSize) =>
+      childSize.width / 3.5; //assuming 1 child == 3 meter
 
   void _layoutAndPositionModuleGroups(Size childSize, Offset childOffset) {
     for (var moduleGroup in area.moduleGroups) {
@@ -185,6 +208,21 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
       layoutChild(cell, BoxConstraints.tight(childSize));
       var cellOffset = _createCellOffset(cell.position, childSize, childOffset);
       positionChild(cell, cellOffset);
+    }
+  }
+
+  void _layoutAndPositionDrawers(Size childSize, Offset childOffset) {
+    var sizePerMeter = _sizePerMeter(childSize);
+    Size? size;
+    for (var drawer in area.drawers) {
+      if (size == null) {
+        var length = drawer.outSideLength.as(meters) * sizePerMeter;
+        size = Size(length, length);
+      }
+      layoutChild(drawer, BoxConstraints.tight(size));
+      var drawerPosition =
+          drawer.position.topLeft(topLeftPositionOfConveyors, sizePerMeter);
+      positionChild(drawer, drawerPosition);
     }
   }
 
@@ -231,48 +269,43 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => true;
 }
 
-class CellWidgetFactory {
-  static Widget createFor(ActiveCell cell) {
-    if (cell is LoadingForkLiftTruck) {
-      return LoadingForkLiftTruckWidget(cell);
-    }
-    if (cell is UnLoadingForkLiftTruck) {
-      return UnLoadingForkLiftTruckWidget(cell);
-    }
-    if (cell is ModuleCas) {
-      return ModuleCasWidget(cell);
-    }
-    if (cell is ModuleConveyor) {
-      return ModuleConveyorWidget(cell);
-    }
-    if (cell is ModuleRotatingConveyor) {
-      return ModuleRotatingConveyorWidget(cell);
-    }
-    if (cell is ModuleTilter) {
-      return ModuleTilterWidget(cell);
-    }
-    if (cell is ModuleDrawerUnloader) {
-      return ModuleDrawerUnloaderWidget(cell);
-    }
-    if (cell is UnloaderDrawerLift) {
-      return UnloaderDrawerLiftWidget(cell);
-    }
-    if (cell is BirdHangingConveyor) {
-      return BirdHangingConveyorWidget(cell);
-    }
-    if (cell is ModuleDeStacker) {
-      return ModuleDeStackerWidget(cell);
-    }
-    if (cell is ModuleStacker) {
-      return ModuleStackerWidget(cell);
-    }
-
-    if (cell is ModuleCasAllocation) {
-      return ModuleCasAllocationWidget(cell);
-    }
-    if (cell is ModuleCasStart) {
-      return ModuleCasStartWidget(cell);
-    }
-    return const EmptyCellWidget();
+Widget createCellWidgetFor(ActiveCell cell) {
+  if (cell is LoadingForkLiftTruck) {
+    return LoadingForkLiftTruckWidget(cell);
   }
+  if (cell is UnLoadingForkLiftTruck) {
+    return UnLoadingForkLiftTruckWidget(cell);
+  }
+  if (cell is ModuleCas) {
+    return ModuleCasWidget(cell);
+  }
+  if (cell is ModuleConveyor) {
+    return ModuleConveyorWidget(cell);
+  }
+  if (cell is ModuleRotatingConveyor) {
+    return ModuleRotatingConveyorWidget(cell);
+  }
+  if (cell is ModuleTilter) {
+    return ModuleTilterWidget(cell);
+  }
+  if (cell is ModuleDrawerUnloader) {
+    return ModuleDrawerUnloaderWidget(cell);
+  }
+  if (cell is BirdHangingConveyor) {
+    return BirdHangingConveyorWidget(cell);
+  }
+  if (cell is ModuleDeStacker) {
+    return ModuleDeStackerWidget(cell);
+  }
+  if (cell is ModuleStacker) {
+    return ModuleStackerWidget(cell);
+  }
+
+  if (cell is ModuleCasAllocation) {
+    return ModuleCasAllocationWidget(cell);
+  }
+  if (cell is ModuleCasStart) {
+    return ModuleCasStartWidget(cell);
+  }
+  return const EmptyCellWidget();
 }

@@ -63,6 +63,19 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
 }
 
 class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  late ModuleDrawerUnloader unloader = ModuleDrawerUnloader(
+    area: this,
+    position: const Position(7, 3),
+    seqNr: 1,
+    inFeedDirection: CardinalDirection.west,
+    birdDirection: CardinalDirection.north,
+  );
+
+  late DrawerWeighingConveyor drawerWeigher = DrawerWeighingConveyor(
+    direction: CardinalDirection.north,
+    metersPerSecond: 0,
+  );
+
   GutBergmarkLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Line1',
@@ -83,16 +96,21 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     ));
 
     var metersPerSecond = 0.7;
-    put(DrawerConveyors(area: this, position: const Position(6, 1), conveyors: [
-      DrawerWeighingConveyor(
-          direction: CardinalDirection.north, metersPerSecond: metersPerSecond),
+    put(DrawerConveyors(area: this, position: const Position(7, 2), conveyors: [
+      UnloaderDrawerLift(
+        area: this,
+        unloader: unloader,
+        conveyorAfterUnloaderLift: drawerWeigher,
+        maxDrawersPerHour: 650,
+        birdDirection: CardinalDirection.north,
+      ),
+      drawerWeigher,
       DrawerConveyor90Degrees(
-          lengthInMeters: 3,
           startDirection: CardinalDirection.north,
           clockwise: false,
           metersPerSecond: metersPerSecond),
       DrawerConveyorStraight(
-          lengthInMeters: 3,
+          length: 3.meters,
           direction: CardinalDirection.west,
           metersPerSecond: metersPerSecond),
       DrawerHangingConveyor(
@@ -102,7 +120,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       DrawerConveyorStraight(
           direction: CardinalDirection.west,
           metersPerSecond: metersPerSecond,
-          lengthInMeters: 1),
+          length: 1.meters),
       DrawerWeighingConveyor(
           direction: CardinalDirection.west, metersPerSecond: metersPerSecond),
       DrawerTurningConveyor(startDirection: CardinalDirection.west),
@@ -111,21 +129,20 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       DrawerConveyorStraight(
           direction: CardinalDirection.east,
           metersPerSecond: metersPerSecond,
-          lengthInMeters: 3),
+          length: 3.meters),
       DrawerWashingConveyor(
           direction: CardinalDirection.east, metersPerSecond: metersPerSecond),
       DrawerConveyorStraight(
           direction: CardinalDirection.east,
           metersPerSecond: metersPerSecond,
-          lengthInMeters: 1),
+          length: 1.meters),
       DrawerTurningConveyor(startDirection: CardinalDirection.east),
       DrawerConveyor90Degrees(
-          lengthInMeters: 3,
           startDirection: CardinalDirection.west,
           clockwise: false,
           metersPerSecond: metersPerSecond),
       DrawerConveyorStraight(
-          lengthInMeters: 1.5,
+          length: 1.5.meters,
           direction: CardinalDirection.south,
           metersPerSecond: metersPerSecond),
     ]));
@@ -154,15 +171,6 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
-    ));
-
-    put(UnloaderDrawerLift(
-      area: this,
-      position: const Position(7, 2),
-      birdDirection: CardinalDirection.north,
-      maxDrawersPerHour: 650,
-
-      ///FOR NOW!
     ));
   }
 
@@ -215,13 +223,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(ModuleDrawerUnloader(
-      area: this,
-      position: const Position(7, 3),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.west,
-      birdDirection: CardinalDirection.north,
-    ));
+    put(unloader);
 
     put(ModuleConveyor(
       area: this,

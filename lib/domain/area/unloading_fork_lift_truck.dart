@@ -6,11 +6,10 @@ import 'state_machine.dart';
 class UnLoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection inFeedDirection;
 
-  
   UnLoadingForkLiftTruck({
     required super.area,
     required super.position,
-    super.name='UnLoadingForkLiftTruck',
+    super.name = 'UnLoadingForkLiftTruck',
     super.seqNr,
     required this.inFeedDirection,
     Duration putModuleGroupOnTruckDuration =

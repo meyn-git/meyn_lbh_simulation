@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
 
 import 'module.dart';
 import 'module_cas.dart';
@@ -12,6 +13,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   final ProductDefinition productDefinition;
   final List<ActiveCell> cells = [];
   final List<ModuleGroup> moduleGroups = [];
+  final List<GrandeDrawer> drawers = [];
   Duration durationSinceStart = Duration.zero;
   int moduleSequenceNumber = 0;
 
@@ -64,6 +66,9 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
     }
     for (var moduleGroup in moduleGroups) {
       moduleGroup.onUpdateToNextPointInTime(jump);
+    }
+    for (var drawer in drawers) {
+      drawer.onUpdateToNextPointInTime(jump);
     }
   }
 
@@ -231,7 +236,7 @@ abstract class TimeProcessor {
   void onUpdateToNextPointInTime(Duration jump);
 }
 
-abstract class ActiveCell  implements Cell, TimeProcessor {
+abstract class ActiveCell implements Cell, TimeProcessor {
   late LiveBirdHandlingArea area;
   late Position position;
   late String name;

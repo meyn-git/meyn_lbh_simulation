@@ -11,13 +11,13 @@ class BirdHangingConveyor implements ActiveCell {
   @override
   late Position position;
   @override
-  late String name="BirdHangingConveyor${seqNr??''}";
+  late String name = "BirdHangingConveyor${seqNr ?? ''}";
   final int? seqNr;
   final CardinalDirection direction;
   final int shacklesPerHour;
   ShackleLine shackleLine = ShackleLine();
   Duration elapsedTime = Duration.zero;
-  BirdBuffer? _cashedBirdBuffer;
+  late BirdBuffer birdBuffer = _findBirdBuffer();
   static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
   Duration timePerBird;
 
@@ -32,8 +32,7 @@ class BirdHangingConveyor implements ActiveCell {
         timePerBird = Duration(
             microseconds: (hourInMicroSeconds /
                     area.productDefinition.lineSpeedInShacklesPerHour)
-                .round())
- {
+                .round()) {
     running = true;
   }
 
@@ -44,10 +43,6 @@ class BirdHangingConveyor implements ActiveCell {
     if (running) {
       shackleLine.startLine();
     }
-  }
-
-  BirdBuffer get birdBuffer {
-    return _cashedBirdBuffer ?? _findBirdBuffer();
   }
 
   BirdBuffer _findBirdBuffer() {
@@ -102,8 +97,6 @@ class BirdHangingConveyor implements ActiveCell {
         .appendProperty('shackleLine', shackleLine)
         .toString();
   }
-  
-  
 }
 
 class ShackleLine {

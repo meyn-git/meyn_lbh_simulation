@@ -16,11 +16,10 @@ class LoadingForkLiftTruck extends StateMachineCell {
   var sequenceNumber = 0;
 
   @override
-  
   LoadingForkLiftTruck({
     required super.area,
     required super.position,
-     super.name='LoadingForkLiftTruck',
+    super.name = 'LoadingForkLiftTruck',
     super.seqNr,
     required this.outFeedDirection,
     required this.doorDirection,

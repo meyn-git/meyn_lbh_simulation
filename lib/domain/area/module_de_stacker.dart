@@ -16,11 +16,10 @@ class ModuleDeStacker extends StateMachineCell {
   final Duration supportsOpenDuration;
   ModuleGroup? moduleGroupOnSupports;
 
-  
   ModuleDeStacker({
     required super.area,
     required super.position,
-    super.name='ModuleDeStacker',
+    super.name = 'ModuleDeStacker',
     super.seqNr,
     required this.inFeedDirection,
     this.supportsCloseDuration = const Duration(seconds: 3),

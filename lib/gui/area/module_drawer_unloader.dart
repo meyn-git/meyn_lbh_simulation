@@ -1,13 +1,16 @@
+import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
+import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 
 import '../../domain/area/player.dart';
 
 class ModuleDrawerUnloaderWidget extends StatelessWidget {
   final ModuleDrawerUnloader unloader;
 
-  const ModuleDrawerUnloaderWidget(this.unloader, {Key? key}) : super(key: key);
+  const ModuleDrawerUnloaderWidget(this.unloader, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,63 +66,56 @@ class ModuleDrawerUnloaderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class UnloaderDrawerLiftWidget extends StatelessWidget {
-  final UnloaderDrawerLift drawerLift;
+// class UnloaderDrawerLiftWidget extends StatelessWidget {
+//   final UnloaderDrawerLift drawerLift;
 
-  const UnloaderDrawerLiftWidget(this.drawerLift, {Key? key}) : super(key: key);
+//   const UnloaderDrawerLiftWidget(this.drawerLift, {super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = drawerLift;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            drawerLift.birdDirection.opposite.toCompassDirection().degrees /
-                360),
-        child: CustomPaint(painter: UnloaderDrawerLiftPainter(drawerLift)),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: () {
+//         GetIt.instance<Player>().selectedCell = drawerLift;
+//       },
+//       child: RotationTransition(
+//         turns: AlwaysStoppedAnimation(
+//             drawerLift.birdDirection.opposite.toCompassDirection().degrees /
+//                 360),
+//         child: CustomPaint(painter: UnloaderDrawerLiftPainter(drawerLift)),
+//       ),
+//     );
+//   }
+// }
 
-class UnloaderDrawerLiftPainter extends CustomPainter {
+class UnloaderDrawerLiftPainter extends DrawerConveyorPainter {
   final UnloaderDrawerLift drawerLift;
 
   UnloaderDrawerLiftPainter(this.drawerLift);
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (int i = 0; i < drawerLift.nrOfPositions; i++) {
-      _drawDrawer(canvas, size, i / (drawerLift.nrOfPositions - 1),
-          drawerLift.positions[i]);
+    double sizePerMeter = size.width / drawerLift.size.width;
+    for (int level = 0; level < drawerLift.nrOfLiftPositions; level++) {
+      _drawDrawer(canvas, sizePerMeter, drawerLift.topLeftToLiftLevel(level));
     }
   }
 
   _drawDrawer(
     Canvas canvas,
-    Size size,
-    //number between 0 and 1
-    double offset,
-    bool positionHasDrawer,
+    double sizePerMeter,
+    Offset topLeftToLiftLevel,
   ) {
     var paint = Paint();
-    paint.color = positionHasDrawer ? Colors.black : Colors.grey.shade400;
+    paint.color = Colors.grey;
     paint.style = PaintingStyle.stroke;
-    const maxOffset = 0.3;
-    var offset2 = offset * maxOffset - (maxOffset / 2);
-    var x1 = size.width * 0.35;
-    var x2 = size.width * 0.65;
-    var y1 = size.height * (0.35 + offset2);
-    var y2 = size.height * (0.65 + offset2);
-    if (offset == 1) {
-      canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
-    } else {
-      canvas.drawLine(Offset(x1, y2), Offset(x1, y1), paint);
-      canvas.drawLine(Offset(x1, y1), Offset(x2, y1), paint);
-      canvas.drawLine(Offset(x2, y1), Offset(x2, y2), paint);
-    }
+
+    var x1 = topLeftToLiftLevel.dx * sizePerMeter;
+    var y1 = topLeftToLiftLevel.dy * sizePerMeter;
+    var drawerLengthInMeters =
+        GrandeDrawerModuleType.drawerOutSideLength.as(meters);
+    var x2 = x1 + drawerLengthInMeters * sizePerMeter;
+    var y2 = y1 + drawerLengthInMeters * sizePerMeter;
+    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
   }
 
   @override

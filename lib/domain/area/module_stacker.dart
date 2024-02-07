@@ -20,7 +20,7 @@ class ModuleStacker extends StateMachineCell {
   ModuleStacker({
     required super.area,
     required super.position,
-    super.name='ModuleStacker',
+    super.name = 'ModuleStacker',
     super.seqNr,
     required this.inFeedDirection,
     this.supportsCloseDuration = const Duration(seconds: 3),

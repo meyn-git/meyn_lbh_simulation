@@ -11,11 +11,10 @@ class ModuleConveyor extends StateMachineCell {
 
   final Duration checkIfEmptyDuration;
 
-  
   ModuleConveyor({
     required super.area,
     required super.position,
-    super.name='ModuleConveyor',
+    super.name = 'ModuleConveyor',
     super.seqNr,
     required this.inFeedDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),

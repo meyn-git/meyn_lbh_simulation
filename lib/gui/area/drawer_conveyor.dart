@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
 
 class DrawerConveyorWidget extends StatelessWidget {
   final DrawerConveyor drawerConveyor;
@@ -15,8 +17,8 @@ class DrawerConveyorWidget extends StatelessWidget {
 }
 
 DrawerConveyorPainter createDrawerConveyorPainter(drawerConveyor) {
-  if (drawerConveyor is DrawerTurningConveyor) {
-    return DrawerTurningConveyorPainter(drawerConveyor);
+  if (drawerConveyor is UnloaderDrawerLift) {
+    return UnloaderDrawerLiftPainter(drawerConveyor);
   }
   if (drawerConveyor is DrawerConveyorStraight) {
     return DrawerConveyorStraightPainter(drawerConveyor);
@@ -28,14 +30,6 @@ DrawerConveyorPainter createDrawerConveyorPainter(drawerConveyor) {
 }
 
 abstract class DrawerConveyorPainter extends CustomPainter {
-  static const double conveyorWidthInMeters = 0.8;
-
-  Size size(double sizePerMeter);
-
-  Offset conveyorStartToTopLeft(Size size);
-
-  Offset topLeftToConveyorEnd(Size size);
-
   void addMachineToPath(Path path, Size size) {
     path.moveTo(0, 0);
     path.lineTo(size.width, 0);
@@ -80,8 +74,7 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   void addConveyorChainsNorthOrSouthToPath(Path path, Size size) {
-    var totalWidthInMeters = DrawerConveyorPainter.conveyorWidthInMeters +
-        drawerConveyor.machineProtrudesInMeters * 2;
+    var totalWidthInMeters = drawerConveyor.size.width;
     var offSet = drawerConveyor.machineProtrudesInMeters / totalWidthInMeters;
     path.moveTo(size.width * offSet, 0);
     path.lineTo(size.width * offSet, size.height);
@@ -90,89 +83,12 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   }
 
   void addConveyorChainsEastOrWestToPath(Path path, Size size) {
-    var totalWidthInMeters = DrawerConveyorPainter.conveyorWidthInMeters +
-        drawerConveyor.machineProtrudesInMeters * 2;
+    var totalWidthInMeters = drawerConveyor.size.height;
     var offSet = drawerConveyor.machineProtrudesInMeters / totalWidthInMeters;
     path.moveTo(0, size.height * offSet);
     path.lineTo(size.width, size.height * offSet);
     path.moveTo(0, size.height * (1 - offSet));
     path.lineTo(size.width, size.height * (1 - offSet));
-  }
-
-  @override
-  Size size(double sizePerMeter) {
-    switch (drawerConveyor.direction) {
-      case CardinalDirection.north:
-      case CardinalDirection.south:
-        var widthInMeters = DrawerConveyorPainter.conveyorWidthInMeters +
-            drawerConveyor.machineProtrudesInMeters * 2;
-        var heightInMeters = drawerConveyor.vectors.outWard.height;
-        return Size(
-            widthInMeters * sizePerMeter, heightInMeters * sizePerMeter);
-      case CardinalDirection.east:
-      case CardinalDirection.west:
-        var widthInMeters = drawerConveyor.vectors.outWard.width;
-        var heightInMeters = DrawerConveyorPainter.conveyorWidthInMeters +
-            drawerConveyor.machineProtrudesInMeters * 2;
-        return Size(
-            widthInMeters * sizePerMeter, heightInMeters * sizePerMeter);
-      default:
-        throw Exception('Not supported direction');
-    }
-  }
-
-  @override
-  Offset conveyorStartToTopLeft(Size size) {
-    switch (drawerConveyor.direction) {
-      case CardinalDirection.north:
-        return Offset(-size.width / 2, -size.height);
-      case CardinalDirection.south:
-        return Offset(-size.width / 2, 0);
-      case CardinalDirection.east:
-        return Offset(0, -size.height / 2);
-      case CardinalDirection.west:
-        return Offset(-size.width, -size.height / 2);
-      default:
-        throw Exception('Not supported direction');
-    }
-  }
-
-  @override
-  Offset topLeftToConveyorEnd(Size size) {
-    switch (drawerConveyor.direction) {
-      case CardinalDirection.north:
-        return Offset(size.width / 2, 0);
-      case CardinalDirection.south:
-        return Offset(size.width / 2, size.height);
-      case CardinalDirection.east:
-        return Offset(size.width, size.height / 2);
-      case CardinalDirection.west:
-        return Offset(0, size.height / 2);
-      default:
-        throw Exception('Not supported direction');
-    }
-  }
-}
-
-class DrawerTurningConveyorPainter extends DrawerConveyorStraightPainter {
-  DrawerTurningConveyorPainter(super.drawerConveyor);
-
-  /// The [DrawerTurningConveyorPainter] ends where it begins
-  /// This is the reverse of [conveyorStartToTopLeft(size)]
-  @override
-  Offset topLeftToConveyorEnd(Size size) {
-    switch (drawerConveyor.direction) {
-      case CardinalDirection.north:
-        return Offset(size.width / 2, size.height);
-      case CardinalDirection.south:
-        return Offset(size.width / 2, 0);
-      case CardinalDirection.east:
-        return Offset(0, size.height / 2);
-      case CardinalDirection.west:
-        return Offset(size.width, size.height / 2);
-      default:
-        throw Exception('Not supported direction');
-    }
   }
 }
 
@@ -197,11 +113,10 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   void addConveyorChainsToPath(Path path, Size size) {
-    var widthInMeters = drawerConveyor.vectors.outWard.width +
-        DrawerConveyorPainter.conveyorWidthInMeters;
+    var widthInMeters = drawerConveyor.size.width;
     var sizePerMeter = size.width / widthInMeters;
     var halveConveyorWidth =
-        DrawerConveyorPainter.conveyorWidthInMeters / 2 * sizePerMeter;
+        DrawerConveyor.chainWidthInMeters / 2 * sizePerMeter;
     var shortRadius = size.width / 2 - halveConveyorWidth;
     var longRadius = size.width / 2 + halveConveyorWidth;
     var centerPosition = _centerPosition(size);
@@ -228,47 +143,6 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
     var dy = sin(rotation.radians) * radius;
     var offSet = Offset(dx, dy);
     return centerPosition + offSet;
-  }
-
-  @override
-  Size size(double sizePerMeter) {
-    var widthInMeters = DrawerConveyorPainter.conveyorWidthInMeters +
-        drawerConveyor.vectors.outWard.width;
-    var heightInMeters = DrawerConveyorPainter.conveyorWidthInMeters +
-        drawerConveyor.vectors.outWard.height;
-    return Size(widthInMeters * sizePerMeter, heightInMeters * sizePerMeter);
-  }
-
-  @override
-  Offset conveyorStartToTopLeft(Size size) {
-    switch (drawerConveyor.startDirection) {
-      case CardinalDirection.north:
-        return Offset(-size.width / 2, -size.height);
-      case CardinalDirection.east:
-        return Offset(0, -size.height / 2);
-      case CardinalDirection.south:
-        return Offset(-size.width / 2, 0);
-      case CardinalDirection.west:
-        return Offset(-size.width, -size.height / 2);
-      default:
-        throw Exception('Not supported direction');
-    }
-  }
-
-  @override
-  Offset topLeftToConveyorEnd(Size size) {
-    switch (drawerConveyor.endDirection) {
-      case CardinalDirection.north:
-        return Offset(size.width / 2, 0);
-      case CardinalDirection.east:
-        return Offset(size.width, size.height / 2);
-      case CardinalDirection.south:
-        return Offset(size.width / 2, size.height);
-      case CardinalDirection.west:
-        return Offset(0, size.height / 2);
-      default:
-        throw Exception('Not supported direction');
-    }
   }
 
   Offset _centerPosition(Size size) {

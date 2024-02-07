@@ -2,60 +2,187 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
+import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 
-class DrawerConveyor {
+abstract class DrawerConveyor {
   /// * y: number of meters in north/south direction, e.g.:
   ///   * -3 = 3 meters north
   ///   * +2 = 2 meters south
   /// * x: number of meters in west/east direction, e.g.:
   ///   * -3 = 3 meters west
   ///   * +2 = 2 meters east
-  final Vectors vectors;
-  double metersPerSecond;
-  final double machineProtrudesInMeters; //must be less than 2 meters!!!
+  late Vectors vectors;
+  double metersPerSecond = 0;
+  static const double chainWidthInMeters = 0.8;
 
-  DrawerConveyor(
-      {required this.vectors,
-      required this.metersPerSecond,
+  /// simple drawer conveyors protrude 0m
+  /// drawer weighers, washers, rotators protrude 0,3m?
+  /// hanging platform protrude 1m?
+  late double machineProtrudesInMeters;
 
-      /// simple drawer conveyors protrude 0m
-      /// drawer weighers, washers, rotators protrude 0,3m?
-      /// hanging platform protrude 1m?
-      this.machineProtrudesInMeters = 0});
+  /// outer size in meters when looking from to top
+  late Size size;
+  // distance from start of conveyor to top left in meters
+  /// when looking from to top
+  late Offset conveyorStartToTopLeft;
+
+  /// distance from top left to start of conveyor in meters
+  /// when looking from to top
+  late Offset topLeftToConveyorEnd;
 }
 
-class DrawerConveyorStraight extends DrawerConveyor {
+class DrawerConveyorStraight implements DrawerConveyor {
+  @override
+  late double machineProtrudesInMeters;
+
+  @override
+  late Vectors vectors;
+
+  @override
+  late double metersPerSecond;
+
   final CardinalDirection direction;
   DrawerConveyorStraight({
-    required double lengthInMeters,
+    required Distance length,
     required this.direction,
-    required super.metersPerSecond,
-    super.machineProtrudesInMeters,
-  }) : super(
-            vectors: Vectors.straight(direction, lengthInMeters));
+    required this.metersPerSecond,
+    this.machineProtrudesInMeters = 0,
+  }) : vectors = Vectors.straight(direction, length.as(meters));
+
+  @override
+  late Size size = _size();
+
+  Size _size() {
+    switch (direction) {
+      case CardinalDirection.north:
+      case CardinalDirection.south:
+        var widthInMeters =
+            DrawerConveyor.chainWidthInMeters + machineProtrudesInMeters * 2;
+        var heightInMeters = vectors.outWard.height;
+        return Size(widthInMeters, heightInMeters);
+      case CardinalDirection.east:
+      case CardinalDirection.west:
+        var widthInMeters = vectors.outWard.width;
+        var heightInMeters =
+            DrawerConveyor.chainWidthInMeters + machineProtrudesInMeters * 2;
+        return Size(widthInMeters, heightInMeters);
+      default:
+        throw Exception('Not supported direction');
+    }
+  }
+
+  @override
+  late Offset topLeftToConveyorEnd = _topLeftToConveyorEnd();
+
+  Offset _topLeftToConveyorEnd() {
+    switch (direction) {
+      case CardinalDirection.north:
+        return Offset(size.width / 2, 0);
+      case CardinalDirection.south:
+        return Offset(size.width / 2, size.height);
+      case CardinalDirection.east:
+        return Offset(size.width, size.height / 2);
+      case CardinalDirection.west:
+        return Offset(0, size.height / 2);
+      default:
+        throw Exception('Not supported direction');
+    }
+  }
+
+  @override
+  late Offset conveyorStartToTopLeft = _conveyorStartToTopLeft();
+
+  Offset _conveyorStartToTopLeft() {
+    switch (direction) {
+      case CardinalDirection.north:
+        return Offset(-size.width / 2, -size.height);
+      case CardinalDirection.south:
+        return Offset(-size.width / 2, 0);
+      case CardinalDirection.east:
+        return Offset(0, -size.height / 2);
+      case CardinalDirection.west:
+        return Offset(-size.width, -size.height / 2);
+      default:
+        throw Exception('Not supported direction');
+    }
+  }
 }
 
-class DrawerConveyor90Degrees extends DrawerConveyor {
-  final double lengthInMeters;
+class DrawerConveyor90Degrees implements DrawerConveyor {
+  @override
+  late double machineProtrudesInMeters;
+
+  @override
+  late Vectors vectors;
+
+  @override
+  late double metersPerSecond;
+
   final CardinalDirection startDirection;
   late CardinalDirection endDirection = startDirection
       .toCompassDirection()
       .rotate(clockwise ? 90 : -90)
       .toCardinalDirection()!;
   final bool clockwise;
+
   DrawerConveyor90Degrees(
-      {required this.lengthInMeters,
+      {double lengthInMeters = 4.3,
       required this.startDirection,
       required this.clockwise,
-      required super.metersPerSecond})
-      : super(
-            vectors: Vectors.ninetyDegreeCorner(
-                startDirection, clockwise, lengthInMeters));
+      required this.metersPerSecond})
+      : vectors = Vectors.ninetyDegreeCorner(
+            startDirection, clockwise, lengthInMeters.meters);
+
+  @override
+  late Size size = _size();
+  Size _size() {
+    var widthInMeters =
+        DrawerConveyor.chainWidthInMeters + vectors.outWard.width;
+    var heightInMeters =
+        DrawerConveyor.chainWidthInMeters + vectors.outWard.height;
+    return Size(widthInMeters, heightInMeters);
+  }
+
+  @override
+  late Offset conveyorStartToTopLeft = _conveyorStartToTopLeft();
+
+  Offset _conveyorStartToTopLeft() {
+    switch (startDirection) {
+      case CardinalDirection.north:
+        return Offset(-size.width / 2, -size.height);
+      case CardinalDirection.east:
+        return Offset(0, -size.height / 2);
+      case CardinalDirection.south:
+        return Offset(-size.width / 2, 0);
+      case CardinalDirection.west:
+        return Offset(-size.width, -size.height / 2);
+      default:
+        throw Exception('Not supported direction');
+    }
+  }
+
+  @override
+  late Offset topLeftToConveyorEnd = _topLeftToConveyorEnd();
+
+  Offset _topLeftToConveyorEnd() {
+    switch (endDirection) {
+      case CardinalDirection.north:
+        return Offset(size.width / 2, 0);
+      case CardinalDirection.east:
+        return Offset(size.width, size.height / 2);
+      case CardinalDirection.south:
+        return Offset(size.width / 2, size.height);
+      case CardinalDirection.west:
+        return Offset(0, size.height / 2);
+      default:
+        throw Exception('Not supported direction');
+    }
+  }
 }
 
 class DrawerHangingConveyor extends DrawerConveyorStraight {
@@ -66,54 +193,68 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
     super.machineProtrudesInMeters = 1,
   }) : super(
           //TODO
-          lengthInMeters: (hangers / 2).ceil() * 1,
+          length: meters((hangers / 2).ceil() * 1),
         );
 }
 
 class DrawerSoakingConveyor extends DrawerConveyorStraight {
   DrawerSoakingConveyor({
-    //TODO fixed length or min residence time?
-    double meters = 10,
     required super.direction,
     required super.metersPerSecond,
     super.machineProtrudesInMeters = 0.3,
   }) : super(
-          lengthInMeters: meters,
-        );
+            length: meters(
+                10.5) // includes up towards washer TODO fixed length or min residence time?
+            );
 }
 
 class DrawerWashingConveyor extends DrawerConveyorStraight {
   DrawerWashingConveyor({
-    //TODO fixed length or min residence time?
-    double meters = 10,
     required super.direction,
     required super.metersPerSecond,
     super.machineProtrudesInMeters = 0.3,
-  }) : super(
-          lengthInMeters: meters,
-        );
+  }) : super(length: meters(8.5) //TODO fixed length or min residence time?
+            );
 }
 
 class DrawerWeighingConveyor extends DrawerConveyorStraight {
   DrawerWeighingConveyor({
-    double meters = 1.4,
     required super.direction,
     required super.metersPerSecond,
     super.machineProtrudesInMeters = 0.2,
-  }) : super(
-            lengthInMeters: meters);
+  }) : super(length: meters(1.4) //TODO verify
+            );
 }
 
 class DrawerTurningConveyor extends DrawerConveyorStraight {
   DrawerTurningConveyor({
     required CardinalDirection startDirection,
-    double diameter = 1,
+    double diameter = 1 //TODO verify
+    ,
     super.metersPerSecond = 2,
     super.machineProtrudesInMeters = 0.2,
   }) : super(
-          lengthInMeters: diameter,
+          length: meters(diameter),
           direction: startDirection,
         );
+
+  /// The [DrawerTurningConveyorPainter] ends where it begins
+  /// This is the reverse of [conveyorStartToTopLeft(size)]
+  @override
+  Offset _topLeftToConveyorEnd() {
+    switch (direction) {
+      case CardinalDirection.north:
+        return Offset(size.width / 2, size.height);
+      case CardinalDirection.south:
+        return Offset(size.width / 2, 0);
+      case CardinalDirection.east:
+        return Offset(0, size.height / 2);
+      case CardinalDirection.west:
+        return Offset(size.width, size.height / 2);
+      default:
+        throw Exception('Not supported direction');
+    }
+  }
 }
 
 class Vectors extends DelegatingList<Vector2> {
@@ -135,7 +276,7 @@ class Vectors extends DelegatingList<Vector2> {
   }
 
   factory Vectors.ninetyDegreeCorner(
-      CardinalDirection startDirection, bool clockwise, double lengthInMeters) {
+      CardinalDirection startDirection, bool clockwise, Distance length) {
     const steps = 6; //preferably a multitude of 3 (360 degrees)
     var vectors = <Vector2>[];
     var angle = startDirection.toCompassDirection();
@@ -146,13 +287,15 @@ class Vectors extends DelegatingList<Vector2> {
       var x = sin(angle.radians);
       var y = -cos(angle.radians); //up is negative
       var vector = Vector2(x, y);
-      vector.length = lengthInMeters / steps;
+      vector.length = length.as(meters) / steps;
       vectors.add(vector);
     }
     return Vectors(vectors);
   }
 
   late Outward outWard = Outward.forVectors(this);
+
+  double get totalLength => map((v) => v.length).reduce((a, b) => a + b);
 }
 
 class Outward {
@@ -196,35 +339,62 @@ class Outward {
   late double height = (up - down).abs();
 }
 
-class Drawer {
-  Drawer(
-      {required this.birds,
-      required this.outSideLengthInMeters,
-      required this.inSideLengthInMeters,
-      required this.conveyor,
-      required this.remainingMetersOnConveyor});
-  int birds;
-  double outSideLengthInMeters;
-  double inSideLengthInMeters;
-  DrawerConveyor conveyor;
-  double remainingMetersOnConveyor;
+class GrandeDrawer implements TimeProcessor {
+  int _nrOfBirds;
+  Distance outSideLength = GrandeDrawerModuleType.drawerOutSideLength;
+  double distanceTraveledInMeters = 0;
+  BirdContents contents;
+  DrawerPosition position;
+  final Position startPosition;
+
+  /// Distance traveled in meters from [startPosition]
+  Offset traveledPath = Offset.zero;
+
+  GrandeDrawer(
+      {required this.startPosition,
+      required int nrOfBirds,
+      required this.contents,
+      required this.position})
+      : _nrOfBirds = nrOfBirds;
+
+  CompassDirection get direction =>
+      CardinalDirection.north.toCompassDirection(); //TODO get from vector;
+
+  set nrOfBirds(int nrOfBirds) {
+    if (nrOfBirds == 0) {
+      contents = BirdContents.noBirds;
+    }
+    _nrOfBirds = nrOfBirds;
+  }
+
+  int get nrOfBirds => _nrOfBirds;
+
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    if (position is TimeProcessor) {
+      (position as TimeProcessor).onUpdateToNextPointInTime(jump);
+    }
+  }
 }
 
-class DrawerConveyors implements ActiveCell {
+abstract class DrawerPosition {
+  /// returns the top left position of the [GrandeDrawer]
+  /// relative to the top left position of a [DrawerConveyor]
+  /// in meters
+  Offset topLeft(Map<DrawerConveyor, Offset> topLeftPositionOfConveyors,
+      double sizePerMeter);
+}
+
+class DrawerConveyors implements ActiveCell, BirdBuffer {
   @override
   late LiveBirdHandlingArea area;
-  
+
   @override
   late Position position;
-  
-  @override
-  late String name="DrawerConveyors";
 
-  /// [conveyors]  in order that the drawers travel through them:
-  /// conveyors[0] = drawer conveyor after unloader
-  /// conveyors[1] = drawer conveyor after conveyor[0]
-  /// conveyors[2] = drawer conveyor after conveyor[1]
-  /// conveyors[3] = etc
+  @override
+  late String name = "DrawerConveyors";
+
   final List<DrawerConveyor> conveyors;
   late double totalLengthInMeters = length(conveyors.map((c) => c.vectors));
 
@@ -234,14 +404,24 @@ class DrawerConveyors implements ActiveCell {
   /// drawers[2] = drawer behind drawers[1]
   /// drawers[3] = etc
 
-  List<Drawer> drawers = [];
+  List<GrandeDrawer> drawers = [];
 
-  Drawer? drawerAtEnd;
+  GrandeDrawer? drawerAtEnd;
 
   DrawerConveyors(
-      {required this.area,
-      required this.position,
-      required this.conveyors});
+      {required this.area, required this.position, required this.conveyors});
+
+  UnloaderDrawerLift get unloaderLift {
+    if (conveyors.isEmpty) {
+      throw Exception('The DrawerConveyors does not contain conveyors!');
+    }
+    DrawerConveyor first = conveyors.first;
+    if (first is! UnloaderDrawerLift) {
+      throw Exception(
+          'The DrawerConveyors must start with a $UnloaderDrawerLift!');
+    }
+    return first;
+  }
 
   // returns the length of the vectors in meters.
   double length(Iterable<dynamic> vectors) =>
@@ -269,11 +449,13 @@ class DrawerConveyors implements ActiveCell {
   // TODO: implement moduleGroup
   ModuleGroup? get moduleGroup => throw UnimplementedError();
 
-  
   @override
   void onUpdateToNextPointInTime(Duration jump) {
+    for (var conveyor in conveyors.whereType<TimeProcessor>()) {
+      conveyor.onUpdateToNextPointInTime(jump);
+    }
     for (var drawer in drawers) {
-      moveDrawer(drawer, jump);
+      drawer.onUpdateToNextPointInTime(jump);
     }
   }
 
@@ -287,30 +469,6 @@ class DrawerConveyors implements ActiveCell {
   bool waitingToFeedOut(CardinalDirection direction) {
     // TODO: implement waitingToFeedOut
     throw UnimplementedError();
-  }
-
-  void moveDrawer(Drawer drawer, Duration jump) {
-    var secondsOfTravel = jump.inMicroseconds / 1000000;
-    var metersPerSecond = drawer.conveyor.metersPerSecond;
-    var metersToTravel = metersPerSecond * secondsOfTravel;
-    var remainingMetersOnConveyor = drawer.remainingMetersOnConveyor;
-    if (metersToTravel <= remainingMetersOnConveyor) {
-      drawer.remainingMetersOnConveyor -= metersToTravel;
-    } else {
-      var remainingDuration = Duration(
-          microseconds: metersPerSecond / remainingMetersOnConveyor ~/ 1000000);
-      var nextConveyor = findNextConveyor(drawer.conveyor);
-      if (nextConveyor == null) {
-        drawerAtEnd = drawer;
-        //TODO remove when loaded into ReloaderDrawerLift
-        drawers.remove(drawer);
-      } else {
-        drawer.conveyor = nextConveyor;
-        // recursive call
-        moveDrawer(drawer, remainingDuration);
-      }
-    }
-    //TODO do not overlap other drawers!
   }
 
   DrawerConveyor? findNextConveyor(DrawerConveyor previousConveyor) {
@@ -327,17 +485,23 @@ class DrawerConveyors implements ActiveCell {
     }
     var lastDrawer = drawers.last;
     var lastConveyor = conveyors.first;
-    if (lastDrawer.outSideLengthInMeters < lastConveyor.vectors.length) {
+    if (lastDrawer.outSideLength < meters(lastConveyor.vectors.length)) {
       throw Exception('We assume the first conveyor is longer than a drawer. '
           'If not this method needs to be changed');
     }
-    if (lastDrawer.conveyor != conveyors.first) {
-      return true;
-    }
-    var emptySpace =
-        lastConveyor.vectors.length - lastDrawer.remainingMetersOnConveyor;
-    return emptySpace > lastDrawer.outSideLengthInMeters;
+    // if (lastDrawer.conveyor != conveyors.first) {
+    //   return true;
+    // }
+    // TODO var emptySpace =
+    //     meters(lastConveyor.vectors.length) - lastDrawer.distanceTraveledInMeters;
+    // return emptySpace > lastDrawer.outSideLength;
+    return true;
   }
-  
-  
+
+  @override
+  CardinalDirection get birdDirection =>
+      unloaderLift.birdDirection; //TODO move to DrawerConveyorBirdHanging
+
+  @override
+  bool removeBird() => true; //TODO move to DrawerConveyorBirdHanging
 }

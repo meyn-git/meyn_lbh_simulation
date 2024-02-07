@@ -71,13 +71,13 @@ class ModuleGroupPainter extends CustomPainter {
 
   Color _colorFor(ModuleGroup moduleGroup) {
     switch (moduleGroup.contents) {
-      case ModuleContents.noBirds:
+      case BirdContents.noBirds:
         return Colors.black;
-      case ModuleContents.stunnedBirds:
+      case BirdContents.stunnedBirds:
         return Colors.red;
-      case ModuleContents.birdsBeingStunned:
+      case BirdContents.birdsBeingStunned:
         return Colors.orange;
-      case ModuleContents.awakeBirds:
+      case BirdContents.awakeBirds:
         return Colors.green;
     }
   }

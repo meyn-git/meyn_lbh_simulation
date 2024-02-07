@@ -15,11 +15,10 @@ class ModuleCas extends StateMachineCell {
   final Duration openSlideDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
 
-  
   ModuleCas({
     required LiveBirdHandlingArea area,
     required super.position,
-    super.name='ModuleCas',
+    super.name = 'ModuleCas',
     super.seqNr,
     required this.inAndOutFeedDirection,
     required this.doorDirection,

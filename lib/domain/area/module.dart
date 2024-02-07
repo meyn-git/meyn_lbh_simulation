@@ -132,15 +132,15 @@ class ModuleGroup extends TimeProcessor {
     }
   }
 
-  ModuleContents get contents {
+  BirdContents get contents {
     if (sinceBirdsUnloaded != null) {
-      return ModuleContents.noBirds;
+      return BirdContents.noBirds;
     } else if (sinceEndStun != null) {
-      return ModuleContents.stunnedBirds;
+      return BirdContents.stunnedBirds;
     } else if (sinceStartStun != null) {
-      return ModuleContents.birdsBeingStunned;
+      return BirdContents.birdsBeingStunned;
     } else {
-      return ModuleContents.awakeBirds;
+      return BirdContents.awakeBirds;
     }
   }
 
@@ -159,7 +159,7 @@ class ModuleGroup extends TimeProcessor {
   }
 }
 
-enum ModuleContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
+enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
 
 /// A module location is either at a given position or traveling between 2 positions
 class ModulePosition {
@@ -418,7 +418,17 @@ class MeynEvoChicken5Level extends ModuleType {
         );
 }
 
-class MeynGrandeDrawerChicken4Level extends ModuleType {
+class GrandeDrawerModuleType extends ModuleType {
+  static final Distance drawerOutSideLength = meters(1.160);
+
+  GrandeDrawerModuleType({
+    required super.moduleFamily,
+    required super.birdType,
+    required super.dimensions,
+  });
+}
+
+class MeynGrandeDrawerChicken4Level extends GrandeDrawerModuleType {
   MeynGrandeDrawerChicken4Level()
       : super(
           moduleFamily: ModuleFamily.meynGrandeDrawer,
@@ -438,7 +448,7 @@ class MeynGrandeDrawerChicken4Level extends ModuleType {
         );
 }
 
-class MeynGrandeDrawerChicken5Level extends ModuleType {
+class MeynGrandeDrawerChicken5Level extends GrandeDrawerModuleType {
   MeynGrandeDrawerChicken5Level()
       : super(
           moduleFamily: ModuleFamily.meynGrandeDrawer,

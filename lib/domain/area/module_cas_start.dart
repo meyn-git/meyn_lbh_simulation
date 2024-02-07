@@ -10,9 +10,9 @@ import 'module_cas.dart';
 /// (=modules/hour) compensated for the number of stunned modules waiting
 class ModuleCasStart implements ActiveCell {
   @override
-  late LiveBirdHandlingArea area ;
+  late LiveBirdHandlingArea area;
   @override
-  late Position  position;
+  late Position position;
   @override
   late String name;
 
@@ -22,13 +22,11 @@ class ModuleCasStart implements ActiveCell {
 
   static const Duration maxElapsedTime = Duration(minutes: 30);
 
-  ModuleCasStart({
-    required this.area,
-    required this.position,
-    this.name="ModuleCasStart"
-  }) ;
+  ModuleCasStart(
+      {required this.area,
+      required this.position,
+      this.name = "ModuleCasStart"});
 
-  
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
 
@@ -100,8 +98,7 @@ class ModuleCasStart implements ActiveCell {
   }
 
   int get numberOfWaitingStunnedModules => area.moduleGroups
-      .where(
-          (groupModule) => groupModule.contents == ModuleContents.stunnedBirds)
+      .where((groupModule) => groupModule.contents == BirdContents.stunnedBirds)
       .fold(
           0,
           (previousValue, groupModule) =>

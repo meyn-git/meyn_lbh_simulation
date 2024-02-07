@@ -4,7 +4,7 @@ import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 
-abstract class StateMachine {
+abstract class StateMachine implements TimeProcessor {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   State currentState;
 
@@ -13,6 +13,24 @@ abstract class StateMachine {
   }) : currentState = initialState {
     initialState.onStart(this);
   }
+
+  /// This method gets called with a regular time interval by the [LiveBirdHandlingArea]
+  /// to update the [StateMachineCell]
+  @override
+  onUpdateToNextPointInTime(Duration jump) {
+    currentState.onUpdateToNextPointInTime(this, jump);
+    var nextState = currentState.nextState(this);
+    if (nextState != null) {
+      currentState.onCompleted(this);
+      currentState = nextState;
+      nextState.onStart(this);
+    }
+  }
+
+  @override
+  String toString() => TitleBuilder('StateMachine')
+      .appendProperty('currentState', currentState)
+      .toString();
 }
 
 abstract class StateMachineCell extends StateMachine implements ActiveCell {
@@ -36,19 +54,6 @@ abstract class StateMachineCell extends StateMachine implements ActiveCell {
     required this.inFeedDuration,
     required this.outFeedDuration,
   }) : name = "$name${seqNr ?? ''}";
-
-  /// This method gets called with a regular time interval by the [LiveBirdHandlingArea]
-  /// to update the [StateMachineCell]
-  @override
-  onUpdateToNextPointInTime(Duration jump) {
-    currentState.onUpdateToNextPointInTime(this, jump);
-    var nextState = currentState.nextState(this);
-    if (nextState != null) {
-      currentState.onCompleted(this);
-      currentState = nextState;
-      nextState.onStart(this);
-    }
-  }
 
   @override
   String toString() => TitleBuilder(name)
@@ -90,7 +95,7 @@ abstract class State<T extends StateMachine> {
   String toString() => name;
 }
 
-abstract class DurationState<T extends StateMachineCell> extends State<T> {
+abstract class DurationState<T extends StateMachine> extends State<T> {
   final Duration Function(T) durationFunction;
   final State<T> Function(T) nextStateFunction;
   Duration? _remainingDuration;

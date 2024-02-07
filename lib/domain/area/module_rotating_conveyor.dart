@@ -33,11 +33,10 @@ class ModuleRotatingConveyor extends StateMachineCell {
     CardinalDirection.west: Duration.zero,
   };
 
-  
   ModuleRotatingConveyor({
     required super.area,
     required super.position,
-    super.name='ModuleRotatingConveyor',
+    super.name = 'ModuleRotatingConveyor',
     super.seqNr,
     int? degreesPerSecond,
     this.defaultPositionWhenIdle,

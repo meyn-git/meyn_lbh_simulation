@@ -20,11 +20,10 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
 
-
   ModuleTilter(
       {required super.area,
       required super.position,
-      super.name='ModuleTilter',
+      super.name = 'ModuleTilter',
       super.seqNr,
       required this.inFeedDirection,
       required this.birdDirection,
