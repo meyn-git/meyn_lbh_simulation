@@ -11,13 +11,12 @@ import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
-class ModuleDrawerUnloader extends StateMachineCell
-    implements Machine, BirdBuffer //TODO get rid of BirdBuffer
-{
+/// TODO this was copied from module_drawer_unloader.dart and renamed Unloader to Loader. It will need some more adjustments
+class ModuleDrawerLoader extends StateMachineCell implements Machine {
   final CardinalDirection inFeedDirection;
 
   ///Number of birds on dumping belt between module and hanger (a buffer).
-  ///The unloader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
+  ///The loader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
   ///Normally this number is between the number of birds in 1 or 2 modules
   final Duration checkIfEmptyDuration;
   final Duration pusherOutDuration;
@@ -28,10 +27,10 @@ class ModuleDrawerUnloader extends StateMachineCell
 
   Durations durationsPerModule = Durations(maxSize: 8);
 
-  ModuleDrawerUnloader({
+  ModuleDrawerLoader({
     required super.area,
     required super.position,
-    super.name = 'ModuleDrawerUnloader',
+    super.name = 'ModuleDrawerLoader',
     super.seqNr,
     required this.inFeedDirection,
     required this.drawersToLeft,
@@ -59,7 +58,7 @@ class ModuleDrawerUnloader extends StateMachineCell
 
   @override
   late SizeInMeters sizeWhenNorthBound = const SizeInMeters(
-      widthInMeters: 3, heightInMeters: 3); //TODO 3 metert is an assumption
+      widthInMeters: 3, heightInMeters: 3); //TODO 3 meters is an assumption
 
   late DrawersOutLink drawersOut = DrawersOutLink(
       owner: this,
@@ -67,7 +66,7 @@ class ModuleDrawerUnloader extends StateMachineCell
           metersFromLeft: drawersToLeft
               ? -sizeWhenNorthBound.widthInMeters / 2
               : sizeWhenNorthBound.widthInMeters / 2,
-          metersFromTop: sizeWhenNorthBound.heightInMeters / 2),
+          metersFromTop: 0),
       directionFromCenter: drawersToLeft
           ? CardinalDirection.west.toCompassDirection()
           : CardinalDirection.east.toCompassDirection());
@@ -75,8 +74,8 @@ class ModuleDrawerUnloader extends StateMachineCell
   @override
   late List<Link> links = [drawersOut]; //TODO add containerIn and containerOut
 
-  late DrawerUnloaderLift drawerLift =
-      drawersOut.linkedTo.owner as DrawerUnloaderLift;
+  late DrawerLoaderLift drawerLift =
+      drawersOut.linkedTo.owner as DrawerLoaderLift;
 
   get inFeedNeighbor => area.neighboringCell(this, inFeedDirection);
 
@@ -133,28 +132,21 @@ class ModuleDrawerUnloader extends StateMachineCell
     durationsPerModule.add(durationPerModule);
     durationPerModule = Duration.zero;
   }
-
-  @override
-  CardinalDirection get birdDirection =>
-      CardinalDirection.north; //TODO get rid of this
-
-  @override
-  bool removeBird() => true;
 }
 
-class CheckIfEmpty extends DurationState<ModuleDrawerUnloader> {
+class CheckIfEmpty extends DurationState<ModuleDrawerLoader> {
   @override
   String get name => 'CheckIfEmpty';
 
   CheckIfEmpty()
       : super(
-            durationFunction: (unloader) => unloader.checkIfEmptyDuration,
-            nextStateFunction: (unloader) =>
+            durationFunction: (loader) => loader.checkIfEmptyDuration,
+            nextStateFunction: (loader) =>
                 FeedOutAndFeedInToFirstColumnSimultaneously());
 }
 
 class FeedOutAndFeedInToFirstColumnSimultaneously
-    extends State<ModuleDrawerUnloader> {
+    extends State<ModuleDrawerLoader> {
   @override
   String get name => 'FeedInAndFeedOutSimultaneously';
 
@@ -163,31 +155,31 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
   OutFeedState outFeedState = OutFeedState.waitingOnNeighbor;
 
   @override
-  void onStart(ModuleDrawerUnloader unloader) {
-    outFeedState = unloader.moduleGroup == null
+  void onStart(ModuleDrawerLoader loader) {
+    outFeedState = loader.moduleGroup == null
         ? OutFeedState.done
         : OutFeedState.waitingOnNeighbor;
   }
 
   @override
-  void onUpdateToNextPointInTime(ModuleDrawerUnloader unloader, Duration jump) {
-    processInFeedState(unloader, jump);
-    processOutFeedState(unloader, jump);
+  void onUpdateToNextPointInTime(ModuleDrawerLoader loader, Duration jump) {
+    processInFeedState(loader, jump);
+    processOutFeedState(loader, jump);
   }
 
-  void processInFeedState(ModuleDrawerUnloader unloader, Duration jump) {
+  void processInFeedState(ModuleDrawerLoader loader, Duration jump) {
     switch (inFeedState) {
       case InFeedState.waitingToFeedOut:
         if (outFeedState != OutFeedState.waitingOnNeighbor) {
           inFeedState = InFeedState.waitingOnNeighbor;
         }
       case InFeedState.waitingOnNeighbor:
-        if (_inFeedStarted(unloader)) {
+        if (_inFeedStarted(loader)) {
           inFeedState = InFeedState.transporting;
         }
         break;
       case InFeedState.transporting:
-        if (_inFeedCompleted(unloader)) {
+        if (_inFeedCompleted(loader)) {
           inFeedState = InFeedState.done;
         }
         break;
@@ -195,24 +187,24 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
     }
   }
 
-  bool _inFeedCompleted(ModuleDrawerUnloader unloader) =>
-      unloader.moduleGroup != null;
+  bool _inFeedCompleted(ModuleDrawerLoader loader) =>
+      loader.moduleGroup != null;
 
-  bool _inFeedStarted(ModuleDrawerUnloader unloader) {
-    return unloader.area.moduleGroups
-        .any((moduleGroup) => moduleGroup.position.destination == unloader);
+  bool _inFeedStarted(ModuleDrawerLoader loader) {
+    return loader.area.moduleGroups
+        .any((moduleGroup) => moduleGroup.position.destination == loader);
   }
 
-  void processOutFeedState(ModuleDrawerUnloader unloader, Duration jump) {
+  void processOutFeedState(ModuleDrawerLoader loader, Duration jump) {
     switch (outFeedState) {
       case OutFeedState.waitingOnNeighbor:
-        if (_outFeedStarted(unloader)) {
+        if (_outFeedStarted(loader)) {
           outFeedState = OutFeedState.transporting;
-          transportModuleOut(unloader);
+          transportModuleOut(loader);
         }
         break;
       case OutFeedState.transporting:
-        if (_outFeedCompleted(unloader)) {
+        if (_outFeedCompleted(loader)) {
           outFeedState = OutFeedState.done;
         }
         break;
@@ -220,18 +212,18 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
     }
   }
 
-  void transportModuleOut(ModuleDrawerUnloader unloader) {
-    moduleGroupTransportedOut = unloader.moduleGroup;
+  void transportModuleOut(ModuleDrawerLoader loader) {
+    moduleGroupTransportedOut = loader.moduleGroup;
     moduleGroupTransportedOut!.position = ModulePosition.betweenCells(
-        source: unloader,
-        destination: unloader.outFeedNeighbor as StateMachineCell);
+        source: loader,
+        destination: loader.outFeedNeighbor as StateMachineCell);
   }
 
-  _outFeedStarted(ModuleDrawerUnloader unloader) =>
-      unloader.receivingNeighbor.waitingToFeedIn(unloader.inFeedDirection);
+  _outFeedStarted(ModuleDrawerLoader loader) =>
+      loader.receivingNeighbor.waitingToFeedIn(loader.inFeedDirection);
 
   @override
-  State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
+  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) {
     if (inFeedState == InFeedState.done && outFeedState == OutFeedState.done) {
       return WaitToUnloadFirstColumn();
     }
@@ -239,158 +231,157 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
   }
 
   @override
-  void onCompleted(ModuleDrawerUnloader unloader) {
-    _verifyDoorDirection(unloader);
+  void onCompleted(ModuleDrawerLoader loader) {
+    _verifyDoorDirection(loader);
   }
 
-  void _verifyDoorDirection(ModuleDrawerUnloader unloader) {
-    // var moduleGroup = unloader.moduleGroup!;
+  void _verifyDoorDirection(ModuleDrawerLoader loader) {
+    // var moduleGroup = loader.moduleGroup!;
     // var hasDoors =
     //     moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
     // if (hasDoors &&
-    //     moduleGroup.direction.toCardinalDirection() != unloader.birdDirection) {
-    //   throw ('In correct door direction of the $ModuleGroup that was fed in to ${unloader.name}');
+    //     moduleGroup.direction.toCardinalDirection() != loader.birdDirection) {
+    //   throw ('In correct door direction of the $ModuleGroup that was fed in to ${loader.name}');
     // }
   }
 
-  bool _outFeedCompleted(ModuleDrawerUnloader unloader) =>
+  bool _outFeedCompleted(ModuleDrawerLoader loader) =>
       moduleGroupTransportedOut != null &&
-      moduleGroupTransportedOut!.position.destination ==
-          unloader.outFeedNeighbor;
+      moduleGroupTransportedOut!.position.destination == loader.outFeedNeighbor;
 }
 
 enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
 
 enum OutFeedState { waitingOnNeighbor, transporting, done }
 
-class WaitToUnloadFirstColumn extends State<ModuleDrawerUnloader> {
+class WaitToUnloadFirstColumn extends State<ModuleDrawerLoader> {
   @override
   String get name => 'WaitToUnloadFirstColumn';
 
   @override
-  State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
-    var moduleGroup = unloader.moduleGroup!;
+  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) {
+    var moduleGroup = loader.moduleGroup!;
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
+      throw Exception('Loader can not handle stacked containers');
     }
     int levels = moduleGroup.firstModule.levels;
-    unloader.drawerLift.waitingDrawersToBePushedIn = levels;
-    if (unloader.drawerLift.canReceiveDrawers) {
+    loader.drawerLift.waitingDrawersToBePushedIn = levels;
+    if (loader.drawerLift.canReceiveDrawers) {
       return PushOutFirstColumn();
     }
     return null;
   }
 }
 
-class PushOutFirstColumn extends DurationState<ModuleDrawerUnloader> {
+class PushOutFirstColumn extends DurationState<ModuleDrawerLoader> {
   @override
   String get name => 'PushOutFirstColumn';
 
   PushOutFirstColumn()
       : super(
-            durationFunction: (unloader) => unloader.pusherOutDuration,
-            nextStateFunction: (unloader) => PusherInFirstColumn());
+            durationFunction: (loader) => loader.pusherOutDuration,
+            nextStateFunction: (loader) => PusherInFirstColumn());
   @override
-  void onStart(ModuleDrawerUnloader unloader) {
-    super.onStart(unloader);
-    unloader.drawerLift.onStartPushingDrawersToLift();
+  void onStart(ModuleDrawerLoader loader) {
+    super.onStart(loader);
+    loader.drawerLift.onStartPushingDrawersToLift();
   }
 
   @override
-  void onCompleted(ModuleDrawerUnloader unloader) {
-    super.onCompleted(unloader);
-    unloader.drawerLift.onCompletePushingDrawersToLift();
-    unloader.drawerLift.waitingDrawersToBePushedIn = 0;
+  void onCompleted(ModuleDrawerLoader loader) {
+    super.onCompleted(loader);
+    loader.drawerLift.onCompletePushingDrawersToLift();
+    loader.drawerLift.waitingDrawersToBePushedIn = 0;
   }
 }
 
-class PusherInFirstColumn extends DurationState<ModuleDrawerUnloader> {
+class PusherInFirstColumn extends DurationState<ModuleDrawerLoader> {
   @override
   String get name => 'PusherInFirstColumn';
 
   PusherInFirstColumn()
       : super(
-            durationFunction: (unloader) => unloader.pusherInDuration,
-            nextStateFunction: (unloader) => FeedInToSecondColumn());
+            durationFunction: (loader) => loader.pusherInDuration,
+            nextStateFunction: (loader) => FeedInToSecondColumn());
 }
 
-class FeedInToSecondColumn extends DurationState<ModuleDrawerUnloader> {
+class FeedInToSecondColumn extends DurationState<ModuleDrawerLoader> {
   @override
   String get name => 'FeedInToSecondColumn';
 
   FeedInToSecondColumn()
       : super(
-            durationFunction: (unloader) => unloader.feedInToSecondColumn,
-            nextStateFunction: (unloader) => WaitToUnloadSecondColumn());
+            durationFunction: (loader) => loader.feedInToSecondColumn,
+            nextStateFunction: (loader) => WaitToUnloadSecondColumn());
 }
 
-class WaitToUnloadSecondColumn extends State<ModuleDrawerUnloader> {
+class WaitToUnloadSecondColumn extends State<ModuleDrawerLoader> {
   @override
   String get name => 'WaitToUnloadSecondColumn';
 
   @override
-  State<ModuleDrawerUnloader>? nextState(ModuleDrawerUnloader unloader) {
-    var moduleGroup = unloader.moduleGroup!;
+  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) {
+    var moduleGroup = loader.moduleGroup!;
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
+      throw Exception('Loader can not handle stacked containers');
     }
     int levels = moduleGroup.firstModule.levels;
-    unloader.drawerLift.waitingDrawersToBePushedIn = levels;
-    if (unloader.drawerLift.canReceiveDrawers) {
+    loader.drawerLift.waitingDrawersToBePushedIn = levels;
+    if (loader.drawerLift.canReceiveDrawers) {
       return PushOutSecondColumn();
     }
     return null;
   }
 }
 
-class PushOutSecondColumn extends DurationState<ModuleDrawerUnloader> {
+class PushOutSecondColumn extends DurationState<ModuleDrawerLoader> {
   @override
   String get name => 'PushOutSecondColumn';
 
   PushOutSecondColumn()
       : super(
-            durationFunction: (unloader) => unloader.pusherOutDuration,
-            nextStateFunction: (unloader) => PusherInSecondColumn());
+            durationFunction: (loader) => loader.pusherOutDuration,
+            nextStateFunction: (loader) => PusherInSecondColumn());
 
   @override
-  void onStart(ModuleDrawerUnloader unloader) {
-    super.onStart(unloader);
-    unloader.drawerLift.onStartPushingDrawersToLift();
+  void onStart(ModuleDrawerLoader loader) {
+    super.onStart(loader);
+    loader.drawerLift.onStartPushingDrawersToLift();
   }
 
   @override
-  void onCompleted(ModuleDrawerUnloader unloader) {
-    super.onCompleted(unloader);
-    var moduleGroup = unloader.moduleGroup!;
+  void onCompleted(ModuleDrawerLoader loader) {
+    super.onCompleted(loader);
+    var moduleGroup = loader.moduleGroup!;
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
+      throw Exception('Loader can not handle stacked containers');
     }
-    unloader.drawerLift.onCompletePushingDrawersToLift();
+    loader.drawerLift.onCompletePushingDrawersToLift();
     moduleGroup.unloadBirds();
-    unloader.drawerLift.waitingDrawersToBePushedIn = 0;
+    loader.drawerLift.waitingDrawersToBePushedIn = 0;
   }
 }
 
-class PusherInSecondColumn extends DurationState<ModuleDrawerUnloader> {
+class PusherInSecondColumn extends DurationState<ModuleDrawerLoader> {
   @override
   String get name => 'PusherInSecondColumn';
 
   PusherInSecondColumn()
       : super(
-            durationFunction: (unloader) => unloader.pusherInDuration,
-            nextStateFunction: (unloader) =>
+            durationFunction: (loader) => loader.pusherInDuration,
+            nextStateFunction: (loader) =>
                 FeedOutAndFeedInToFirstColumnSimultaneously());
 
   @override
-  void onCompleted(ModuleDrawerUnloader unloader) {
-    super.onCompleted(unloader);
-    unloader.onEndOfCycle();
+  void onCompleted(ModuleDrawerLoader loader) {
+    super.onCompleted(loader);
+    loader.onEndOfCycle();
   }
 }
 
-class DrawerUnloaderLift extends StateMachine implements Machine {
+class DrawerLoaderLift extends StateMachine implements Machine {
   final LiveBirdHandlingArea area;
-  late ModuleDrawerUnloader moduleDrawerUnloader = _findModuleDrawerUnloader();
+  late ModuleDrawerLoader moduleDrawerLoader = _findModuleDrawerLoader();
   final int nrOfLiftPositions;
   final double lengthInMeters;
   int waitingDrawersToBePushedIn = 0;
@@ -402,7 +393,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   final Duration upDuration;
   final int maxDrawersPerHour;
   final Duration pushOutDuration;
-  final String name = 'UnloaderDrawerLift';
+  final String name = 'LoaderDrawerLift';
 
   Duration drawerPushOutCycle = Duration.zero;
   Duration drawerPushOutCycleBuffer = Duration.zero;
@@ -413,7 +404,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
       Duration(milliseconds: 3600000 ~/ maxDrawersPerHour);
   late double offsetInMeters = 0.2;
 
-  DrawerUnloaderLift({
+  DrawerLoaderLift({
     required this.area,
     this.upDuration = const Duration(
         milliseconds:
@@ -441,16 +432,15 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     return SizeInMeters(widthInMeters: length, heightInMeters: length);
   }
 
-  late DrawersInLink<DrawerUnloaderLift> drawersIn =
-      DrawersInLink<DrawerUnloaderLift>(
-          owner: this,
-          offsetFromCenter: OffsetInMeters(
-              metersFromLeft: 0,
-              metersFromTop: sizeWhenNorthBound.heightInMeters / 2),
-          directionFromCenter: CardinalDirection.south.toCompassDirection());
+  late DrawerInLink<DrawerLoaderLift> drawerIn = DrawerInLink<DrawerLoaderLift>(
+      owner: this,
+      offsetFromCenter: OffsetInMeters(
+          metersFromLeft: 0,
+          metersFromTop: sizeWhenNorthBound.heightInMeters / 2),
+      directionFromCenter: CardinalDirection.south.toCompassDirection());
 
-  late DrawerOutLink<DrawerUnloaderLift> drawerOut =
-      DrawerOutLink<DrawerUnloaderLift>(
+  late DrawerOutLink<DrawerLoaderLift> drawerOut =
+      DrawerOutLink<DrawerLoaderLift>(
           owner: this,
           offsetFromCenter: OffsetInMeters(
               metersFromLeft: 0,
@@ -459,8 +449,8 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
 
   @override
   late List<Link> links = [
-    /// TODO add drawersIn when the ModuleDrawerUnloader is changed from a cell to a Machine
-    drawerOut
+    drawerIn, //TODO drawerOut
+    //TODO modulePositions
   ];
 
   late OffsetInMeters topLeftToTopConveyorEnd = _topLeftToTopConveyorEnd();
@@ -496,7 +486,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   void onUpdateToNextPointInTime(Duration jump) {
     super.onUpdateToNextPointInTime(jump);
     drawerPushOutCycle += jump;
-    // buffer conveyor between unloader and hanging no bigger than 4 drawers
+    // buffer conveyor between loader and hanging no bigger than 4 drawers
     if (drawerPushOutCycleBuffer <
         (minimumInterval +
             minimumInterval +
@@ -506,38 +496,37 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     }
   }
 
-// This method is called by the unloader
+// This method is called by the loader
   void onStartPushingDrawersToLift() {
-    var drawers = moduleDrawerUnloader.area.drawers;
-    ModuleDrawerUnloader unloader =
-        drawersIn.linkedTo.owner as ModuleDrawerUnloader;
-    var module = unloader.moduleGroup!.firstModule;
+    var drawers = moduleDrawerLoader.area.drawers;
+    ModuleDrawerLoader loader = drawerIn.linkedTo.owner as ModuleDrawerLoader;
+    var module = loader.moduleGroup!.firstModule;
     var levels = module.levels;
     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
-    var contents = unloader.moduleGroup!.contents;
+    var contents = loader.moduleGroup!.contents;
     for (int level = levels - 1; level >= 0; level--) {
-      /// creating a temporary conveyor to move the drawer from DrawerUnloader to lift position
+      /// creating a temporary conveyor to move the drawer from DrawerLoader to lift position
       var drawer = GrandeDrawer(
-        startPosition: unloader.position,
+        startPosition: loader.position,
         nrOfBirds: nrOfBirdsPerDrawer,
         contents: contents,
-        position: UnloaderToLiftPosition(lift: this, level: level),
+        position: LoaderToLiftPosition(lift: this, level: level),
       );
       drawers.add(drawer);
     }
   }
 
-// This method is called by the unloader
+// This method is called by the loader
   void onCompletePushingDrawersToLift() {
     if (!canReceiveDrawers) {
       throw Exception('You can not push $waitingDrawersToBePushedIn drawer(s)'
           ' into the $name');
     }
     var drawersBeingPushedIn = area.drawers.where((drawer) =>
-        drawer.position is UnloaderToLiftPosition &&
-        (drawer.position as UnloaderToLiftPosition).lift == this);
+        drawer.position is LoaderToLiftPosition &&
+        (drawer.position as LoaderToLiftPosition).lift == this);
     for (var drawer in drawersBeingPushedIn) {
-      int level = (drawer.position as UnloaderToLiftPosition).level;
+      int level = (drawer.position as LoaderToLiftPosition).level;
       drawer.position = LiftPosition(lift: this, level: level);
       liftPositions[level] = drawer;
     }
@@ -567,13 +556,12 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
 
   void onStartPushOutTopPosition() {
     var drawerBeingPushedOut = liftPositions.last!;
-    var conveyorAfterUnloaderLift = drawerOut.linkedTo.owner as DrawerConveyor;
-    conveyorAfterUnloaderLift.metersPerSecond =
-        conveyorAfterUnloaderLift.vectors.totalLength /
+    var conveyorAfterLoaderLift = drawerOut.linkedTo.owner as DrawerConveyor;
+    conveyorAfterLoaderLift.metersPerSecond =
+        conveyorAfterLoaderLift.vectors.totalLength /
             pushOutDuration.inMicroseconds *
             1000000;
-    drawerBeingPushedOut.position =
-        OnConveyorPosition(conveyorAfterUnloaderLift);
+    drawerBeingPushedOut.position = OnConveyorPosition(conveyorAfterLoaderLift);
   }
 
   void onCompletePushOutTopPosition() {
@@ -593,18 +581,18 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     return drawerPushOutCycleBuffer >= minimumInterval;
   }
 
-  ModuleDrawerUnloader _findModuleDrawerUnloader() {
+  ModuleDrawerLoader _findModuleDrawerLoader() {
     //TODO get this via a link
-    return area.cells.whereType<ModuleDrawerUnloader>().first;
+    return area.cells.whereType<ModuleDrawerLoader>().first;
   }
 }
 
-class Decide extends State<DrawerUnloaderLift> {
+class Decide extends State<DrawerLoaderLift> {
   @override
   String get name => 'DecideRaiseOrPushOut';
 
   @override
-  State<DrawerUnloaderLift>? nextState(DrawerUnloaderLift lift) {
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
     if (lift.liftPositions.last != null) {
       return WaitToPushOut();
     }
@@ -615,7 +603,7 @@ class Decide extends State<DrawerUnloaderLift> {
   }
 }
 
-class RaiseLift extends DurationState<DrawerUnloaderLift> {
+class RaiseLift extends DurationState<DrawerLoaderLift> {
   RaiseLift()
       : super(
             durationFunction: (drawerLift) => drawerLift.upDuration,
@@ -625,11 +613,10 @@ class RaiseLift extends DurationState<DrawerUnloaderLift> {
   String get name => 'RaiseLift';
 
   @override
-  void onStart(DrawerUnloaderLift lift) {
+  void onStart(DrawerLoaderLift lift) {
     super.onStart(lift);
     if (lift.liftPositions.last != null) {
-      throw Exception(
-          'Can not raise UnloaderDrawerLift when drawer is in top.');
+      throw Exception('Can not raise LoaderDrawerLift when drawer is in top.');
     }
     for (var liftPos in lift.liftPositions) {
       if (liftPos is GrandeDrawer && liftPos.position is LiftPosition) {
@@ -640,11 +627,10 @@ class RaiseLift extends DurationState<DrawerUnloaderLift> {
   }
 
   @override
-  void onCompleted(DrawerUnloaderLift lift) {
+  void onCompleted(DrawerLoaderLift lift) {
     super.onCompleted(lift);
     if (lift.liftPositions.last != null) {
-      throw Exception(
-          'Can not raise UnloaderDrawerLift when drawer is in top.');
+      throw Exception('Can not raise LoaderDrawerLift when drawer is in top.');
     }
     var newPositions = [
       null,
@@ -660,14 +646,14 @@ class RaiseLift extends DurationState<DrawerUnloaderLift> {
   }
 }
 
-class WaitToPushOut extends State<DrawerUnloaderLift> {
+class WaitToPushOut extends State<DrawerLoaderLift> {
   Duration maxDuration = const Duration(hours: 1);
 
   @override
   String get name => 'WaitToPushOut';
 
   @override
-  State<DrawerUnloaderLift>? nextState(DrawerUnloaderLift lift) {
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
     if (lift.canPushOut) {
       return PushOut();
     }
@@ -675,7 +661,7 @@ class WaitToPushOut extends State<DrawerUnloaderLift> {
   }
 }
 
-class PushOut extends DurationState<DrawerUnloaderLift> {
+class PushOut extends DurationState<DrawerLoaderLift> {
   PushOut()
       : super(
             durationFunction: (drawerLift) => drawerLift.pushOutDuration,
@@ -685,24 +671,24 @@ class PushOut extends DurationState<DrawerUnloaderLift> {
   String get name => 'PushOut';
 
   @override
-  void onStart(DrawerUnloaderLift lift) {
+  void onStart(DrawerLoaderLift lift) {
     super.onStart(lift);
     lift.onStartPushOutTopPosition();
   }
 
   @override
-  void onCompleted(DrawerUnloaderLift lift) {
+  void onCompleted(DrawerLoaderLift lift) {
     super.onCompleted(lift);
     lift.onCompletePushOutTopPosition();
   }
 }
 
-class WaitOnPushIn extends State<DrawerUnloaderLift> {
+class WaitOnPushIn extends State<DrawerLoaderLift> {
   @override
   String get name => 'WaitOnPushIn';
 
   @override
-  State<DrawerUnloaderLift>? nextState(DrawerUnloaderLift lift) {
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
     if (!lift.canReceiveDrawers) {
       return Decide();
     }
@@ -710,16 +696,16 @@ class WaitOnPushIn extends State<DrawerUnloaderLift> {
   }
 }
 
-class UnloaderToLiftPosition extends DrawerPosition implements TimeProcessor {
-  late DrawerUnloaderLift lift;
+class LoaderToLiftPosition extends DrawerPosition implements TimeProcessor {
+  late DrawerLoaderLift lift;
   int level;
   final OffsetInMeters vector;
   Duration elapsed = Duration.zero;
   final Duration duration;
 
-  UnloaderToLiftPosition({required this.lift, required this.level})
+  LoaderToLiftPosition({required this.lift, required this.level})
       : vector = lift.topLeftToLiftLevel(level) - lift.topLeftToDrawerInModule,
-        duration = (lift.drawersIn.linkedTo.owner as ModuleDrawerUnloader)
+        duration = (lift.drawerIn.linkedTo.owner as ModuleDrawerLoader)
             .pusherOutDuration;
 
   @override
@@ -732,13 +718,6 @@ class UnloaderToLiftPosition extends DrawerPosition implements TimeProcessor {
     }
   }
 
-  // @override
-  // Offset topLeft(MachineLayout layout, double sizePerMeter) {
-  //   var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-  //   return layout.topLeftOffset(lift, sizePerMeter) +
-  //       lift.topLeftToDrawerInModule * sizePerMeter +
-  //       vector.toOffset() * sizePerMeter * completed;
-  // }
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
     var completed = elapsed.inMilliseconds / duration.inMilliseconds;
@@ -749,7 +728,7 @@ class UnloaderToLiftPosition extends DrawerPosition implements TimeProcessor {
 }
 
 class LiftPosition extends DrawerPosition {
-  DrawerUnloaderLift lift;
+  DrawerLoaderLift lift;
   int level;
   LiftPosition({
     required this.lift,
@@ -764,7 +743,7 @@ class LiftPosition extends DrawerPosition {
 }
 
 class LiftPositionUp extends DrawerPosition implements TimeProcessor {
-  final DrawerUnloaderLift lift;
+  final DrawerLoaderLift lift;
   int startLevel;
   final OffsetInMeters vector;
   Duration elapsed = Duration.zero;

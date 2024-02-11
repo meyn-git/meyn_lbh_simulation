@@ -2,36 +2,36 @@ import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 
 import '../../domain/area/player.dart';
 
-class ModuleDrawerUnloaderWidget extends StatelessWidget {
-  final ModuleDrawerUnloader unloader;
+/// TODO this is a copy of module_drawer_loader.dart. Loader was renamed to Loader. It might need some additional work
+class ModuleDrawerLoaderWidget extends StatelessWidget {
+  final ModuleDrawerLoader loader;
 
-  const ModuleDrawerUnloaderWidget(this.unloader, {super.key});
+  const ModuleDrawerLoaderWidget(this.loader, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        GetIt.instance<Player>().selectedCell = unloader;
+        GetIt.instance<Player>().selectedCell = loader;
       },
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(
-            unloader.inFeedDirection.opposite.toCompassDirection().degrees /
-                360),
-        child: CustomPaint(painter: ModuleDrawerUnloaderPainter(unloader)),
+            loader.inFeedDirection.opposite.toCompassDirection().degrees / 360),
+        child: CustomPaint(painter: ModuleDrawerLoaderPainter(loader)),
       ),
     );
   }
 }
 
-class ModuleDrawerUnloaderPainter extends CustomPainter {
-  final ModuleDrawerUnloader unloader;
+class ModuleDrawerLoaderPainter extends CustomPainter {
+  final ModuleDrawerLoader loader;
 
-  ModuleDrawerUnloaderPainter(this.unloader);
+  ModuleDrawerLoaderPainter(this.loader);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -66,10 +66,10 @@ class ModuleDrawerUnloaderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class DrawerUnloaderLiftPainter extends DrawerConveyorPainter {
-  final DrawerUnloaderLift drawerLift;
+class DrawerLoaderLiftPainter extends DrawerConveyorPainter {
+  final DrawerLoaderLift drawerLift;
 
-  DrawerUnloaderLiftPainter(this.drawerLift);
+  DrawerLoaderLiftPainter(this.drawerLift);
 
   @override
   void paint(Canvas canvas, Size size) {

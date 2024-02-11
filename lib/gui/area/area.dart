@@ -1,13 +1,15 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
@@ -20,6 +22,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/gui/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
@@ -41,13 +44,13 @@ class AreaPanel extends StatefulWidget {
   const AreaPanel({required Key key}) : super(key: key);
 
   @override
-  _AreaPanelState createState() => _AreaPanelState();
+  AreaPanelState createState() => AreaPanelState();
 }
 
-class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
+class AreaPanelState extends State<AreaPanel> implements UpdateListener {
   Player get player => GetIt.instance<Player>();
 
-  _AreaPanelState() {
+  AreaPanelState() {
     player.addUpdateListener(this);
   }
 
@@ -76,18 +79,19 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
                     child: Text(_title, style: const TextStyle(fontSize: 25))),
                 Expanded(
                   child: CustomMultiChildLayout(
-                      delegate: AreaWidgetDelegate(player.scenario!.area),
-                      children: createChildren(player.scenario!.area)),
+                      delegate: AreaWidgetDelegate(player.scenario!),
+                      children: createChildren(player.scenario!)),
                 )
               ],
             ),
           );
   }
 
-  static List<Widget> createChildren(LiveBirdHandlingArea area) {
+  static List<Widget> createChildren(Scenario scenario) {
     List<Widget> children = [];
+    var area = scenario.area;
     children.addAll(createModuleGroupWidgets(area));
-    children.addAll(createDrawerConveyorWidgets(area));
+    children.addAll(createMachineWidgets(area, scenario.layout));
     children.addAll(createDrawerWidgets(area));
     children.addAll(createCellWidgets(area));
     return children;
@@ -101,14 +105,11 @@ class _AreaPanelState extends State<AreaPanel> implements UpdateListener {
     return moduleGroupWidgets;
   }
 
-  static List<Widget> createDrawerConveyorWidgets(LiveBirdHandlingArea area) {
+  static List<Widget> createMachineWidgets(
+      LiveBirdHandlingArea area, MachineLayout layout) {
     List<Widget> widgets = [];
-    var allDrawerConveyors = area.cells.whereType<DrawerConveyors>();
-    for (var drawerConveyors in allDrawerConveyors) {
-      for (var drawerConveyor in drawerConveyors.conveyors) {
-        widgets.add(LayoutId(
-            id: drawerConveyor, child: DrawerConveyorWidget(drawerConveyor)));
-      }
+    for (var machine in area.machines) {
+      widgets.add(LayoutId(id: machine, child: MachineWidget(layout, machine)));
     }
     return widgets;
   }
@@ -153,41 +154,37 @@ class EmptyCellWidget extends StatelessWidget {
 class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   final LiveBirdHandlingArea area;
   final CellRange cashedCellRange;
+  final MachineLayout layout;
 
-  Map<DrawerConveyor, Offset> topLeftPositionOfConveyors = {};
-
-  AreaWidgetDelegate(this.area) : cashedCellRange = area.cellRange;
+  AreaWidgetDelegate(Scenario scenario)
+      : area = scenario.area,
+        cashedCellRange = scenario.area.cellRange,
+        layout = scenario.layout;
 
   @override
   void performLayout(Size size) {
     var childSize = _childSize(size);
     var childOffset = _offsetForAllChildren(size, childSize);
     _layoutAndPositionModuleGroups(childSize, childOffset);
-    _layoutAndPositionDrawerConveyors(childSize, childOffset);
+    _layoutAndPositionMachines(childSize, childOffset);
     _layoutAndPositionDrawers(childSize, childOffset);
 
     //positioning cells last so they are on top so that the inkwells can be activated
     _layoutAndPositionCells(childSize, childOffset);
   }
 
-  void _layoutAndPositionDrawerConveyors(Size childSize, Offset childOffset) {
+  void _layoutAndPositionMachines(Size childSize, Offset childOffset) {
     var sizePerMeter = _sizePerMeter(childSize);
-    var allDrawerConveyors = area.cells.whereType<DrawerConveyors>();
-    for (var drawerConveyors in allDrawerConveyors) {
-      var position = childOffset +
-          Offset((drawerConveyors.position.x - 0.5) * childSize.width,
-              (drawerConveyors.position.y + 0.5) * childSize.height);
-      for (var drawerConveyor in drawerConveyors.conveyors) {
-        var size = drawerConveyor.size * sizePerMeter;
-        layoutChild(drawerConveyor, BoxConstraints.tight(size));
-        var startToTopLeft =
-            (drawerConveyor.conveyorStartToTopLeft * sizePerMeter);
-        position = position + startToTopLeft;
-        topLeftPositionOfConveyors[drawerConveyor] = position;
-        positionChild(drawerConveyor, position);
-        var topLeftToEnd = (drawerConveyor.topLeftToConveyorEnd * sizePerMeter);
-        position = position + topLeftToEnd;
-      }
+    var startCellPosition = const Position(7, 2); //TODO
+    var topLeftStart = childOffset +
+        Offset((startCellPosition.x - 0.5) * childSize.width,
+            (startCellPosition.y + 0.5) * childSize.height);
+    for (var machine in area.machines) {
+      var size = machine.sizeWhenNorthBound.toSize() * sizePerMeter;
+      layoutChild(machine, BoxConstraints.tight(size));
+      var topLeft =
+          topLeftStart + layout.topLefts[machine]!.toOffset() * sizePerMeter;
+      positionChild(machine, topLeft);
     }
   }
 
@@ -221,7 +218,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
       }
       layoutChild(drawer, BoxConstraints.tight(size));
       var drawerPosition =
-          drawer.position.topLeft(topLeftPositionOfConveyors, sizePerMeter);
+          drawer.position.topLeft(layout).toOffset() * sizePerMeter;
       positionChild(drawer, drawerPosition);
     }
   }
@@ -267,6 +264,116 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 
   @override
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => true;
+}
+
+class MachineLayout {
+  late Map<Machine, OffsetInMeters> topLefts = {};
+  late Map<Machine, CompassDirection> rotations = {};
+  late SizeInMeters size = _size();
+
+  final Machines machines;
+
+  MachineLayout(
+      {required this.machines,
+      CompassDirection startDirection = const CompassDirection(0)}) {
+    _placeMachines(startDirection);
+  }
+
+  void _placeMachines(CompassDirection startDirection) {
+    if (machines.isEmpty) {
+      return;
+    }
+    var machine = machines.first;
+    var topLeft =
+        const OffsetInMeters(metersFromLeft: -1, metersFromTop: -6.5); //TODO
+    var rotation = startDirection;
+    //place all machines recursively (assuming they are all linked)
+    _placeLinkedMachines(machine, topLeft, rotation);
+    _validateAllMachinesArePlaced();
+    //TODO _topLeftAtOffsetZero(topLefts);
+  }
+
+  void _topLeftAtOffsetZero(Map<Machine, OffsetInMeters> topLefts) {
+    var minX = topLefts.values.map((pos) => pos.metersFromLeft).reduce(min);
+    var minY = topLefts.values.map((pos) => pos.metersFromTop).reduce(min);
+    var correction =
+        OffsetInMeters(metersFromLeft: minX, metersFromTop: minY) * -1;
+    topLefts = topLefts
+        .map((machine, position) => MapEntry(machine, position + correction));
+  }
+
+  void _placeLinkedMachines(
+    Machine machine,
+    OffsetInMeters topLeft,
+    CompassDirection rotation,
+  ) {
+    topLefts[machine] = topLeft;
+    rotations[machine] = rotation;
+    for (var link in machine.links) {
+      var machine1 = machine;
+      var machine1TopLeft = topLeft;
+      var machine1Rotation = rotation;
+      var machine2 = link.linkedTo.owner;
+      if (_unknownPosition(machine2)) {
+        var machine2Rotation = rotation +
+            link.directionFromCenter +
+            link.linkedTo.directionFromCenter.opposite;
+        var machine1TopLeftToCenter =
+            machine1.sizeWhenNorthBound.toOffset() * 0.5;
+        var machine1CenterToLink =
+            link.offsetFromCenter.rotate(machine1Rotation);
+        var machine2LinkToCenter =
+            link.linkedTo.offsetFromCenter.rotate(machine2Rotation) * -1;
+        var machine2CenterToTopLeft =
+            machine2.sizeWhenNorthBound.toOffset() * -0.5;
+        var machine2TopLeft = machine1TopLeft +
+            machine1TopLeftToCenter +
+            machine1CenterToLink +
+            machine2LinkToCenter +
+            machine2CenterToTopLeft;
+        // print('\n'
+        //     'machine1:${machine1.runtimeType} size: ${offsetString(machine1.sizeWhenNorthBound.toOffset())}\n'
+        //     'machine2:${machine2.runtimeType} size: ${offsetString(machine2.sizeWhenNorthBound.toOffset())}\n'
+        //     'machine1TopLeft:${offsetString(machine1TopLeft)}\n'
+        //     'machine1TopLeftToCenter:${offsetString(machine1TopLeftToCenter)}\n'
+        //     'machine1CenterToLink:${offsetString(machine1CenterToLink)}\n'
+        //     'machine2LinkToCenter:${offsetString(machine2LinkToCenter)}\n'
+        //     'machine2CenterToTopLeft:${offsetString(machine2CenterToTopLeft)}\n'
+        //     'machine2TopLeft:${offsetString(machine2TopLeft)}\n');
+        _placeLinkedMachines(machine2, machine2TopLeft, machine2Rotation);
+      }
+    }
+  }
+
+  String offsetString(OffsetInMeters offset) =>
+      '${offset.metersFromLeft.toStringAsFixed(1)},${offset.metersFromTop.toStringAsFixed(1)}';
+
+  bool _unknownPosition(Machine machine) => !topLefts.keys.contains(machine);
+
+  SizeInMeters _size() {
+    if (topLefts.isEmpty) {
+      return SizeInMeters.zero;
+    }
+    var maxX = topLefts
+        .map((machine, pos) => MapEntry(machine,
+            pos.metersFromLeft + machine.sizeWhenNorthBound.widthInMeters))
+        .values
+        .max;
+    var maxY = topLefts
+        .map((machine, pos) => MapEntry(machine,
+            pos.metersFromTop + machine.sizeWhenNorthBound.heightInMeters))
+        .values
+        .max;
+    return SizeInMeters(widthInMeters: maxX, heightInMeters: maxY);
+  }
+
+  void _validateAllMachinesArePlaced() {
+    for (var machine in machines) {
+      if (_unknownPosition(machine)) {
+        throw Exception('$machine is not linked to other machines');
+      }
+    }
+  }
 }
 
 Widget createCellWidgetFor(ActiveCell cell) {

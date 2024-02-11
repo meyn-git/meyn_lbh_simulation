@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
+import 'package:meyn_lbh_simulation/gui/area/area.dart';
 
 import 'site.dart';
 
@@ -8,6 +9,7 @@ class Scenario {
   final Site site;
   final ProductDefinition productDefinition;
   final LiveBirdHandlingArea area;
+  late MachineLayout layout = MachineLayout(machines: area.machines);
 
   Scenario(
       {required this.site,

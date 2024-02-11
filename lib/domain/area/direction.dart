@@ -9,13 +9,13 @@ enum CardinalDirection {
   CompassDirection toCompassDirection() {
     switch (this) {
       case CardinalDirection.north:
-        return CompassDirection(0);
+        return const CompassDirection(0);
       case CardinalDirection.east:
-        return CompassDirection(90);
+        return const CompassDirection(90);
       case CardinalDirection.south:
-        return CompassDirection(180);
+        return const CompassDirection(180);
       case CardinalDirection.west:
-        return CompassDirection(270);
+        return const CompassDirection(270);
     }
   }
 
@@ -43,11 +43,19 @@ class CompassDirection {
   final int degrees;
   static const int max = 360;
 
-  CompassDirection(int degrees) : degrees = degrees % max;
+  const CompassDirection(int degrees) : degrees = degrees % max;
+
+  CompassDirection get opposite => rotate(180);
 
   CompassDirection rotate(int rotationInDegrees) {
     return CompassDirection(degrees + rotationInDegrees);
   }
+
+  CompassDirection operator +(CompassDirection other) =>
+      CompassDirection(degrees + other.degrees);
+
+  CompassDirection operator -(CompassDirection other) =>
+      CompassDirection(degrees - other.degrees);
 
   CardinalDirection? toCardinalDirection() {
     for (var cardinalDirection in CardinalDirection.values) {
@@ -74,7 +82,7 @@ class CompassDirection {
     }
   }
 
-  double get radians => degrees / 360 * 2 * pi;
+  double toRadians() => degrees * pi / 180;
 
   @override
   String toString() => degrees.toString();

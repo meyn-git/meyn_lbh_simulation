@@ -10,7 +10,7 @@ import 'package:meyn_lbh_simulation/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PlayerPage extends StatefulWidget {
-  const PlayerPage({Key? key}) : super(key: key);
+  const PlayerPage({super.key});
 
   @override
   State<PlayerPage> createState() => _PlayerPageState();
@@ -82,7 +82,7 @@ class PlayerPanel extends StatelessWidget {
   final player = GetIt.instance<Player>();
   final areaPanel = AreaPanel(key: UniqueKey());
 
-  PlayerPanel({Key? key}) : super(key: key);
+  PlayerPanel({super.key});
 
   @override
   Widget build(BuildContext context) =>
@@ -128,7 +128,7 @@ class PlayerPanel extends StatelessWidget {
 }
 
 class ViewCellPropertiesPanel extends StatefulWidget {
-  const ViewCellPropertiesPanel({Key? key}) : super(key: key);
+  const ViewCellPropertiesPanel({super.key});
 
   @override
   State<ViewCellPropertiesPanel> createState() =>
@@ -172,7 +172,7 @@ class ScenarioTile extends StatefulWidget {
   final Scenario scenario;
   final Player player;
 
-  const ScenarioTile(this.scenario, this.player, {Key? key}) : super(key: key);
+  const ScenarioTile(this.scenario, this.player, {super.key});
 
   @override
   State<ScenarioTile> createState() => _ScenarioTileState();
@@ -205,7 +205,7 @@ class _ScenarioTileState extends State<ScenarioTile> {
 class SiteTile extends StatelessWidget {
   final Site site;
 
-  const SiteTile(this.site, {Key? key}) : super(key: key);
+  const SiteTile(this.site, {super.key});
 
   String get _emailSubject => 'Invitation to the $applicationTitle';
 
@@ -255,7 +255,7 @@ class SiteTile extends StatelessWidget {
 class SpeedDropDownButton extends StatefulWidget {
   final Player player;
 
-  const SpeedDropDownButton(this.player, {Key? key}) : super(key: key);
+  const SpeedDropDownButton(this.player, {super.key});
 
   @override
   // ignore: no_logic_in_create_state
@@ -313,7 +313,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
 }
 
 class Menu extends StatefulWidget {
-  const Menu({Key? key}) : super(key: key);
+  const Menu({super.key});
 
   @override
   State<Menu> createState() => _MenuState();

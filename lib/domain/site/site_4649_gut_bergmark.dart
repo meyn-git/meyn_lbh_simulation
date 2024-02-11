@@ -10,6 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
@@ -63,89 +64,117 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
 }
 
 class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  late ModuleDrawerUnloader unloader = ModuleDrawerUnloader(
+  late ModuleDrawerUnloader drawerUnloader = ModuleDrawerUnloader(
     area: this,
     position: const Position(7, 3),
     seqNr: 1,
     inFeedDirection: CardinalDirection.west,
-    birdDirection: CardinalDirection.north,
+    drawersToLeft: true,
   );
 
-  late DrawerWeighingConveyor drawerWeigher = DrawerWeighingConveyor(
-    direction: CardinalDirection.north,
-    metersPerSecond: 0,
-  );
+  final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
   GutBergmarkLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Line1',
           productDefinition: productDefinition,
         ) {
-    _row1();
+    _addMachines();
     _row2();
     _row3();
     _row4();
     _row5();
   }
 
-  void _row1() {
-    put(BirdHangingConveyor(
+  void _addMachines() {
+    var drawerUnloaderLift = DrawerUnloaderLift(
       area: this,
-      position: const Position(7, 1),
-      direction: CardinalDirection.west,
-    ));
+      maxDrawersPerHour: 650,
+    );
+    machines.add(drawerUnloaderLift);
+    machines.link(drawerUnloader.drawersOut, drawerUnloaderLift.drawersIn);
 
-    var metersPerSecond = 0.7;
-    put(DrawerConveyors(area: this, position: const Position(7, 2), conveyors: [
-      UnloaderDrawerLift(
-        area: this,
-        unloader: unloader,
-        conveyorAfterUnloaderLift: drawerWeigher,
-        maxDrawersPerHour: 650,
-        birdDirection: CardinalDirection.north,
-      ),
-      drawerWeigher,
-      DrawerConveyor90Degrees(
-          startDirection: CardinalDirection.north,
-          clockwise: false,
-          metersPerSecond: metersPerSecond),
-      DrawerConveyorStraight(
-          length: 3.meters,
-          direction: CardinalDirection.west,
-          metersPerSecond: metersPerSecond),
-      DrawerHangingConveyor(
-          hangers: 11, // TODO 11 hangers for 15000?
-          direction: CardinalDirection.west,
-          metersPerSecond: metersPerSecond),
-      DrawerConveyorStraight(
-          direction: CardinalDirection.west,
-          metersPerSecond: metersPerSecond,
-          length: 1.meters),
-      DrawerWeighingConveyor(
-          direction: CardinalDirection.west, metersPerSecond: metersPerSecond),
-      DrawerTurningConveyor(startDirection: CardinalDirection.west),
-      DrawerSoakingConveyor(
-          direction: CardinalDirection.east, metersPerSecond: metersPerSecond),
-      DrawerConveyorStraight(
-          direction: CardinalDirection.east,
-          metersPerSecond: metersPerSecond,
-          length: 3.meters),
-      DrawerWashingConveyor(
-          direction: CardinalDirection.east, metersPerSecond: metersPerSecond),
-      DrawerConveyorStraight(
-          direction: CardinalDirection.east,
-          metersPerSecond: metersPerSecond,
-          length: 1.meters),
-      DrawerTurningConveyor(startDirection: CardinalDirection.east),
-      DrawerConveyor90Degrees(
-          startDirection: CardinalDirection.west,
-          clockwise: false,
-          metersPerSecond: metersPerSecond),
-      DrawerConveyorStraight(
-          length: 1.5.meters,
-          direction: CardinalDirection.south,
-          metersPerSecond: metersPerSecond),
-    ]));
+    var grossDrawerWeigher = DrawerWeighingConveyor(
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
+    machines.add(grossDrawerWeigher);
+    machines.link(drawerUnloaderLift.drawerOut, grossDrawerWeigher.drawerIn);
+
+    var conveyor1 = DrawerConveyor90Degrees(
+        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(conveyor1);
+    machines.link(grossDrawerWeigher.drawerOut, conveyor1.drawerIn);
+
+    var conveyor2 = DrawerConveyorStraight(
+        lengthInMeters: 3,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(conveyor2);
+    machines.link(conveyor1.drawerOut, conveyor2.drawerIn);
+
+    var hangingConveyor = DrawerHangingConveyor(
+        hangers: 11, // TODO 11 hangers for 15000?
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(hangingConveyor);
+    machines.link(conveyor2.drawerOut, hangingConveyor.drawerIn);
+
+    var conveyor3 = DrawerConveyorStraight(
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+        lengthInMeters: 1);
+    machines.add(conveyor3);
+    machines.link(hangingConveyor.drawerOut, conveyor3.drawerIn);
+
+    var taraDrawerWeigher = DrawerWeighingConveyor(
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(taraDrawerWeigher);
+    machines.link(conveyor3.drawerOut, taraDrawerWeigher.drawerIn);
+
+    var conveyor4 = DrawerTurningConveyor();
+    machines.add(conveyor4);
+    machines.link(taraDrawerWeigher.drawerOut, conveyor4.drawerIn);
+
+    var soaker = DrawerSoakingConveyor(
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(soaker);
+    machines.link(conveyor4.drawerOut, soaker.drawerIn);
+
+    var conveyor5 = DrawerConveyorStraight(
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+        lengthInMeters: 8);
+    machines.add(conveyor5);
+    machines.link(soaker.drawerOut, conveyor5.drawerIn);
+
+    var washer = DrawerWashingConveyor(
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(washer);
+    machines.link(conveyor5.drawerOut, washer.drawerIn);
+
+    var conveyor6 = DrawerConveyorStraight(
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+        lengthInMeters: 1);
+    machines.add(conveyor6);
+    machines.link(washer.drawerOut, conveyor6.drawerIn);
+
+    var conveyor7 = DrawerTurningConveyor();
+    machines.add(conveyor7);
+    machines.link(conveyor6.drawerOut, conveyor7.drawerIn);
+
+    var conveyor8 = DrawerConveyor90Degrees(
+        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(conveyor8);
+    machines.link(conveyor7.drawerOut, conveyor8.drawerIn);
+
+    var conveyor9 = DrawerConveyorStraight(
+        lengthInMeters: 1.5,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+    machines.add(conveyor9);
+    machines.link(conveyor8.drawerOut, conveyor9.drawerIn);
+
+    var drawerLoaderLift = DrawerLoaderLift(
+      area: this,
+      maxDrawersPerHour: 650,
+    );
+    machines.add(drawerLoaderLift);
+    machines.link(conveyor9.drawerOut, drawerLoaderLift.drawerIn);
   }
 
   void _row2() {
@@ -171,6 +200,12 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
+    ));
+
+    put(BirdHangingConveyor(
+      area: this,
+      position: const Position(7, 2),
+      direction: CardinalDirection.west,
     ));
   }
 
@@ -223,7 +258,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(unloader);
+    put(drawerUnloader);
 
     put(ModuleConveyor(
       area: this,

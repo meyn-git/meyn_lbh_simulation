@@ -21,7 +21,7 @@ const applicationTitle = 'Meyn Live Bird Handling Simulator';
 const meynColor = Color.fromRGBO(0, 118, 90, 1);
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override

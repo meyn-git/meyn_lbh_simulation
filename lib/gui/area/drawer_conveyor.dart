@@ -1,36 +1,52 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
+import 'package:meyn_lbh_simulation/domain/area/machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
+import 'package:meyn_lbh_simulation/domain/area/player.dart';
+import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
 
-class DrawerConveyorWidget extends StatelessWidget {
-  final DrawerConveyor drawerConveyor;
+class MachineWidget extends StatelessWidget {
+  final MachineLayout layout;
+  final Machine machine;
 
-  DrawerConveyorWidget(this.drawerConveyor) : super(key: UniqueKey());
+  MachineWidget(this.layout, this.machine) : super(key: UniqueKey());
 
   @override
-  Widget build(BuildContext context) =>
-      CustomPaint(painter: createDrawerConveyorPainter(drawerConveyor));
+  Widget build(BuildContext context) => InkWell(
+      onTap: () {
+        GetIt.instance<Player>().selectedCell = machine;
+      },
+      child: RotationTransition(
+          turns:
+              AlwaysStoppedAnimation(layout.rotations[machine]!.degrees / 360),
+          child: CustomPaint(painter: createMachinePainter(machine))));
 }
 
-DrawerConveyorPainter createDrawerConveyorPainter(drawerConveyor) {
-  if (drawerConveyor is UnloaderDrawerLift) {
-    return UnloaderDrawerLiftPainter(drawerConveyor);
+DrawerConveyorPainter createMachinePainter(Machine machine) {
+  if (machine is DrawerLoaderLift) {
+    return DrawerLoaderLiftPainter(machine);
   }
-  if (drawerConveyor is DrawerConveyorStraight) {
-    return DrawerConveyorStraightPainter(drawerConveyor);
+  if (machine is DrawerUnloaderLift) {
+    return DrawerUnloaderLiftPainter(machine);
   }
-  if (drawerConveyor is DrawerConveyor90Degrees) {
-    return DrawerConveyor90DegreePainter(drawerConveyor);
+  if (machine is DrawerConveyorStraight) {
+    return DrawerConveyorStraightPainter(machine);
+  }
+  if (machine is DrawerConveyor90Degrees) {
+    return DrawerConveyor90DegreePainter(machine);
   }
   throw Exception('Not supported drawerConveyor');
 }
 
 abstract class DrawerConveyorPainter extends CustomPainter {
-  void addMachineToPath(Path path, Size size) {
+  void addMachineCircumferenceToPath(Path path, Size size) {
     path.moveTo(0, 0);
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
@@ -52,20 +68,10 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
 
     var path = Path();
     if (drawerConveyor.machineProtrudesInMeters > 0) {
-      addMachineToPath(path, size);
+      addMachineCircumferenceToPath(path, size);
     }
-    switch (drawerConveyor.direction) {
-      case CardinalDirection.north:
-      case CardinalDirection.south:
-        addConveyorChainsNorthOrSouthToPath(path, size);
-        break;
-      case CardinalDirection.east:
-      case CardinalDirection.west:
-        addConveyorChainsEastOrWestToPath(path, size);
-        break;
-      default:
-        throw Exception('Not supported direction');
-    }
+
+    addConveyorChainsToPath(path, size);
 
     canvas.drawPath(path, paint);
   }
@@ -73,22 +79,13 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
-  void addConveyorChainsNorthOrSouthToPath(Path path, Size size) {
-    var totalWidthInMeters = drawerConveyor.size.width;
+  void addConveyorChainsToPath(Path path, Size size) {
+    var totalWidthInMeters = drawerConveyor.sizeWhenNorthBound.widthInMeters;
     var offSet = drawerConveyor.machineProtrudesInMeters / totalWidthInMeters;
     path.moveTo(size.width * offSet, 0);
     path.lineTo(size.width * offSet, size.height);
     path.moveTo(size.width * (1 - offSet), 0);
     path.lineTo(size.width * (1 - offSet), size.height);
-  }
-
-  void addConveyorChainsEastOrWestToPath(Path path, Size size) {
-    var totalWidthInMeters = drawerConveyor.size.height;
-    var offSet = drawerConveyor.machineProtrudesInMeters / totalWidthInMeters;
-    path.moveTo(0, size.height * offSet);
-    path.lineTo(size.width, size.height * offSet);
-    path.moveTo(0, size.height * (1 - offSet));
-    path.lineTo(size.width, size.height * (1 - offSet));
   }
 }
 
@@ -113,19 +110,18 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   void addConveyorChainsToPath(Path path, Size size) {
-    var widthInMeters = drawerConveyor.size.width;
+    var widthInMeters = drawerConveyor.sizeWhenNorthBound.widthInMeters;
     var sizePerMeter = size.width / widthInMeters;
-    var halveConveyorWidth =
-        DrawerConveyor.chainWidthInMeters / 2 * sizePerMeter;
-    var shortRadius = size.width / 2 - halveConveyorWidth;
-    var longRadius = size.width / 2 + halveConveyorWidth;
+    var shortRadius =
+        size.width - DrawerConveyor.chainWidthInMeters * sizePerMeter;
+    var longRadius = size.width;
     var centerPosition = _centerPosition(size);
     addQuarterCircleToPath(path, shortRadius, centerPosition);
     addQuarterCircleToPath(path, longRadius, centerPosition);
   }
 
   void addQuarterCircleToPath(Path path, double radius, Offset centerPosition) {
-    var rotation = drawerConveyor.startDirection.toCompassDirection();
+    var rotation = CardinalDirection.north.toCompassDirection();
     var position = circlePosition(centerPosition, radius, rotation);
     path.moveTo(position.dx, position.dy);
 
@@ -139,40 +135,13 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
 
   circlePosition(
       Offset centerPosition, double radius, CompassDirection rotation) {
-    var dx = cos(rotation.radians) * radius;
-    var dy = sin(rotation.radians) * radius;
+    var dx = cos(rotation.toRadians()) * radius;
+    var dy = sin(rotation.toRadians()) * radius;
     var offSet = Offset(dx, dy);
     return centerPosition + offSet;
   }
 
-  Offset _centerPosition(Size size) {
-    switch (drawerConveyor.startDirection) {
-      case CardinalDirection.north:
-        if (drawerConveyor.clockwise) {
-          return Offset(size.width, size.height);
-        } else {
-          return Offset(0, size.height);
-        }
-      case CardinalDirection.east:
-        if (drawerConveyor.clockwise) {
-          return Offset(0, size.height);
-        } else {
-          return const Offset(0, 0);
-        }
-      case CardinalDirection.south:
-        if (drawerConveyor.clockwise) {
-          return const Offset(0, 0);
-        } else {
-          return Offset(size.width, 0);
-        }
-      case CardinalDirection.west:
-        if (drawerConveyor.clockwise) {
-          return Offset(size.width, 0);
-        } else {
-          return Offset(size.width, size.height);
-        }
-      default:
-        throw Exception('Not supported direction');
-    }
-  }
+  Offset _centerPosition(Size size) => drawerConveyor.clockwise
+      ? Offset(size.width, size.height)
+      : Offset(0, size.height);
 }
