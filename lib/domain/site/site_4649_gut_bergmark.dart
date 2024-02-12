@@ -150,7 +150,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var conveyor6 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 1);
+        lengthInMeters: 2.5);
     machines.add(conveyor6);
     machines.link(washer.drawerOut, conveyor6.drawerIn);
 

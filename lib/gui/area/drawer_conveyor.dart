@@ -21,6 +21,9 @@ class MachineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => InkWell(
       onTap: () {
+        ///TODO does not work when overlapping. 
+        ///Solution: Whole [AreaPanel] to have a (onPointDown) [Listener] that looks up the machine(s) using the [MachineLayout] 
+        ///See https://bartvwezel.nl/flutter/detecting-clicks-on-overlapping-custompaint-widgets/
         GetIt.instance<Player>().selectedCell = machine;
       },
       child: RotationTransition(

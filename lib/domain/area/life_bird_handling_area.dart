@@ -66,6 +66,11 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
     for (var cell in cells) {
       cell.onUpdateToNextPointInTime(jump);
     }
+    for (var machine in machines) {
+      if (machine is TimeProcessor) {
+        (machine as TimeProcessor).onUpdateToNextPointInTime(jump);
+      }
+    }
     for (var moduleGroup in moduleGroups) {
       moduleGroup.onUpdateToNextPointInTime(jump);
     }

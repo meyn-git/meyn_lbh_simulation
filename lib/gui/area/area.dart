@@ -175,15 +175,10 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 
   void _layoutAndPositionMachines(Size childSize, Offset childOffset) {
     var sizePerMeter = _sizePerMeter(childSize);
-    var startCellPosition = const Position(7, 2); //TODO
-    var topLeftStart = childOffset +
-        Offset((startCellPosition.x - 0.5) * childSize.width,
-            (startCellPosition.y + 0.5) * childSize.height);
     for (var machine in area.machines) {
       var size = machine.sizeWhenNorthBound.toSize() * sizePerMeter;
       layoutChild(machine, BoxConstraints.tight(size));
-      var topLeft =
-          topLeftStart + layout.topLefts[machine]!.toOffset() * sizePerMeter;
+      var topLeft = childOffset+ layout.topLefts[machine]!.toOffset() * sizePerMeter;
       positionChild(machine, topLeft);
     }
   }
@@ -217,7 +212,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
         size = Size(length, length);
       }
       layoutChild(drawer, BoxConstraints.tight(size));
-      var drawerPosition =
+      var drawerPosition =childOffset+
           drawer.position.topLeft(layout).toOffset() * sizePerMeter;
       positionChild(drawer, drawerPosition);
     }
@@ -276,21 +271,24 @@ class MachineLayout {
   MachineLayout(
       {required this.machines,
       CompassDirection startDirection = const CompassDirection(0)}) {
-    _placeMachines(startDirection);
+    _placeMachines(startDirection, const OffsetInMeters(metersFromLeft: 21, metersFromTop: 6));
   }
 
-  void _placeMachines(CompassDirection startDirection) {
+  void _placeMachines(CompassDirection startDirection,
+    //TODO remove offset when Cells have been made as Machines  
+   OffsetInMeters offset) {
     if (machines.isEmpty) {
       return;
     }
     var machine = machines.first;
-    var topLeft =
-        const OffsetInMeters(metersFromLeft: -1, metersFromTop: -6.5); //TODO
+    var topLeft = OffsetInMeters.zero;
     var rotation = startDirection;
     //place all machines recursively (assuming they are all linked)
     _placeLinkedMachines(machine, topLeft, rotation);
     _validateAllMachinesArePlaced();
-    //TODO _topLeftAtOffsetZero(topLefts);
+    _topLeftAtOffsetZero(topLefts);
+    _addOffset(offset);
+
   }
 
   void _topLeftAtOffsetZero(Map<Machine, OffsetInMeters> topLefts) {
@@ -372,6 +370,12 @@ class MachineLayout {
       if (_unknownPosition(machine)) {
         throw Exception('$machine is not linked to other machines');
       }
+    }
+  }
+  
+  void _addOffset(OffsetInMeters offset) {
+    for (var machine in topLefts.keys) {
+      topLefts[machine]=topLefts[machine]!+offset;
     }
   }
 }
