@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/gui/area/area.dart';
 
 class GrandeDrawerWidget extends StatelessWidget {
+  final MachineLayout layout;
   final GrandeDrawer drawer;
 
-  GrandeDrawerWidget(this.drawer) : super(key: UniqueKey());
+  GrandeDrawerWidget(this.layout, this.drawer) : super(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
     return RotationTransition(
-      turns: AlwaysStoppedAnimation(drawer.direction.degrees / 360),
+      turns: AlwaysStoppedAnimation(drawer.position.rotationFraction(layout)),
       child: CustomPaint(painter: DrawerPainter(drawer)),
     );
   }

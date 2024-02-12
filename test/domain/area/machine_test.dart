@@ -10,25 +10,25 @@ void main() {
     group('method OffsetInMeters.direction', () {
       test('method OffsetInMeters(0,-1).direction=0', () {
         const OffsetInMeters(metersFromLeft: 0, metersFromTop: -1)
-            .direction
+            .directionInRadians
             .should
             .be(0);
       });
       test('method OffsetInMeters(1,0).direction=0.5*pi', () {
         const OffsetInMeters(metersFromLeft: 1, metersFromTop: 0)
-            .direction
+            .directionInRadians
             .should
             .be(0.5 * pi);
       });
       test('method OffsetInMeters(0,1).direction=pi', () {
         const OffsetInMeters(metersFromLeft: 0, metersFromTop: 1)
-            .direction
+            .directionInRadians
             .should
             .be(pi);
       });
       test('method OffsetInMeters(-1,0).direction=1.5*pi', () {
         const OffsetInMeters(metersFromLeft: -1, metersFromTop: 0)
-            .direction
+            .directionInRadians
             .should
             .be(1.5 * pi);
       });

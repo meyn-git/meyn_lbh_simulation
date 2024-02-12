@@ -45,6 +45,11 @@ class CompassDirection {
 
   const CompassDirection(int degrees) : degrees = degrees % max;
 
+  const CompassDirection.north() : degrees = 0;
+  const CompassDirection.east() : degrees = 90;
+  const CompassDirection.south() : degrees = 180;
+  const CompassDirection.west() : degrees = 270;
+
   CompassDirection get opposite => rotate(180);
 
   CompassDirection rotate(int rotationInDegrees) {
@@ -66,6 +71,11 @@ class CompassDirection {
     return null;
   }
 
+  double toRadians() => degrees * pi / 180;
+
+  /// 0..1: 0=north, 0.25=east, 0.5=south, 0.75=west
+  double toFraction() => degrees / max;
+
   int clockWiseDistanceInDegrees(CompassDirection destination) {
     if (degrees < destination.degrees) {
       return destination.degrees - degrees;
@@ -81,8 +91,6 @@ class CompassDirection {
       return degrees + max - destination.degrees;
     }
   }
-
-  double toRadians() => degrees * pi / 180;
 
   @override
   String toString() => degrees.toString();

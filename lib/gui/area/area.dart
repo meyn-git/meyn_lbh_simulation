@@ -92,7 +92,7 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     var area = scenario.area;
     children.addAll(createModuleGroupWidgets(area));
     children.addAll(createMachineWidgets(area, scenario.layout));
-    children.addAll(createDrawerWidgets(area));
+    children.addAll(createDrawerWidgets(area, scenario.layout));
     children.addAll(createCellWidgets(area));
     return children;
   }
@@ -114,11 +114,13 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     return widgets;
   }
 
-  static List<Widget> createDrawerWidgets(LiveBirdHandlingArea area) {
+  static List<Widget> createDrawerWidgets(
+      LiveBirdHandlingArea area, MachineLayout layout) {
     List<Widget> widgets = [];
     var drawers = area.drawers;
     for (var drawer in drawers) {
-      widgets.add(LayoutId(id: drawer, child: GrandeDrawerWidget(drawer)));
+      widgets
+          .add(LayoutId(id: drawer, child: GrandeDrawerWidget(layout, drawer)));
     }
     return widgets;
   }
@@ -178,7 +180,8 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     for (var machine in area.machines) {
       var size = machine.sizeWhenNorthBound.toSize() * sizePerMeter;
       layoutChild(machine, BoxConstraints.tight(size));
-      var topLeft = childOffset+ layout.topLefts[machine]!.toOffset() * sizePerMeter;
+      var topLeft =
+          childOffset + layout._topLefts[machine]!.toOffset() * sizePerMeter;
       positionChild(machine, topLeft);
     }
   }
@@ -212,7 +215,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
         size = Size(length, length);
       }
       layoutChild(drawer, BoxConstraints.tight(size));
-      var drawerPosition =childOffset+
+      var drawerPosition = childOffset +
           drawer.position.topLeft(layout).toOffset() * sizePerMeter;
       positionChild(drawer, drawerPosition);
     }
@@ -262,8 +265,8 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 }
 
 class MachineLayout {
-  late Map<Machine, OffsetInMeters> topLefts = {};
-  late Map<Machine, CompassDirection> rotations = {};
+  final Map<Machine, OffsetInMeters> _topLefts = {};
+  final Map<Machine, CompassDirection> _rotations = {};
   late SizeInMeters size = _size();
 
   final Machines machines;
@@ -271,12 +274,14 @@ class MachineLayout {
   MachineLayout(
       {required this.machines,
       CompassDirection startDirection = const CompassDirection(0)}) {
-    _placeMachines(startDirection, const OffsetInMeters(metersFromLeft: 21, metersFromTop: 6));
+    _placeMachines(startDirection,
+        const OffsetInMeters(metersFromLeft: 21, metersFromTop: 6));
   }
 
-  void _placeMachines(CompassDirection startDirection,
-    //TODO remove offset when Cells have been made as Machines  
-   OffsetInMeters offset) {
+  void _placeMachines(
+      CompassDirection startDirection,
+      //TODO remove offset when Cells have been made as Machines
+      OffsetInMeters offset) {
     if (machines.isEmpty) {
       return;
     }
@@ -286,9 +291,8 @@ class MachineLayout {
     //place all machines recursively (assuming they are all linked)
     _placeLinkedMachines(machine, topLeft, rotation);
     _validateAllMachinesArePlaced();
-    _topLeftAtOffsetZero(topLefts);
+    _topLeftAtOffsetZero(_topLefts);
     _addOffset(offset);
-
   }
 
   void _topLeftAtOffsetZero(Map<Machine, OffsetInMeters> topLefts) {
@@ -305,8 +309,8 @@ class MachineLayout {
     OffsetInMeters topLeft,
     CompassDirection rotation,
   ) {
-    topLefts[machine] = topLeft;
-    rotations[machine] = rotation;
+    _topLefts[machine] = topLeft;
+    _rotations[machine] = rotation;
     for (var link in machine.links) {
       var machine1 = machine;
       var machine1TopLeft = topLeft;
@@ -343,21 +347,24 @@ class MachineLayout {
     }
   }
 
+  OffsetInMeters topLeftOf(Machine machine) => _topLefts[machine]!;
+
+  CompassDirection rotationOf(Machine machine) => _rotations[machine]!;
   String offsetString(OffsetInMeters offset) =>
       '${offset.metersFromLeft.toStringAsFixed(1)},${offset.metersFromTop.toStringAsFixed(1)}';
 
-  bool _unknownPosition(Machine machine) => !topLefts.keys.contains(machine);
+  bool _unknownPosition(Machine machine) => !_topLefts.keys.contains(machine);
 
   SizeInMeters _size() {
-    if (topLefts.isEmpty) {
+    if (_topLefts.isEmpty) {
       return SizeInMeters.zero;
     }
-    var maxX = topLefts
+    var maxX = _topLefts
         .map((machine, pos) => MapEntry(machine,
             pos.metersFromLeft + machine.sizeWhenNorthBound.widthInMeters))
         .values
         .max;
-    var maxY = topLefts
+    var maxY = _topLefts
         .map((machine, pos) => MapEntry(machine,
             pos.metersFromTop + machine.sizeWhenNorthBound.heightInMeters))
         .values
@@ -372,10 +379,10 @@ class MachineLayout {
       }
     }
   }
-  
+
   void _addOffset(OffsetInMeters offset) {
-    for (var machine in topLefts.keys) {
-      topLefts[machine]=topLefts[machine]!+offset;
+    for (var machine in _topLefts.keys) {
+      _topLefts[machine] = _topLefts[machine]! + offset;
     }
   }
 }

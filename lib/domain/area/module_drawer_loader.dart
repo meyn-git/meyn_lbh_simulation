@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
+import 'dart:math';
+
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
@@ -68,8 +70,8 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
               : sizeWhenNorthBound.widthInMeters / 2,
           metersFromTop: 0),
       directionFromCenter: drawersToLeft
-          ? CardinalDirection.west.toCompassDirection()
-          : CardinalDirection.east.toCompassDirection());
+          ? inFeedDirection.toCompassDirection().rotate(-90)
+          : inFeedDirection.toCompassDirection().rotate(90));
 
   @override
   late List<Link> links = [drawersOut]; //TODO add containerIn and containerOut
@@ -558,7 +560,7 @@ class DrawerLoaderLift extends StateMachine implements Machine {
     var drawerBeingPushedOut = liftPositions.last!;
     var conveyorAfterLoaderLift = drawerOut.linkedTo.owner as DrawerConveyor;
     conveyorAfterLoaderLift.metersPerSecond =
-        conveyorAfterLoaderLift.vectors.totalLength /
+        conveyorAfterLoaderLift.productCarrierPath.totalLength /
             pushOutDuration.inMicroseconds *
             1000000;
     drawerBeingPushedOut.position = OnConveyorPosition(conveyorAfterLoaderLift);
@@ -721,10 +723,14 @@ class LoaderToLiftPosition extends DrawerPosition implements TimeProcessor {
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
     var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.topLefts[lift]! +
+    return layout.topLeftOf(lift) +
         lift.topLeftToDrawerInModule +
         vector * completed;
   }
+
+  @override
+  double rotationFraction(MachineLayout layout) =>
+      layout.rotationOf(lift).toFraction();
 }
 
 class LiftPosition extends DrawerPosition {
@@ -737,9 +743,13 @@ class LiftPosition extends DrawerPosition {
 
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
-    var topLeft = layout.topLefts[lift]!;
+    var topLeft = layout.topLeftOf(lift);
     return topLeft + lift.topLeftToLiftLevel(level);
   }
+
+  @override
+  double rotationFraction(MachineLayout layout) =>
+      layout.rotationOf(lift).toFraction();
 }
 
 class LiftPositionUp extends DrawerPosition implements TimeProcessor {
@@ -767,10 +777,14 @@ class LiftPositionUp extends DrawerPosition implements TimeProcessor {
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
     var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.topLefts[lift]! +
+    return layout.topLeftOf(lift) +
         lift.topLeftToLiftLevel(startLevel) +
         vector * completed;
   }
+
+  @override
+  double rotationFraction(MachineLayout layout) =>
+      layout.rotationOf(lift).toFraction();
 }
 
 class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
@@ -784,7 +798,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   double traveledMetersOnVector;
 
   OnConveyorPosition(this.conveyor)
-      : vector = conveyor.vectors.first,
+      : vector = conveyor.productCarrierPath.first,
         traveledMetersOnVector = 0.0;
 
   /// calculates the next position of a drawer on a conveyor
@@ -814,13 +828,13 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
         var nextMachine = conveyor.drawerOut.linkedTo.owner;
         if (nextMachine is DrawerConveyor) {
           conveyor = nextMachine;
-          vector = conveyor.vectors.first;
+          vector = conveyor.productCarrierPath.first;
           traveledMetersOnVector = 0;
           //recursive call for next vector for the remaining time
           onUpdateToNextPointInTime(remainingJump);
         } else {
           // keep the drawer at the end.
-          vector = conveyor.vectors.first;
+          vector = conveyor.productCarrierPath.first;
           traveledMetersOnVector = vector.lengthInMeters;
         }
       }
@@ -830,7 +844,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   /// calculates the current position (offset) of a drawer on a conveyor
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
-    var topLeftConveyor = layout.topLefts[conveyor]!;
+    var topLeftConveyor = layout.topLeftOf(conveyor);
     var topLeftToStart = conveyor.drawerIn.offsetFromCenter; //FIXME
     var completedFraction = traveledMetersOnVector / vector.lengthInMeters;
     var conveyorCenter = OffsetInMeters(
@@ -842,8 +856,8 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   Iterable<OffsetInMeters> _completedVectors() {
-    var index = conveyor.vectors.indexOf(vector);
-    return conveyor.vectors.getRange(0, index);
+    var index = conveyor.productCarrierPath.indexOf(vector);
+    return conveyor.productCarrierPath.getRange(0, index);
   }
 
   OffsetInMeters _sumOfCompletedVectors() {
@@ -855,12 +869,16 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   OffsetInMeters? _nextVector() {
-    if (vector == conveyor.vectors.last) {
+    if (vector == conveyor.productCarrierPath.last) {
       return null;
     }
-    var nextIndex = conveyor.vectors.indexOf(vector) + 1;
-    return conveyor.vectors[nextIndex];
+    var nextIndex = conveyor.productCarrierPath.indexOf(vector) + 1;
+    return conveyor.productCarrierPath[nextIndex];
   }
+
+  @override
+  double rotationFraction(MachineLayout layout) =>
+      vector.directionInRadians / (2 * pi);
 }
 
 class Durations {

@@ -81,7 +81,6 @@ abstract class Link<OWNER extends Machine,
   final OWNER owner;
   final OffsetInMeters offsetFromCenter;
 
-  ///FIXME offsetFromCenter
   final CompassDirection directionFromCenter;
 
   /// the [linkedTo] is filled in by the [Machines.link] method
@@ -141,16 +140,17 @@ class OffsetInMeters {
     return sqrt(sum);
   }
 
-  /// The [direction] of the offset in radians relative to Y-axis,
+  /// The [directionInRadians] of the offset in radians relative to Y-axis,
   /// using the Flutter coordinate system:
   /// y<0 and x=0 = [CardinalDirection.north] = 0
   /// y=0 and x>0 = [CardinalDirection.east] = 0.5*pi
   /// y>0 and x=0 = [CardinalDirection.south] = 1*pi
   /// y=0 and x<0 = [CardinalDirection.west] = 1.5*pi
-  double get direction => atan2(metersFromLeft, -metersFromTop) % (2 * pi);
+  double get directionInRadians =>
+      atan2(metersFromLeft, -metersFromTop) % (2 * pi);
 
   OffsetInMeters rotate(CompassDirection rotationToAdd) {
-    var rotation = (direction + rotationToAdd.toRadians()); //% (2 * pi);
+    var rotation = (directionInRadians + rotationToAdd.toRadians());
     var length = lengthInMeters;
     var fromTop = -cos(rotation) * length;
     var fromLeft = sin(rotation) * length;

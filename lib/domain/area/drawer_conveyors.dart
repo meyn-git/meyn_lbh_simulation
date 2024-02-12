@@ -17,7 +17,7 @@ abstract class DrawerConveyor implements Machine {
   /// * x: number of meters in west/east direction, e.g.:
   ///   * -3 = 3 meters west
   ///   * +2 = 2 meters east
-  late ProductCarrierPath vectors;
+  late ProductCarrierPath productCarrierPath;
   double metersPerSecond = 0;
   static const double chainWidthInMeters = 0.8;
 
@@ -40,7 +40,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
 
   /// the path to travel (in meters) for the drawer in [DefaultOrientation]
   @override
-  late ProductCarrierPath vectors;
+  late ProductCarrierPath productCarrierPath;
 
   @override
   late double metersPerSecond;
@@ -51,7 +51,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
     required this.lengthInMeters,
     required this.metersPerSecond,
     this.machineProtrudesInMeters = 0,
-  }) : vectors = ProductCarrierPath.straight(lengthInMeters);
+  }) : productCarrierPath = ProductCarrierPath.straight(lengthInMeters);
 
   @override
   late SizeInMeters sizeWhenNorthBound = SizeInMeters(
@@ -84,7 +84,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   late double machineProtrudesInMeters;
 
   @override
-  late ProductCarrierPath vectors;
+  late ProductCarrierPath productCarrierPath;
 
   @override
   late double metersPerSecond;
@@ -95,16 +95,16 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
       {double lengthInMeters = 4.3,
       required this.clockwise,
       required this.metersPerSecond})
-      : vectors = ProductCarrierPath.ninetyDegreeCorner(
+      : productCarrierPath = ProductCarrierPath.ninetyDegreeCorner(
           clockwise,
           lengthInMeters,
         );
 
   @override
   late SizeInMeters sizeWhenNorthBound = SizeInMeters(
-      widthInMeters:
-          vectors.outWard.widthInMeters + DrawerConveyor.chainWidthInMeters / 2,
-      heightInMeters: vectors.outWard.heightInMeters +
+      widthInMeters: productCarrierPath.outWard.widthInMeters +
+          DrawerConveyor.chainWidthInMeters / 2,
+      heightInMeters: productCarrierPath.outWard.heightInMeters +
           DrawerConveyor.chainWidthInMeters / 2);
 
   @override
@@ -286,9 +286,6 @@ class GrandeDrawer implements TimeProcessor {
       required this.position})
       : _nrOfBirds = nrOfBirds;
 
-  CompassDirection get direction =>
-      CardinalDirection.north.toCompassDirection(); //TODO get from vector;
-
   set nrOfBirds(int nrOfBirds) {
     if (nrOfBirds == 0) {
       contents = BirdContents.noBirds;
@@ -312,4 +309,7 @@ abstract class DrawerPosition {
   /// when the DrawerConveyor is in [DefaultOrientation]
   /// in meters
   OffsetInMeters topLeft(MachineLayout layout);
+
+  /// 0..1: 0=north, 0.25=east, 0.5=south, 0.75=west
+  double rotationFraction(MachineLayout layout);
 }
