@@ -17,7 +17,7 @@ abstract class DrawerConveyor implements Machine {
   /// * x: number of meters in west/east direction, e.g.:
   ///   * -3 = 3 meters west
   ///   * +2 = 2 meters east
-  late ProductCarrierPath productCarrierPath;
+  late DrawerPath drawerPath;
   double metersPerSecond = 0;
   static const double chainWidthInMeters = 0.8;
 
@@ -40,7 +40,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
 
   /// the path to travel (in meters) for the drawer in [DefaultOrientation]
   @override
-  late ProductCarrierPath productCarrierPath;
+  late DrawerPath drawerPath;
 
   @override
   late double metersPerSecond;
@@ -51,7 +51,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
     required this.lengthInMeters,
     required this.metersPerSecond,
     this.machineProtrudesInMeters = 0,
-  }) : productCarrierPath = ProductCarrierPath.straight(lengthInMeters);
+  }) : drawerPath = DrawerPath.straight(lengthInMeters);
 
   @override
   late SizeInMeters sizeWhenNorthBound = SizeInMeters(
@@ -84,7 +84,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   late double machineProtrudesInMeters;
 
   @override
-  late ProductCarrierPath productCarrierPath;
+  late DrawerPath drawerPath;
 
   @override
   late double metersPerSecond;
@@ -95,16 +95,16 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
       {double lengthInMeters = 4.3,
       required this.clockwise,
       required this.metersPerSecond})
-      : productCarrierPath = ProductCarrierPath.ninetyDegreeCorner(
+      : drawerPath = DrawerPath.ninetyDegreeCorner(
           clockwise,
           lengthInMeters,
         );
 
   @override
   late SizeInMeters sizeWhenNorthBound = SizeInMeters(
-      widthInMeters: productCarrierPath.outWard.widthInMeters +
+      widthInMeters: drawerPath.outWard.widthInMeters +
           DrawerConveyor.chainWidthInMeters / 2,
-      heightInMeters: productCarrierPath.outWard.heightInMeters +
+      heightInMeters: drawerPath.outWard.heightInMeters +
           DrawerConveyor.chainWidthInMeters / 2);
 
   @override
@@ -193,34 +193,41 @@ class DrawerTurningConveyor extends DrawerConveyorStraight {
       directionFromCenter: CardinalDirection.south.toCompassDirection());
 }
 
-class ProductCarrierPath extends DelegatingList<OffsetInMeters> {
-  ProductCarrierPath(super.base);
+class DrawerPath extends DelegatingList<OffsetInMeters> {
+  DrawerPath(super.base);
 
-  factory ProductCarrierPath.straight(double meters) => ProductCarrierPath(
-      [OffsetInMeters(metersFromLeft: 0, metersFromTop: -meters)]);
+  factory DrawerPath.straight(double meters) =>
+      DrawerPath([OffsetInMeters(metersFromLeft: 0, metersFromTop: -meters)]);
 
-  factory ProductCarrierPath.ninetyDegreeCorner(
-      bool clockwise, double lengthInMeters) {
-    const steps = 6; //preferably a multitude of 3 (360 degrees)
-    var vectors = ProductCarrierPath([]);
+  factory DrawerPath.ninetyDegreeCorner(bool clockwise, double lengthInMeters) {
+    const steps = 12; //preferably a multitude of 3 (360 degrees)
+    var vectors = DrawerPath([]);
     var angle = CardinalDirection.north.toCompassDirection();
     for (int i = 0; i < steps; i++) {
       var stepRotationInDegrees =
           (90 / (steps + 1)).round() * (clockwise ? 1 : -1);
       angle = angle.rotate(stepRotationInDegrees);
-      var x = sin(angle.toRadians());
-      var y = -cos(angle.toRadians()); //up is negative
-      var vector = OffsetInMeters(metersFromLeft: x, metersFromTop: y)
-          .withLengthInMeters(lengthInMeters / steps);
+      var x = sin(angle.toRadians()) * (lengthInMeters / steps);
+      var y =
+          -cos(angle.toRadians()) * (lengthInMeters / steps); //up is negative
+      var vector = OffsetInMeters(metersFromLeft: x, metersFromTop: y);
       vectors.add(vector);
     }
-    return ProductCarrierPath(vectors);
+    return DrawerPath(vectors);
   }
 
   late Outward outWard = Outward.forVectors(this);
 
   double get totalLength =>
       map((v) => v.lengthInMeters).reduce((a, b) => a + b);
+
+  DrawerPath rotate(CompassDirection rotation) {
+    var rotatedVectors = <OffsetInMeters>[];
+    for (var vector in this) {
+      rotatedVectors.add(vector.rotate(rotation));
+    }
+    return DrawerPath(rotatedVectors);
+  }
 }
 
 class Outward {

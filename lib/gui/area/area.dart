@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
@@ -267,6 +268,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 class MachineLayout {
   final Map<Machine, OffsetInMeters> _topLefts = {};
   final Map<Machine, CompassDirection> _rotations = {};
+  final Map<DrawerConveyor, DrawerPath> _drawerPaths = {};
   late SizeInMeters size = _size();
 
   final Machines machines;
@@ -311,6 +313,9 @@ class MachineLayout {
   ) {
     _topLefts[machine] = topLeft;
     _rotations[machine] = rotation;
+    if (machine is DrawerConveyor) {
+      _drawerPaths[machine] = machine.drawerPath.rotate(rotation);
+    }
     for (var link in machine.links) {
       var machine1 = machine;
       var machine1TopLeft = topLeft;
@@ -350,6 +355,9 @@ class MachineLayout {
   OffsetInMeters topLeftOf(Machine machine) => _topLefts[machine]!;
 
   CompassDirection rotationOf(Machine machine) => _rotations[machine]!;
+
+  DrawerPath drawerPathOf(DrawerConveyor drawerConveyor) =>
+      _drawerPaths[drawerConveyor]!;
   String offsetString(OffsetInMeters offset) =>
       '${offset.metersFromLeft.toStringAsFixed(1)},${offset.metersFromTop.toStringAsFixed(1)}';
 

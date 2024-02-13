@@ -560,7 +560,7 @@ class DrawerLoaderLift extends StateMachine implements Machine {
     var drawerBeingPushedOut = liftPositions.last!;
     var conveyorAfterLoaderLift = drawerOut.linkedTo.owner as DrawerConveyor;
     conveyorAfterLoaderLift.metersPerSecond =
-        conveyorAfterLoaderLift.productCarrierPath.totalLength /
+        conveyorAfterLoaderLift.drawerPath.totalLength /
             pushOutDuration.inMicroseconds *
             1000000;
     drawerBeingPushedOut.position = OnConveyorPosition(conveyorAfterLoaderLift);
@@ -798,7 +798,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   double traveledMetersOnVector;
 
   OnConveyorPosition(this.conveyor)
-      : vector = conveyor.productCarrierPath.first,
+      : vector = conveyor.drawerPath.first,
         traveledMetersOnVector = 0.0;
 
   /// calculates the next position of a drawer on a conveyor
@@ -828,13 +828,13 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
         var nextMachine = conveyor.drawerOut.linkedTo.owner;
         if (nextMachine is DrawerConveyor) {
           conveyor = nextMachine;
-          vector = conveyor.productCarrierPath.first;
+          vector = conveyor.drawerPath.first;
           traveledMetersOnVector = 0;
           //recursive call for next vector for the remaining time
           onUpdateToNextPointInTime(remainingJump);
         } else {
           // keep the drawer at the end.
-          vector = conveyor.productCarrierPath.first;
+          vector = conveyor.drawerPath.first;
           traveledMetersOnVector = vector.lengthInMeters;
         }
       }
@@ -856,8 +856,8 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   Iterable<OffsetInMeters> _completedVectors() {
-    var index = conveyor.productCarrierPath.indexOf(vector);
-    return conveyor.productCarrierPath.getRange(0, index);
+    var index = conveyor.drawerPath.indexOf(vector);
+    return conveyor.drawerPath.getRange(0, index);
   }
 
   OffsetInMeters _sumOfCompletedVectors() {
@@ -869,11 +869,11 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   OffsetInMeters? _nextVector() {
-    if (vector == conveyor.productCarrierPath.last) {
+    if (vector == conveyor.drawerPath.last) {
       return null;
     }
-    var nextIndex = conveyor.productCarrierPath.indexOf(vector) + 1;
-    return conveyor.productCarrierPath[nextIndex];
+    var nextIndex = conveyor.drawerPath.indexOf(vector) + 1;
+    return conveyor.drawerPath[nextIndex];
   }
 
   @override
