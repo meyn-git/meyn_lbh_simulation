@@ -12,7 +12,7 @@ class GrandeDrawerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RotationTransition(
-      turns: AlwaysStoppedAnimation(drawer.position.rotationFraction(layout)),
+      turns: AlwaysStoppedAnimation(drawer.position.rotationInFraction(layout)),
       child: CustomPaint(painter: DrawerPainter(drawer)),
     );
   }

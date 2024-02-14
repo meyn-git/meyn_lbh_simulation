@@ -727,7 +727,7 @@ class LoaderToLiftPosition extends DrawerPosition implements TimeProcessor {
   }
 
   @override
-  double rotationFraction(MachineLayout layout) =>
+  double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
 }
 
@@ -746,7 +746,7 @@ class LiftPosition extends DrawerPosition {
   }
 
   @override
-  double rotationFraction(MachineLayout layout) =>
+  double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
 }
 
@@ -781,6 +781,6 @@ class LiftPositionUp extends DrawerPosition implements TimeProcessor {
   }
 
   @override
-  double rotationFraction(MachineLayout layout) =>
+  double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
 }

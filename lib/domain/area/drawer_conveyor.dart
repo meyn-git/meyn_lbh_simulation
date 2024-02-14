@@ -318,7 +318,7 @@ abstract class DrawerPosition {
   OffsetInMeters topLeft(MachineLayout layout);
 
   /// 0..1: 0=north, 0.25=east, 0.5=south, 0.75=west
-  double rotationFraction(MachineLayout layout);
+  double rotationInFraction(MachineLayout layout);
 }
 
 class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
@@ -382,17 +382,31 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
 
   /// calculates the current position (offset) of a drawer on a conveyor
   @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    if (layout.rotationOf(conveyor).degrees != 0) {
-      print('rotated Conveyor');
-    }
-    var toDrawerStart = layout.drawerStartOf(conveyor);
+  OffsetInMeters topLeft(MachineLayout layout) =>
+      layout.drawerStartOf(conveyor) +
+      drawerStartToTopLeftDrawer(layout) +
+      traveledOnConveyor(layout);
+
+  OffsetInMeters traveledOnConveyor(MachineLayout layout) {
     var drawerPath = layout.drawerPathOf(conveyor);
     var vector = drawerPath[vectorIndex];
     var completedFraction = traveledMetersOnVector / vector.lengthInMeters;
     var traveled =
         (_sumOfCompletedVectors(drawerPath) + vector * completedFraction);
-    return toDrawerStart + traveled;
+    return traveled;
+  }
+
+  OffsetInMeters drawerStartToTopLeftDrawer(MachineLayout layout) {
+    double halveDrawerLength =
+        GrandeDrawerModuleType.drawerOutSideLength.as(meters) / 2;
+    var startRotation = rotationInRadians(layout, 0);
+    double metersFromLeft =
+        -halveDrawerLength + -sin(startRotation) * halveDrawerLength;
+    double metersFromTop =
+        -halveDrawerLength + cos(startRotation) * halveDrawerLength;
+    var centerToTopLeft = OffsetInMeters(
+        metersFromLeft: metersFromLeft, metersFromTop: metersFromTop);
+    return centerToTopLeft;
   }
 
   Iterable<OffsetInMeters> _completedVectors(DrawerPath drawerPath) {
@@ -417,6 +431,9 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   @override
-  double rotationFraction(MachineLayout layout) =>
-      layout.drawerPathOf(conveyor)[vectorIndex].directionInRadians / (2 * pi);
+  double rotationInFraction(MachineLayout layout) =>
+      rotationInRadians(layout, vectorIndex) / (2 * pi);
+
+  double rotationInRadians(MachineLayout layout, int index) =>
+      layout.drawerPathOf(conveyor)[vectorIndex].directionInRadians;
 }
