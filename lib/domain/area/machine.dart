@@ -150,7 +150,10 @@ class OffsetInMeters {
       atan2(metersFromLeft, -metersFromTop) % (2 * pi);
 
   OffsetInMeters rotate(CompassDirection rotationToAdd) {
-    var rotation = (directionInRadians + rotationToAdd.toRadians());
+    if (rotationToAdd.degrees == 0) {
+      return this;
+    }
+    var rotation = (directionInRadians + rotationToAdd.toRadians()) % (2 * pi);
     var length = lengthInMeters;
     var fromTop = -cos(rotation) * length;
     var fromLeft = sin(rotation) * length;
@@ -203,4 +206,31 @@ class DrawersOutLink<OWNER extends Machine> extends Link<OWNER, DrawersInLink> {
       {required super.owner,
       required super.offsetFromCenter,
       required super.directionFromCenter});
+}
+
+class Durations {
+  List<Duration> durations = [];
+  final int maxSize;
+
+  Durations({required this.maxSize});
+
+  add(Duration? duration) {
+    if (duration == null) {
+      return;
+    }
+    durations.insert(0, duration);
+    if (durations.length > maxSize) {
+      durations.length = maxSize;
+    }
+  }
+
+  Duration get total => durations.reduce((a, b) => a + b);
+
+  Duration get average => durations.isEmpty
+      ? Duration.zero
+      : Duration(
+          milliseconds: (total.inMilliseconds / durations.length).round());
+
+  double get averagePerHour =>
+      durations.isEmpty ? 0 : 3600000 / average.inMilliseconds;
 }

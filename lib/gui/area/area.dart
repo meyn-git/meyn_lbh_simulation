@@ -7,7 +7,7 @@ import 'package:get_it/get_it.dart';
 
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
@@ -265,10 +265,15 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => true;
 }
 
+/// Calculates the [_topLefts], [_centers], [_rotations] and [_drawerPaths] of
+/// all machines and caches the values for performance, because we only need
+/// to calculate this once per [Scenario]
 class MachineLayout {
   final Map<Machine, OffsetInMeters> _topLefts = {};
+  final Map<Machine, OffsetInMeters> _centers = {};
   final Map<Machine, CompassDirection> _rotations = {};
   final Map<DrawerConveyor, DrawerPath> _drawerPaths = {};
+  final Map<DrawerConveyor, OffsetInMeters> _drawerStarts = {};
   late SizeInMeters size = _size();
 
   final Machines machines;
@@ -277,7 +282,7 @@ class MachineLayout {
       {required this.machines,
       CompassDirection startDirection = const CompassDirection(0)}) {
     _placeMachines(startDirection,
-        const OffsetInMeters(metersFromLeft: 21, metersFromTop: 6));
+        const OffsetInMeters(metersFromLeft: 21 / 2, metersFromTop: 6 / 2));
   }
 
   void _placeMachines(
@@ -293,17 +298,26 @@ class MachineLayout {
     //place all machines recursively (assuming they are all linked)
     _placeLinkedMachines(machine, topLeft, rotation);
     _validateAllMachinesArePlaced();
-    _topLeftAtOffsetZero(_topLefts);
-    _addOffset(offset);
+    var correction = offsetCorrection() + offset;
+    _correctOffsets(_topLefts, correction);
+    _correctOffsets(_centers, correction);
+    _correctOffsets(_drawerStarts, correction);
   }
 
-  void _topLeftAtOffsetZero(Map<Machine, OffsetInMeters> topLefts) {
-    var minX = topLefts.values.map((pos) => pos.metersFromLeft).reduce(min);
-    var minY = topLefts.values.map((pos) => pos.metersFromTop).reduce(min);
+  void _correctOffsets(
+      Map<Machine, OffsetInMeters> map, OffsetInMeters correction) {
+    for (var entry in map.entries) {
+      map[entry.key] = entry.value + correction;
+    }
+  }
+
+  /// Correction for all [OffsetInMeters] so that there are no negative values
+  OffsetInMeters offsetCorrection() {
+    var minX = _topLefts.values.map((pos) => pos.metersFromLeft).reduce(min);
+    var minY = _topLefts.values.map((pos) => pos.metersFromTop).reduce(min);
     var correction =
         OffsetInMeters(metersFromLeft: minX, metersFromTop: minY) * -1;
-    topLefts = topLefts
-        .map((machine, position) => MapEntry(machine, position + correction));
+    return correction;
   }
 
   void _placeLinkedMachines(
@@ -313,8 +327,17 @@ class MachineLayout {
   ) {
     _topLefts[machine] = topLeft;
     _rotations[machine] = rotation;
+    _centers[machine] = topLeft + machine.sizeWhenNorthBound.toOffset() * 0.5;
     if (machine is DrawerConveyor) {
-      _drawerPaths[machine] = machine.drawerPath.rotate(rotation);
+      if (rotation.degrees != 0) {
+        print('TODO');
+      }
+      var toCenter = _centers[machine]!;
+      var centerToStart = machine.drawerIn.offsetFromCenter.rotate(rotation);
+      _drawerStarts[machine] = toCenter + centerToStart;
+      var originalDrawerPath = machine.drawerPath;
+      var rotatedDrawerPath = originalDrawerPath.rotate(rotation);
+      _drawerPaths[machine] = rotatedDrawerPath;
     }
     for (var link in machine.links) {
       var machine1 = machine;
@@ -352,12 +375,26 @@ class MachineLayout {
     }
   }
 
+  /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
+  /// to the top left of the [Machine]
   OffsetInMeters topLeftOf(Machine machine) => _topLefts[machine]!;
 
+  /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
+  /// to the center of the [Machine]
+  OffsetInMeters centerOf(Machine machine) => _centers[machine]!;
+
+  /// Returns the cached rotation od a [Machine]
   CompassDirection rotationOf(Machine machine) => _rotations[machine]!;
 
+  /// Returns the cached [DrawerPath] of a [Machine]
   DrawerPath drawerPathOf(DrawerConveyor drawerConveyor) =>
       _drawerPaths[drawerConveyor]!;
+
+  /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
+  /// to the start of the [DrawerPath]
+  OffsetInMeters drawerStartOf(DrawerConveyor drawerConveyor) =>
+      _drawerStarts[drawerConveyor]!;
+
   String offsetString(OffsetInMeters offset) =>
       '${offset.metersFromLeft.toStringAsFixed(1)},${offset.metersFromTop.toStringAsFixed(1)}';
 

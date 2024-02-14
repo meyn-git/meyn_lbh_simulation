@@ -320,3 +320,103 @@ abstract class DrawerPosition {
   /// 0..1: 0=north, 0.25=east, 0.5=south, 0.75=west
   double rotationFraction(MachineLayout layout);
 }
+
+class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
+  /// the conveyor where the drawer is on currently
+  DrawerConveyor conveyor;
+
+  /// the vector of the [drawerPath] where the drawer is on currently
+  int vectorIndex;
+
+  /// the traveled distance in meters on [vector] where the drawer is on currently
+  double traveledMetersOnVector;
+
+  OnConveyorPosition(this.conveyor)
+      : vectorIndex = 0,
+        traveledMetersOnVector = 0.0;
+
+  /// calculates the next position of a drawer on a conveyor
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    /// note that the drawerPath of the conveyor is not rotated,
+    /// because this is done in the [MachineLayout]
+    /// This should not matter because we needs its length only here
+    var drawerPath = conveyor.drawerPath;
+    var secondsOfTravel = jump.inMicroseconds / 1000000;
+    var metersPerSecond = conveyor.metersPerSecond;
+    var metersToTravel = metersPerSecond *
+        secondsOfTravel; //TODO reduce [meterToTravel] when needed to not overlap other drawers!
+    var remainingMetersOnVector =
+        drawerPath[vectorIndex].lengthInMeters - traveledMetersOnVector;
+    if (metersToTravel <= remainingMetersOnVector) {
+      /// move on vector
+      traveledMetersOnVector += metersToTravel;
+    } else {
+      // move on next vector
+      var remainingJumpOnVector = Duration(
+          microseconds: remainingMetersOnVector / metersPerSecond ~/ 1000000);
+      var remainingJump = jump - remainingJumpOnVector;
+      var nextVector = _nextVectorIndex();
+      if (nextVector != null) {
+        vectorIndex = nextVector;
+        traveledMetersOnVector = 0;
+        //recursive call for next vector for the remaining time
+        onUpdateToNextPointInTime(remainingJump);
+      } else {
+        var nextMachine = conveyor.drawerOut.linkedTo.owner;
+        if (nextMachine is DrawerConveyor) {
+          conveyor = nextMachine;
+          vectorIndex = 0;
+          traveledMetersOnVector = 0;
+          //recursive call for next vector for the remaining time
+          onUpdateToNextPointInTime(remainingJump);
+        } else {
+          // keep the drawer at the end.
+          var lastVector = drawerPath.last;
+          vectorIndex = drawerPath.length - 1;
+          traveledMetersOnVector = lastVector.lengthInMeters;
+        }
+      }
+    }
+  }
+
+  /// calculates the current position (offset) of a drawer on a conveyor
+  @override
+  OffsetInMeters topLeft(MachineLayout layout) {
+    if (layout.rotationOf(conveyor).degrees != 0) {
+      print('rotated Conveyor');
+    }
+    var toDrawerStart = layout.drawerStartOf(conveyor);
+    var drawerPath = layout.drawerPathOf(conveyor);
+    var vector = drawerPath[vectorIndex];
+    var completedFraction = traveledMetersOnVector / vector.lengthInMeters;
+    var traveled =
+        (_sumOfCompletedVectors(drawerPath) + vector * completedFraction);
+    return toDrawerStart + traveled;
+  }
+
+  Iterable<OffsetInMeters> _completedVectors(DrawerPath drawerPath) {
+    return drawerPath.getRange(0, vectorIndex);
+  }
+
+  OffsetInMeters _sumOfCompletedVectors(DrawerPath drawerPath) {
+    var vectors = _completedVectors(drawerPath);
+    if (vectors.isEmpty) {
+      return OffsetInMeters.zero;
+    }
+    return vectors.reduce((a, b) => a + b);
+  }
+
+  /// returns the [drawerPath] index of the next vector.
+  /// returns null if there is no next vector.
+  int? _nextVectorIndex() {
+    if (vectorIndex >= conveyor.drawerPath.length - 1) {
+      return null;
+    }
+    return vectorIndex + 1;
+  }
+
+  @override
+  double rotationFraction(MachineLayout layout) =>
+      layout.drawerPathOf(conveyor)[vectorIndex].directionInRadians / (2 * pi);
+}

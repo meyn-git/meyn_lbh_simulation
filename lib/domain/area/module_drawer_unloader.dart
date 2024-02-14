@@ -1,10 +1,8 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
-import 'dart:math';
-
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/drawer_conveyors.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 
@@ -806,125 +804,4 @@ class LiftPositionUp extends DrawerPosition implements TimeProcessor {
   @override
   double rotationFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
-}
-
-class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
-  /// the conveyor where the drawer is on currently
-  DrawerConveyor conveyor;
-
-  /// the vector of the [conveyor] where the drawer is on currently
-  OffsetInMeters vector;
-
-  /// the traveled distance in meters on [vector] where the drawer is on currently
-  double traveledMetersOnVector;
-
-  OnConveyorPosition(this.conveyor)
-      : vector = conveyor.drawerPath.first,
-        traveledMetersOnVector = 0.0;
-
-  /// calculates the next position of a drawer on a conveyor
-  @override
-  void onUpdateToNextPointInTime(Duration jump) {
-    var secondsOfTravel = jump.inMicroseconds / 1000000;
-    var metersPerSecond = conveyor.metersPerSecond;
-    var metersToTravel = metersPerSecond *
-        secondsOfTravel; //TODO reduce [meterToTravel] when needed to not overlap other drawers!
-    var remainingMetersOnVector =
-        vector.lengthInMeters - traveledMetersOnVector;
-    if (metersToTravel <= remainingMetersOnVector) {
-      /// move on vector
-      traveledMetersOnVector += metersToTravel;
-    } else {
-      // move on next vector
-      var remainingJumpOnVector = Duration(
-          microseconds: remainingMetersOnVector / metersPerSecond ~/ 1000000);
-      var remainingJump = jump - remainingJumpOnVector;
-      var nextVector = _nextVector();
-      if (nextVector != null) {
-        vector = nextVector;
-        traveledMetersOnVector = 0;
-        //recursive call for next vector for the remaining time
-        onUpdateToNextPointInTime(remainingJump);
-      } else {
-        var nextMachine = conveyor.drawerOut.linkedTo.owner;
-        if (nextMachine is DrawerConveyor) {
-          conveyor = nextMachine;
-          vector = conveyor.drawerPath.first;
-          traveledMetersOnVector = 0;
-          //recursive call for next vector for the remaining time
-          onUpdateToNextPointInTime(remainingJump);
-        } else {
-          // keep the drawer at the end.
-          vector = conveyor.drawerPath.first;
-          traveledMetersOnVector = vector.lengthInMeters;
-        }
-      }
-    }
-  }
-
-  /// calculates the current position (offset) of a drawer on a conveyor
-  @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    var topLeftConveyor = layout.topLeftOf(conveyor);
-    var topLeftToStart = conveyor.drawerIn.offsetFromCenter; //FIXME
-    var completedFraction = traveledMetersOnVector / vector.lengthInMeters;
-    var conveyorCenter = OffsetInMeters(
-        metersFromLeft:
-            -GrandeDrawerModuleType.drawerOutSideLength.as(meters) / 2,
-        metersFromTop: 0);
-    var traveled = (_sumOfCompletedVectors() + vector * completedFraction);
-    return topLeftConveyor + topLeftToStart + conveyorCenter + traveled;
-  }
-
-  Iterable<OffsetInMeters> _completedVectors() {
-    var index = conveyor.drawerPath.indexOf(vector);
-    return conveyor.drawerPath.getRange(0, index);
-  }
-
-  OffsetInMeters _sumOfCompletedVectors() {
-    var vectors = _completedVectors();
-    if (vectors.isEmpty) {
-      return OffsetInMeters.zero;
-    }
-    return vectors.reduce((a, b) => a + b);
-  }
-
-  OffsetInMeters? _nextVector() {
-    if (vector == conveyor.drawerPath.last) {
-      return null;
-    }
-    var nextIndex = conveyor.drawerPath.indexOf(vector) + 1;
-    return conveyor.drawerPath[nextIndex];
-  }
-
-  @override
-  double rotationFraction(MachineLayout layout) =>
-      vector.directionInRadians / (2 * pi);
-}
-
-class Durations {
-  List<Duration> durations = [];
-  final int maxSize;
-
-  Durations({required this.maxSize});
-
-  add(Duration? duration) {
-    if (duration == null) {
-      return;
-    }
-    durations.insert(0, duration);
-    if (durations.length > maxSize) {
-      durations.length = maxSize;
-    }
-  }
-
-  Duration get total => durations.reduce((a, b) => a + b);
-
-  Duration get average => durations.isEmpty
-      ? Duration.zero
-      : Duration(
-          milliseconds: (total.inMilliseconds / durations.length).round());
-
-  double get averagePerHour =>
-      durations.isEmpty ? 0 : 3600000 / average.inMilliseconds;
 }
