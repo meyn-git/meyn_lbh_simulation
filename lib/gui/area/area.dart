@@ -71,6 +71,7 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
   Widget build(BuildContext context) {
     return player.scenario == null
         ? const Text("No scenario's")
+        //TODO Listener   https://bartvwezel.nl/flutter/detecting-clicks-on-overlapping-custompaint-widgets/
         : Container(
             color: Colors.grey.shade200,
             child: Column(
@@ -79,9 +80,11 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
                     fit: BoxFit.fitWidth,
                     child: Text(_title, style: const TextStyle(fontSize: 25))),
                 Expanded(
-                  child: CustomMultiChildLayout(
-                      delegate: AreaWidgetDelegate(player.scenario!),
-                      children: createChildren(player.scenario!)),
+                  child: InteractiveViewer(
+                    child: CustomMultiChildLayout(
+                        delegate: AreaWidgetDelegate(player.scenario!),
+                        children: createChildren(player.scenario!)),
+                  ),
                 )
               ],
             ),
@@ -329,9 +332,6 @@ class MachineLayout {
     _rotations[machine] = rotation;
     _centers[machine] = topLeft + machine.sizeWhenNorthBound.toOffset() * 0.5;
     if (machine is DrawerConveyor) {
-      if (rotation.degrees != 0) {
-        print('TODO');
-      }
       var toCenter = _centers[machine]!;
       var centerToStart = machine.drawerIn.offsetFromCenter.rotate(rotation);
       _drawerStarts[machine] = toCenter + centerToStart;
