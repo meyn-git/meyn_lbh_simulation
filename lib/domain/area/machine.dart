@@ -7,7 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 
 abstract class Machine {
   /// See [DefaultOrientation]
-  late SizeInMeters sizeWhenNorthBound;
+  late SizeInMeters sizeWhenFacingNorth;
 
   /// all links to other [Machine]s
   late List<Link> links;

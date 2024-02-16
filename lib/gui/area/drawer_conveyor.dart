@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
@@ -83,7 +84,7 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   void addConveyorChainsToPath(Path path, Size size) {
-    var totalWidthInMeters = drawerConveyor.sizeWhenNorthBound.widthInMeters;
+    var totalWidthInMeters = drawerConveyor.sizeWhenFacingNorth.widthInMeters;
     var offSet = drawerConveyor.machineProtrudesInMeters / totalWidthInMeters;
     path.moveTo(size.width * offSet, 0);
     path.lineTo(size.width * offSet, size.height);
@@ -113,7 +114,7 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 
   void addConveyorChainsToPath(Path path, Size size) {
-    var widthInMeters = drawerConveyor.sizeWhenNorthBound.widthInMeters;
+    var widthInMeters = drawerConveyor.sizeWhenFacingNorth.widthInMeters;
     var sizePerMeter = size.width / widthInMeters;
     var shortRadius =
         size.width - DrawerConveyor.chainWidthInMeters * sizePerMeter;

@@ -54,7 +54,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
   }) : drawerPath = DrawerPath.straight(lengthInMeters);
 
   @override
-  late SizeInMeters sizeWhenNorthBound = SizeInMeters(
+  late SizeInMeters sizeWhenFacingNorth = SizeInMeters(
       widthInMeters:
           DrawerConveyor.chainWidthInMeters + machineProtrudesInMeters * 2,
       heightInMeters: lengthInMeters);
@@ -64,7 +64,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
       owner: this,
       offsetFromCenter: OffsetInMeters(
           metersFromLeft: 0,
-          metersFromTop: sizeWhenNorthBound.heightInMeters / 2),
+          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.south.toCompassDirection());
 
   @override
@@ -72,7 +72,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
       owner: this,
       offsetFromCenter: OffsetInMeters(
           metersFromLeft: 0,
-          metersFromTop: -sizeWhenNorthBound.heightInMeters / 2),
+          metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.north.toCompassDirection());
 
   @override
@@ -101,7 +101,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
         );
 
   @override
-  late SizeInMeters sizeWhenNorthBound = SizeInMeters(
+  late SizeInMeters sizeWhenFacingNorth = SizeInMeters(
       widthInMeters: drawerPath.outWard.widthInMeters +
           DrawerConveyor.chainWidthInMeters / 2,
       heightInMeters: drawerPath.outWard.heightInMeters +
@@ -112,11 +112,11 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
       owner: this,
       offsetFromCenter: OffsetInMeters(
           metersFromLeft: clockwise
-              ? -sizeWhenNorthBound.widthInMeters / 2 +
+              ? -sizeWhenFacingNorth.widthInMeters / 2 +
                   DrawerConveyor.chainWidthInMeters / 2
-              : sizeWhenNorthBound.widthInMeters / 2 -
+              : sizeWhenFacingNorth.widthInMeters / 2 -
                   DrawerConveyor.chainWidthInMeters / 2,
-          metersFromTop: sizeWhenNorthBound.heightInMeters / 2),
+          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.south.toCompassDirection());
 
   @override
@@ -124,9 +124,9 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
       owner: this,
       offsetFromCenter: OffsetInMeters(
           metersFromLeft: clockwise
-              ? sizeWhenNorthBound.widthInMeters / 2
-              : -sizeWhenNorthBound.widthInMeters / 2,
-          metersFromTop: -sizeWhenNorthBound.heightInMeters / 2 +
+              ? sizeWhenFacingNorth.widthInMeters / 2
+              : -sizeWhenFacingNorth.widthInMeters / 2,
+          metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2 +
               DrawerConveyor.chainWidthInMeters / 2),
       directionFromCenter: clockwise
           ? CardinalDirection.east.toCompassDirection()
@@ -189,7 +189,7 @@ class DrawerTurningConveyor extends DrawerConveyorStraight {
       owner: this,
       offsetFromCenter: OffsetInMeters(
           metersFromLeft: 0,
-          metersFromTop: sizeWhenNorthBound.heightInMeters / 2),
+          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.south.toCompassDirection());
 }
 

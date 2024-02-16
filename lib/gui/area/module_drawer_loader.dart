@@ -74,7 +74,7 @@ class DrawerLoaderLiftPainter extends DrawerConveyorPainter {
   @override
   void paint(Canvas canvas, Size size) {
     double sizePerMeter =
-        size.width / drawerLift.sizeWhenNorthBound.widthInMeters;
+        size.width / drawerLift.sizeWhenFacingNorth.widthInMeters;
     for (int level = 0; level < drawerLift.nrOfLiftPositions; level++) {
       _drawDrawer(canvas, sizePerMeter,
           drawerLift.topLeftToLiftLevel(level).toOffset());

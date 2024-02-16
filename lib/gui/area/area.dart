@@ -61,29 +61,33 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     super.dispose();
   }
 
-  String get title => player.scenario == null
-      ? 'No scenario!'
-      : player.scenario!.site.toString();
-
-  String get _title => '${player.scenario!.site}-${player.scenario!.area}';
+  String get scenarioTitle =>
+      '${player.scenario!.site}-${player.scenario!.area}';
 
   @override
   Widget build(BuildContext context) {
+    var areaWidgetDelegate = AreaWidgetDelegate(player.scenario!);
     return player.scenario == null
         ? const Text("No scenario's")
-        //TODO Listener   https://bartvwezel.nl/flutter/detecting-clicks-on-overlapping-custompaint-widgets/
         : Container(
             color: Colors.grey.shade200,
             child: Column(
               children: [
                 FittedBox(
                     fit: BoxFit.fitWidth,
-                    child: Text(_title, style: const TextStyle(fontSize: 25))),
+                    child: Text(scenarioTitle,
+                        style: const TextStyle(fontSize: 25))),
                 Expanded(
                   child: InteractiveViewer(
-                    child: CustomMultiChildLayout(
-                        delegate: AreaWidgetDelegate(player.scenario!),
-                        children: createChildren(player.scenario!)),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => Listener(
+                        onPointerUp: (event) =>
+                            onPointerUp(event, areaWidgetDelegate, constraints),
+                        child: CustomMultiChildLayout(
+                            delegate: areaWidgetDelegate,
+                            children: createChildren(player.scenario!)),
+                      ),
+                    ),
                   ),
                 )
               ],
@@ -145,6 +149,114 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
       }
     });
   }
+
+  void onPointerUp(PointerUpEvent event, AreaWidgetDelegate areaWidgetDelegate,
+      BoxConstraints constraints) {
+    /// See https://bartvwezel.nl/flutter/detecting-clicks-on-overlapping-custompaint-widgets/
+    print(event.position);
+
+    var size = areaWidgetDelegate.getSize(constraints);
+
+    List objectsToMonitor = [];
+    objectsToMonitor
+        .addAll(cellsToAddToMonitor(event, areaWidgetDelegate, size));
+
+    objectsToMonitor
+        .addAll(machinesToAddToMonitor(event, areaWidgetDelegate, size));
+
+    print(objectsToMonitor);
+
+    if (objectsToMonitor.isNotEmpty) {
+      GetIt.instance<Player>().selectedCell = objectsToMonitor
+          .first; //TODO rename selectedCell to objectsToMonitor and make it a list with unique objects
+    }
+  }
+
+  List<Cell> cellsToAddToMonitor(
+      PointerUpEvent event, AreaWidgetDelegate areaWidgetDelegate, Size size) {
+    var cellSize = areaWidgetDelegate._childSize(size);
+    var padding = areaWidgetDelegate._offsetForAllChildren(size, cellSize);
+    var pointer = event.position - padding;
+    var clickedCellPosition = Position(
+      pointer.dx ~/ cellSize.width + 1,
+      pointer.dy ~/ cellSize.height + 1,
+    );
+    var cells = areaWidgetDelegate.area.cells;
+    var clickedCells =
+        cells.where((cell) => cell.position == clickedCellPosition);
+    if (clickedCells.isEmpty) {
+      return [];
+    }
+    var clickedCell = clickedCells.first;
+    if (clickedCell is EmptyCell) {
+      return [];
+    }
+    return linkedCells(cells, clickedCell);
+  }
+
+  List<Machine> machinesToAddToMonitor(
+      PointerUpEvent event, AreaWidgetDelegate areaWidgetDelegate, Size size) {
+    var clickedMachines = <Machine>[];
+    var cellSize = areaWidgetDelegate._childSize(size);
+    var padding = areaWidgetDelegate._offsetForAllChildren(size, cellSize);
+    var pointer = event.position - padding - const Offset(0, 85);
+    var sizePerMeter = areaWidgetDelegate._sizePerMeter(cellSize);
+    for (var machine in areaWidgetDelegate.area.machines) {
+      if (clickedOnMachine(
+        areaWidgetDelegate.layout,
+        machine,
+        sizePerMeter,
+        pointer,
+      )) {
+        clickedMachines.add(machine);
+      }
+    }
+    return clickedMachines;
+  }
+
+  bool clickedOnMachine(MachineLayout layout, Machine machine,
+      double sizePerMeter, Offset pointer) {
+    /// TODO: Listener only listens when there is a child where clicked.
+    /// We place all machines facing north and then rotate,
+    /// but the size is still facing north.
+    /// The begin end end of a long conveyor that is rotated 90 degrees
+    /// is therefore not clickable.
+    /// We need to extend its size to Size(max(s.x,s.y),max(s.x,s.y))
+
+    var pointerWhenMachineFacesNorth = rotateOffset(
+        pointer,
+        layout.centerOf(machine).toOffset() * sizePerMeter,
+        -layout.rotationOf(machine).toRadians());
+    var topLeftWhenMachineFacesNorth =
+        layout.topLeftWhenFacingNorthOf(machine).toOffset() * sizePerMeter;
+    var bottomRightWhenMachineFacesNorth = topLeftWhenMachineFacesNorth +
+        machine.sizeWhenFacingNorth.toOffset().toOffset() * sizePerMeter;
+    return pointerWhenMachineFacesNorth >= topLeftWhenMachineFacesNorth &&
+        pointerWhenMachineFacesNorth <= bottomRightWhenMachineFacesNorth;
+  }
+
+  Offset rotateOffset(Offset input, Offset center, double angle) {
+    final double x = input.dx;
+    final double y = input.dy;
+    final double rx0 = center.dx;
+    final double ry0 = center.dy;
+    final double x0 = (x - rx0) * cos(angle) - (y - ry0) * sin(angle) + rx0;
+    final double y0 = (x - rx0) * sin(angle) + (y - ry0) * cos(angle) + ry0;
+    return Offset(x0, y0);
+  }
+
+  List<Cell> linkedCells(List<ActiveCell> cells, ActiveCell clickedCell) {
+    if (clickedCell is ModuleCas) {
+      return [...cells.whereType<ModuleCasStart>(), clickedCell];
+    }
+    var moduleCasAllocations = cells.whereType<ModuleCasAllocation>();
+    for (var moduleCasAllocation in moduleCasAllocations) {
+      if ((moduleCasAllocation).positionToAllocate == clickedCell.position) {
+        return [moduleCasAllocation, clickedCell];
+      }
+    }
+    return [clickedCell];
+  }
 }
 
 class EmptyCellWidget extends StatelessWidget {
@@ -182,7 +294,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   void _layoutAndPositionMachines(Size childSize, Offset childOffset) {
     var sizePerMeter = _sizePerMeter(childSize);
     for (var machine in area.machines) {
-      var size = machine.sizeWhenNorthBound.toSize() * sizePerMeter;
+      var size = machine.sizeWhenFacingNorth.toSize() * sizePerMeter;
       layoutChild(machine, BoxConstraints.tight(size));
       var topLeft =
           childOffset + layout._topLefts[machine]!.toOffset() * sizePerMeter;
@@ -330,7 +442,7 @@ class MachineLayout {
   ) {
     _topLefts[machine] = topLeft;
     _rotations[machine] = rotation;
-    _centers[machine] = topLeft + machine.sizeWhenNorthBound.toOffset() * 0.5;
+    _centers[machine] = topLeft + machine.sizeWhenFacingNorth.toOffset() * 0.5;
     if (machine is DrawerConveyor) {
       var toCenter = _centers[machine]!;
       var centerToStart = machine.drawerIn.offsetFromCenter.rotate(rotation);
@@ -349,13 +461,13 @@ class MachineLayout {
             link.directionFromCenter +
             link.linkedTo.directionFromCenter.opposite;
         var machine1TopLeftToCenter =
-            machine1.sizeWhenNorthBound.toOffset() * 0.5;
+            machine1.sizeWhenFacingNorth.toOffset() * 0.5;
         var machine1CenterToLink =
             link.offsetFromCenter.rotate(machine1Rotation);
         var machine2LinkToCenter =
             link.linkedTo.offsetFromCenter.rotate(machine2Rotation) * -1;
         var machine2CenterToTopLeft =
-            machine2.sizeWhenNorthBound.toOffset() * -0.5;
+            machine2.sizeWhenFacingNorth.toOffset() * -0.5;
         var machine2TopLeft = machine1TopLeft +
             machine1TopLeftToCenter +
             machine1CenterToLink +
@@ -377,7 +489,8 @@ class MachineLayout {
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
   /// to the top left of the [Machine]
-  OffsetInMeters topLeftOf(Machine machine) => _topLefts[machine]!;
+  OffsetInMeters topLeftWhenFacingNorthOf(Machine machine) =>
+      _topLefts[machine]!;
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
   /// to the center of the [Machine]
@@ -406,12 +519,12 @@ class MachineLayout {
     }
     var maxX = _topLefts
         .map((machine, pos) => MapEntry(machine,
-            pos.metersFromLeft + machine.sizeWhenNorthBound.widthInMeters))
+            pos.metersFromLeft + machine.sizeWhenFacingNorth.widthInMeters))
         .values
         .max;
     var maxY = _topLefts
         .map((machine, pos) => MapEntry(machine,
-            pos.metersFromTop + machine.sizeWhenNorthBound.heightInMeters))
+            pos.metersFromTop + machine.sizeWhenFacingNorth.heightInMeters))
         .values
         .max;
     return SizeInMeters(widthInMeters: maxX, heightInMeters: maxY);
