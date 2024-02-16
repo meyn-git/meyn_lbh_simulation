@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
-
-import '../../domain/area/player.dart';
 
 class UnLoadingForkLiftTruckWidget extends StatelessWidget {
   final UnLoadingForkLiftTruck forkLiftTruck;
 
-  const UnLoadingForkLiftTruckWidget(this.forkLiftTruck, {Key? key})
-      : super(key: key);
+  const UnLoadingForkLiftTruckWidget(this.forkLiftTruck, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = forkLiftTruck;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(paintDirection.degrees / 360),
-        child: CustomPaint(painter: UnLoadingForkLiftTruckPainter()),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(paintDirection.degrees / 360),
+      child: CustomPaint(painter: UnLoadingForkLiftTruckPainter()),
     );
   }
 

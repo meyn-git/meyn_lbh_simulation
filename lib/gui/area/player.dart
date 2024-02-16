@@ -90,27 +90,28 @@ class PlayerPanel extends StatelessWidget {
         if (_tooSmallForExtraPanels(constraints)) {
           return areaPanel;
         } else {
-          if (_mostSpaceHorizontally(constraints)) {
-            return Row(
-              children: [
-                Expanded(child: areaPanel),
-                Container(
-                    color: Colors.white,
-                    width: _minimumSizeForExtraPanels,
-                    child: const ViewCellPropertiesPanel())
-              ],
-            );
-          } else {
-            return Column(
-              children: [
-                Expanded(child: areaPanel),
-                Container(
-                    color: Colors.white,
-                    height: _minimumSizeForExtraPanels,
-                    child: const ViewCellPropertiesPanel())
-              ],
-            );
-          }
+          // if (_mostSpaceHorizontally(constraints)) {
+          return Row(
+            children: [
+              Expanded(child: areaPanel),
+              Container(
+                  color: Colors.white,
+                  width: _minimumSizeForExtraPanels,
+                  child: const MonitorPanel())
+            ],
+          );
+          //TODO remove?
+          //} else {
+          //   return Column(
+          //     children: [
+          //       Expanded(child: areaPanel),
+          //       Container(
+          //           color: Colors.white,
+          //           height: _minimumSizeForExtraPanels,
+          //           child: const ViewCellPropertiesPanel())
+          //     ],
+          //   );
+          // }
         }
       });
 
@@ -127,16 +128,14 @@ class PlayerPanel extends StatelessWidget {
       constraints.maxHeight < (_minimumSizeForExtraPanels * 2);
 }
 
-class ViewCellPropertiesPanel extends StatefulWidget {
-  const ViewCellPropertiesPanel({super.key});
+class MonitorPanel extends StatefulWidget {
+  const MonitorPanel({super.key});
 
   @override
-  State<ViewCellPropertiesPanel> createState() =>
-      _ViewCellPropertiesPanelState();
+  State<MonitorPanel> createState() => _MonitorPanelState();
 }
 
-class _ViewCellPropertiesPanelState extends State<ViewCellPropertiesPanel>
-    implements UpdateListener {
+class _MonitorPanelState extends State<MonitorPanel> implements UpdateListener {
   String propertyText = '';
 
   Player get player => GetIt.instance<Player>();
@@ -154,15 +153,24 @@ class _ViewCellPropertiesPanelState extends State<ViewCellPropertiesPanel>
   }
 
   @override
-  Widget build(BuildContext context) => Center(child: Text(propertyText));
+  Widget build(BuildContext context) {
+    var objects = player.objectsToMonitor.toList();
+    return ListView.builder(
+      itemCount: objects.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(objects[index].toString()),
+      ),
+    );
+  }
 
   @override
   void onUpdate() {
     setState(() {
-      if (player.selectedCell == null) {
+      if (player.objectsToMonitor.isEmpty) {
         propertyText = '';
       } else {
-        propertyText = player.selectedCell.toString();
+        //TODO remember the max nr of lines per object and keep it that way so they do not jump all the time when more or less are shown
+        propertyText = player.objectsToMonitor.toString();
       }
     });
   }

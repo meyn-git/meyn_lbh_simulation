@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
-
-import '../../domain/area/player.dart';
 
 class ModuleTilterWidget extends StatelessWidget {
   final ModuleTilter tilter;
 
-  const ModuleTilterWidget(this.tilter, {Key? key}) : super(key: key);
+  const ModuleTilterWidget(this.tilter, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = tilter;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            tilter.inFeedDirection.opposite.toCompassDirection().degrees / 360),
-        child: CustomPaint(painter: ModuleTilterPainter(tilter)),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(
+          tilter.inFeedDirection.opposite.toCompassDirection().degrees / 360),
+      child: CustomPaint(painter: ModuleTilterPainter(tilter)),
     );
   }
 }

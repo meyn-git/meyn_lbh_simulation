@@ -50,10 +50,10 @@ class BirdHangingConveyorWidget extends StatelessWidget {
 
   Command get _monitorCommand => Command.dynamic(
         name: () => 'Monitor',
-        visible: () => player.selectedCell != birdHangingConveyor,
+        visible: () => player.objectsToMonitor != birdHangingConveyor,
         icon: () => null,
         action: () {
-          player.selectedCell = birdHangingConveyor;
+          player.objectsToMonitor.add(birdHangingConveyor);
         },
       );
 }

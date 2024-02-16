@@ -1,11 +1,8 @@
 import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
-
-import '../../domain/area/player.dart';
 
 /// TODO this is a copy of module_drawer_loader.dart. Loader was renamed to Loader. It might need some additional work
 class ModuleDrawerLoaderWidget extends StatelessWidget {
@@ -15,15 +12,10 @@ class ModuleDrawerLoaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = loader;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            loader.inFeedDirection.opposite.toCompassDirection().degrees / 360),
-        child: CustomPaint(painter: ModuleDrawerLoaderPainter(loader)),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(
+          loader.inFeedDirection.opposite.toCompassDirection().degrees / 360),
+      child: CustomPaint(painter: ModuleDrawerLoaderPainter(loader)),
     );
   }
 }

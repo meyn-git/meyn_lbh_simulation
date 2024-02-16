@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
-
-import '../../domain/area/player.dart';
 
 class ModuleCasWidget extends StatelessWidget {
   final ModuleCas cas;
@@ -12,15 +9,10 @@ class ModuleCasWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = cas;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            cas.inAndOutFeedDirection.toCompassDirection().degrees / 360),
-        child: CustomPaint(painter: ModuleCasPainter(cas)),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(
+          cas.inAndOutFeedDirection.toCompassDirection().degrees / 360),
+      child: CustomPaint(painter: ModuleCasPainter(cas)),
     );
   }
 }

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
-
-import '../../domain/area/player.dart';
 
 class ModuleConveyorWidget extends StatelessWidget {
   final ModuleConveyor moduleConveyor;
@@ -11,17 +8,11 @@ class ModuleConveyorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = moduleConveyor;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(moduleConveyor.inFeedDirection.opposite
-                .toCompassDirection()
-                .degrees /
-            360),
-        child: CustomPaint(painter: ModuleConveyorPainter()),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(
+          moduleConveyor.inFeedDirection.opposite.toCompassDirection().degrees /
+              360),
+      child: CustomPaint(painter: ModuleConveyorPainter()),
     );
   }
 }

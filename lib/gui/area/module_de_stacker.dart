@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
-
-import '../../domain/area/player.dart';
 
 class ModuleDeStackerWidget extends StatelessWidget {
   final ModuleDeStacker deStacker;
@@ -11,16 +8,11 @@ class ModuleDeStackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-        onTap: () {
-          GetIt.instance<Player>().selectedCell = deStacker;
-        },
-        child: RotationTransition(
-            turns: AlwaysStoppedAnimation(deStacker.inFeedDirection.opposite
-                    .toCompassDirection()
-                    .degrees /
+    return RotationTransition(
+        turns: AlwaysStoppedAnimation(
+            deStacker.inFeedDirection.opposite.toCompassDirection().degrees /
                 360),
-            child: CustomPaint(painter: ModuleDeStackerPainter(deStacker))));
+        child: CustomPaint(painter: ModuleDeStackerPainter(deStacker)));
   }
 }
 

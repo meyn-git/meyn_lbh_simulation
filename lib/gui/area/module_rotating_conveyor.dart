@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
-
-import '../../domain/area/player.dart';
 
 class ModuleRotatingConveyorWidget extends StatelessWidget {
   final ModuleRotatingConveyor rotatingConveyor;
 
-  const ModuleRotatingConveyorWidget(this.rotatingConveyor, {Key? key})
-      : super(key: key);
+  const ModuleRotatingConveyorWidget(this.rotatingConveyor, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        GetIt.instance<Player>().selectedCell = rotatingConveyor;
-      },
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            rotatingConveyor.currentDirection.degrees / 360),
-        child: CustomPaint(painter: ModuleRotatingConveyorPainter()),
-      ),
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(
+          rotatingConveyor.currentDirection.degrees / 360),
+      child: CustomPaint(painter: ModuleRotatingConveyorPainter()),
     );
   }
 }

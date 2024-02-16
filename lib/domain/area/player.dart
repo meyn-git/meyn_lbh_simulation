@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:collection';
 
-import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
 class Player {
@@ -10,7 +11,7 @@ class Player {
   final List<UpdateListener> _updateListeners = [];
   Timer? timer;
 
-  Object? selectedCell;
+  LinkedHashSet<Object> objectsToMonitor = LinkedHashSet<Object>();
 
   Player() {
     updateTimer();
@@ -28,8 +29,10 @@ class Player {
   set scenario(Scenario? scenario) {
     _scenario = scenario;
     if (scenario != null) {
-      var stateMachines = scenario.area.cells.whereType<StateMachineCell>();
-      selectedCell = stateMachines.isEmpty ? null : stateMachines.first;
+      var hangingConveyors =
+          scenario.area.cells.whereType<BirdHangingConveyor>();
+      objectsToMonitor.clear();
+      objectsToMonitor.addAll(hangingConveyors);
     }
   }
 

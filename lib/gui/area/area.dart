@@ -152,24 +152,13 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
 
   void onPointerUp(PointerUpEvent event, AreaWidgetDelegate areaWidgetDelegate,
       BoxConstraints constraints) {
-    /// See https://bartvwezel.nl/flutter/detecting-clicks-on-overlapping-custompaint-widgets/
-    print(event.position);
-
     var size = areaWidgetDelegate.getSize(constraints);
-
-    List objectsToMonitor = [];
+    var objectsToMonitor = <Object>{};
     objectsToMonitor
         .addAll(cellsToAddToMonitor(event, areaWidgetDelegate, size));
-
     objectsToMonitor
         .addAll(machinesToAddToMonitor(event, areaWidgetDelegate, size));
-
-    print(objectsToMonitor);
-
-    if (objectsToMonitor.isNotEmpty) {
-      GetIt.instance<Player>().selectedCell = objectsToMonitor
-          .first; //TODO rename selectedCell to objectsToMonitor and make it a list with unique objects
-    }
+    GetIt.instance<Player>().objectsToMonitor.addAll(objectsToMonitor);
   }
 
   List<Cell> cellsToAddToMonitor(

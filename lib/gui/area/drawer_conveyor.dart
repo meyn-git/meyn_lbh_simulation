@@ -1,14 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
-import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
@@ -20,17 +17,9 @@ class MachineWidget extends StatelessWidget {
   MachineWidget(this.layout, this.machine) : super(key: UniqueKey());
 
   @override
-  Widget build(BuildContext context) => InkWell(
-      onTap: () {
-        ///TODO does not work when overlapping.
-        ///Solution: Whole [AreaPanel] to have a (onPointDown) [Listener] that looks up the machine(s) using the [MachineLayout]
-        ///See https://bartvwezel.nl/flutter/detecting-clicks-on-overlapping-custompaint-widgets/
-        GetIt.instance<Player>().selectedCell = machine;
-      },
-      child: RotationTransition(
-          turns:
-              AlwaysStoppedAnimation(layout.rotationOf(machine).toFraction()),
-          child: CustomPaint(painter: createMachinePainter(machine))));
+  Widget build(BuildContext context) => RotationTransition(
+      turns: AlwaysStoppedAnimation(layout.rotationOf(machine).toFraction()),
+      child: CustomPaint(painter: createMachinePainter(machine)));
 }
 
 DrawerConveyorPainter createMachinePainter(Machine machine) {

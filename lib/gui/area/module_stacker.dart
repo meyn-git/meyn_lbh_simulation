@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
-
-import '../../domain/area/player.dart';
 
 class ModuleStackerWidget extends StatelessWidget {
   final ModuleStacker stacker;
 
-  const ModuleStackerWidget(this.stacker, {Key? key}) : super(key: key);
+  const ModuleStackerWidget(this.stacker, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-        onTap: () {
-          GetIt.instance<Player>().selectedCell = stacker;
-        },
-        child: RotationTransition(
-            turns: AlwaysStoppedAnimation(
-                stacker.inFeedDirection.opposite.toCompassDirection().degrees /
-                    360),
-            child: CustomPaint(painter: ModuleStackerPainter(stacker))));
+    return RotationTransition(
+        turns: AlwaysStoppedAnimation(
+            stacker.inFeedDirection.opposite.toCompassDirection().degrees /
+                360),
+        child: CustomPaint(painter: ModuleStackerPainter(stacker)));
   }
 }
 
