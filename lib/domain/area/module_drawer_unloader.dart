@@ -5,6 +5,8 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import '../util/title_builder.dart';
 import 'life_bird_handling_area.dart';
@@ -24,6 +26,12 @@ class ModuleDrawerUnloader extends StateMachineCell
   final Duration pusherInDuration;
   final Duration feedInToSecondColumn;
   final bool drawersToLeft;
+
+  @override
+  late List<Command> commands = [
+    RemoveFromMonitorPanel(this),
+  ];
+
   Duration? durationPerModule;
 
   Durations durationsPerModule = Durations(maxSize: 8);
@@ -412,6 +420,9 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   late Duration minimumInterval =
       Duration(milliseconds: 3600000 ~/ maxDrawersPerHour);
   late double offsetInMeters = 0.2;
+
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   DrawerUnloaderLift({
     required this.area,

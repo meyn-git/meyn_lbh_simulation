@@ -1,4 +1,6 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import '../util/title_builder.dart';
 import 'life_bird_handling_area.dart';
@@ -9,6 +11,10 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final CardinalDirection inFeedDirection;
   @override
   final CardinalDirection birdDirection;
+
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
   int birdsOnDumpBelt = 0;
   int maxBirdsOnDumpBelt;
 

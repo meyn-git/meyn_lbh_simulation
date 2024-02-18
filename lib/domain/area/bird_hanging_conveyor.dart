@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -12,6 +15,8 @@ class BirdHangingConveyor implements ActiveCell {
   late Position position;
   @override
   late String name = "BirdHangingConveyor${seqNr ?? ''}";
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this), _startCommand, _stopCommand];
   final int? seqNr;
   final CardinalDirection direction;
   final int shacklesPerHour;
@@ -19,6 +24,27 @@ class BirdHangingConveyor implements ActiveCell {
   Duration elapsedTime = Duration.zero;
   late BirdBuffer birdBuffer = _findBirdBuffer();
   static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
+
+
+  Command get _startCommand => Command.dynamic(
+        name: () => 'Start line',
+        visible: () => !running,
+        icon: () => Icons.play_arrow,
+        action: () {
+          running = true;
+        },
+      );
+
+  Command get _stopCommand => Command.dynamic(
+        name: () => 'Stop line',
+        visible: () => running,
+        icon: () => Icons.stop,
+        action: () {
+          running = false;
+        },
+      );
+  
+
   Duration timePerBird;
 
   bool _running = false;

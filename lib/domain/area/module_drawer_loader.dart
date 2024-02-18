@@ -5,6 +5,8 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import '../util/title_builder.dart';
 import 'life_bird_handling_area.dart';
@@ -55,6 +57,11 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
           outFeedDuration: outFeedDuration ??
               area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
+
+  @override
+  late List<Command> commands = [
+    RemoveFromMonitorPanel(this),
+  ];
 
   @override
   late SizeInMeters sizeWhenFacingNorth = const SizeInMeters(
@@ -403,6 +410,11 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   late Duration minimumInterval =
       Duration(milliseconds: 3600000 ~/ maxDrawersPerHour);
   late double offsetInMeters = 0.2;
+
+  @override
+  late List<Command> commands = [
+    RemoveFromMonitorPanel(this),
+  ];
 
   DrawerLoaderLift({
     required this.area,

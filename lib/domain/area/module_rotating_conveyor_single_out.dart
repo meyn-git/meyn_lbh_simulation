@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart' as tilter;
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -9,6 +11,9 @@ import 'state_machine.dart';
 
 /// Special for 7160 agricola, with a copy of the states + additional states: FeedOutFirst and FeedOutSecond
 class ModuleRotatingConveyorSingleOut extends ModuleRotatingConveyor {
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
   ModuleRotatingConveyorSingleOut({
     required super.area,
     required super.position,

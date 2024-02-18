@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:user_command/user_command.dart';
 
 class MonitorPanel extends StatefulWidget {
   const MonitorPanel({super.key});
@@ -34,6 +36,18 @@ class _MonitorPanelState extends State<MonitorPanel> implements UpdateListener {
       padding: const EdgeInsets.all(6),
       itemCount: objects.length,
       itemBuilder: (context, index) => ListTile(
+        onTap: () {
+          var object = objects[index];
+          if (object is HasCommands) {
+            //TODO position of menu where clicked
+            CommandPopupMenu(
+              context,
+              object.commands,
+              //TODO use name
+              title: object.toString(),
+            );
+          }
+        },
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(14))),
         tileColor:

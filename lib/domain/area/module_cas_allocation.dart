@@ -1,6 +1,8 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -10,6 +12,7 @@ import 'module_cas.dart';
 /// state of the [ModuleCas] units and transport modules between this position
 /// and the [ModuleCas] units
 class ModuleCasAllocation implements ActiveCell {
+
   @override
   late LiveBirdHandlingArea area;
 
@@ -19,6 +22,10 @@ class ModuleCasAllocation implements ActiveCell {
   @override
   late String name;
 
+
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
   final Position positionToAllocate;
   List<Route> _cashedRoutesToCasUnits = [];
 

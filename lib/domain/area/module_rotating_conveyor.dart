@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -13,6 +15,9 @@ class ModuleRotatingConveyor extends StateMachineCell {
   final CardinalDirection? defaultPositionWhenIdle;
   final List<CardinalDirection> oppositeInFeeds;
   final List<CardinalDirection> oppositeOutFeeds;
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
 
   Map<CardinalDirection, Duration> neighborsAlmostWaitingToFeedOutDurations = {
     CardinalDirection.north: Duration.zero,

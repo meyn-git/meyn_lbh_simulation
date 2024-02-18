@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -16,6 +18,9 @@ class ModuleStacker extends StateMachineCell {
   final Duration supportsCloseDuration;
   final Duration supportsOpenDuration;
   ModuleGroup? moduleGroupOnSupports;
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
 
   ModuleStacker({
     required super.area,

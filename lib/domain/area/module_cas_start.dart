@@ -1,5 +1,7 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'bird_hanging_conveyor.dart';
 import 'life_bird_handling_area.dart';
@@ -15,6 +17,8 @@ class ModuleCasStart implements ActiveCell {
   late Position position;
   @override
   late String name;
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   static const Duration hold = Duration(seconds: 999999999);
 

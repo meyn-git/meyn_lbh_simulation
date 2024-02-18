@@ -9,6 +9,8 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 abstract class DrawerConveyor implements Machine {
   /// * y: number of meters in north/south direction, e.g.:
@@ -46,6 +48,11 @@ class DrawerConveyorStraight implements DrawerConveyor {
   late double metersPerSecond;
 
   late double lengthInMeters;
+
+  @override
+  late List<Command> commands = [
+    RemoveFromMonitorPanel(this),
+  ];
 
   DrawerConveyorStraight({
     required this.lengthInMeters,
@@ -88,6 +95,11 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
 
   @override
   late double metersPerSecond;
+
+  @override
+  late List<Command> commands = [
+    RemoveFromMonitorPanel(this),
+  ];
 
   final bool clockwise;
 

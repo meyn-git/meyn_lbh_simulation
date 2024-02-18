@@ -4,8 +4,9 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
 
-abstract class Machine {
+abstract class Machine implements HasCommands {
   /// See [DefaultOrientation]
   late SizeInMeters sizeWhenFacingNorth;
 

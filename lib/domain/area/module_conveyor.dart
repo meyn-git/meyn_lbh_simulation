@@ -1,4 +1,6 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -10,7 +12,9 @@ class ModuleConveyor extends StateMachineCell {
   int nrOfModulesFeedingIn = 0;
 
   final Duration checkIfEmptyDuration;
-
+@override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
   ModuleConveyor({
     required super.area,
     required super.position,

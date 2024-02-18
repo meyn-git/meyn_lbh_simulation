@@ -1,10 +1,16 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
 class UnLoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection inFeedDirection;
+
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
 
   UnLoadingForkLiftTruck({
     required super.area,

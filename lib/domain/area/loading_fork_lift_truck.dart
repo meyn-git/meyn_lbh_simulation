@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/src/command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -13,6 +15,10 @@ class LoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection outFeedDirection;
   final CardinalDirection doorDirection;
   final bool loadsSingeModule;
+  
+  @override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  
   var sequenceNumber = 0;
 
   @override
@@ -126,6 +132,7 @@ class LoadingForkLiftTruck extends StateMachineCell {
     }
     return moduleCasAllocation as ModuleCasAllocation;
   }
+
 }
 
 /// driving to truck

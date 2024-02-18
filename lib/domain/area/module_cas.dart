@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
@@ -14,6 +16,8 @@ class ModuleCas extends StateMachineCell {
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
+@override
+  late List<Command> commands=[RemoveFromMonitorPanel(this)];
 
   ModuleCas({
     required LiveBirdHandlingArea area,
