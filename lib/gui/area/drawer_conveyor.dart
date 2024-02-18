@@ -9,6 +9,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class MachineWidget extends StatelessWidget {
   final MachineLayout layout;
@@ -17,23 +18,27 @@ class MachineWidget extends StatelessWidget {
   MachineWidget(this.layout, this.machine) : super(key: UniqueKey());
 
   @override
-  Widget build(BuildContext context) => RotationTransition(
-      turns: AlwaysStoppedAnimation(layout.rotationOf(machine).toFraction()),
-      child: CustomPaint(painter: createMachinePainter(machine)));
+  Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
+    return RotationTransition(
+        turns: AlwaysStoppedAnimation(layout.rotationOf(machine).toFraction()),
+        child: CustomPaint(painter: createMachinePainter(machine, style)));
+  }
 }
 
-DrawerConveyorPainter createMachinePainter(Machine machine) {
+DrawerConveyorPainter createMachinePainter(
+    Machine machine, LiveBirdsHandlingStyle style) {
   if (machine is DrawerLoaderLift) {
-    return DrawerLoaderLiftPainter(machine);
+    return DrawerLoaderLiftPainter(machine, style);
   }
   if (machine is DrawerUnloaderLift) {
-    return DrawerUnloaderLiftPainter(machine);
+    return DrawerUnloaderLiftPainter(machine, style);
   }
   if (machine is DrawerConveyorStraight) {
-    return DrawerConveyorStraightPainter(machine);
+    return DrawerConveyorStraightPainter(machine, style);
   }
   if (machine is DrawerConveyor90Degrees) {
-    return DrawerConveyor90DegreePainter(machine);
+    return DrawerConveyor90DegreePainter(machine, style);
   }
   throw Exception('Not supported drawerConveyor');
 }
@@ -50,13 +55,14 @@ abstract class DrawerConveyorPainter extends CustomPainter {
 
 class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   final DrawerConveyorStraight drawerConveyor;
+  final LiveBirdsHandlingStyle style;
 
-  DrawerConveyorStraightPainter(this.drawerConveyor);
+  DrawerConveyorStraightPainter(this.drawerConveyor, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
 
     var path = Path();
@@ -84,13 +90,13 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
 
 class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
   final DrawerConveyor90Degrees drawerConveyor;
-
-  DrawerConveyor90DegreePainter(this.drawerConveyor);
+  final LiveBirdsHandlingStyle style;
+  DrawerConveyor90DegreePainter(this.drawerConveyor, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
 
     var path = Path();

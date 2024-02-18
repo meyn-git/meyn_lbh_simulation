@@ -5,6 +5,7 @@ import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/monitor_panel.dart';
 import 'package:meyn_lbh_simulation/gui/login/login.dart';
 import 'package:meyn_lbh_simulation/main.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -85,35 +86,22 @@ class PlayerPanel extends StatelessWidget {
   PlayerPanel({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      LayoutBuilder(builder: (context, constraints) {
-        if (_tooSmallForExtraPanels(constraints)) {
-          return areaPanel;
-        } else {
-          // if (_mostSpaceHorizontally(constraints)) {
-          return Row(
-            children: [
-              Expanded(child: areaPanel),
-              Container(
-                  color: Colors.white,
-                  width: _minimumSizeForExtraPanels,
-                  child: const MonitorPanel())
-            ],
-          );
-          //TODO remove?
-          //} else {
-          //   return Column(
-          //     children: [
-          //       Expanded(child: areaPanel),
-          //       Container(
-          //           color: Colors.white,
-          //           height: _minimumSizeForExtraPanels,
-          //           child: const ViewCellPropertiesPanel())
-          //     ],
-          //   );
-          // }
-        }
-      });
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (_tooSmallForExtraPanels(constraints)) {
+        return areaPanel;
+      } else {
+        // if (_mostSpaceHorizontally(constraints)) {
+        return Row(
+          children: [
+            Expanded(child: areaPanel),
+            const SizedBox(
+                width: _minimumSizeForExtraPanels, child: MonitorPanel())
+          ],
+        );
+      }
+    });
+  }
 
   bool _mostSpaceHorizontally(BoxConstraints constraints) {
     var cellRange = player.scenario!.area.cellRange;
@@ -121,59 +109,10 @@ class PlayerPanel extends StatelessWidget {
         (constraints.maxHeight / cellRange.height);
   }
 
-  static const _minimumSizeForExtraPanels = 350.0;
+  static const _minimumSizeForExtraPanels = 400.0;
 
   bool _tooSmallForExtraPanels(BoxConstraints constraints) =>
-      constraints.maxWidth < (_minimumSizeForExtraPanels * 2) ||
-      constraints.maxHeight < (_minimumSizeForExtraPanels * 2);
-}
-
-class MonitorPanel extends StatefulWidget {
-  const MonitorPanel({super.key});
-
-  @override
-  State<MonitorPanel> createState() => _MonitorPanelState();
-}
-
-class _MonitorPanelState extends State<MonitorPanel> implements UpdateListener {
-  String propertyText = '';
-
-  Player get player => GetIt.instance<Player>();
-
-  @override
-  void initState() {
-    player.addUpdateListener(this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    player.removeUpdateListener(this);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var objects = player.objectsToMonitor.toList();
-    return ListView.builder(
-      itemCount: objects.length,
-      itemBuilder: (context, index) => ListTile(
-        title: Text(objects[index].toString()),
-      ),
-    );
-  }
-
-  @override
-  void onUpdate() {
-    setState(() {
-      if (player.objectsToMonitor.isEmpty) {
-        propertyText = '';
-      } else {
-        //TODO remember the max nr of lines per object and keep it that way so they do not jump all the time when more or less are shown
-        propertyText = player.objectsToMonitor.toString();
-      }
-    });
-  }
+      constraints.maxWidth < (_minimumSizeForExtraPanels * 2);
 }
 
 class ScenarioTile extends StatefulWidget {
@@ -283,7 +222,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
         value: 1,
         iconSize: 0,
         elevation: 16,
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
         onChanged: (int? newValue) {
           if (newValue != null) {
             setState(() {
@@ -298,7 +237,8 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
                 const Icon(Icons.speed_rounded),
                 Text(
                   'x${player.speed}',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                      color: Theme.of(context).appBarTheme.foregroundColor),
                 ),
               ],
             );
@@ -309,7 +249,8 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
             value: value,
             child: Row(
               children: [
-                const Icon(Icons.speed_rounded, color: Colors.black),
+                Icon(Icons.speed_rounded,
+                    color: Theme.of(context).colorScheme.onBackground),
                 Text('x$value'),
               ],
             ),

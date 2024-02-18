@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class ModuleDrawerUnloaderWidget extends StatelessWidget {
   final ModuleDrawerUnloader unloader;
@@ -11,18 +12,19 @@ class ModuleDrawerUnloaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
       turns: AlwaysStoppedAnimation(
-          unloader.inFeedDirection.opposite.toCompassDirection().degrees / 360),
-      child: CustomPaint(painter: ModuleDrawerUnloaderPainter(unloader)),
+          unloader.inFeedDirection.opposite.toCompassDirection().toFraction()),
+      child: CustomPaint(painter: ModuleDrawerUnloaderPainter(unloader, style)),
     );
   }
 }
 
 class ModuleDrawerUnloaderPainter extends CustomPainter {
   final ModuleDrawerUnloader unloader;
-
-  ModuleDrawerUnloaderPainter(this.unloader);
+  final LiveBirdsHandlingStyle style;
+  ModuleDrawerUnloaderPainter(this.unloader, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -32,7 +34,7 @@ class ModuleDrawerUnloaderPainter extends CustomPainter {
 
   void _drawDirectionTriangle(Size size, Canvas canvas) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -44,7 +46,7 @@ class ModuleDrawerUnloaderPainter extends CustomPainter {
 
   _drawConveyor(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;
@@ -59,8 +61,8 @@ class ModuleDrawerUnloaderPainter extends CustomPainter {
 
 class DrawerUnloaderLiftPainter extends DrawerConveyorPainter {
   final DrawerUnloaderLift drawerLift;
-
-  DrawerUnloaderLiftPainter(this.drawerLift);
+  final LiveBirdsHandlingStyle style;
+  DrawerUnloaderLiftPainter(this.drawerLift, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -78,7 +80,7 @@ class DrawerUnloaderLiftPainter extends DrawerConveyorPainter {
     Offset topLeftToLiftLevel,
   ) {
     var paint = Paint();
-    paint.color = Colors.grey;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
 
     var x1 = topLeftToLiftLevel.dx * sizePerMeter;

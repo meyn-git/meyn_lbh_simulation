@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class ModuleTilterWidget extends StatelessWidget {
   final ModuleTilter tilter;
@@ -9,20 +10,21 @@ class ModuleTilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
       turns: AlwaysStoppedAnimation(
-          tilter.inFeedDirection.opposite.toCompassDirection().degrees / 360),
-      child: CustomPaint(painter: ModuleTilterPainter(tilter)),
+          tilter.inFeedDirection.opposite.toCompassDirection().toFraction()),
+      child: CustomPaint(painter: ModuleTilterPainter(tilter, style)),
     );
   }
 }
 
 class ModuleTilterPainter extends CustomPainter {
   final ModuleTilter tilter;
-
+  final LiveBirdsHandlingStyle style;
   int maxBirdsOnDumpBelt;
 
-  ModuleTilterPainter(this.tilter)
+  ModuleTilterPainter(this.tilter, this.style)
       : maxBirdsOnDumpBelt = tilter.minBirdsOnDumpBeltBuffer;
 
   @override
@@ -35,7 +37,7 @@ class ModuleTilterPainter extends CustomPainter {
 
   void _drawDirectionTriangle(Size size, Canvas canvas) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -47,7 +49,7 @@ class ModuleTilterPainter extends CustomPainter {
 
   _drawConveyor(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;
@@ -58,7 +60,7 @@ class ModuleTilterPainter extends CustomPainter {
 
   _drawReceivingConveyor(Canvas canvas, Size size) {
     var conveyorPaint = Paint();
-    conveyorPaint.color = Colors.black;
+    conveyorPaint.color = style.machineColor;
     conveyorPaint.style = PaintingStyle.stroke;
 
     bool left = _dumpBeltOnLeftSide;
@@ -72,7 +74,7 @@ class ModuleTilterPainter extends CustomPainter {
 
   _drawBirdsOnReceivingConveyor(Canvas canvas, Size size) {
     var birdPaint = Paint();
-    birdPaint.color = Colors.grey;
+    birdPaint.color = style.machineColor.withOpacity(0.5);
     birdPaint.style = PaintingStyle.fill;
 
     bool left = _dumpBeltOnLeftSide;

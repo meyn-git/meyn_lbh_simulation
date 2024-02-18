@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class ModuleStackerWidget extends StatelessWidget {
   final ModuleStacker stacker;
@@ -8,18 +9,19 @@ class ModuleStackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
         turns: AlwaysStoppedAnimation(
             stacker.inFeedDirection.opposite.toCompassDirection().degrees /
                 360),
-        child: CustomPaint(painter: ModuleStackerPainter(stacker)));
+        child: CustomPaint(painter: ModuleStackerPainter(stacker, style)));
   }
 }
 
 class ModuleStackerPainter extends CustomPainter {
   final ModuleStacker stacker;
-
-  ModuleStackerPainter(this.stacker);
+  final LiveBirdsHandlingStyle style;
+  ModuleStackerPainter(this.stacker, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,7 +32,7 @@ class ModuleStackerPainter extends CustomPainter {
 
   _drawDirectionTriangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -42,7 +44,7 @@ class ModuleStackerPainter extends CustomPainter {
 
   _drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;
@@ -53,7 +55,7 @@ class ModuleStackerPainter extends CustomPainter {
 
   _drawSupports(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.2;
     var y1 = size.height * 0.1;

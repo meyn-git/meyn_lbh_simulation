@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class ModuleRotatingConveyorWidget extends StatelessWidget {
   final ModuleRotatingConveyor rotatingConveyor;
@@ -8,15 +9,19 @@ class ModuleRotatingConveyorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
       turns: AlwaysStoppedAnimation(
-          rotatingConveyor.currentDirection.degrees / 360),
-      child: CustomPaint(painter: ModuleRotatingConveyorPainter()),
+          rotatingConveyor.currentDirection.toFraction()),
+      child: CustomPaint(painter: ModuleRotatingConveyorPainter(style)),
     );
   }
 }
 
 class ModuleRotatingConveyorPainter extends CustomPainter {
+  final LiveBirdsHandlingStyle style;
+  ModuleRotatingConveyorPainter(this.style);
+
   @override
   void paint(Canvas canvas, Size size) {
     drawRectangle(canvas, size);
@@ -26,7 +31,7 @@ class ModuleRotatingConveyorPainter extends CustomPainter {
 
   void drawDirectionTriangle(Size size, Canvas canvas) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -38,7 +43,7 @@ class ModuleRotatingConveyorPainter extends CustomPainter {
 
   Paint drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     canvas.drawRect(
         Rect.fromCenter(
@@ -51,7 +56,7 @@ class ModuleRotatingConveyorPainter extends CustomPainter {
 
   Paint drawCircle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     canvas.drawCircle(
       Offset(size.width / 2, size.height / 2),

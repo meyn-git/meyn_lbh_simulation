@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class ModuleDeStackerWidget extends StatelessWidget {
   final ModuleDeStacker deStacker;
@@ -8,18 +9,19 @@ class ModuleDeStackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
         turns: AlwaysStoppedAnimation(
             deStacker.inFeedDirection.opposite.toCompassDirection().degrees /
                 360),
-        child: CustomPaint(painter: ModuleDeStackerPainter(deStacker)));
+        child: CustomPaint(painter: ModuleDeStackerPainter(deStacker, style)));
   }
 }
 
 class ModuleDeStackerPainter extends CustomPainter {
   final ModuleDeStacker deStacker;
-
-  ModuleDeStackerPainter(this.deStacker);
+  final LiveBirdsHandlingStyle style;
+  ModuleDeStackerPainter(this.deStacker, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,7 +32,7 @@ class ModuleDeStackerPainter extends CustomPainter {
 
   _drawDirectionTriangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -42,7 +44,7 @@ class ModuleDeStackerPainter extends CustomPainter {
 
   _drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;
@@ -53,7 +55,7 @@ class ModuleDeStackerPainter extends CustomPainter {
 
   _drawSupports(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.2;
     var y1 = size.height * 0.1;

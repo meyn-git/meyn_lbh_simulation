@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class LoadingForkLiftTruckWidget extends StatelessWidget {
   final LoadingForkLiftTruck forkLiftTruck;
 
-  const LoadingForkLiftTruckWidget(this.forkLiftTruck, {Key? key})
-      : super(key: key);
+  const LoadingForkLiftTruckWidget(this.forkLiftTruck, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
-      turns: AlwaysStoppedAnimation(paintDirection.degrees / 360),
-      child: CustomPaint(painter: LoadingForkLiftTruckPainter()),
+      turns: AlwaysStoppedAnimation(paintDirection.toFraction()),
+      child: CustomPaint(painter: LoadingForkLiftTruckPainter(style)),
     );
   }
 
@@ -26,10 +27,13 @@ class LoadingForkLiftTruckWidget extends StatelessWidget {
 }
 
 class LoadingForkLiftTruckPainter extends CustomPainter {
+  final LiveBirdsHandlingStyle style;
+  LoadingForkLiftTruckPainter(this.style);
+
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.black;
+    paint.color = style.machineColor;
     paint.style = PaintingStyle.stroke;
     var path = Path();
 

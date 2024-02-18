@@ -31,6 +31,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 import 'loading_fork_lift_truck.dart';
 import 'module.dart';
@@ -66,11 +67,12 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     var areaWidgetDelegate = AreaWidgetDelegate(player.scenario!);
     return player.scenario == null
         ? const Text("No scenario's")
         : Container(
-            color: Colors.grey.shade200,
+            color: style.backGroundColor,
             child: Column(
               children: [
                 FittedBox(

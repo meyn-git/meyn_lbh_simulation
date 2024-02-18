@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/style.dart';
 
 class GrandeDrawerWidget extends StatelessWidget {
   final MachineLayout layout;
@@ -11,17 +12,18 @@ class GrandeDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
       turns: AlwaysStoppedAnimation(drawer.position.rotationInFraction(layout)),
-      child: CustomPaint(painter: DrawerPainter(drawer)),
+      child: CustomPaint(painter: DrawerPainter(drawer, style)),
     );
   }
 }
 
 class DrawerPainter extends CustomPainter {
   final GrandeDrawer drawer;
-
-  DrawerPainter(this.drawer);
+  final LiveBirdsHandlingStyle style;
+  DrawerPainter(this.drawer, this.style);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -59,13 +61,13 @@ class DrawerPainter extends CustomPainter {
   Color _color() {
     switch (drawer.contents) {
       case BirdContents.noBirds:
-        return Colors.black;
+        return style.withoutBirdsColor;
       case BirdContents.stunnedBirds:
-        return Colors.red;
+        return style.withStunnedBirdsColor;
       case BirdContents.birdsBeingStunned:
-        return Colors.orange;
+        return style.withBirdsBeingStunnedColor;
       case BirdContents.awakeBirds:
-        return Colors.green;
+        return style.withAwakeBirdsColor;
     }
   }
 }
