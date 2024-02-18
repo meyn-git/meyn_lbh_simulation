@@ -12,9 +12,9 @@ class ModuleConveyor extends StateMachineCell {
   int nrOfModulesFeedingIn = 0;
 
   final Duration checkIfEmptyDuration;
-@override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
+
   ModuleConveyor({
     required super.area,
     required super.position,

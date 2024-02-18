@@ -398,6 +398,10 @@ class PusherInSecondColumn extends DurationState<ModuleDrawerUnloader> {
 
 class DrawerUnloaderLift extends StateMachine implements Machine {
   final LiveBirdHandlingArea area;
+  @override
+  late String name = 'DrawerUnloaderLift';
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
   late ModuleDrawerUnloader moduleDrawerUnloader = _findModuleDrawerUnloader();
   final int nrOfLiftPositions;
   final double lengthInMeters;
@@ -410,7 +414,6 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   final Duration upDuration;
   final int maxDrawersPerHour;
   final Duration pushOutDuration;
-  final String name = 'UnloaderDrawerLift';
 
   Duration drawerPushOutCycle = Duration.zero;
   Duration drawerPushOutCycleBuffer = Duration.zero;
@@ -420,9 +423,6 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   late Duration minimumInterval =
       Duration(milliseconds: 3600000 ~/ maxDrawersPerHour);
   late double offsetInMeters = 0.2;
-
-  @override
-  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   DrawerUnloaderLift({
     required this.area,

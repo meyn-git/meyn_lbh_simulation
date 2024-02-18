@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:meyn_lbh_simulation/domain/area/name.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/style.dart';
@@ -13,8 +14,6 @@ class MonitorPanel extends StatefulWidget {
 }
 
 class _MonitorPanelState extends State<MonitorPanel> implements UpdateListener {
-  String propertyText = '';
-
   Player get player => GetIt.instance<Player>();
 
   @override
@@ -35,25 +34,7 @@ class _MonitorPanelState extends State<MonitorPanel> implements UpdateListener {
     return ListView.separated(
       padding: const EdgeInsets.all(6),
       itemCount: objects.length,
-      itemBuilder: (context, index) => ListTile(
-        onTap: () {
-          var object = objects[index];
-          if (object is HasCommands) {
-            //TODO position of menu where clicked
-            CommandPopupMenu(
-              context,
-              object.commands,
-              //TODO use name
-              title: object.toString(),
-            );
-          }
-        },
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(14))),
-        tileColor:
-            LiveBirdsHandlingStyle.of(context).machineColor.withOpacity(0.2),
-        title: Text(objects[index].toString()),
-      ),
+      itemBuilder: (context, index) => MonitorTile(objects[index]),
       separatorBuilder: (BuildContext context, int index) =>
           const SizedBox(height: 6),
     );
@@ -62,12 +43,46 @@ class _MonitorPanelState extends State<MonitorPanel> implements UpdateListener {
   @override
   void onUpdate() {
     setState(() {
-      if (player.objectsToMonitor.isEmpty) {
-        propertyText = '';
-      } else {
-        //TODO remember the max nr of lines per object and keep it that way so they do not jump all the time when more or less are shown
-        propertyText = player.objectsToMonitor.toString();
-      }
+      // updates tiles
     });
+  }
+}
+
+class MonitorTile extends StatelessWidget {
+  final Object objectToMonitor;
+  const MonitorTile(this.objectToMonitor, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var name = _createName();
+    return ListTile(
+      onTap: () {
+        if (objectToMonitor is HasCommands) {
+          CommandPopupMenu(
+            context,
+            (objectToMonitor as HasCommands).commands,
+            title: name,
+          );
+        }
+      },
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14))),
+      tileColor:
+          LiveBirdsHandlingStyle.of(context).machineColor.withOpacity(0.2),
+      title: Text(name),
+      //TODO subtitle: properties,
+    );
+  }
+
+  String _createName() {
+    if (objectToMonitor is HasName) {
+      return (objectToMonitor as HasName).name;
+    } else {
+      return objectToMonitor
+          .toString()
+          .replaceAll(RegExp(r'Instance of '), '')
+          .replaceAll(RegExp('\n.*'), '')
+          .replaceAll(RegExp('\''), '');
+    }
   }
 }

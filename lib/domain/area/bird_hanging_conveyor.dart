@@ -16,7 +16,11 @@ class BirdHangingConveyor implements ActiveCell {
   @override
   late String name = "BirdHangingConveyor${seqNr ?? ''}";
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this), _startCommand, _stopCommand];
+  late List<Command> commands = [
+    RemoveFromMonitorPanel(this),
+    _startCommand,
+    _stopCommand
+  ];
   final int? seqNr;
   final CardinalDirection direction;
   final int shacklesPerHour;
@@ -24,7 +28,6 @@ class BirdHangingConveyor implements ActiveCell {
   Duration elapsedTime = Duration.zero;
   late BirdBuffer birdBuffer = _findBirdBuffer();
   static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
-
 
   Command get _startCommand => Command.dynamic(
         name: () => 'Start line',
@@ -43,7 +46,6 @@ class BirdHangingConveyor implements ActiveCell {
           running = false;
         },
       );
-  
 
   Duration timePerBird;
 

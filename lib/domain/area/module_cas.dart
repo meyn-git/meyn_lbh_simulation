@@ -16,8 +16,8 @@ class ModuleCas extends StateMachineCell {
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
-@override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   ModuleCas({
     required LiveBirdHandlingArea area,

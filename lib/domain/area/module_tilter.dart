@@ -13,8 +13,8 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   final CardinalDirection birdDirection;
 
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
+
   int birdsOnDumpBelt = 0;
   int maxBirdsOnDumpBelt;
 

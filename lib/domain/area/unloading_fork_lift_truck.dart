@@ -9,8 +9,7 @@ class UnLoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection inFeedDirection;
 
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   UnLoadingForkLiftTruck({
     required super.area,

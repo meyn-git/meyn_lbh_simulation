@@ -12,7 +12,6 @@ import 'module_cas.dart';
 /// state of the [ModuleCas] units and transport modules between this position
 /// and the [ModuleCas] units
 class ModuleCasAllocation implements ActiveCell {
-
   @override
   late LiveBirdHandlingArea area;
 
@@ -22,10 +21,9 @@ class ModuleCasAllocation implements ActiveCell {
   @override
   late String name;
 
-
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
+
   final Position positionToAllocate;
   List<Route> _cashedRoutesToCasUnits = [];
 

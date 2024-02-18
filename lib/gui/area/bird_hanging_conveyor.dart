@@ -14,18 +14,14 @@ class BirdHangingConveyorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            birdHangingConveyor.direction.toCompassDirection().toFraction()),
-        child: CustomPaint(
-            painter: BirdHangingConveyorPainter(birdHangingConveyor, style)),
-      
+      turns: AlwaysStoppedAnimation(
+          birdHangingConveyor.direction.toCompassDirection().toFraction()),
+      child: CustomPaint(
+          painter: BirdHangingConveyorPainter(birdHangingConveyor, style)),
     );
   }
 
-
-
   Player get player => GetIt.instance<Player>();
-
 }
 
 class BirdHangingConveyorPainter extends CustomPainter {

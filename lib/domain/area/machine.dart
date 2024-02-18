@@ -4,17 +4,15 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/name.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 
-abstract class Machine implements HasCommands {
+abstract class Machine implements HasCommands, HasName {
   /// See [DefaultOrientation]
   late SizeInMeters sizeWhenFacingNorth;
 
   /// all links to other [Machine]s
   late List<Link> links;
-
-  // late int sequenceNumber;
-  // late String name;
 }
 
 class Machines extends DelegatingList<Machine> {

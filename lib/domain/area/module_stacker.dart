@@ -19,8 +19,7 @@ class ModuleStacker extends StateMachineCell {
   final Duration supportsOpenDuration;
   ModuleGroup? moduleGroupOnSupports;
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   ModuleStacker({
     required super.area,

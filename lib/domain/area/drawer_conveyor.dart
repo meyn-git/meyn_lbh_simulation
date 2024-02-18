@@ -43,16 +43,15 @@ class DrawerConveyorStraight implements DrawerConveyor {
   /// the path to travel (in meters) for the drawer in [DefaultOrientation]
   @override
   late DrawerPath drawerPath;
-
   @override
   late double metersPerSecond;
-
-  late double lengthInMeters;
-
+  @override
+  late String name = 'DrawerConveyorStraight';
   @override
   late List<Command> commands = [
     RemoveFromMonitorPanel(this),
   ];
+  late double lengthInMeters;
 
   DrawerConveyorStraight({
     required this.lengthInMeters,
@@ -89,17 +88,14 @@ class DrawerConveyorStraight implements DrawerConveyor {
 class DrawerConveyor90Degrees implements DrawerConveyor {
   @override
   late double machineProtrudesInMeters;
-
   @override
   late DrawerPath drawerPath;
-
   @override
   late double metersPerSecond;
-
   @override
-  late List<Command> commands = [
-    RemoveFromMonitorPanel(this),
-  ];
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
+  @override
+  late String name = 'DrawerConveyor90Degrees';
 
   final bool clockwise;
 

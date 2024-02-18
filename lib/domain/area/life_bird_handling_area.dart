@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/name.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 
 import 'module.dart';
@@ -244,10 +245,9 @@ abstract class TimeProcessor {
   void onUpdateToNextPointInTime(Duration jump);
 }
 
-abstract class ActiveCell implements Cell, TimeProcessor, HasCommands {
+abstract class ActiveCell implements Cell, TimeProcessor, HasCommands, HasName {
   late LiveBirdHandlingArea area;
   late Position position;
-  late String name;
 }
 
 /// A list of [StateMachineCell]s to get to a [ModuleCas] within a [LiveBirdHandlingArea]

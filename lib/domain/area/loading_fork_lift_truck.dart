@@ -15,10 +15,10 @@ class LoadingForkLiftTruck extends StateMachineCell {
   final CardinalDirection outFeedDirection;
   final CardinalDirection doorDirection;
   final bool loadsSingeModule;
-  
+
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
+
   var sequenceNumber = 0;
 
   @override
@@ -132,7 +132,6 @@ class LoadingForkLiftTruck extends StateMachineCell {
     }
     return moduleCasAllocation as ModuleCasAllocation;
   }
-
 }
 
 /// driving to truck

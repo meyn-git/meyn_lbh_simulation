@@ -16,8 +16,7 @@ class ModuleRotatingConveyor extends StateMachineCell {
   final List<CardinalDirection> oppositeInFeeds;
   final List<CardinalDirection> oppositeOutFeeds;
   @override
-  late List<Command> commands=[RemoveFromMonitorPanel(this)];
-  
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   Map<CardinalDirection, Duration> neighborsAlmostWaitingToFeedOutDurations = {
     CardinalDirection.north: Duration.zero,
