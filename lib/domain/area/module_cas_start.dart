@@ -1,5 +1,5 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
@@ -91,15 +91,15 @@ class ModuleCasStart implements ActiveCell {
   }
 
   @override
-  String toString() {
-    return TitleBuilder(name)
-        .appendProperty('stunnedModules', numberOfWaitingStunnedModules)
-        .appendProperty('baseInterval', _normalStartInterval)
-        .appendProperty('nextInterval',
-            nextStartInterval == hold ? 'onHold' : nextStartInterval)
-        .appendProperty('elapsedTime', elapsedTime)
-        .toString();
-  }
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('stunnedModules', numberOfWaitingStunnedModules)
+      .appendProperty('baseInterval', _normalStartInterval)
+      .appendProperty('nextInterval',
+          nextStartInterval == hold ? 'onHold' : nextStartInterval)
+      .appendProperty('elapsedTime', elapsedTime);
+
+  @override
+  String toString() => objectDetails.toString();
 
   int get numberOfWaitingStunnedModules => area.moduleGroups
       .where((groupModule) => groupModule.contents == BirdContents.stunnedBirds)

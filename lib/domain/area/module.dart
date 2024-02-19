@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 
 import 'life_bird_handling_area.dart';
 import 'state_machine.dart';
 
 /// A [ModuleGroup] can be one or 2 modules that are transported together
 /// E.g. a stack of 2 modules, or 2 modules side by side
-class ModuleGroup extends TimeProcessor {
+class ModuleGroup extends TimeProcessor implements HasObjectDetails {
   final Module firstModule;
   Module? secondModule;
   final ModuleFamily moduleFamily;
@@ -68,13 +68,17 @@ class ModuleGroup extends TimeProcessor {
   }
 
   @override
-  String toString() => TitleBuilder('ModuleGroup')
+  late String name = 'ModuleGroup';
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('doorDirection', direction)
       .appendProperty('destination', destination.name)
-      //.appendProperty('position', position) removed because its obvious
       .appendProperty('firstModule', firstModule)
-      .appendProperty('secondModule', secondModule)
-      .toString();
+      .appendProperty('secondModule', secondModule);
+
+  @override
+  String toString() => objectDetails.toString();
 
   Duration? get sinceLoadedOnSystem => firstModule.sinceLoadedOnSystem;
 
@@ -162,7 +166,7 @@ class ModuleGroup extends TimeProcessor {
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
 
 /// A module location is either at a given position or traveling between 2 positions
-class ModulePosition {
+class ModulePosition implements HasObjectDetails {
   StateMachineCell source;
   StateMachineCell destination;
   late Duration duration;
@@ -218,26 +222,23 @@ class ModulePosition {
     return source != destination;
   }
 
+  late String name = 'ModulePosition';
   @override
-  String toString() {
-    if (isMoving) {
-      return TitleBuilder('ModulePosition')
+  ObjectDetails get objectDetails => isMoving
+      ? ObjectDetails(name)
           .appendProperty('source', source.name)
           .appendProperty('destination', destination.name)
           .appendProperty('remainingDuration', remainingDuration)
-          .toString();
-    } else {
-      return TitleBuilder('ModulePosition')
-          .appendProperty('at', source.name)
-          .toString();
-    }
-  }
+      : ObjectDetails(name).appendProperty('at', source.name);
+
+  @override
+  String toString() => objectDetails.toString();
 
   transportingFrom(StateMachineCell stateMachineCell) =>
       source == stateMachineCell && destination != stateMachineCell;
 }
 
-class Module {
+class Module implements HasObjectDetails {
   final int sequenceNumber;
   int nrOfBirds;
   int levels;
@@ -253,14 +254,19 @@ class Module {
   });
 
   @override
-  String toString() => TitleBuilder('Module')
+  late String name = 'Module';
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('sequenceNumber', sequenceNumber)
       .appendProperty('nrOfBirds', nrOfBirds)
       .appendProperty('sinceLoadedOnSystem', sinceLoadedOnSystem)
       .appendProperty('sinceStartStun', sinceStartStun)
       .appendProperty('sinceEndStun', sinceEndStun)
-      .appendProperty('sinceBirdsUnloaded', sinceBirdsUnloaded)
-      .toString();
+      .appendProperty('sinceBirdsUnloaded', sinceBirdsUnloaded);
+
+  @override
+  String toString() => objectDetails.toString();
 }
 
 enum ModuleSystem {

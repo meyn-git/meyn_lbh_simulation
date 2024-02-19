@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/name.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/style.dart';
@@ -54,7 +55,7 @@ class MonitorTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var name = _createName();
+    var name = _name();
     return ListTile(
       onTap: () {
         if (objectToMonitor is HasCommands) {
@@ -70,11 +71,11 @@ class MonitorTile extends StatelessWidget {
       tileColor:
           LiveBirdsHandlingStyle.of(context).machineColor.withOpacity(0.2),
       title: Text(name),
-      //TODO subtitle: properties,
+      subtitle: _createSubTitle(),
     );
   }
 
-  String _createName() {
+  String _name() {
     if (objectToMonitor is HasName) {
       return (objectToMonitor as HasName).name;
     } else {
@@ -85,4 +86,10 @@ class MonitorTile extends StatelessWidget {
           .replaceAll(RegExp('\''), '');
     }
   }
+
+  Widget? _createSubTitle() => objectToMonitor is HasObjectDetails
+      ? Text((objectToMonitor as HasObjectDetails)
+          .objectDetails
+          .propertiesToString(0))
+      : null;
 }

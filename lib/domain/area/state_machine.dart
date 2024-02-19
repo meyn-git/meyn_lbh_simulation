@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 
-abstract class StateMachine implements TimeProcessor {
+abstract class StateMachine implements TimeProcessor, HasObjectDetails {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   State currentState;
 
@@ -28,9 +28,11 @@ abstract class StateMachine implements TimeProcessor {
   }
 
   @override
-  String toString() => TitleBuilder('StateMachine')
-      .appendProperty('currentState', currentState)
-      .toString();
+  ObjectDetails get objectDetails => ObjectDetails('StateMachine')
+      .appendProperty('currentState', currentState);
+
+  @override
+  String toString() => objectDetails.toString();
 }
 
 abstract class StateMachineCell extends StateMachine implements ActiveCell {
@@ -56,10 +58,12 @@ abstract class StateMachineCell extends StateMachine implements ActiveCell {
   }) : name = "$name${seqNr ?? ''}";
 
   @override
-  String toString() => TitleBuilder(name)
+  ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('moduleGroup', moduleGroup)
-      .toString();
+      .appendProperty('moduleGroup', moduleGroup);
+
+  @override
+  String toString() => objectDetails.toString();
 
   @override
   ModuleGroup? get moduleGroup => area.moduleGroups

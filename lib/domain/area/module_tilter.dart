@@ -2,7 +2,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
-import '../util/title_builder.dart';
+import 'object_details.dart';
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
@@ -103,13 +103,12 @@ class ModuleTilter extends StateMachineCell implements BirdBuffer {
   }
 
   @override
-  String toString() => TitleBuilder(name)
+  ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
       .appendProperty('maxBirdsOnDumpBelt', maxBirdsOnDumpBelt)
       .appendProperty('minBirdsOnDumpBeltBuffer', minBirdsOnDumpBeltBuffer)
       .appendProperty('birdsOnDumpBelt', birdsOnDumpBelt)
-      .appendProperty('moduleGroup', moduleGroup)
-      .toString();
+      .appendProperty('moduleGroup', moduleGroup);
 }
 
 class CheckIfEmpty extends DurationState<ModuleTilter> {

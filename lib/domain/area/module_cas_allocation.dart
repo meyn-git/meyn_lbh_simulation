@@ -1,6 +1,6 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
-import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
@@ -66,13 +66,14 @@ class ModuleCasAllocation implements ActiveCell {
   }
 
   @override
-  String toString() {
+  ObjectDetails get objectDetails {
     var destination = casWithHighestScore;
-    return TitleBuilder(name)
-        .appendProperty(
-            'destination', destination == null ? 'none' : destination.name)
-        .toString();
+    return ObjectDetails(name).appendProperty(
+        'destination', destination == null ? 'none' : destination.name);
   }
+
+  @override
+  String toString() => objectDetails.toString();
 
   List<Route> get routesToCasUnits {
     if (_cashedRoutesToCasUnits.isEmpty) {

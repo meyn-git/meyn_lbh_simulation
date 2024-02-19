@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
-import '../util/title_builder.dart';
+import 'object_details.dart';
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
@@ -130,12 +130,11 @@ class ModuleDrawerUnloader extends StateMachineCell
           OutFeedState.waitingOnNeighbor;
 
   @override
-  String toString() => TitleBuilder(name)
+  ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
       .appendProperty('speed',
           '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour')
-      .appendProperty('moduleGroup', moduleGroup)
-      .toString();
+      .appendProperty('moduleGroup', moduleGroup);
 
   void onEndOfCycle() {
     durationsPerModule.add(durationPerModule);
@@ -497,11 +496,10 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
       liftPositions.every((drawerPosition) => drawerPosition == null);
 
   @override
-  String toString() => TitleBuilder(name)
+  ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
       .appendProperty('speed',
-          '${drawerPushOutCycles.averagePerHour.toStringAsFixed(1)} drawers/hour')
-      .toString();
+          '${drawerPushOutCycles.averagePerHour.toStringAsFixed(1)} drawers/hour');
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {

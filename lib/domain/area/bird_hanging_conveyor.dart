@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/util/title_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
@@ -119,15 +119,12 @@ class BirdHangingConveyor implements ActiveCell {
   bool waitingToFeedOut(CardinalDirection direction) => false;
 
   @override
-  String toString() {
-    return TitleBuilder(name)
-        .appendProperty('shacklesPerHour', shacklesPerHour)
-        .appendProperty('shackleLine', shackleLine)
-        .toString();
-  }
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('shacklesPerHour', shacklesPerHour)
+      .appendProperty('shackleLine', shackleLine);
 }
 
-class ShackleLine {
+class ShackleLine implements HasObjectDetails {
   static const int maxSize = 100;
   final List<bool> _shackles = []; // true if shackle has a bird, false if not
   int hangedBirdsSinceStart = 0;
@@ -183,16 +180,19 @@ class ShackleLine {
       _runningTime.inMilliseconds / const Duration(hours: 1).inMilliseconds;
 
   @override
-  String toString() {
-    return TitleBuilder('ShackleLine')
-        .appendProperty('runningTime', _runningTime)
-        .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
-        .appendProperty(
-            'hangedBirdsPerHourSinceStart', hangedBirdsPerHourSinceStart)
-        .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
-        .appendProperty('lineEfficiency', lineEfficiency)
-        .toString();
-  }
+  late String name = 'ShackleLine';
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('runningTime', _runningTime)
+      .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
+      .appendProperty(
+          'hangedBirdsPerHourSinceStart', hangedBirdsPerHourSinceStart)
+      .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
+      .appendProperty('lineEfficiency', lineEfficiency);
+
+  @override
+  String toString() => objectDetails.toString();
 
   void startLine() {
     _shackles.clear();

@@ -4,28 +4,22 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/name.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 
-abstract class Machine implements HasCommands, HasName {
+abstract class Machine implements HasCommands, HasObjectDetails {
   /// See [DefaultOrientation]
   late SizeInMeters sizeWhenFacingNorth;
 
   /// all links to other [Machine]s
   late List<Link> links;
+
+  @override
+  String toString() => objectDetails.toString();
 }
 
 class Machines extends DelegatingList<Machine> {
   Machines() : super([]);
-
-  // @override
-  // // ignore: avoid_renaming_method_parameters
-  // void add(Machine machine) {
-  //   int sequenceNumber =
-  //       where((m) => m.runtimeType == machine.runtimeType).length;
-  //   machine.sequenceNumber = sequenceNumber;
-  //   super.add(machine);
-  // }
 
   void link(Link link1, Link link2) {
     link1.linkedTo = link2;
