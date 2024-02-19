@@ -277,8 +277,6 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     _layoutAndPositionModuleGroups(childSize, childOffset);
     _layoutAndPositionMachines(childSize, childOffset);
     _layoutAndPositionDrawers(childSize, childOffset);
-
-    //positioning cells last so they are on top so that the inkwells can be activated
     _layoutAndPositionCells(childSize, childOffset);
   }
 
@@ -388,7 +386,7 @@ class MachineLayout {
       {required this.machines,
       CompassDirection startDirection = const CompassDirection(0)}) {
     _placeMachines(startDirection,
-        const OffsetInMeters(metersFromLeft: 21 / 2, metersFromTop: 6 / 2));
+        const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -7.5));
   }
 
   void _placeMachines(
