@@ -242,13 +242,16 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
   }
 
   void _verifyDoorDirection(ModuleDrawerLoader loader) {
-    // var moduleGroup = loader.moduleGroup!;
-    // var hasDoors =
-    //     moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
-    // if (hasDoors &&
-    //     moduleGroup.direction.toCardinalDirection() != loader.birdDirection) {
-    //   throw ('In correct door direction of the $ModuleGroup that was fed in to ${loader.name}');
-    // }
+    var moduleGroup = loader.moduleGroup!;
+    var oneSideIn = moduleGroup.moduleFamily.compartmentType ==
+        CompartmentType.doorOnOneSide;
+    if (oneSideIn &&
+        moduleGroup.direction !=
+            loader.inFeedDirection
+                .toCompassDirection()
+                .rotate(loader.drawersToLeft ? -90 : 90)) {
+      throw ('In correct door direction of the $ModuleGroup that was fed in to ${loader.name}');
+    }
   }
 
   bool _outFeedCompleted(ModuleDrawerLoader loader) =>

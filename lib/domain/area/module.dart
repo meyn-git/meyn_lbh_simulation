@@ -329,37 +329,37 @@ enum ModuleSystem {
 enum ModuleFamily {
   meynEvo(
     supplier: Supplier.meyn,
-    compartmentType: CompartmentType.door,
+    compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.rectangularStacked,
   ),
   meynGrandeDrawer(
     supplier: Supplier.meyn,
-    compartmentType: CompartmentType.drawer,
+    compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
     shape: ModuleShape.rectangularStacked,
   ),
   meynMaxiLoad(
     supplier: Supplier.meyn,
-    compartmentType: CompartmentType.drawer,
+    compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
     shape: ModuleShape.rectangularStacked,
   ),
   meynOmni(
     supplier: Supplier.meyn,
-    compartmentType: CompartmentType.door,
+    compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.rectangularStacked,
   ),
   angliaAutoFlow(
     supplier: Supplier.angliaAutoFlow,
-    compartmentType: CompartmentType.drawer,
+    compartmentType: CompartmentType.drawerSlideInOutOnBothSides,
     shape: ModuleShape.rectangularStacked,
   ),
   marelGpSquare(
     supplier: Supplier.marel,
-    compartmentType: CompartmentType.door,
+    compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.squareSideBySide,
   ),
   marelGpRectangular(
     supplier: Supplier.marel,
-    compartmentType: CompartmentType.door,
+    compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.rectangularStacked,
   );
 
@@ -881,6 +881,14 @@ class ModuleGroupCapacity {
 
 enum ModuleShape { squareSideBySide, rectangularStacked }
 
-enum CompartmentType { door, drawer }
+enum CompartmentType {
+  doorOnOneSide(true),
+  drawerSlideInOutOnBothSides(false),
+  drawerSlideInOutOnOneSide(true);
+
+  final bool birdsExitOnOneSide;
+  bool get hasDoor => this == CompartmentType.doorOnOneSide;
+  const CompartmentType(this.birdsExitOnOneSide);
+}
 
 enum BirdType { chicken, turkey }

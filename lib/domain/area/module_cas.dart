@@ -187,8 +187,8 @@ class FeedIn extends State<ModuleCas> {
 
   void _verifyDoorDirection(ModuleCas cas) {
     var moduleGroup = cas.moduleGroup!;
-    var hasDoors =
-        moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
+    var hasDoors = moduleGroup.moduleFamily.compartmentType ==
+        CompartmentType.doorOnOneSide;
     if (hasDoors &&
         moduleGroup.direction.toCardinalDirection() != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');

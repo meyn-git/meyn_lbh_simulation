@@ -247,17 +247,23 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
 
   @override
   void onCompleted(ModuleDrawerUnloader unloader) {
-    _verifyDoorDirection(unloader);
+    _verifyModule(unloader);
   }
 
-  void _verifyDoorDirection(ModuleDrawerUnloader unloader) {
-    // var moduleGroup = unloader.moduleGroup!;
-    // var hasDoors =
-    //     moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
-    // if (hasDoors &&
-    //     moduleGroup.direction.toCardinalDirection() != unloader.birdDirection) {
-    //   throw ('In correct door direction of the $ModuleGroup that was fed in to ${unloader.name}');
-    // }
+  void _verifyModule(ModuleDrawerUnloader unloader) {
+    var moduleGroup = unloader.moduleGroup!;
+    if (moduleGroup.moduleFamily.compartmentType ==
+        CompartmentType.doorOnOneSide) {
+      throw ('In correct container type of the $ModuleGroup that was fed in to ${unloader.name}');
+    }
+    var oneSideOut =
+        moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide;
+    var expectedModuleDirection = unloader.inFeedDirection.opposite
+        .toCompassDirection()
+        .rotate(unloader.drawersToLeft ? -90 : 90);
+    if (oneSideOut && moduleGroup.direction != expectedModuleDirection) {
+      throw ('In correct door direction of the $ModuleGroup that was fed in to ${unloader.name}');
+    }
   }
 
   bool _outFeedCompleted(ModuleDrawerUnloader unloader) =>

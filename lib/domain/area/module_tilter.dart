@@ -158,14 +158,16 @@ class FeedIn extends State<ModuleTilter> {
   @override
   // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleTilter tilter) {
-    _verifyDoorDirection(tilter);
+    _verifyModule(tilter);
   }
 
-  void _verifyDoorDirection(ModuleTilter tilter) {
+  void _verifyModule(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroup!;
-    var hasDoors =
-        moduleGroup.moduleFamily.compartmentType == CompartmentType.door;
-    if (hasDoors &&
+    // TODO add later. The tilter was missuesed because as a drawer inloader. Fix when we have one.
+    // if (moduleGroup.moduleFamily.compartmentType!=CompartmentType.doorOnOneSide) {
+    //   throw ('In correct container type of the $ModuleGroup that was fed in to ${tilter.name}');
+    // }
+    if (moduleGroup.moduleFamily.compartmentType.hasDoor &&
         moduleGroup.direction.toCardinalDirection() != tilter.birdDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');
     }

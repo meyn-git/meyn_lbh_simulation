@@ -94,4 +94,14 @@ class CompassDirection {
 
   @override
   String toString() => degrees.toString();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompassDirection &&
+          runtimeType == other.runtimeType &&
+          degrees == other.degrees;
+
+  @override
+  int get hashCode => degrees.hashCode;
 }
