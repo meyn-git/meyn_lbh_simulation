@@ -4,11 +4,14 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
+import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
@@ -151,15 +154,73 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   ObjectDetails get objectDetails => ObjectDetails(name);
 }
 
-class DrawerHangingConveyor extends DrawerConveyorStraight {
+class DrawerHangingConveyor extends DrawerConveyorStraight
+    implements TimeProcessor {
+  bool stopped = true;
+  final ProductDefinition productDefinition;
+  final List<GrandeDrawer> allDrawers;
+  List<GrandeDrawer> drawersOnConveyor = [];
+
+  /// the last conveyor of the [DrawerHangingConveyor] is speed controlled:
+  /// * for optimal hanging performance (all hangers have birds available)
+  /// * it runs slower than [firstConveyorInMeters] so that drawers are adjacent.
+  ///
+  /// The speed is controlled by the [OnConveyorPosition.conveyorSpeed] and
+  /// [metersPerSecondOfEndConveyor].
+  static const lastConveyorInMeters =
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
+  /// the first conveyor of the [DrawerHangingConveyor] runs a continuous speed:
+  /// * it runs faster than [lastConveyorInMeters] so that drawers are adjacent.
+  late double firstConveyorInMeters =
+      drawerPath.totalLengthInMeters - lastConveyorInMeters;
+
   DrawerHangingConveyor({
+    required this.productDefinition,
     required int hangers,
-    required super.metersPerSecond,
+    required double metersPerSecondOfFirstConveyor,
     super.machineProtrudesInMeters = 1,
+    required this.allDrawers,
   }) : super(
+          metersPerSecond: metersPerSecondOfFirstConveyor,
           //TODO
-          lengthInMeters: (hangers / 2).ceil() * 1,
+          lengthInMeters: max((hangers / 2).ceil() * 1, lastConveyorInMeters),
         );
+
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    drawersOnConveyor = findDrawersOnConveyor();
+    if (drawersOnConveyor.length > 5) {
+      //TODO: improve
+      stopped = false;
+    }
+  }
+
+  List<GrandeDrawer> findDrawersOnConveyor() => allDrawers
+      .where((drawer) =>
+          drawer.position is OnConveyorPosition &&
+          (drawer.position as OnConveyorPosition).conveyor == this)
+      .toList();
+
+  late double secondsPerDrawer = 3600 /
+      (productDefinition.lineSpeedInShacklesPerHour /
+          productDefinition
+              .moduleGroupCapacities.first.firstModule.birdsPerCompartment);
+  late double lastConveyorSpeed =
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters / secondsPerDrawer;
+
+  double get metersPerSecondOfLastConveyor => stopped ? 0 : lastConveyorSpeed;
+
+  /// The last conveyor of the [DrawerHangingConveyor] is speed controlled:
+  /// * for optimal hanging performance (all hangers have birds available)
+  /// * it runs slower than [firstConveyorInMeters] so that drawers are adjacent.
+  ///
+  /// The speed is controlled by the [OnConveyorPosition.conveyorSpeed] and
+  /// [metersPerSecondOfEndConveyor].
+  bool isOnLastConveyor(double traveledMetersOnVector) =>
+      traveledMetersOnVector > firstConveyorInMeters;
+
+  ///
 }
 
 class DrawerSoakingConveyor extends DrawerConveyorStraight {
@@ -233,7 +294,7 @@ class DrawerPath extends DelegatingList<OffsetInMeters> {
 
   late Outward outWard = Outward.forVectors(this);
 
-  double get totalLength =>
+  double get totalLengthInMeters =>
       map((v) => v.lengthInMeters).reduce((a, b) => a + b);
 
   DrawerPath rotate(CompassDirection rotation) {
@@ -292,7 +353,8 @@ class Outward {
 
 class GrandeDrawer implements TimeProcessor {
   int _nrOfBirds;
-  Distance outSideLength = GrandeDrawerModuleType.drawerOutSideLength;
+  double outSideLengthInMeters =
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
   double distanceTraveledInMeters = 0;
   BirdContents contents;
   DrawerPosition position;
@@ -346,9 +408,18 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   /// the traveled distance in meters on [vector] where the drawer is on currently
   double traveledMetersOnVector;
 
-  OnConveyorPosition(this.conveyor)
-      : vectorIndex = 0,
-        traveledMetersOnVector = 0.0;
+  OnConveyorPosition(this.conveyor, [this.traveledMetersOnVector = 0.0])
+      : vectorIndex = 0;
+
+  double get conveyorSpeed {
+    if (conveyor is DrawerHangingConveyor &&
+        (conveyor as DrawerHangingConveyor)
+            .isOnLastConveyor(traveledMetersOnVector)) {
+      return (conveyor as DrawerHangingConveyor).metersPerSecondOfLastConveyor;
+    } else {
+      return conveyor.metersPerSecond;
+    }
+  }
 
   /// calculates the next position of a drawer on a conveyor
   @override
@@ -358,7 +429,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
     /// This should not matter because we needs its length only here
     var drawerPath = conveyor.drawerPath;
     var secondsOfTravel = jump.inMicroseconds / 1000000;
-    var metersPerSecond = conveyor.metersPerSecond;
+    var metersPerSecond = conveyorSpeed;
     var metersToTravel = metersPerSecond *
         secondsOfTravel; //TODO reduce [meterToTravel] when needed to not overlap other drawers!
     var remainingMetersOnVector =
@@ -413,7 +484,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
 
   OffsetInMeters drawerStartToTopLeftDrawer(MachineLayout layout) {
     double halveDrawerLength =
-        GrandeDrawerModuleType.drawerOutSideLength.as(meters) / 2;
+        GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
     var startRotation = rotationInRadians(layout, 0);
     double metersFromLeft =
         -halveDrawerLength + -sin(startRotation) * halveDrawerLength;

@@ -112,8 +112,10 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     machines.link(conveyor1.drawerOut, conveyor2.drawerIn);
 
     var hangingConveyor = DrawerHangingConveyor(
+        productDefinition: productDefinition,
         hangers: 11, // TODO 11 hangers for 15000?
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
+        allDrawers: drawers);
     machines.add(hangingConveyor);
     machines.link(conveyor2.drawerOut, hangingConveyor.drawerIn);
 

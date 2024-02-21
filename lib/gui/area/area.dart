@@ -316,7 +316,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     Size? size;
     for (var drawer in area.drawers) {
       if (size == null) {
-        var length = drawer.outSideLength.as(meters) * sizePerMeter;
+        var length = drawer.outSideLengthInMeters * sizePerMeter;
         size = Size(length, length);
       }
       layoutChild(drawer, BoxConstraints.tight(size));

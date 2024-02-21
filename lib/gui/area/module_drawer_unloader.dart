@@ -86,7 +86,7 @@ class DrawerUnloaderLiftPainter extends DrawerConveyorPainter {
     var x1 = topLeftToLiftLevel.dx * sizePerMeter;
     var y1 = topLeftToLiftLevel.dy * sizePerMeter;
     var drawerLengthInMeters =
-        GrandeDrawerModuleType.drawerOutSideLength.as(meters);
+        GrandeDrawerModuleType.drawerOutSideLengthInMeters;
     var x2 = x1 + drawerLengthInMeters * sizePerMeter;
     var y2 = y1 + drawerLengthInMeters * sizePerMeter;
     canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);

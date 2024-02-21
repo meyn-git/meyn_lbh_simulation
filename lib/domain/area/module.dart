@@ -425,7 +425,7 @@ class MeynEvoChicken5Level extends ModuleType {
 }
 
 class GrandeDrawerModuleType extends ModuleType {
-  static final Distance drawerOutSideLength = meters(1.160);
+  static const double drawerOutSideLengthInMeters = 1.160;
 
   GrandeDrawerModuleType({
     required super.moduleFamily,

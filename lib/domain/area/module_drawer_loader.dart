@@ -440,7 +440,7 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   late SizeInMeters sizeWhenFacingNorth = _size();
 
   SizeInMeters _size() {
-    var length = GrandeDrawerModuleType.drawerOutSideLength.as(meters) + 2;
+    var length = GrandeDrawerModuleType.drawerOutSideLengthInMeters + 2;
     return SizeInMeters(widthInMeters: length, heightInMeters: length);
   }
 
@@ -471,9 +471,9 @@ class DrawerLoaderLift extends StateMachine implements Machine {
 
   OffsetInMeters topLeftToLiftLevel(int level) =>
       topLeftToTopConveyorEnd -
-      OffsetInMeters(
+      const OffsetInMeters(
           metersFromLeft:
-              GrandeDrawerModuleType.drawerOutSideLength.as(meters) / 2,
+              GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2,
           metersFromTop: 0) +
       OffsetInMeters(
           metersFromLeft: offsetInMeters * (nrOfLiftPositions - level) / 4,
@@ -569,7 +569,7 @@ class DrawerLoaderLift extends StateMachine implements Machine {
     var drawerBeingPushedOut = liftPositions.last!;
     var conveyorAfterLoaderLift = drawerOut.linkedTo.owner as DrawerConveyor;
     conveyorAfterLoaderLift.metersPerSecond =
-        conveyorAfterLoaderLift.drawerPath.totalLength /
+        conveyorAfterLoaderLift.drawerPath.totalLengthInMeters /
             pushOutDuration.inMicroseconds *
             1000000;
     drawerBeingPushedOut.position = OnConveyorPosition(conveyorAfterLoaderLift);

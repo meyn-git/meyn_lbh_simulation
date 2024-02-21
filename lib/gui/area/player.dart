@@ -91,7 +91,6 @@ class PlayerPanel extends StatelessWidget {
       if (_tooSmallForExtraPanels(constraints)) {
         return areaPanel;
       } else {
-        // if (_mostSpaceHorizontally(constraints)) {
         return Row(
           children: [
             Expanded(child: areaPanel),
