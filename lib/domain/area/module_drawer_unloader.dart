@@ -428,6 +428,8 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
       Duration(milliseconds: 3600000 ~/ maxDrawersPerHour);
   late double offsetInMeters = 0.2;
 
+  GrandeDrawer? precedingDrawer;
+
   DrawerUnloaderLift({
     required this.area,
     this.upDuration = const Duration(
@@ -586,8 +588,10 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
         conveyorAfterUnloaderLift.drawerPath.totalLengthInMeters /
             pushOutDuration.inMicroseconds *
             1000000;
-    drawerBeingPushedOut.position =
-        OnConveyorPosition(conveyorAfterUnloaderLift);
+    drawerBeingPushedOut.position = OnConveyorPosition(
+        conveyorAfterUnloaderLift,
+        precedingDrawer: precedingDrawer);
+    precedingDrawer = drawerBeingPushedOut;
   }
 
   void onCompletePushOutTopPosition() {

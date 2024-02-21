@@ -152,7 +152,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
 
 class DrawerHangingConveyor extends DrawerConveyorStraight
     implements TimeProcessor {
-  bool stopped = true;
+  bool stopped = false;
   final ProductDefinition productDefinition;
   final List<GrandeDrawer> allDrawers;
   List<GrandeDrawer> drawersOnConveyor = [];
@@ -359,12 +359,12 @@ class GrandeDrawer implements TimeProcessor {
   /// Distance traveled in meters from [startPosition]
   Offset traveledPath = Offset.zero;
 
-  GrandeDrawer(
-      {required this.startPosition,
-      required int nrOfBirds,
-      required this.contents,
-      required this.position})
-      : _nrOfBirds = nrOfBirds;
+  GrandeDrawer({
+    required this.startPosition,
+    required int nrOfBirds,
+    required this.contents,
+    required this.position,
+  }) : _nrOfBirds = nrOfBirds;
 
   set nrOfBirds(int nrOfBirds) {
     if (nrOfBirds == 0) {
@@ -404,18 +404,15 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   /// the traveled distance in meters on [vector] where the drawer is on currently
   double traveledMetersOnVector;
 
-  OnConveyorPosition(this.conveyor, [this.traveledMetersOnVector = 0.0])
-      : vectorIndex = 0;
+  final GrandeDrawer? precedingDrawer;
 
-  double get conveyorSpeed {
-    if (conveyor is DrawerHangingConveyor &&
-        (conveyor as DrawerHangingConveyor)
-            .isOnLastConveyor(traveledMetersOnVector)) {
-      return (conveyor as DrawerHangingConveyor).metersPerSecondOfLastConveyor;
-    } else {
-      return conveyor.metersPerSecond;
-    }
-  }
+  double metersTraveledOnDrawerConveyors = 0;
+
+  OnConveyorPosition(
+    this.conveyor, {
+    this.traveledMetersOnVector = 0.0,
+    required this.precedingDrawer,
+  }) : vectorIndex = 0;
 
   /// calculates the next position of a drawer on a conveyor
   @override
@@ -424,16 +421,16 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
     /// because this is done in the [MachineLayout]
     /// This should not matter because we needs its length only here
     var drawerPath = conveyor.drawerPath;
-    var secondsOfTravel = jump.inMicroseconds / 1000000;
     var metersPerSecond = conveyorSpeed;
-    var metersToTravel = metersPerSecond *
-        secondsOfTravel; //TODO reduce [meterToTravel] when needed to not overlap other drawers!
+    var metersToTravel = _metersToTravel(metersPerSecond, jump);
     var remainingMetersOnVector =
         drawerPath[vectorIndex].lengthInMeters - traveledMetersOnVector;
     if (metersToTravel <= remainingMetersOnVector) {
       /// move on vector
       traveledMetersOnVector += metersToTravel;
+      metersTraveledOnDrawerConveyors += metersToTravel;
     } else {
+      metersTraveledOnDrawerConveyors += remainingMetersOnVector;
       // move on next vector
       var remainingJumpOnVector = Duration(
           microseconds: remainingMetersOnVector / metersPerSecond ~/ 1000000);
@@ -460,6 +457,28 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
         }
       }
     }
+  }
+
+  double get conveyorSpeed {
+    if (conveyor is DrawerHangingConveyor &&
+        (conveyor as DrawerHangingConveyor)
+            .isOnLastConveyor(traveledMetersOnVector)) {
+      return (conveyor as DrawerHangingConveyor).metersPerSecondOfLastConveyor;
+    } else {
+      return conveyor.metersPerSecond;
+    }
+  }
+
+  double _metersToTravel(double metersPerSecond, Duration jump) {
+    var secondsOfTravel = jump.inMicroseconds / 1000000;
+    var metersToTravel = metersPerSecond * secondsOfTravel;
+    if (precedingDrawer == null) {
+      return metersToTravel;
+    }
+
+    /// ensure we are not overlapping drawers
+    var metersInBetween = metersBetweenThisAndPrecedingDrawer();
+    return min(metersToTravel, metersInBetween);
   }
 
   /// calculates the current position (offset) of a drawer on a conveyor
@@ -518,4 +537,13 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
 
   double rotationInRadians(MachineLayout layout, int index) =>
       layout.drawerPathOf(conveyor)[vectorIndex].directionInRadians;
+
+  double metersBetweenThisAndPrecedingDrawer() {
+    var preceding = (precedingDrawer!.position as OnConveyorPosition)
+        .metersTraveledOnDrawerConveyors;
+    var inBetween = preceding -
+        metersTraveledOnDrawerConveyors -
+        GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+    return inBetween;
+  }
 }
