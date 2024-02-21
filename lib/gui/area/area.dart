@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -524,12 +523,6 @@ class MachineLayout {
       if (_unknownPosition(machine)) {
         throw Exception('$machine is not linked to other machines');
       }
-    }
-  }
-
-  void _addOffset(OffsetInMeters offset) {
-    for (var machine in _topLefts.keys) {
-      _topLefts[machine] = _topLefts[machine]! + offset;
     }
   }
 }

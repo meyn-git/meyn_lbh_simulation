@@ -102,12 +102,6 @@ class PlayerPanel extends StatelessWidget {
     });
   }
 
-  bool _mostSpaceHorizontally(BoxConstraints constraints) {
-    var cellRange = player.scenario!.area.cellRange;
-    return (constraints.maxWidth / cellRange.width) >
-        (constraints.maxHeight / cellRange.height);
-  }
-
   static const _minimumSizeForExtraPanels = 400.0;
 
   bool _tooSmallForExtraPanels(BoxConstraints constraints) =>
@@ -319,7 +313,7 @@ class _MenuState extends State<Menu> {
   void _showAboutDialog() => showAboutDialog(
       context: context,
       applicationLegalese: 'The 3-Clause BSD License:\n\n'
-          'Copyright 2021 Meyn Foodprocessing Technology\n\n'
+          'Copyright 2021 Meyn Food Processing Technology\n\n'
           'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
           '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
           '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'

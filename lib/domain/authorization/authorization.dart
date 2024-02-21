@@ -83,13 +83,12 @@ class User {
 
 class UserFactory {
   List<User> createAll() {
-    List<User> _users = [];
-
-    _users.add(_createAdminUser(name: 'nilsth', password: 'Maxiload'));
-    _users.add(_createViewAllUser(name: 'sebastiaans', password: 'Maxiload'));
-    _users.add(_createViewAllUser(name: 'erikc', password: 'Maxiload'));
-    _users.addAll(_createSiteUsers());
-    return _users;
+    List<User> users = [];
+    users.add(_createAdminUser(name: 'nilsth', password: 'Maxiload'));
+    users.add(_createViewAllUser(name: 'sebastiaans', password: 'Maxiload'));
+    users.add(_createViewAllUser(name: 'erikc', password: 'Maxiload'));
+    users.addAll(_createSiteUsers());
+    return users;
   }
 
   Sites get sites => GetIt.instance<Sites>();

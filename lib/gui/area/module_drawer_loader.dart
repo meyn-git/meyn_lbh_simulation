@@ -1,4 +1,3 @@
-import 'package:fling_units/fling_units.dart';
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';

@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
-import 'package:meyn_lbh_simulation/domain/area/name.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 
@@ -258,8 +257,8 @@ abstract class ActiveCell
 /// A list of [StateMachineCell]s to get to a [ModuleCas] within a [LiveBirdHandlingArea]
 class Route extends DelegatingList<StateMachineCell> {
   Route(
-    List<StateMachineCell> cellRoute,
-  ) : super(cellRoute);
+    super.cellRoute,
+  );
 
   const Route.empty() : super(const []);
 

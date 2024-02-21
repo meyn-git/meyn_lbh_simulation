@@ -220,7 +220,7 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               // 9 levels * 25 birds = 225 birds / 2 cont = average 112 birds/cont
               // 112 birds/cont * 2 cont * 7.5 CAS cycle/hour * 6 CAS units = 10080 birds/hour
               // 9000 birds/hour / 112 birds/cont = 81 cont/hour
-              areaFactory: _areaWithComparableToAvimeccFactory(),
+              areaFactory: _areaWithComparableToCarnjFactory(),
               birdType: 'Pollo Grosso',
               lineSpeedInShacklesPerHour: 9000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
@@ -245,7 +245,7 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               // 9 levels * 34 birds = 306 birds / 2 cont = average 153 birds/cont
               // 153 birds/cont * 2 cont * 7.5 CAS cycle/hour * 5 CAS units = 11475 birds/hour
               // 11000 birds/hour / 153 birds/cont = 72 cont/hour
-              areaFactory: _areaWithComparableToAvimeccFactory(),
+              areaFactory: _areaWithComparableToCarnjFactory(),
               birdType: 'Pollo Medio',
               lineSpeedInShacklesPerHour: 11000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
@@ -267,24 +267,24 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               ]),
         ]);
 
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [CarnjLiveBirdHandlingArea(productDefinition)];
+  // static List<LiveBirdHandlingArea> Function(ProductDefinition)
+  //     _areaFactory() => (ProductDefinition productDefinition) =>
+  //         [CarnjLiveBirdHandlingArea(productDefinition)];
+
+  // static List<LiveBirdHandlingArea> Function(ProductDefinition)
+  //     _areaWithExtraConveyorFactory() =>
+  //         (ProductDefinition productDefinition) =>
+  //             [CarnjLiveBirdHandlingAreaWithExtraConveyor(productDefinition)];
+
+  // static List<LiveBirdHandlingArea> Function(ProductDefinition)
+  //     _areaWithExtraCasAndConveyorFactory() => (ProductDefinition
+  //             productDefinition) =>
+  //         [CarnjLiveBirdHandlingAreaWithExtraCasAndConveyor(productDefinition)];
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaWithExtraConveyorFactory() =>
-          (ProductDefinition productDefinition) =>
-              [CarnjLiveBirdHandlingAreaWithExtraConveyor(productDefinition)];
-
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaWithExtraCasAndConveyorFactory() => (ProductDefinition
-              productDefinition) =>
-          [CarnjLiveBirdHandlingAreaWithExtraCasAndConveyor(productDefinition)];
-
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaWithComparableToAvimeccFactory() =>
+      _areaWithComparableToCarnjFactory() =>
           (ProductDefinition productDefinition) => [
-                CarnjLiveBirdHandlingAreaComparableToAvimeccFactory(
+                CarnjLiveBirdHandlingAreaComparableToCarnjFactory(
                     productDefinition)
               ];
 }
@@ -848,12 +848,12 @@ class CarnjLiveBirdHandlingAreaWithExtraCasAndConveyor
   }
 }
 
-class CarnjLiveBirdHandlingAreaComparableToAvimeccFactory
+class CarnjLiveBirdHandlingAreaComparableToCarnjFactory
     extends LiveBirdHandlingArea {
-  CarnjLiveBirdHandlingAreaComparableToAvimeccFactory(
+  CarnjLiveBirdHandlingAreaComparableToCarnjFactory(
       ProductDefinition productDefinition)
       : super(
-          lineName: '4 containers on a plate, comparable to 9018 Avimecc',
+          lineName: '4 containers on a plate, comparable to 9018 Carnj',
           productDefinition: productDefinition,
         ) {
     _row3();

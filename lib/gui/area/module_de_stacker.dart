@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/gui/style.dart';
 class ModuleDeStackerWidget extends StatelessWidget {
   final ModuleDeStacker deStacker;
 
-  const ModuleDeStackerWidget(this.deStacker, {Key? key}) : super(key: key);
+  const ModuleDeStackerWidget(this.deStacker, {super.key});
 
   @override
   Widget build(BuildContext context) {

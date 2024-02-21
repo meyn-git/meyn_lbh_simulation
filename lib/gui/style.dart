@@ -67,9 +67,9 @@ class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
       LiveBirdsHandlingStyle(
         backGroundColor: backGroundColor ?? this.backGroundColor,
         machineColor: machineColor ?? this.machineColor,
-        withAwakeBirdsColor: withLiveBirdsColor ?? this.withAwakeBirdsColor,
+        withAwakeBirdsColor: withLiveBirdsColor ?? withAwakeBirdsColor,
         withBirdsBeingStunnedColor:
-            withBirdsGettingStunnedColor ?? this.withBirdsBeingStunnedColor,
+            withBirdsGettingStunnedColor ?? withBirdsBeingStunnedColor,
         withStunnedBirdsColor: withStunnedBirdsColor ?? this.withoutBirdsColor,
         withoutBirdsColor: withoutBirdsColor ?? this.withoutBirdsColor,
       );

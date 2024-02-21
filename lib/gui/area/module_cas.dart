@@ -6,7 +6,7 @@ import 'package:meyn_lbh_simulation/gui/style.dart';
 class ModuleCasWidget extends StatelessWidget {
   final ModuleCas cas;
 
-  const ModuleCasWidget(this.cas, {Key? key}) : super(key: key);
+  const ModuleCasWidget(this.cas, {super.key});
 
   @override
   Widget build(BuildContext context) {

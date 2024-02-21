@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/gui/style.dart';
 class ModuleConveyorWidget extends StatelessWidget {
   final ModuleConveyor moduleConveyor;
 
-  const ModuleConveyorWidget(this.moduleConveyor, {Key? key}) : super(key: key);
+  const ModuleConveyorWidget(this.moduleConveyor, {super.key});
 
   @override
   Widget build(BuildContext context) {

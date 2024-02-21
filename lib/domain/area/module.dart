@@ -222,7 +222,9 @@ class ModulePosition implements HasObjectDetails {
     return source != destination;
   }
 
+  @override
   late String name = 'ModulePosition';
+
   @override
   ObjectDetails get objectDetails => isMoving
       ? ObjectDetails(name)
@@ -764,7 +766,7 @@ class LoadDensity extends DerivedMeasurement<Area, Mass> {
   }
 }
 
-enum Supplier { meyn, marel, linco, baader, angliaAutoFlow }
+enum Supplier { meyn, marel, baaderLinco, angliaAutoFlow }
 
 class ModuleDimensions {
   final Distance lengthLongSide;

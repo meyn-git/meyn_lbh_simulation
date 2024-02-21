@@ -12,6 +12,8 @@ import 'state_machine.dart';
 /// Special for 7160 agricola, with a copy of the states + additional states: FeedOutFirst and FeedOutSecond
 class ModuleRotatingConveyorSingleOut extends ModuleRotatingConveyor {
   @override
+
+  // ignore: overridden_fields
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   ModuleRotatingConveyorSingleOut({

@@ -55,9 +55,9 @@ class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
       _areaFactory() => (ProductDefinition productDefinition) =>
           [VanDerLindenLiveBirdHandlingArea(productDefinition)];
 
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaWithExtraBufferFactory() => (ProductDefinition productDefinition) =>
-          [VanDerLindenLiveBirdHandlingAreaWithExtraBuffer(productDefinition)];
+  // static List<LiveBirdHandlingArea> Function(ProductDefinition)
+  //     _areaWithExtraBufferFactory() => (ProductDefinition productDefinition) =>
+  //         [VanDerLindenLiveBirdHandlingAreaWithExtraBuffer(productDefinition)];
 }
 
 class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {

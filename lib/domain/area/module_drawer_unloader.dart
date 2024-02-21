@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
-import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/machine.dart';
@@ -67,7 +66,7 @@ class ModuleDrawerUnloader extends StateMachineCell
 
   @override
   late SizeInMeters sizeWhenFacingNorth = const SizeInMeters(
-      widthInMeters: 3, heightInMeters: 3); //TODO 3 metert is an assumption
+      widthInMeters: 3, heightInMeters: 3); //TODO 3 meter is an assumption
 
   late DrawersOutLink drawersOut = DrawersOutLink(
       owner: this,
@@ -424,7 +423,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   Duration drawerPushOutCycleBuffer = Duration.zero;
   Durations drawerPushOutCycles = Durations(maxSize: 8);
 
-//TODO the DrawerHangingConveyor should tell if there is space to recieve a drawer
+//TODO the DrawerHangingConveyor should tell if there is space to receive a drawer
   late Duration minimumInterval =
       Duration(milliseconds: 3600000 ~/ maxDrawersPerHour);
   late double offsetInMeters = 0.2;

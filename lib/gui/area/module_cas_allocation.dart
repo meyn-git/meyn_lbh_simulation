@@ -4,8 +4,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 class ModuleCasAllocationWidget extends StatelessWidget {
   final ModuleCasAllocation moduleCasAllocation;
 
-  const ModuleCasAllocationWidget(this.moduleCasAllocation, {Key? key})
-      : super(key: key);
+  const ModuleCasAllocationWidget(this.moduleCasAllocation, {super.key});
 
   @override
   Widget build(BuildContext context) => FittedBox(
