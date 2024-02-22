@@ -17,6 +17,8 @@ class ModuleCasStart implements ActiveCell {
   late Position position;
   @override
   late String name;
+  final List<double> startIntervalFractions;
+
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
@@ -29,6 +31,7 @@ class ModuleCasStart implements ActiveCell {
   ModuleCasStart(
       {required this.area,
       required this.position,
+      this.startIntervalFractions = defaultIntervalFractions,
       this.name = "ModuleCasStart"});
 
   @override
@@ -64,31 +67,37 @@ class ModuleCasStart implements ActiveCell {
 
   Duration get nextStartInterval {
     var nrStunnedModules = numberOfWaitingStunnedModules;
-    switch (nrStunnedModules) {
-      case 0:
-        return Duration.zero;
-      case 1:
-        return _normalStartInterval * 0.5;
-      case 2:
-        return _normalStartInterval * 0.75;
-      case 3:
-        return _normalStartInterval * 1;
-      case 4:
-        return _normalStartInterval * 1;
-      case 5:
-        return _normalStartInterval * 1.25;
-      case 6:
-        return _normalStartInterval * 1.5;
-      case 7:
-        return _normalStartInterval * 1.75;
-      case 8:
-        return _normalStartInterval * 2;
-      case 9:
-        return _normalStartInterval * 2.25;
-      default:
-        return hold;
+    if (nrStunnedModules >= startIntervalFractions.length) {
+      return hold;
+    } else {
+      return _normalStartInterval * startIntervalFractions[nrStunnedModules];
     }
   }
+
+  /// nr of stunned containers = normal CAS start interval *
+  ///                        0 = _normalStartInterval * 0 = 0 = start ASAP
+  ///                        1 = _normalStartInterval * 0.5
+  ///                        2 = _normalStartInterval * 0.75
+  ///                        3 = _normalStartInterval * 1
+  ///                        4 = _normalStartInterval * 1
+  ///                        5 = _normalStartInterval * 1.25
+  ///                        6 = _normalStartInterval * 1.5
+  ///                        7 = _normalStartInterval * 1.75
+  ///                        8 = _normalStartInterval * 2
+  ///                        9 = _normalStartInterval * 2.25
+  ///                otherwise = _normalStartInterval * [double.infinity]
+  static const defaultIntervalFractions = <double>[
+    0,
+    0.5,
+    0.75,
+    1,
+    1,
+    1.25,
+    1.5,
+    1.75,
+    2,
+    2.25,
+  ];
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)

@@ -48,29 +48,29 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
                   firstModule: MeynGrandeDrawerChicken4Level()
                       .dimensions
                       .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken5Level()
+                  secondModule: MeynGrandeDrawerChicken4Level()
                       .dimensions
                       .capacityWithDensity(minLoadDensity, maxBirdWeight),
                 )
               ]),
-          ProductDefinition(
-              //15000 b/h
-              areaFactory: _areaFactory(),
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken5Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                )
-              ]),
+          // ProductDefinition(
+          //     //15000 b/h
+          //     areaFactory: _areaFactory(),
+          //     birdType: 'Chicken',
+          //     lineSpeedInShacklesPerHour: 15000,
+          //     casRecipe: const CasRecipe.standardChickenRecipe(),
+          //     moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
+          //     moduleFamily: ModuleFamily.meynGrandeDrawer,
+          //     moduleGroupCapacities: [
+          //       ModuleGroupCapacity(
+          //         firstModule: MeynGrandeDrawerChicken4Level()
+          //             .dimensions
+          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
+          //         secondModule: MeynGrandeDrawerChicken5Level()
+          //             .dimensions
+          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
+          //       )
+          //     ]),
         ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
@@ -92,25 +92,25 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 
   void _row1() {
-    put(UnLoadingForkLiftTruck(
-      area: this,
-      position: const Position(6, 1),
-      inFeedDirection: CardinalDirection.south,
-    ));
-  }
-
-  void _row2() {
     put(ModuleCas(
       area: this,
-      position: const Position(1, 2),
-      seqNr: 5,
+      position: const Position(5, 1),
+      seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
     ));
 
     put(ModuleCas(
       area: this,
-      position: const Position(2, 2),
+      position: const Position(6, 1),
+      seqNr: 2,
+      inAndOutFeedDirection: CardinalDirection.south,
+      doorDirection: CardinalDirection.west,
+    ));
+
+    put(ModuleCas(
+      area: this,
+      position: const Position(7, 1),
       seqNr: 3,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -118,75 +118,147 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: const Position(3, 2),
-      seqNr: 1,
+      position: const Position(8, 1),
+      seqNr: 4,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
     ));
 
-    put(ModuleTilter(
+    put(ModuleCas(
       area: this,
-      position: const Position(6, 2),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.south,
-      birdDirection: CardinalDirection.east,
-      minBirdsOnDumpBeltBuffer:
-          productDefinition.averageProductsPerModuleGroup.round(),
+      position: const Position(9, 1),
+      seqNr: 5,
+      inAndOutFeedDirection: CardinalDirection.south,
+      doorDirection: CardinalDirection.west,
+    ));
+  }
+
+  void _row2() {
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(2, 2),
+      seqNr: 8,
+      defaultPositionWhenIdle: CardinalDirection.west,
     ));
 
-    put(BirdHangingConveyor(
+    put(ModuleDeStacker(
+      area: this,
+      position: const Position(3, 2),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleConveyor(
+      area: this,
+      position: const Position(4, 2),
+      seqNr: 6,
+      inFeedDirection: CardinalDirection.east,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(5, 2),
+      seqNr: 7,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(6, 2),
+      seqNr: 6,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
       area: this,
       position: const Position(7, 2),
-      direction: CardinalDirection.north,
+      seqNr: 5,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(8, 2),
+      seqNr: 4,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.west,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(9, 2),
+      seqNr: 3,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south, CardinalDirection.west],
+      defaultPositionWhenIdle: CardinalDirection.north,
     ));
   }
 
   void _row3() {
-    put(ModuleRotatingConveyor(
+    put(BirdHangingConveyor(
       area: this,
       position: const Position(1, 3),
+      direction: CardinalDirection.north,
+    ));
+
+    put(ModuleTilter(
+      area: this,
+      position: const Position(2, 3),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.north,
+      birdDirection: CardinalDirection.west,
+      minBirdsOnDumpBeltBuffer:
+          productDefinition.averageProductsPerModuleGroup.round(),
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(4, 3),
       seqNr: 1,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.north,
     ));
 
-    put(ModuleRotatingConveyor(
+    put(ModuleConveyor(
       area: this,
-      position: const Position(2, 3),
+      position: const Position(5, 3),
       seqNr: 2,
-      oppositeInFeeds: [CardinalDirection.north],
-      oppositeOutFeeds: [CardinalDirection.south],
-      defaultPositionWhenIdle: CardinalDirection.east,
-    ));
-
-    put(ModuleRotatingConveyor(
-      area: this,
-      position: const Position(3, 3),
-      seqNr: 3,
-      oppositeInFeeds: [CardinalDirection.north],
-      oppositeOutFeeds: [CardinalDirection.south],
-      defaultPositionWhenIdle: CardinalDirection.east,
+      inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleConveyor(
       area: this,
-      position: const Position(4, 3),
-      seqNr: 2,
+      position: const Position(6, 3),
+      seqNr: 3,
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(ModuleDeStacker(
+    put(ModuleConveyor(
       area: this,
-      position: const Position(5, 3),
-      seqNr: 1,
+      position: const Position(7, 3),
+      seqNr: 4,
+      inFeedDirection: CardinalDirection.west,
+    ));
+
+    put(ModuleConveyor(
+      area: this,
+      position: const Position(8, 3),
+      seqNr: 5,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: const Position(6, 3),
-      seqNr: 4,
+      position: const Position(9, 3),
+      seqNr: 2,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.east,
@@ -194,34 +266,24 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 
   void _row4() {
-    put(ModuleConveyor(
-      area: this,
-      position: const Position(1, 4),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.south,
-    ));
-
-    put(ModuleCas(
+    put(UnLoadingForkLiftTruck(
       area: this,
       position: const Position(2, 4),
-      seqNr: 4,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.east,
+      inFeedDirection: CardinalDirection.north,
     ));
 
-    put(ModuleCas(
+    put(ModuleConveyor(
       area: this,
-      position: const Position(3, 4),
-      seqNr: 2,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.east,
+      position: const Position(4, 4),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.south,
     ));
   }
 
   void _row5() {
     put(LoadingForkLiftTruck(
       area: this,
-      position: const Position(1, 5),
+      position: const Position(4, 5),
       outFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.west,
       loadsSingeModule: false,
@@ -229,13 +291,25 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCasAllocation(
       area: this,
-      position: const Position(4, 5),
-      positionToAllocate: const Position(1, 4),
+      position: const Position(5, 5),
+      positionToAllocate: const Position(9, 3),
     ));
 
     put(ModuleCasStart(
-      area: this,
-      position: const Position(5, 5),
-    ));
+        area: this,
+        position: const Position(6, 5),
+        startIntervalFractions: <double>[
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          1,
+          1,
+          1.25,
+          1.5,
+          1.75,
+          2,
+          2.25,
+        ]));
   }
 }
