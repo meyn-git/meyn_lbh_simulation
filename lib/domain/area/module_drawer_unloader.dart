@@ -612,7 +612,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     }
     return (precedingDrawer!.position as OnConveyorPosition)
             .metersTraveledOnDrawerConveyors >
-        (GrandeDrawerModuleType.drawerOutSideLengthInMeters *2.05);
+        (GrandeDrawerModuleType.drawerOutSideLengthInMeters * 2.05);
   }
 
   ModuleDrawerUnloader _findModuleDrawerUnloader() {
