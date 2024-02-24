@@ -606,9 +606,13 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   }
 
   bool get canPushOut {
-    // print(
-    //     '$drawerPushOutCycle >= $minimumInterval ${(drawerPushOutCycle >= minimumInterval)}');
-    return drawerPushOutCycleBuffer >= minimumInterval;
+    if (precedingDrawer == null ||
+        precedingDrawer!.position is! OnConveyorPosition) {
+      return true;
+    }
+    return (precedingDrawer!.position as OnConveyorPosition)
+            .metersTraveledOnDrawerConveyors >
+        (GrandeDrawerModuleType.drawerOutSideLengthInMeters *2.05);
   }
 
   ModuleDrawerUnloader _findModuleDrawerUnloader() {

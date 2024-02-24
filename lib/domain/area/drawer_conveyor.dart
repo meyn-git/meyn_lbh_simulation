@@ -351,7 +351,6 @@ class GrandeDrawer implements TimeProcessor {
   int _nrOfBirds;
   double outSideLengthInMeters =
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;
-  double distanceTraveledInMeters = 0;
   BirdContents contents;
   DrawerPosition position;
   final Position startPosition;
