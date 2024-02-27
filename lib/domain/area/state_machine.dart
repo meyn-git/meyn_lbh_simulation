@@ -135,3 +135,19 @@ abstract class DurationState<T extends StateMachine> extends State<T> {
     return '$name remaining:${remainingDuration.inSeconds}sec';
   }
 }
+
+/// continues only when [completed] is set to true
+abstract class WaitOnCompletedState<T extends StateMachine> extends State<T> {
+  final State<T> Function(T) nextStateFunction;
+  bool completed = false;
+
+  WaitOnCompletedState({required this.nextStateFunction});
+
+  @override
+  State<T>? nextState(T stateMachine) {
+    if (completed) {
+      return nextStateFunction(stateMachine);
+    }
+    return null;
+  }
+}

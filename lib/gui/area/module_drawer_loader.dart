@@ -68,10 +68,22 @@ class DrawerLoaderLiftPainter extends DrawerConveyorPainter {
   void paint(Canvas canvas, Size size) {
     double sizePerMeter =
         size.width / drawerLift.sizeWhenFacingNorth.widthInMeters;
+    _drawCircumference(canvas, size);
     for (int level = 0; level < drawerLift.nrOfLiftPositions; level++) {
       _drawDrawer(canvas, sizePerMeter,
           drawerLift.topLeftToLiftLevel(level).toOffset());
     }
+  }
+
+  _drawCircumference(
+    Canvas canvas,
+    Size size,
+  ) {
+    var paint = Paint();
+    paint.color = style.machineColor;
+    paint.style = PaintingStyle.stroke;
+
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
   }
 
   _drawDrawer(

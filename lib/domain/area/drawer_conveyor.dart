@@ -407,6 +407,8 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
 
   double metersTraveledOnDrawerConveyors = 0;
 
+  bool atEnd = false;
+
   OnConveyorPosition(
     this.conveyor, {
     this.traveledMetersOnVector = 0.0,
@@ -453,6 +455,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
           var lastVector = drawerPath.last;
           vectorIndex = drawerPath.length - 1;
           traveledMetersOnVector = lastVector.lengthInMeters;
+          atEnd = true;
         }
       }
     }

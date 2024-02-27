@@ -16,6 +16,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
@@ -27,6 +28,7 @@ import 'package:meyn_lbh_simulation/gui/area/bird_hanging_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/area/unloading_fork_lift_truck.dart';
@@ -548,6 +550,9 @@ Widget createCellWidgetFor(ActiveCell cell) {
   }
   if (cell is ModuleDrawerUnloader) {
     return ModuleDrawerUnloaderWidget(cell);
+  }
+  if (cell is ModuleDrawerLoader) {
+    return ModuleDrawerLoaderWidget(cell);
   }
   if (cell is BirdHangingConveyor) {
     return BirdHangingConveyorWidget(cell);

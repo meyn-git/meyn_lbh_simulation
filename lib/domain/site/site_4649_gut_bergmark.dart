@@ -72,6 +72,14 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     drawersToLeft: true,
   );
 
+  late ModuleDrawerLoader moduleDrawerLoader = ModuleDrawerLoader(
+    area: this,
+    position: const Position(11, 3),
+    drawersFromLeft: true,
+    seqNr: 1,
+    inFeedDirection: CardinalDirection.west,
+  );
+
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
   GutBergmarkLiveBirdHandlingArea(ProductDefinition productDefinition)
@@ -173,10 +181,11 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var drawerLoaderLift = DrawerLoaderLift(
       area: this,
-      maxDrawersPerHour: 650,
     );
     machines.add(drawerLoaderLift);
     machines.link(conveyor9.drawerOut, drawerLoaderLift.drawerIn);
+
+    machines.link(drawerLoaderLift.drawersOut, moduleDrawerLoader.drawersIn);
   }
 
   void _row2() {
@@ -284,13 +293,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
-//reloader
-    put(ModuleConveyor(
-      area: this,
-      position: const Position(11, 3),
-      seqNr: 7,
-      inFeedDirection: CardinalDirection.west,
-    ));
+    put(moduleDrawerLoader);
 
     put(ModuleStacker(
       area: this,

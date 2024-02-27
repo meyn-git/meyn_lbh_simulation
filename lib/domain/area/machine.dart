@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 
@@ -188,10 +189,27 @@ class DrawerOutLink<OWNER extends Machine> extends Link<OWNER, DrawerInLink> {
 }
 
 class DrawersInLink<OWNER extends Machine> extends Link<OWNER, DrawersOutLink> {
-  DrawersInLink(
-      {required super.owner,
-      required super.offsetFromCenter,
-      required super.directionFromCenter});
+  /// returns 0 if it can not receive drawers
+  /// or returns the number of drawers that can be received in one go.
+  /// This is read and checked by [linkedTo.owner]
+  /// before a transfer of drawer started
+  final int Function() numberOfDrawersToFeedIn;
+
+  /// Called by [linkedTo.owner] when a transfer of drawers has started
+  /// Note that [linkedTo.owner] will change the position of the drawers
+  final void Function() onFeedInStarted;
+
+  /// Called by [linkedTo.owner] when a transfer of drawers is completed
+  final void Function(List<GrandeDrawer> transferredDrawers) onFeedInCompleted;
+
+  DrawersInLink({
+    required super.owner,
+    required super.offsetFromCenter,
+    required super.directionFromCenter,
+    required this.numberOfDrawersToFeedIn,
+    required this.onFeedInStarted,
+    required this.onFeedInCompleted,
+  });
 }
 
 class DrawersOutLink<OWNER extends Machine> extends Link<OWNER, DrawersInLink> {
