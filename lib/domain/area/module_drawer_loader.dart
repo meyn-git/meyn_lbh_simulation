@@ -65,13 +65,13 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   bool get canGoUp =>
       !bottomPositionIsEmpty &&
       liftPositions.where((drawerPosition) => drawerPosition != null).length <=
-          levelsToLoad + 1;
+          levelsToLoad;
 
-  int get levelsToLoad => moduleDrawerLoader.moduleGroup == null
-      ? minimumNumberOfLevelsInModule
-      : moduleDrawerLoader.moduleGroup!.firstModule.levels;
+  int get levelsToLoad => drawersOut.linkedTo.numberOfDrawersToFeedIn() == 0
+      ? minimumNumberOfLevelsInModule + 1
+      : drawersOut.linkedTo.numberOfDrawersToFeedIn();
 
-  get minimumNumberOfLevelsInModule => 4; //TODO get this from productDefinition
+  int minimumNumberOfLevelsInModule = 4; //TODO get this from productDefinition
 
   List<GrandeDrawer> get drawersToFeedOut => liftPositions
       .getRange(1, liftPositions.length - 1)
@@ -177,6 +177,8 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   GrandeDrawer? drawerAtEndOfPrecedingConveyor() =>
       drawers.firstWhereOrNull((drawer) =>
           drawer.position is OnConveyorPosition &&
+          (drawer.position as OnConveyorPosition).conveyor ==
+              precedingConveyor &&
           (drawer.position as OnConveyorPosition).atEnd);
 }
 
@@ -211,7 +213,7 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
         lift.liftPositions[index] == null;
         lift.area.drawers.remove(drawer);
       }
-      lift.moduleDrawerLoader.onDrawerFeedInCompleted(drawersToFeedOut);
+      lift.moduleDrawerLoader.onDrawersFeedInCompleted(drawersToFeedOut);
     }
     if (feedingInDrawer || feedingOutDrawers) {
       //wait
@@ -230,7 +232,7 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
           (drawerToFeedIn!.position as InToLiftPosition).completed;
   bool canStartFeedInDrawer(GrandeDrawer? drawerAtEndOfPrecedingConveyor,
           DrawerLoaderLift lift) =>
-      drawerToFeedIn != null &&
+      drawerToFeedIn == null &&
       drawerAtEndOfPrecedingConveyor != null &&
       lift.bottomPositionIsEmpty;
 
@@ -241,8 +243,9 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
   }
 
   bool get feedingInDrawer =>
-      drawerToFeedIn == null ||
-      !(drawerToFeedIn!.position as OnConveyorPosition).atEnd;
+      drawerToFeedIn != null &&
+      drawerToFeedIn!.position is InToLiftPosition &&
+      !(drawerToFeedIn!.position as InToLiftPosition).completed;
 
   bool canStartFeedOutDrawers(DrawerLoaderLift lift) =>
       drawersToFeedOut.isEmpty && lift.canFeedOutDrawers;
@@ -256,8 +259,8 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
   }
 
   bool get feedingOutDrawers =>
-      drawersToFeedOut.isEmpty ||
-      drawersToFeedOut.any(
+      drawersToFeedOut.isNotEmpty &&
+      !drawersToFeedOut.any(
           (drawer) => !(drawer.position as LiftToLoaderPosition).completed);
 }
 
@@ -317,20 +320,25 @@ class InToLiftPosition extends DrawerPosition implements TimeProcessor {
   bool get completed => elapsed >= duration;
 
   @override
-  double rotationInFraction(MachineLayout layout) {
-    // TODO: implement rotationInFraction
-    throw UnimplementedError();
-  }
+  double rotationInFraction(MachineLayout layout) =>
+      layout.rotationOf(lift).toFraction();
 
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
-    // TODO: implement topLeft
-    throw UnimplementedError();
+    var completed = elapsed.inMilliseconds / duration.inMilliseconds;
+    return layout.topLeftWhenFacingNorthOf(lift) +
+        lift.topLeftToDrawerInModule +
+        vector * completed;
   }
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
-    // TODO: implement onUpdateToNextPointInTime
+    if (elapsed < duration) {
+      elapsed += jump;
+    }
+    if (elapsed > duration) {
+      elapsed = duration;
+    }
   }
 }
 
@@ -490,8 +498,8 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
           ? inFeedDirection.toCompassDirection().rotate(-90)
           : inFeedDirection.toCompassDirection().rotate(90),
       numberOfDrawersToFeedIn: numberOfDrawersToFeedIn,
-      onFeedInStarted: onDrawerFeedInStarted,
-      onFeedInCompleted: onDrawerFeedInCompleted);
+      onFeedInStarted: onDrawersFeedInStarted,
+      onFeedInCompleted: onDrawersFeedInCompleted);
 
   @override
   late List<Link> links = [drawersIn]; //TODO add containerIn and containerOut
@@ -502,6 +510,9 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
   get inFeedNeighbor => area.neighboringCell(this, inFeedDirection);
 
   get outFeedNeighbor => area.neighboringCell(this, inFeedDirection.opposite);
+
+  bool get waitingToFeedInDrawers => (currentState is WaitToPushInFirstColumn ||
+      currentState is WaitToPushInSecondColumn);
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -555,13 +566,13 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
   }
 
   int numberOfDrawersToFeedIn() =>
-      moduleGroup == null ? 0 : moduleGroup!.firstModule.levels;
+      !waitingToFeedInDrawers ? 0 : moduleGroup!.firstModule.levels;
 
-  void onDrawerFeedInStarted() {
+  void onDrawersFeedInStarted() {
     //TODO
   }
 
-  void onDrawerFeedInCompleted(List<GrandeDrawer> drawers) {
+  void onDrawersFeedInCompleted(List<GrandeDrawer> drawers) {
     if (currentState is WaitToPushInFirstColumn) {
       (currentState as WaitToPushInFirstColumn).completed = true;
     }
