@@ -286,7 +286,6 @@ class WaitToPushOutFirstColumn extends State<ModuleDrawerUnloader> {
       throw Exception('Unloader can not handle stacked containers');
     }
     int levels = moduleGroup.firstModule.levels;
-    unloader.drawerLift.waitingDrawersToBePushedIn = levels;
     if (unloader.drawersOut.linkedTo.numberOfDrawersToFeedIn() >= levels) {
       return PushOutFirstColumn();
     }
@@ -370,7 +369,6 @@ class WaitToPushOutSecondColumn extends State<ModuleDrawerUnloader> {
       throw Exception('Unloader can not handle stacked containers');
     }
     int levels = moduleGroup.firstModule.levels;
-    unloader.drawerLift.waitingDrawersToBePushedIn = levels;
     if (unloader.drawersOut.linkedTo.numberOfDrawersToFeedIn() >= levels) {
       return PusherOutSecondColumn();
     }
@@ -452,9 +450,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   final int nrOfLiftPositions;
   final double lengthInMeters;
   bool feedingInDrawers = false;
-  @deprecated
-  int waitingDrawersToBePushedIn = 0;
-
+  
   /// position[0]=bottom position in lift
   /// position[nrOfPositions-1]=top position in lift
   /// null =  without drawer
