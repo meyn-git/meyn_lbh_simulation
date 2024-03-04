@@ -46,8 +46,8 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Turkey',
               lineSpeedInShacklesPerHour: 3600,
               casRecipe: dabeCasRecipe,
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule6LevelTurkey()

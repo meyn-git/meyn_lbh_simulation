@@ -42,8 +42,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -60,8 +60,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -78,8 +78,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -96,8 +96,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -114,8 +114,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo Bio',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -132,8 +132,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO Pesante',
               lineSpeedInShacklesPerHour: 6000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -150,8 +150,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo RUSTICANELLO',
               lineSpeedInShacklesPerHour: 7000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -168,8 +168,8 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Pollo PICCOLO',
               lineSpeedInShacklesPerHour: 10000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()

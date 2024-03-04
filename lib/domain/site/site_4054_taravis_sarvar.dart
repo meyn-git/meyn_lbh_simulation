@@ -40,7 +40,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()
@@ -61,7 +61,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()
@@ -82,7 +82,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()
@@ -107,7 +107,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()
@@ -132,7 +132,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()
@@ -153,7 +153,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()

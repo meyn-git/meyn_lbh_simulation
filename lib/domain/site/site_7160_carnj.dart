@@ -227,7 +227,7 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem
                   .meynGrandeDrawerContainers, //Actually: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily
-                  .meynGrandeDrawer, //Actually: ModuleFamily.marelGpSquare,
+                  .meynGrandeDrawerDoubleColumn, //Actually: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule:
@@ -252,7 +252,7 @@ class CarnjProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem
                   .meynVdlRectangularContainers, //Actually: ModuleSystem.meynVdlSquareContainers,
               moduleFamily: ModuleFamily
-                  .meynGrandeDrawer, //Actually: ModuleFamily.marelGpSquare,
+                  .meynGrandeDrawerDoubleColumn, //Actually: ModuleFamily.marelGpSquare,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule:

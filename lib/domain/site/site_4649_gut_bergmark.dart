@@ -45,7 +45,7 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 15000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawer,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()

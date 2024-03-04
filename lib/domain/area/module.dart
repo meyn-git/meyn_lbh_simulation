@@ -305,13 +305,12 @@ enum ModuleSystem {
       ),
 
   ///following durations are based on measurements at: 7696-Dabe-Germanyk
-  meynVdlSquareContainers(
+  meynSingleColumnContainers(
       conveyorTransportDuration: Duration(milliseconds: 13400),
       stackerInFeedDuration: Duration(milliseconds: 18700),
       deStackerInFeedDuration: Duration(milliseconds: 18700),
       casTransportDuration: Duration(milliseconds: 18700),
-      turnTableDegreesPerSecond: 10
-      // 90 degrees in 9 seconds,
+      turnTableDegreesPerSecond: 5 // should be 10 but this resulted in 6 sec instead of 90 degrees in 9 seconds,
       );
 
   const ModuleSystem(
@@ -334,10 +333,15 @@ enum ModuleFamily {
     compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.rectangularStacked,
   ),
-  meynGrandeDrawer(
+  meynGrandeDrawerDoubleColumn(
     supplier: Supplier.meyn,
     compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
     shape: ModuleShape.rectangularStacked,
+  ),
+    meynGrandeDrawerSingleColumn(
+    supplier: Supplier.meyn,
+    compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
+    shape: ModuleShape.squareSideBySide,
   ),
   meynMaxiLoad(
     supplier: Supplier.meyn,
@@ -354,12 +358,12 @@ enum ModuleFamily {
     compartmentType: CompartmentType.drawerSlideInOutOnBothSides,
     shape: ModuleShape.rectangularStacked,
   ),
-  marelGpSquare(
+  marelGpDoubleColumn(
     supplier: Supplier.marel,
     compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.squareSideBySide,
   ),
-  marelGpRectangular(
+  marelGpSingleColumn(
     supplier: Supplier.marel,
     compartmentType: CompartmentType.doorOnOneSide,
     shape: ModuleShape.rectangularStacked,
@@ -439,7 +443,7 @@ class GrandeDrawerModuleType extends ModuleType {
 class MeynGrandeDrawerChicken4Level extends GrandeDrawerModuleType {
   MeynGrandeDrawerChicken4Level()
       : super(
-          moduleFamily: ModuleFamily.meynGrandeDrawer,
+          moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
             lengthLongSide: meters(2.43),
@@ -459,7 +463,7 @@ class MeynGrandeDrawerChicken4Level extends GrandeDrawerModuleType {
 class MeynGrandeDrawerChicken5Level extends GrandeDrawerModuleType {
   MeynGrandeDrawerChicken5Level()
       : super(
-          moduleFamily: ModuleFamily.meynGrandeDrawer,
+          moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
           birdType: BirdType.chicken,
           dimensions: ModuleDimensions(
             lengthLongSide: meters(2.43),
@@ -589,7 +593,7 @@ class AngliaAutoFlowTurkey3Level extends ModuleType {
 class MarelGpSquareModule4Level extends ModuleType {
   MarelGpSquareModule4Level()
       : super(
-            moduleFamily: ModuleFamily.marelGpSquare,
+            moduleFamily: ModuleFamily.marelGpDoubleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(1.420),
@@ -606,7 +610,7 @@ class MarelGpSquareModule4Level extends ModuleType {
 class MarelGpSquareModule5Level extends ModuleType {
   MarelGpSquareModule5Level()
       : super(
-            moduleFamily: ModuleFamily.marelGpSquare,
+            moduleFamily: ModuleFamily.marelGpDoubleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(1.420),
@@ -623,7 +627,7 @@ class MarelGpSquareModule5Level extends ModuleType {
 class MarelGpSquareModule6LevelTurkey extends ModuleType {
   MarelGpSquareModule6LevelTurkey()
       : super(
-            moduleFamily: ModuleFamily.marelGpSquare,
+            moduleFamily: ModuleFamily.marelGpDoubleColumn,
             birdType: BirdType.turkey,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(1.420),
@@ -640,7 +644,7 @@ class MarelGpSquareModule6LevelTurkey extends ModuleType {
 class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
   MarelGpGalvanizedSteelRectangular4LevelChicken()
       : super(
-            moduleFamily: ModuleFamily.marelGpRectangular,
+            moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(2.430),
@@ -657,7 +661,7 @@ class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
 class MarelGpStainlessSteelRectangular4LevelChicken extends ModuleType {
   MarelGpStainlessSteelRectangular4LevelChicken()
       : super(
-            moduleFamily: ModuleFamily.marelGpRectangular,
+            moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(2.430),
@@ -674,7 +678,7 @@ class MarelGpStainlessSteelRectangular4LevelChicken extends ModuleType {
 class MarelGpRectangular5LevelChicken extends ModuleType {
   MarelGpRectangular5LevelChicken()
       : super(
-            moduleFamily: ModuleFamily.marelGpRectangular,
+            moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(2.430),

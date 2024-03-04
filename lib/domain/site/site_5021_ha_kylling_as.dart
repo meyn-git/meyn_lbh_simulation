@@ -38,7 +38,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 20000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.marelGpRectangular,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                     firstModule: MarelGpStainlessSteelRectangular4LevelChicken()
@@ -56,7 +56,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 9300,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.marelGpRectangular,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                     firstModule: MarelGpStainlessSteelRectangular4LevelChicken()

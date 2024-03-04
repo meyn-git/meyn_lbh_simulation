@@ -37,8 +37,8 @@ class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Kuikens',
               lineSpeedInShacklesPerHour: 8000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynVdlSquareContainers,
-              moduleFamily: ModuleFamily.marelGpSquare,
+              moduleSystem: ModuleSystem.meynSingleColumnContainers,
+              moduleFamily: ModuleFamily.marelGpDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule5Level()

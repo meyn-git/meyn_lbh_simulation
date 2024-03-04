@@ -34,7 +34,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 3300,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.marelGpRectangular,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   // bird weight min: 2,3 avr: 2,8 max 3kg
@@ -54,7 +54,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 3300,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.marelGpRectangular,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   // bird weight min: 2,3 avr: 2,8 max 3kg

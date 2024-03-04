@@ -81,7 +81,7 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 12500,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.marelGpRectangular,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
@@ -98,7 +98,7 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 15000,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.marelGpRectangular,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                   firstModule: MarelGpSquareModule4Level()
