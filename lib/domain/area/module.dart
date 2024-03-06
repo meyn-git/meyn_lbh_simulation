@@ -310,7 +310,8 @@ enum ModuleSystem {
       stackerInFeedDuration: Duration(milliseconds: 18700),
       deStackerInFeedDuration: Duration(milliseconds: 18700),
       casTransportDuration: Duration(milliseconds: 18700),
-      turnTableDegreesPerSecond: 5 // should be 10 but this resulted in 6 sec instead of 90 degrees in 9 seconds,
+      turnTableDegreesPerSecond:
+          5 // should be 10 but this resulted in 6 sec instead of 90 degrees in 9 seconds,
       );
 
   const ModuleSystem(
@@ -338,7 +339,7 @@ enum ModuleFamily {
     compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
     shape: ModuleShape.rectangularStacked,
   ),
-    meynGrandeDrawerSingleColumn(
+  meynGrandeDrawerSingleColumn(
     supplier: Supplier.meyn,
     compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
     shape: ModuleShape.squareSideBySide,

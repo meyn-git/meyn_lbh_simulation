@@ -474,7 +474,8 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   double _metersToTravel(double metersPerSecond, Duration jump) {
     var secondsOfTravel = jump.inMicroseconds / 1000000;
     var metersToTravel = metersPerSecond * secondsOfTravel;
-    if (precedingDrawer == null || precedingDrawer!.position is! OnConveyorPosition) {
+    if (precedingDrawer == null ||
+        precedingDrawer!.position is! OnConveyorPosition) {
       return metersToTravel;
     }
 

@@ -450,7 +450,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   final int nrOfLiftPositions;
   final double lengthInMeters;
   bool feedingInDrawers = false;
-  
+
   /// position[0]=bottom position in lift
   /// position[nrOfPositions-1]=top position in lift
   /// null =  without drawer

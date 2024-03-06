@@ -391,7 +391,6 @@ class MicarnaLiveBirdHandlingAreaV2 extends LiveBirdHandlingArea {
       defaultPositionWhenIdle: CardinalDirection.west,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
-      
     ));
 
     put(ModuleRotatingConveyor(
@@ -517,7 +516,6 @@ class MicarnaLiveBirdHandlingAreaV2 extends LiveBirdHandlingArea {
       position: const Position(4, 7),
       positionToAllocate: const Position(5, 2),
     ));
-
 
     put(ModuleCasStart(
         area: this,

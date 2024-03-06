@@ -62,12 +62,10 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   @override
   late SizeInMeters sizeWhenFacingNorth = _size();
 
-  bool get canGoUp {
-    print('${!bottomPositionIsEmpty} ${liftPositions.where((drawerPosition) => drawerPosition != null).length} <= $levelsToLoad');
-    return !bottomPositionIsEmpty &&
+  bool get canGoUp =>
+      !bottomPositionIsEmpty &&
       liftPositions.where((drawerPosition) => drawerPosition != null).length <=
           levelsToLoad;
-  }
 
   int get levelsToLoad => drawersOut.linkedTo.numberOfDrawersToFeedIn() == 0
       ? minimumNumberOfLevelsInModule + 1
@@ -75,10 +73,8 @@ class DrawerLoaderLift extends StateMachine implements Machine {
 
   int minimumNumberOfLevelsInModule = 4; //TODO get this from productDefinition
 
-  List<GrandeDrawer> get drawersToFeedOut => liftPositions
-      .getRange(1, liftPositions.length - 1)
-      .whereNotNull()
-      .toList();
+  List<GrandeDrawer> get drawersToFeedOut =>
+      liftPositions.getRange(1, liftPositions.length).whereNotNull().toList();
 
   bool get canFeedOutDrawers =>
       moduleDrawerLoader.moduleGroup != null &&
@@ -151,21 +147,21 @@ class DrawerLoaderLift extends StateMachine implements Machine {
 
   late DrawerConveyor precedingConveyor =
       drawerIn.linkedTo.owner as DrawerConveyor;
-  void onStartPushOutTopPosition() {
-    for (int level = 1; level < liftPositions.length - 2; level++) {
-      var drawer = liftPositions[level]!;
-      drawer.position = LiftToLoaderPosition(lift: this, level: level);
-    }
-  }
+  // void onStartPushOutTopPosition() {
+  //   for (int level = 1; level < liftPositions.length - 2; level++) {
+  //     var drawer = liftPositions[level]!;
+  //     drawer.position = LiftToLoaderPosition(lift: this, level: level);
+  //   }
+  // }
 
-  void onCompletePushOutTopPosition() {
-    liftPositions = [
-      ...liftPositions.getRange(0, liftPositions.length - 1),
-      null
-    ];
-    drawerPushOutCycles.add(drawerPushOutCycle);
-    drawerPushOutCycle = Duration.zero;
-  }
+  // void onCompletePushOutTopPosition() {
+  //   liftPositions = [
+  //     ...liftPositions.getRange(0, liftPositions.length - 1),
+  //     null
+  //   ];
+  //   drawerPushOutCycles.add(drawerPushOutCycle);
+  //   drawerPushOutCycle = Duration.zero;
+  // }
 
   bool get bottomPositionIsEmpty {
     return liftPositions.firstOrNull == null;
@@ -184,82 +180,184 @@ class DrawerLoaderLift extends StateMachine implements Machine {
           (drawer.position as OnConveyorPosition).atEnd);
 }
 
-class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
-  SimultaneouslyFeedInAndFeedOutDrawers();
-  GrandeDrawer? drawerToFeedIn;
-  List<GrandeDrawer> drawersToFeedOut = [];
-  @override
-  String get name => 'SimultaneouslyFeedInAndFeedOutDrawers';
+typedef DrawerFeedInState = State<DrawerLoaderLift>;
 
-  bool get feedOutDrawersCompleted => drawersToFeedOut.isEmpty
-      ? false
-      : (drawersToFeedOut.first.position is LiftToLoaderPosition) &&
-          (drawersToFeedOut.first.position as LiftToLoaderPosition).completed;
+class WaitingToFeedInDrawer extends DrawerFeedInState {
+  @override
+  String get name => 'WaitingToFeedInDrawer';
 
   @override
   State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
-    var drawerAtEndOfPrecedingConveyor = lift.drawerAtEndOfPrecedingConveyor();
-    if (canStartFeedInDrawer(drawerAtEndOfPrecedingConveyor, lift)) {
-      startFeedInDrawer(drawerAtEndOfPrecedingConveyor, lift);
+    var drawerToFeedIn = lift.drawerAtEndOfPrecedingConveyor();
+    if (canStartFeedInDrawer(drawerToFeedIn, lift)) {
+      return FeedingInDrawer(drawerToFeedIn!);
     }
-    if (canStartFeedOutDrawers(lift)) {
-      startFeedOutDrawers(lift);
+    return null;
+  }
+
+  bool canStartFeedInDrawer(
+          GrandeDrawer? drawerToFeedIn, DrawerLoaderLift lift) =>
+      drawerToFeedIn != null && lift.bottomPositionIsEmpty;
+}
+
+class FeedingInDrawer extends DrawerFeedInState {
+  final GrandeDrawer drawerToFeedIn;
+
+  FeedingInDrawer(this.drawerToFeedIn);
+
+  @override
+  String get name => 'FeedingInDrawer';
+
+  @override
+  void onStart(DrawerLoaderLift lift) {
+    drawerToFeedIn.position = InToLiftPosition(lift);
+  }
+
+  @override
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
+    if ((drawerToFeedIn.position as InToLiftPosition).completed) {
+      return CompletedFeedInDrawer(drawerToFeedIn);
     }
-    if (feedInDrawerCompleted) {
-      drawerToFeedIn!.position = LiftPosition(lift: lift, level: 0);
-      lift.liftPositions[0] = drawerToFeedIn;
+    return null;
+  }
+}
+
+class CompletedFeedInDrawer extends DrawerFeedInState {
+  final GrandeDrawer drawerToFeedIn;
+
+  CompletedFeedInDrawer(this.drawerToFeedIn);
+
+  @override
+  String get name => 'CompletedFeedInDrawer';
+
+  @override
+  void onStart(DrawerLoaderLift lift) {
+    drawerToFeedIn.position = LiftPosition(lift: lift, level: 0);
+    lift.liftPositions[0] = drawerToFeedIn;
+  }
+
+  @override
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift stateMachine) {
+    return null;
+  }
+}
+
+typedef DrawersFeedOutState = State<DrawerLoaderLift>;
+
+class WaitingToFeedOutDrawers extends DrawersFeedOutState {
+  @override
+  String get name => 'WaitingToFeedOutDrawers';
+
+  @override
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
+    if (lift.canFeedOutDrawers) {
+      return FeedingOutDrawers(lift.drawersToFeedOut);
     }
-    if (feedOutDrawersCompleted) {
-      for (var drawer in drawersToFeedOut) {
-        var index = lift.liftPositions.indexOf(drawer);
-        lift.liftPositions[index] == null;
-        lift.area.drawers.remove(drawer);
-      }
-      lift.moduleDrawerLoader.onDrawersFeedInCompleted(drawersToFeedOut);
-      drawersToFeedOut.clear();
+    return null;
+  }
+}
+
+class FeedingOutDrawers extends DrawersFeedOutState {
+  final List<GrandeDrawer> drawersToFeedOut;
+  FeedingOutDrawers(this.drawersToFeedOut);
+
+  @override
+  String get name => 'FeedingOutDrawers';
+
+  @override
+  void onStart(DrawerLoaderLift lift) {
+    for (int level = 0; level < drawersToFeedOut.length; level++) {
+      var drawerToFeedOut = drawersToFeedOut[level];
+      drawerToFeedOut.position = LiftToLoaderPosition(lift: lift, level: level);
     }
-    if (feedingInDrawer || feedingOutDrawers) {
-      //wait
+  }
+
+  @override
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift stateMachine) {
+    if (completed) {
+      return CompletedFeedOutDrawer(drawersToFeedOut);
+    }
+    return null;
+  }
+
+  bool get completed =>
+      (drawersToFeedOut.first.position is LiftToLoaderPosition) &&
+      (drawersToFeedOut.first.position as LiftToLoaderPosition).completed;
+}
+
+class CompletedFeedOutDrawer extends DrawersFeedOutState {
+  final List<GrandeDrawer> drawersToFeedOut;
+  CompletedFeedOutDrawer(this.drawersToFeedOut);
+
+  @override
+  String get name => 'CompletedFeedOutDrawer';
+
+  @override
+  void onStart(DrawerLoaderLift lift) {
+    for (var drawer in drawersToFeedOut) {
+      var index = lift.liftPositions.indexOf(drawer);
+      lift.liftPositions[index] = null;
+      lift.area.drawers.remove(drawer);
+    }
+    lift.moduleDrawerLoader.onDrawersFeedInCompleted(drawersToFeedOut);
+  }
+
+  @override
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift stateMachine) {
+    return null;
+  }
+}
+
+class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
+  SimultaneouslyFeedInAndFeedOutDrawers();
+  DrawerFeedInState drawerInFeedState = WaitingToFeedInDrawer();
+  DrawersFeedOutState drawersOutFeedState = WaitingToFeedOutDrawers();
+  GrandeDrawer? drawerToFeedIn;
+  List<GrandeDrawer> drawersToFeedOut = [];
+  @override
+  String get name => '${drawerInFeedState.name}, '
+      '${drawersOutFeedState.name}';
+
+  /// this method acts like a state machine for parallel states:
+  /// * [drawerInFeedState]
+  /// * [drawerInFeedState]
+  @override
+  void onUpdateToNextPointInTime(DrawerLoaderLift lift, Duration jump) {
+    drawerInFeedState.onUpdateToNextPointInTime(lift, jump);
+    var nextInFeedState = drawerInFeedState.nextState(lift);
+    if (nextInFeedState != null) {
+      drawerInFeedState.onCompleted(lift);
+      drawerInFeedState = nextInFeedState;
+      nextInFeedState.onStart(lift);
+    }
+
+    drawersOutFeedState.onUpdateToNextPointInTime(lift, jump);
+    var nextOutFeedState = drawersOutFeedState.nextState(lift);
+    if (nextOutFeedState != null) {
+      drawersOutFeedState.onCompleted(lift);
+      drawersOutFeedState = nextOutFeedState;
+      nextOutFeedState.onStart(lift);
+    }
+  }
+
+  @override
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
+    if (drawerInFeedState is FeedingInDrawer ||
+        drawersOutFeedState is FeedingOutDrawers) {
+      // wait until feed in or feed out is completed
       return null;
     }
     if (lift.canGoUp) {
       return RaiseLift();
     }
-    //wait
+    //wait until lift can go up
     return null;
-  }
-
-  bool get feedInDrawerCompleted => drawerToFeedIn == null
-      ? false
-      : (drawerToFeedIn!.position is InToLiftPosition) &&
-          (drawerToFeedIn!.position as InToLiftPosition).completed;
-  bool canStartFeedInDrawer(GrandeDrawer? drawerAtEndOfPrecedingConveyor,
-          DrawerLoaderLift lift) =>
-      drawerToFeedIn == null &&
-      drawerAtEndOfPrecedingConveyor != null &&
-      lift.bottomPositionIsEmpty;
-
-  void startFeedInDrawer(
-      GrandeDrawer? drawerAtEndOfPrecedingConveyor, DrawerLoaderLift lift) {
-    drawerToFeedIn = drawerAtEndOfPrecedingConveyor;
-    drawerToFeedIn!.position = InToLiftPosition(lift);
   }
 
   bool get feedingInDrawer =>
       drawerToFeedIn != null &&
       drawerToFeedIn!.position is InToLiftPosition &&
       !(drawerToFeedIn!.position as InToLiftPosition).completed;
-
-  bool canStartFeedOutDrawers(DrawerLoaderLift lift) =>
-      drawersToFeedOut.isEmpty && lift.canFeedOutDrawers;
-
-  void startFeedOutDrawers(DrawerLoaderLift lift) {
-    drawersToFeedOut = lift.drawersToFeedOut;
-    for (int level = 0; level < drawersToFeedOut.length; level++) {
-      var drawerToFeedOut = drawersToFeedOut[level];
-      drawerToFeedOut.position = LiftToLoaderPosition(lift: lift, level: level);
-    }
-  }
 
   bool get feedingOutDrawers =>
       drawersToFeedOut.isNotEmpty &&
