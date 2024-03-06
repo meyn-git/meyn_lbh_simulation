@@ -62,10 +62,12 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   @override
   late SizeInMeters sizeWhenFacingNorth = _size();
 
-  bool get canGoUp =>
-      !bottomPositionIsEmpty &&
+  bool get canGoUp {
+    print('${!bottomPositionIsEmpty} ${liftPositions.where((drawerPosition) => drawerPosition != null).length} <= $levelsToLoad');
+    return !bottomPositionIsEmpty &&
       liftPositions.where((drawerPosition) => drawerPosition != null).length <=
           levelsToLoad;
+  }
 
   int get levelsToLoad => drawersOut.linkedTo.numberOfDrawersToFeedIn() == 0
       ? minimumNumberOfLevelsInModule + 1
@@ -214,6 +216,7 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
         lift.area.drawers.remove(drawer);
       }
       lift.moduleDrawerLoader.onDrawersFeedInCompleted(drawersToFeedOut);
+      drawersToFeedOut.clear();
     }
     if (feedingInDrawer || feedingOutDrawers) {
       //wait
@@ -251,8 +254,8 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
       drawersToFeedOut.isEmpty && lift.canFeedOutDrawers;
 
   void startFeedOutDrawers(DrawerLoaderLift lift) {
-    var drawersToFeedOut = lift.drawersToFeedOut;
-    for (int level = 0; level <= drawersToFeedOut.length; level++) {
+    drawersToFeedOut = lift.drawersToFeedOut;
+    for (int level = 0; level < drawersToFeedOut.length; level++) {
       var drawerToFeedOut = drawersToFeedOut[level];
       drawerToFeedOut.position = LiftToLoaderPosition(lift: lift, level: level);
     }
@@ -351,8 +354,7 @@ class LiftToLoaderPosition extends DrawerPosition implements TimeProcessor {
 
   LiftToLoaderPosition({required this.lift, required this.level})
       : vector = lift.topLeftToDrawerInModule - lift.topLeftToLiftLevel(level),
-        duration = (lift.drawerIn.linkedTo.owner as ModuleDrawerLoader)
-            .pusherOutDuration;
+        duration = lift.pusherOutDuration;
 
   bool get completed => elapsed >= duration;
 
@@ -441,8 +443,6 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
   ///The loader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
   ///Normally this number is between the number of birds in 1 or 2 modules
   final Duration checkIfEmptyDuration;
-  final Duration pusherOutDuration;
-  final Duration pusherInDuration;
   final Duration feedInToSecondColumn;
   final bool drawersFromLeft;
   Duration? durationPerModule;
@@ -461,12 +461,6 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
         const Duration(milliseconds: 9300), // TODO remove default value?
     Duration? outFeedDuration =
         const Duration(milliseconds: 9300), // TODO remove default value?
-    this.pusherOutDuration = const Duration(
-        milliseconds:
-            3400), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-    this.pusherInDuration = const Duration(
-        milliseconds:
-            3400), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
     this.feedInToSecondColumn = const Duration(
         milliseconds:
             6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"

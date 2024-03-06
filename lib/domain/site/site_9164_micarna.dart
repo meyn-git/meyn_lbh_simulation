@@ -29,7 +29,7 @@ class MicarnaSite extends Site {
 
 class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
   static final maxBirdWeight = 2.5.kilo.grams;
-  static const summerLoadPercentage = 90;
+  static const summerLoadPercentage = 80;
   static final minLoadDensity =
       LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
 
@@ -52,23 +52,23 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
           //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
           //       )
           //     ]),
-          ProductDefinition(
-              areaFactory: _areaFactoryV2(),
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 13500,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                )
-              ]),
+          // ProductDefinition(
+          //     areaFactory: _areaFactoryV2(),
+          //     birdType: 'Chicken',
+          //     lineSpeedInShacklesPerHour: 13500,
+          //     casRecipe: const CasRecipe.standardChickenRecipe(),
+          //     moduleSystem: ModuleSystem.meynSingleColumnContainers,
+          //     moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
+          //     moduleGroupCapacities: [
+          //       ModuleGroupCapacity(
+          //         firstModule: MeynGrandeDrawerChicken5Level()
+          //             .dimensions
+          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
+          //         secondModule: MeynGrandeDrawerChicken4Level()
+          //             .dimensions
+          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
+          //       )
+          //     ]),
           ProductDefinition(
               areaFactory: _areaFactoryV2(),
               birdType: 'Chicken',
@@ -380,6 +380,8 @@ class MicarnaLiveBirdHandlingAreaV2 extends LiveBirdHandlingArea {
       position: const Position(2, 2),
       seqNr: 6,
       defaultPositionWhenIdle: CardinalDirection.west,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
     ));
 
     put(ModuleRotatingConveyor(
@@ -387,7 +389,9 @@ class MicarnaLiveBirdHandlingAreaV2 extends LiveBirdHandlingArea {
       position: const Position(3, 2),
       seqNr: 5,
       defaultPositionWhenIdle: CardinalDirection.west,
+      oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
+      
     ));
 
     put(ModuleRotatingConveyor(
@@ -395,6 +399,7 @@ class MicarnaLiveBirdHandlingAreaV2 extends LiveBirdHandlingArea {
       position: const Position(4, 2),
       seqNr: 4,
       defaultPositionWhenIdle: CardinalDirection.west,
+      oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
     ));
 
@@ -513,6 +518,27 @@ class MicarnaLiveBirdHandlingAreaV2 extends LiveBirdHandlingArea {
       positionToAllocate: const Position(5, 2),
     ));
 
-    put(ModuleCasStart(area: this, position: const Position(5, 7)));
+
+    put(ModuleCasStart(
+        area: this,
+        position: const Position(6, 5),
+        startIntervalFractions: <double>[
+          0.5,
+          0.5,
+          0.6,
+          0.6,
+          0.7,
+          0.7,
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          1,
+          1,
+          1.40,
+          1.80,
+          2.20,
+          2.40,
+        ]));
   }
 }
