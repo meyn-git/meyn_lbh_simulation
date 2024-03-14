@@ -70,7 +70,7 @@ class ModuleDrawerUnloader extends StateMachineCell
 
   late DrawersOutLink drawersOut = DrawersOutLink(
       owner: this,
-      offsetFromCenter: OffsetInMeters(
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
           metersFromLeft: drawersToLeft
               ? -sizeWhenFacingNorth.widthInMeters / 2
               : sizeWhenFacingNorth.widthInMeters / 2,
@@ -499,7 +499,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   late DrawersInLink<DrawerUnloaderLift> drawersIn =
       DrawersInLink<DrawerUnloaderLift>(
           owner: this,
-          offsetFromCenter: OffsetInMeters(
+          offsetFromCenterWhenFacingNorth: OffsetInMeters(
               metersFromLeft: 0,
               metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
           directionFromCenter: const CompassDirection.south(),
@@ -510,7 +510,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   late DrawerOutLink<DrawerUnloaderLift> drawerOut =
       DrawerOutLink<DrawerUnloaderLift>(
           owner: this,
-          offsetFromCenter: OffsetInMeters(
+          offsetFromCenterWhenFacingNorth: OffsetInMeters(
               metersFromLeft: 0,
               metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2),
           directionFromCenter: const CompassDirection.north());

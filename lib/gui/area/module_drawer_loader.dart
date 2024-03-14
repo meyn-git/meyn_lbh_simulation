@@ -71,7 +71,7 @@ class DrawerLoaderLiftPainter extends DrawerConveyorPainter {
     _drawCircumference(canvas, size);
     for (int level = 0; level < drawerLift.nrOfLiftPositions; level++) {
       _drawDrawer(canvas, sizePerMeter,
-          drawerLift.topLeftToLiftLevel(level).toOffset());
+          drawerLift.topLeftLiftToTopLeftDrawerInLift(level).toOffset());
     }
   }
 

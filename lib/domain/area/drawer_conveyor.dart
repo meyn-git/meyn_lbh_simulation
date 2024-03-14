@@ -68,7 +68,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
   @override
   late DrawerInLink drawerIn = DrawerInLink<DrawerConveyorStraight>(
       owner: this,
-      offsetFromCenter: OffsetInMeters(
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
           metersFromLeft: 0,
           metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.south.toCompassDirection());
@@ -76,7 +76,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
   @override
   late DrawerOutLink drawerOut = DrawerOutLink(
       owner: this,
-      offsetFromCenter: OffsetInMeters(
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
           metersFromLeft: 0,
           metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.north.toCompassDirection());
@@ -121,7 +121,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   @override
   late DrawerInLink drawerIn = DrawerInLink(
       owner: this,
-      offsetFromCenter: OffsetInMeters(
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
           metersFromLeft: clockwise
               ? -sizeWhenFacingNorth.widthInMeters / 2 +
                   DrawerConveyor.chainWidthInMeters / 2
@@ -133,7 +133,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   @override
   late DrawerOutLink drawerOut = DrawerOutLink(
       owner: this,
-      offsetFromCenter: OffsetInMeters(
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
           metersFromLeft: clockwise
               ? sizeWhenFacingNorth.widthInMeters / 2
               : -sizeWhenFacingNorth.widthInMeters / 2,
@@ -259,7 +259,7 @@ class DrawerTurningConveyor extends DrawerConveyorStraight {
   // ignore: overridden_fields
   late DrawerOutLink drawerOut = DrawerOutLink(
       owner: this,
-      offsetFromCenter: OffsetInMeters(
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
           metersFromLeft: 0,
           metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
       directionFromCenter: CardinalDirection.south.toCompassDirection());
@@ -500,6 +500,10 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
     return traveled;
   }
 
+  /// The drawer start is the middle of the leading edge of the drawer
+  /// Here we calculate the offset from drawer start to 
+  /// the top left of the drawer.
+  /// This depends on the start rotation.
   OffsetInMeters drawerStartToTopLeftDrawer(MachineLayout layout) {
     double halveDrawerLength =
         GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;

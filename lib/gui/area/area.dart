@@ -435,7 +435,7 @@ class MachineLayout {
     _centers[machine] = topLeft + machine.sizeWhenFacingNorth.toOffset() * 0.5;
     if (machine is DrawerConveyor) {
       var toCenter = _centers[machine]!;
-      var centerToStart = machine.drawerIn.offsetFromCenter.rotate(rotation);
+      var centerToStart = machine.drawerIn.offsetFromCenterWhenFacingNorth.rotate(rotation);
       _drawerStarts[machine] = toCenter + centerToStart;
       var originalDrawerPath = machine.drawerPath;
       var rotatedDrawerPath = originalDrawerPath.rotate(rotation);
@@ -453,9 +453,9 @@ class MachineLayout {
         var machine1TopLeftToCenter =
             machine1.sizeWhenFacingNorth.toOffset() * 0.5;
         var machine1CenterToLink =
-            link.offsetFromCenter.rotate(machine1Rotation);
+            link.offsetFromCenterWhenFacingNorth.rotate(machine1Rotation);
         var machine2LinkToCenter =
-            link.linkedTo.offsetFromCenter.rotate(machine2Rotation) * -1;
+            link.linkedTo.offsetFromCenterWhenFacingNorth.rotate(machine2Rotation) * -1;
         var machine2CenterToTopLeft =
             machine2.sizeWhenFacingNorth.toOffset() * -0.5;
         var machine2TopLeft = machine1TopLeft +
@@ -481,6 +481,11 @@ class MachineLayout {
   /// to the top left of the [Machine]
   OffsetInMeters topLeftWhenFacingNorthOf(Machine machine) =>
       _topLefts[machine]!;
+
+  OffsetInMeters positionOnMachine(Machine machine,
+          OffsetInMeters offsetFromMachineCenterWhenFacingNorth) =>
+      centerOf(machine) +
+      offsetFromMachineCenterWhenFacingNorth.rotate(rotationOf(machine));
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
   /// to the center of the [Machine]

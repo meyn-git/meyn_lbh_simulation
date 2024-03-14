@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 
 import 'life_bird_handling_area.dart';
@@ -433,6 +434,10 @@ class MeynEvoChicken5Level extends ModuleType {
 
 class GrandeDrawerModuleType extends ModuleType {
   static const double drawerOutSideLengthInMeters = 1.160;
+
+  static const SizeInMeters size = SizeInMeters(
+      widthInMeters: drawerOutSideLengthInMeters,
+      heightInMeters: drawerOutSideLengthInMeters);
 
   GrandeDrawerModuleType({
     required super.moduleFamily,

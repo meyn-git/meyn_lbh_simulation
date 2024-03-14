@@ -73,7 +73,7 @@ abstract class Link<OWNER extends Machine,
     LINKED_TO extends Link<Machine, dynamic>> {
   /// the [Machine] that owns the [Link]
   final OWNER owner;
-  final OffsetInMeters offsetFromCenter;
+  final OffsetInMeters offsetFromCenterWhenFacingNorth;
 
   final CompassDirection directionFromCenter;
 
@@ -82,7 +82,7 @@ abstract class Link<OWNER extends Machine,
 
   Link({
     required this.owner,
-    required this.offsetFromCenter,
+    required this.offsetFromCenterWhenFacingNorth,
     required this.directionFromCenter,
   });
 }
@@ -169,22 +169,22 @@ class OffsetInMeters {
       'OffsetInMeters(metersFromLeft:$metersFromLeft,metersFromTop:$metersFromTop)';
 }
 
-class OffsetInMetersFromTopLeft extends OffsetInMeters {
-  OffsetInMetersFromTopLeft(
-      {required super.metersFromTop, required super.metersFromLeft});
-}
+// class OffsetInMetersFromTopLeft extends OffsetInMeters {
+//   OffsetInMetersFromTopLeft(
+//       {required super.metersFromTop, required super.metersFromLeft});
+// }
 
 class DrawerInLink<OWNER extends Machine> extends Link<OWNER, DrawerOutLink> {
   DrawerInLink(
       {required super.owner,
-      required super.offsetFromCenter,
+      required super.offsetFromCenterWhenFacingNorth,
       required super.directionFromCenter});
 }
 
 class DrawerOutLink<OWNER extends Machine> extends Link<OWNER, DrawerInLink> {
   DrawerOutLink(
       {required super.owner,
-      required super.offsetFromCenter,
+      required super.offsetFromCenterWhenFacingNorth,
       required super.directionFromCenter});
 }
 
@@ -204,7 +204,7 @@ class DrawersInLink<OWNER extends Machine> extends Link<OWNER, DrawersOutLink> {
 
   DrawersInLink({
     required super.owner,
-    required super.offsetFromCenter,
+    required super.offsetFromCenterWhenFacingNorth,
     required super.directionFromCenter,
     required this.numberOfDrawersToFeedIn,
     required this.onFeedInStarted,
@@ -215,7 +215,7 @@ class DrawersInLink<OWNER extends Machine> extends Link<OWNER, DrawersOutLink> {
 class DrawersOutLink<OWNER extends Machine> extends Link<OWNER, DrawersInLink> {
   DrawersOutLink(
       {required super.owner,
-      required super.offsetFromCenter,
+      required super.offsetFromCenterWhenFacingNorth,
       required super.directionFromCenter});
 }
 
