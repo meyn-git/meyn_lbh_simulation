@@ -35,10 +35,6 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   Duration drawerPushOutCycle = Duration.zero;
   Durations drawerPushOutCycles = Durations(maxSize: 8);
 
-  static const double verticalLevelOffsetInMeters = 0.2;
-  static const double horizontalLevelOffsetInMeters =
-      verticalLevelOffsetInMeters / 4;
-
   DrawerLoaderLift({
     required this.area,
     this.upDuration = const Duration(
@@ -81,9 +77,8 @@ class DrawerLoaderLift extends StateMachine implements Machine {
       moduleDrawerLoader.moduleGroup!.firstModule.levels ==
           drawersToFeedOut.length;
 
+  var length = GrandeDrawerModuleType.drawerOutSideLengthInMeters * 1.2;
   SizeInMeters _size() {
-    var length = GrandeDrawerModuleType.drawerOutSideLengthInMeters +
-        verticalLevelOffsetInMeters * (nrOfLiftPositions + 1);
     return SizeInMeters(widthInMeters: length, heightInMeters: length);
   }
 
@@ -108,27 +103,6 @@ class DrawerLoaderLift extends StateMachine implements Machine {
     //TODO modulePositions
   ];
 
-  late OffsetInMeters topLeftToBottomConveyorEnd = _topLeftToTopConveyorEnd();
-  OffsetInMeters _topLeftToTopConveyorEnd() => OffsetInMeters(
-      metersFromLeft: sizeWhenFacingNorth.widthInMeters / 2, metersFromTop: 0);
-
-  OffsetInMeters topLeftLiftToTopLeftDrawerInLift(int level) =>
-      topLeftToBottomConveyorEnd -
-      const OffsetInMeters(
-          metersFromLeft:
-              GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2,
-          metersFromTop: 0) +
-      OffsetInMeters(
-          metersFromLeft: horizontalLevelOffsetInMeters * (level),
-          metersFromTop:
-              verticalLevelOffsetInMeters * (nrOfLiftPositions - level));
-
-  @Deprecated("replace locally with layout.positionOnMachine")
-  late OffsetInMeters topLeftToDrawerInModule = _topLeftToDrawerInModule();
-  OffsetInMeters _topLeftToDrawerInModule() => OffsetInMeters(
-      metersFromLeft: sizeWhenFacingNorth.widthInMeters / 2,
-      metersFromTop: sizeWhenFacingNorth.heightInMeters * 0.8);
-
   bool get liftIsEmpty =>
       liftPositions.every((drawerPosition) => drawerPosition == null);
 
@@ -148,21 +122,6 @@ class DrawerLoaderLift extends StateMachine implements Machine {
 
   late DrawerConveyor precedingConveyor =
       drawerIn.linkedTo.owner as DrawerConveyor;
-  // void onStartPushOutTopPosition() {
-  //   for (int level = 1; level < liftPositions.length - 2; level++) {
-  //     var drawer = liftPositions[level]!;
-  //     drawer.position = LiftToLoaderPosition(lift: this, level: level);
-  //   }
-  // }
-
-  // void onCompletePushOutTopPosition() {
-  //   liftPositions = [
-  //     ...liftPositions.getRange(0, liftPositions.length - 1),
-  //     null
-  //   ];
-  //   drawerPushOutCycles.add(drawerPushOutCycle);
-  //   drawerPushOutCycle = Duration.zero;
-  // }
 
   bool get bottomPositionIsEmpty {
     return liftPositions.firstOrNull == null;
@@ -180,16 +139,21 @@ class DrawerLoaderLift extends StateMachine implements Machine {
               precedingConveyor &&
           (drawer.position as OnConveyorPosition).atEnd);
 
-  OffsetInMeters centerLiftToCenterDrawerInLift(int level) {
-    var centerLiftToTopLeft = sizeWhenFacingNorth.toOffset() * -0.5;
-    var topLeftLiftToTopLeftDrawerInLift2 =
-        topLeftLiftToTopLeftDrawerInLift(level);
-    var topLeftDrawerToCenterDrawer =
-        GrandeDrawerModuleType.size.toOffset() * 0.5;
-    return centerLiftToTopLeft +
-        topLeftLiftToTopLeftDrawerInLift2 +
-        topLeftDrawerToCenterDrawer;
-  }
+  /// How far apart the minimized drawers are displayed.
+  /// See [minimizedDrawerSize]
+  late double minimizedDrawerDistance =
+      sizeWhenFacingNorth.heightInMeters / (nrOfLiftPositions + 1);
+
+  /// the drawers are minimized inside the lift to show all drawers in the lift
+  late SizeInMeters minimizedDrawerSize = SizeInMeters(
+      widthInMeters: minimizedDrawerDistance * 0.8,
+      heightInMeters: minimizedDrawerDistance * 0.8);
+
+  OffsetInMeters centerLiftToCenterDrawerInLift(int level) => OffsetInMeters(
+      metersFromLeft: sizeWhenFacingNorth.widthInMeters / 2,
+      metersFromTop: (nrOfLiftPositions - level) * minimizedDrawerDistance
+      // +    sizeWhenFacingNorth.heightInMeters / 2
+      );
 }
 
 typedef DrawerFeedInState = State<DrawerLoaderLift>;
@@ -421,11 +385,16 @@ class RaiseLift extends DurationState<DrawerLoaderLift> {
   }
 }
 
-class InToLiftPosition extends DrawerPosition implements TimeProcessor {
+class InToLiftPosition extends DrawerPositionAndSize implements TimeProcessor {
   final DrawerLoaderLift lift;
   OffsetInMeters? vector;
+  OffsetInMeters? startPosition;
   Duration elapsed = Duration.zero;
   final Duration duration;
+
+  final double startScale = 1;
+  late double endScale = lift.minimizedDrawerSize.widthInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
   InToLiftPosition(this.lift) : duration = lift.pusherOutDuration;
 
   bool get completed => elapsed >= duration;
@@ -436,18 +405,13 @@ class InToLiftPosition extends DrawerPosition implements TimeProcessor {
 
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
-    vector ??= _vector(layout, lift);
-    var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.positionOnMachine(
-            lift, lift.drawerIn.offsetFromCenterWhenFacingNorth) -
-
-        ///TODO: See [OnConveyorPosition.drawerStartToTopLeftDrawer]
-        const OffsetInMeters(
-            metersFromLeft:
-                GrandeDrawerModuleType.drawerOutSideLengthInMeters * 0.5,
-            metersFromTop: GrandeDrawerModuleType.drawerOutSideLengthInMeters) +
-        vector! * completed;
+    vector ??= _vector(layout);
+    startPosition ??= _startPosition(layout);
+    return startPosition! + vector! * completedFraction;
   }
+
+  double get completedFraction =>
+      elapsed.inMilliseconds / duration.inMilliseconds;
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -459,7 +423,7 @@ class InToLiftPosition extends DrawerPosition implements TimeProcessor {
     }
   }
 
-  OffsetInMeters _vector(MachineLayout layout, DrawerLoaderLift lift) {
+  OffsetInMeters _vector(MachineLayout layout) {
     var drawerLeadingCenterToTopLeftDrawer = const OffsetInMeters(
         metersFromLeft:
             GrandeDrawerModuleType.drawerOutSideLengthInMeters * 0.5,
@@ -467,25 +431,35 @@ class InToLiftPosition extends DrawerPosition implements TimeProcessor {
     var startPosition = layout.positionOnMachine(
             lift, lift.drawerIn.offsetFromCenterWhenFacingNorth) +
         drawerLeadingCenterToTopLeftDrawer;
-
     var endPosition =
         layout.positionOnMachine(lift, lift.centerLiftToCenterDrawerInLift(0));
-
     return endPosition - startPosition;
   }
+
+  OffsetInMeters _startPosition(MachineLayout layout) =>
+      layout.positionOnMachine(
+          lift, lift.drawerIn.offsetFromCenterWhenFacingNorth) -
+
+      ///TODO: See [OnConveyorPosition.drawerStartToTopLeftDrawer]
+      const OffsetInMeters(
+          metersFromLeft:
+              GrandeDrawerModuleType.drawerOutSideLengthInMeters * 0.5,
+          metersFromTop: GrandeDrawerModuleType.drawerOutSideLengthInMeters);
+
+  @override
+  double scale() => (startScale - endScale) * (1-completedFraction) + endScale;
 }
 
 class LiftToLoaderPosition extends DrawerPosition implements TimeProcessor {
   late DrawerLoaderLift lift;
   int level;
-  final OffsetInMeters vector;
+  OffsetInMeters? vector;
+  OffsetInMeters? startPosition;
   Duration elapsed = Duration.zero;
   final Duration duration;
 
   LiftToLoaderPosition({required this.lift, required this.level})
-      : vector = lift.topLeftToDrawerInModule -
-            lift.topLeftLiftToTopLeftDrawerInLift(level),
-        duration = lift.pusherOutDuration;
+      : duration = lift.pusherOutDuration;
 
   bool get completed => elapsed >= duration;
 
@@ -501,47 +475,66 @@ class LiftToLoaderPosition extends DrawerPosition implements TimeProcessor {
 
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
+    startPosition ??= _startPosition(layout);
+    vector ??= _vector(layout);
     var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.topLeftWhenFacingNorthOf(lift) +
-        lift.topLeftToDrawerInModule +
-        vector * completed;
+    return startPosition! + vector! * completed;
   }
 
   @override
   double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
+
+  OffsetInMeters _vector(MachineLayout layout) {
+    var endPosition = layout.centerOf(lift) +
+        const OffsetInMeters(metersFromLeft: 0, metersFromTop: 2);
+    var startPosition = layout.positionOnMachine(
+        lift, lift.centerLiftToCenterDrawerInLift(level));
+    return endPosition - startPosition;
+  }
+
+  OffsetInMeters _startPosition(MachineLayout layout) => layout
+      .positionOnMachine(lift, lift.centerLiftToCenterDrawerInLift(level));
 }
 
-class LiftPosition extends DrawerPosition {
+class LiftPosition extends DrawerPositionAndSize {
   DrawerLoaderLift lift;
   int level;
+  late OffsetInMeters centerDrawerToTopLeft =
+      GrandeDrawerModuleType.size.toOffset() * -0.5 * _scale;
   LiftPosition({
     required this.lift,
     required this.level,
   });
 
   @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    var topLeft = layout.topLeftWhenFacingNorthOf(lift);
-    return topLeft + lift.topLeftLiftToTopLeftDrawerInLift(level);
-  }
+  OffsetInMeters topLeft(MachineLayout layout) => layout.positionOnMachine(
+      lift, lift.centerLiftToCenterDrawerInLift(level) + centerDrawerToTopLeft);
 
   @override
   double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
+
+  late final double _scale = lift.minimizedDrawerSize.widthInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
+  @override
+  double scale() => _scale;
 }
 
-class LiftPositionUp extends DrawerPosition implements TimeProcessor {
+class LiftPositionUp extends DrawerPositionAndSize implements TimeProcessor {
   final DrawerLoaderLift lift;
   int startLevel;
-  final OffsetInMeters vector;
+  OffsetInMeters? vector;
+  OffsetInMeters? startPosition;
   Duration elapsed = Duration.zero;
   final Duration duration;
 
+  late OffsetInMeters centerDrawerToTopLeft =
+      GrandeDrawerModuleType.size.toOffset() * -0.5 * _scale;
+
   LiftPositionUp({required this.lift, required this.startLevel})
-      : vector = (lift.topLeftLiftToTopLeftDrawerInLift(startLevel + 1) -
-            lift.topLeftLiftToTopLeftDrawerInLift(startLevel)),
-        duration = lift.upDuration;
+      : duration = lift.upDuration;
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -555,18 +548,34 @@ class LiftPositionUp extends DrawerPosition implements TimeProcessor {
 
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
+    startPosition ??= _startPosition(layout);
+    vector ??= _vector(layout);
     var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.topLeftWhenFacingNorthOf(lift) +
-        lift.topLeftLiftToTopLeftDrawerInLift(startLevel) +
-        vector * completed;
+    return startPosition! + vector! * completed;
   }
 
   @override
   double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
+
+  OffsetInMeters _vector(MachineLayout layout) =>
+      vector = (lift.centerLiftToCenterDrawerInLift(startLevel + 1) -
+              lift.centerLiftToCenterDrawerInLift(startLevel))
+          .rotate(layout.rotationOf(lift));
+
+  OffsetInMeters _startPosition(MachineLayout layout) =>
+      layout.positionOnMachine(
+          lift,
+          lift.centerLiftToCenterDrawerInLift(startLevel) +
+              centerDrawerToTopLeft);
+
+  late final double _scale = lift.minimizedDrawerSize.widthInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
+  @override
+  double scale() => _scale;
 }
 
-/// TODO this was copied from module_drawer_unloader.dart and renamed Unloader to Loader. It will need some more adjustments
 class ModuleDrawerLoader extends StateMachineCell implements Machine {
   final CardinalDirection inFeedDirection;
 

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/style.dart';
 
-/// TODO this is a copy of module_drawer_loader.dart. Loader was renamed to Loader. It might need some additional work
 class ModuleDrawerLoaderWidget extends StatelessWidget {
   final ModuleDrawerLoader loader;
 
@@ -66,13 +64,7 @@ class DrawerLoaderLiftPainter extends DrawerConveyorPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double sizePerMeter =
-        size.width / drawerLift.sizeWhenFacingNorth.widthInMeters;
     _drawCircumference(canvas, size);
-    for (int level = 0; level < drawerLift.nrOfLiftPositions; level++) {
-      _drawDrawer(canvas, sizePerMeter,
-          drawerLift.topLeftLiftToTopLeftDrawerInLift(level).toOffset());
-    }
   }
 
   _drawCircumference(
@@ -84,24 +76,6 @@ class DrawerLoaderLiftPainter extends DrawerConveyorPainter {
     paint.style = PaintingStyle.stroke;
 
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
-  }
-
-  _drawDrawer(
-    Canvas canvas,
-    double sizePerMeter,
-    Offset topLeftToLiftLevel,
-  ) {
-    var paint = Paint();
-    paint.color = style.machineColor;
-    paint.style = PaintingStyle.stroke;
-
-    var x1 = topLeftToLiftLevel.dx * sizePerMeter;
-    var y1 = topLeftToLiftLevel.dy * sizePerMeter;
-    var drawerLengthInMeters =
-        GrandeDrawerModuleType.drawerOutSideLengthInMeters;
-    var x2 = x1 + drawerLengthInMeters * sizePerMeter;
-    var y2 = y1 + drawerLengthInMeters * sizePerMeter;
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
   }
 
   @override

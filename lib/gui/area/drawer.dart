@@ -15,7 +15,11 @@ class GrandeDrawerWidget extends StatelessWidget {
     var style = LiveBirdsHandlingStyle.of(context);
     return RotationTransition(
       turns: AlwaysStoppedAnimation(drawer.position.rotationInFraction(layout)),
-      child: CustomPaint(painter: DrawerPainter(drawer, style)),
+      child: drawer.position is DrawerPositionAndSize
+          ? Transform.scale(
+              scale: (drawer.position as DrawerPositionAndSize).scale(),
+              child: CustomPaint(painter: DrawerPainter(drawer, style)))
+          : CustomPaint(painter: DrawerPainter(drawer, style)),
     );
   }
 }

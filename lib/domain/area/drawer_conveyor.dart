@@ -393,6 +393,14 @@ abstract class DrawerPosition {
   double rotationInFraction(MachineLayout layout);
 }
 
+abstract class DrawerPositionAndSize extends DrawerPosition {
+  /// value for the size of the drawer:
+  /// 1=normal drawer size
+  /// 0.5=half the normal drawer size
+  /// etc...
+  double scale(); 
+}
+
 class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   /// the conveyor where the drawer is on currently
   DrawerConveyor conveyor;
