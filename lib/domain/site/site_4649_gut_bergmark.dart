@@ -149,7 +149,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var conveyor5 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 8);
+        lengthInMeters: 9.5);
     machines.add(conveyor5);
     machines.link(soaker.drawerOut, conveyor5.drawerIn);
 
@@ -174,7 +174,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     machines.link(conveyor7.drawerOut, conveyor8.drawerIn);
 
     var conveyor9 = DrawerConveyorStraight(
-        lengthInMeters: 1.5,
+        lengthInMeters: 1.4,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
     machines.add(conveyor9);
     machines.link(conveyor8.drawerOut, conveyor9.drawerIn);

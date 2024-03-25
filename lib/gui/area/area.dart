@@ -387,7 +387,7 @@ class MachineLayout {
       {required this.machines,
       CompassDirection startDirection = const CompassDirection(0)}) {
     _placeMachines(startDirection,
-        const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -7.5));
+        const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -6.4));
   }
 
   void _placeMachines(
@@ -482,10 +482,14 @@ class MachineLayout {
   OffsetInMeters topLeftWhenFacingNorthOf(Machine machine) =>
       _topLefts[machine]!;
 
+
+final OffsetInMeters mysteryCorrection =
+     GrandeDrawerModuleType.size.toOffset() * -0.4;
+
   OffsetInMeters positionOnMachine(Machine machine,
           OffsetInMeters offsetFromMachineCenterWhenFacingNorth) =>
       centerOf(machine) +
-      offsetFromMachineCenterWhenFacingNorth.rotate(rotationOf(machine));
+      offsetFromMachineCenterWhenFacingNorth.rotate(rotationOf(machine))+ mysteryCorrection;
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
   /// to the center of the [Machine]

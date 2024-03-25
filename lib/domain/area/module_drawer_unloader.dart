@@ -12,6 +12,7 @@ import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
+
 class ModuleDrawerUnloader extends StateMachineCell
     implements Machine, BirdBuffer //TODO get rid of BirdBuffer
 {
@@ -400,7 +401,7 @@ class PusherOutSecondColumn extends DurationState<ModuleDrawerUnloader> {
         startPosition: unloader.position,
         nrOfBirds: nrOfBirdsPerDrawer,
         contents: contents,
-        position:
+        position://TODO not displayed for some reason
             UnloaderToLiftPosition(lift: unloader.drawerLift, level: level),
       );
       drawers.add(drawer);
@@ -462,10 +463,6 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   Duration drawerPushOutCycle = Duration.zero;
   Durations drawerPushOutCycles = Durations(maxSize: 8);
 
-  static const double verticalLevelOffsetInMeters = 0.2;
-  static const double horizontalLevelOffsetInMeters =
-      verticalLevelOffsetInMeters / 4;
-
   GrandeDrawer? precedingDrawer;
 
   DrawerUnloaderLift({
@@ -491,8 +488,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   @override
   late SizeInMeters sizeWhenFacingNorth = _size();
   SizeInMeters _size() {
-    var length = GrandeDrawerModuleType.drawerOutSideLengthInMeters +
-        verticalLevelOffsetInMeters * (nrOfLiftPositions + 1);
+    var length = GrandeDrawerModuleType.drawerOutSideLengthInMeters * 1.2;
     return SizeInMeters(widthInMeters: length, heightInMeters: length);
   }
 
@@ -521,26 +517,21 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     drawerOut
   ];
 
-  late OffsetInMeters topLeftToTopConveyorEnd = _topLeftToTopConveyorEnd();
-  OffsetInMeters _topLeftToTopConveyorEnd() => OffsetInMeters(
-      metersFromLeft: sizeWhenFacingNorth.widthInMeters / 2, metersFromTop: 0);
+  /// How far apart the minimized drawers are displayed.
+  /// See [minimizedDrawerSize]
+  late double minimizedDrawerDistanceInMeters =
+      sizeWhenFacingNorth.heightInMeters / (nrOfLiftPositions + 1);
 
-  OffsetInMeters topLeftToLiftLevel(int level) =>
-      topLeftToTopConveyorEnd -
-      const OffsetInMeters(
-          metersFromLeft:
-              GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2,
-          metersFromTop: 0) +
-      OffsetInMeters(
-          metersFromLeft:
-              horizontalLevelOffsetInMeters * (nrOfLiftPositions - level),
-          metersFromTop:
-              verticalLevelOffsetInMeters * (nrOfLiftPositions - level));
+  /// the drawers are minimized inside the lift to show all drawers in the lift
+  late SizeInMeters minimizedDrawerSize = SizeInMeters(
+      widthInMeters: minimizedDrawerDistanceInMeters * 0.8,
+      heightInMeters: minimizedDrawerDistanceInMeters * 0.8);
 
-  late OffsetInMeters topLeftToDrawerInModule = _topLeftToDrawerInModule();
-  OffsetInMeters _topLeftToDrawerInModule() => OffsetInMeters(
-      metersFromLeft: sizeWhenFacingNorth.widthInMeters / 2,
-      metersFromTop: sizeWhenFacingNorth.heightInMeters * 0.8);
+  OffsetInMeters centerLiftToDrawerCenterInLift(int level) => OffsetInMeters(
+      metersFromLeft: 0,
+      metersFromTop:
+          (nrOfLiftPositions - level) * minimizedDrawerDistanceInMeters -
+              sizeWhenFacingNorth.heightInMeters / 2);
 
   bool get liftIsEmpty =>
       liftPositions.every((drawerPosition) => drawerPosition == null);
@@ -735,17 +726,25 @@ class WaitOnPushIn extends WaitOnCompletedState<DrawerUnloaderLift> {
   String get name => 'WaitOnPushIn';
 }
 
-class UnloaderToLiftPosition extends DrawerPosition implements TimeProcessor {
+class UnloaderToLiftPosition extends DrawerPositionAndSize
+    implements TimeProcessor {
   late DrawerUnloaderLift lift;
   int level;
-  final OffsetInMeters vector;
+  OffsetInMeters? vector;
+  OffsetInMeters? startPosition;
   Duration elapsed = Duration.zero;
   final Duration duration;
 
+  final double startScale = 1;
+  late double endScale = lift.minimizedDrawerSize.widthInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
   UnloaderToLiftPosition({required this.lift, required this.level})
-      : vector = lift.topLeftToLiftLevel(level) - lift.topLeftToDrawerInModule,
-        duration = (lift.drawersIn.linkedTo.owner as ModuleDrawerUnloader)
+      : duration = (lift.drawersIn.linkedTo.owner as ModuleDrawerUnloader)
             .pusherOutDuration;
+
+  OffsetInMeters get centerDrawerToTopLeftDrawer =>
+      GrandeDrawerModuleType.size.toOffset() * -0.5 * scale();
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -757,56 +756,86 @@ class UnloaderToLiftPosition extends DrawerPosition implements TimeProcessor {
     }
   }
 
-  // @override
-  // Offset topLeft(MachineLayout layout, double sizePerMeter) {
-  //   var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-  //   return layout.topLeftOffset(lift, sizePerMeter) +
-  //       lift.topLeftToDrawerInModule * sizePerMeter +
-  //       vector.toOffset() * sizePerMeter * completed;
-  // }
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
-    var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.topLeftWhenFacingNorthOf(lift) +
-        lift.topLeftToDrawerInModule +
-        vector * completed;
+    vector ??= _vector(layout);
+    startPosition ??= drawerCenterStartPosition(layout);
+    return startPosition! +
+        vector! * completedFraction +
+        centerDrawerToTopLeftDrawer;
   }
+
+  double get completedFraction =>
+      elapsed.inMilliseconds / duration.inMilliseconds;
+
+  OffsetInMeters _vector(MachineLayout layout) =>
+      drawerCenterEndPosition(layout) - drawerCenterStartPosition(layout);
 
   @override
   double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
+
+  OffsetInMeters drawerCenterEndPosition(MachineLayout layout) => layout
+      .positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(level));
+
+  OffsetInMeters drawerCenterStartPosition(MachineLayout layout) {
+    //TODO get from unloader
+    var offsetFromCenterWhenFacingNorth = const OffsetInMeters(
+        metersFromLeft: 0,
+        metersFromTop: GrandeDrawerModuleType.drawerOutSideLengthInMeters);
+    return layout.positionOnMachine(lift, offsetFromCenterWhenFacingNorth);
+  }
+
+  @override
+  double scale() =>
+      (startScale - endScale) * (1 - completedFraction) + endScale;
 }
 
-class LiftPosition extends DrawerPosition {
+class LiftPosition extends DrawerPositionAndSize {
   DrawerUnloaderLift lift;
   int level;
+
+  late final double _scale = lift.minimizedDrawerSize.widthInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
+  late OffsetInMeters drawerCenterToDrawerTopLeft =
+      GrandeDrawerModuleType.size.toOffset() * -0.5 * _scale;
+
   LiftPosition({
     required this.lift,
     required this.level,
   });
 
   @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    var topLeft = layout.topLeftWhenFacingNorthOf(lift);
-    return topLeft + lift.topLeftToLiftLevel(level);
-  }
+  OffsetInMeters topLeft(MachineLayout layout) =>
+      layout.positionOnMachine(
+          lift, lift.centerLiftToDrawerCenterInLift(level)) +
+      drawerCenterToDrawerTopLeft ;
 
   @override
   double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
+
+  @override
+  double scale() => _scale;
 }
 
-class LiftPositionUp extends DrawerPosition implements TimeProcessor {
+class LiftPositionUp extends DrawerPositionAndSize implements TimeProcessor {
   final DrawerUnloaderLift lift;
   int startLevel;
-  final OffsetInMeters vector;
+  OffsetInMeters? vector;
+  OffsetInMeters? startPosition;
   Duration elapsed = Duration.zero;
   final Duration duration;
 
+  late OffsetInMeters centerDrawerToDrawerTopLeft =
+      GrandeDrawerModuleType.size.toOffset() * -0.5 * scale();
+
+  late final double _scale = lift.minimizedDrawerSize.widthInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
   LiftPositionUp({required this.lift, required this.startLevel})
-      : vector = (lift.topLeftToLiftLevel(startLevel + 1) -
-            lift.topLeftToLiftLevel(startLevel)),
-        duration = lift.upDuration;
+      : duration = lift.upDuration;
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -820,13 +849,26 @@ class LiftPositionUp extends DrawerPosition implements TimeProcessor {
 
   @override
   OffsetInMeters topLeft(MachineLayout layout) {
+    vector ??= _vector(layout);
+    startPosition ??= drawerCenterStartPosition(layout);
     var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return layout.topLeftWhenFacingNorthOf(lift) +
-        lift.topLeftToLiftLevel(startLevel) +
-        vector * completed;
+    return startPosition! + vector! * completed + centerDrawerToDrawerTopLeft;
   }
 
   @override
   double rotationInFraction(MachineLayout layout) =>
       layout.rotationOf(lift).toFraction();
+
+  OffsetInMeters _vector(MachineLayout layout) =>
+      drawerCenterEndPosition(layout) - drawerCenterStartPosition(layout);
+
+  OffsetInMeters drawerCenterEndPosition(MachineLayout layout) =>
+      layout.positionOnMachine(
+          lift, lift.centerLiftToDrawerCenterInLift(startLevel + 1));
+
+  OffsetInMeters drawerCenterStartPosition(MachineLayout layout) => layout
+      .positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(startLevel));
+
+  @override
+  double scale() => _scale;
 }
