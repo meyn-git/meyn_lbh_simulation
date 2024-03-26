@@ -385,25 +385,26 @@ class MachineLayout {
 
   MachineLayout(
       {required this.machines,
-      CompassDirection startDirection = const CompassDirection(0)}) {
-    _placeMachines(startDirection,
-        const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -6.4));
+      CompassDirection startDirection = const CompassDirection(0)}
+      
+      ) {
+    _placeMachines(startDirection);
   }
 
   void _placeMachines(
       CompassDirection startDirection,
-      //TODO remove offset when Cells have been made as Machines
-      OffsetInMeters offset) {
+      ) {
     if (machines.isEmpty) {
       return;
     }
+    
     var machine = machines.first;
     var topLeft = OffsetInMeters.zero;
     var rotation = startDirection;
     //place all machines recursively (assuming they are all linked)
     _placeLinkedMachines(machine, topLeft, rotation);
     _validateAllMachinesArePlaced();
-    var correction = offsetCorrection() + offset;
+    var correction = offsetCorrection() + machines.topLeftFirstMachine;
     _correctOffsets(_topLefts, correction);
     _correctOffsets(_centers, correction);
     _correctOffsets(_drawerStarts, correction);

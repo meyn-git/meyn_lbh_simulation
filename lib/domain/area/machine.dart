@@ -20,6 +20,10 @@ abstract class Machine implements HasCommands, HasObjectDetails {
 }
 
 class Machines extends DelegatingList<Machine> {
+  /// set [topLeftFirstMachine] when defining a [LiveBirdHandlingArea]
+  ///TODO remove [topLeftFirstMachine] when Cells have been made as Machines
+  OffsetInMeters topLeftFirstMachine= OffsetInMeters.zero;
+
   Machines() : super([]);
 
   void link(Link link1, Link link2) {

@@ -9,7 +9,7 @@ class Scenario {
   final Site site;
   final ProductDefinition productDefinition;
   final LiveBirdHandlingArea area;
-  late MachineLayout layout = MachineLayout(machines: area.machines);
+  late MachineLayout layout = MachineLayout(machines: area.machines, );
 
   Scenario(
       {required this.site,

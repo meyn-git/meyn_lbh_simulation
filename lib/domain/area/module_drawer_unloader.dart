@@ -457,7 +457,6 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
   /// null =  without drawer
   List<GrandeDrawer?> liftPositions;
   final Duration upDuration;
-  final int maxDrawersPerHour;
   final Duration pushOutDuration;
 
   Duration drawerPushOutCycle = Duration.zero;
@@ -470,7 +469,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     this.upDuration = const Duration(
         milliseconds:
             1600), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-    required this.maxDrawersPerHour, // Aiming for 750-800
+    
     this.pushOutDuration = const Duration(
         milliseconds:
             2500), // Based on "Speed calculations_estimates_V3_Erik.xlsx"

@@ -20,24 +20,24 @@ import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 
 import 'site.dart';
 
-class GutBergmarkSite extends Site {
-  GutBergmarkSite()
+class BorgmeierSite extends Site {
+  BorgmeierSite()
       : super(
-          meynLayoutNumber: 4649,
-          organizationName: 'Gut Bergmark',
-          city: '',
+          meynLayoutNumber: 8199,
+          organizationName: 'Borgmeier',
+          city: 'Lohne',
           country: 'Germany',
-          productDefinitions: GutBergmarkProductDefinitions(),
+          productDefinitions: BorgmeierProductDefinitions(),
         );
 }
 
-class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
-  static final maxBirdWeight = 2.8.kilo.grams;
+class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
+  static final maxBirdWeight = 2.9.kilo.grams;
   static const summerLoadPercentage = 90;
-  static final minLoadDensity =
+  static final loadDensityHeaviestFlock =
       LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
 
-  GutBergmarkProductDefinitions()
+  BorgmeierProductDefinitions()
       : super([
           ProductDefinition(
               //13500 b/h
@@ -51,23 +51,45 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
                 ModuleGroupCapacity(
                   firstModule: MeynGrandeDrawerChicken4Level()
                       .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
+                      .capacityWithDensity(
+                          loadDensityHeaviestFlock, maxBirdWeight),
                   secondModule: MeynGrandeDrawerChicken5Level()
                       .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
+                      .capacityWithDensity(
+                          loadDensityHeaviestFlock, maxBirdWeight),
+                )
+              ]),
+          ProductDefinition(
+              //13500 b/h
+              areaFactory: _areaFactory(),
+              birdType: 'Chicken',
+              lineSpeedInShacklesPerHour: 16500,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
+              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
+              moduleGroupCapacities: [
+                ModuleGroupCapacity(
+                  firstModule: MeynGrandeDrawerChicken4Level()
+                      .dimensions
+                      .capacityWithDensity(
+                          loadDensityHeaviestFlock, maxBirdWeight),
+                  secondModule: MeynGrandeDrawerChicken5Level()
+                      .dimensions
+                      .capacityWithDensity(
+                          loadDensityHeaviestFlock, maxBirdWeight),
                 )
               ]),
         ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
       _areaFactory() => (ProductDefinition productDefinition) =>
-          [GutBergmarkLiveBirdHandlingArea(productDefinition)];
+          [BorgmeierLiveBirdHandlingArea(productDefinition)];
 }
 
-class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
+class BorgmeierLiveBirdHandlingArea extends LiveBirdHandlingArea {
   late ModuleDrawerUnloader drawerUnloader = ModuleDrawerUnloader(
     area: this,
-    position: const Position(7, 3),
+    position: const Position(10, 3),
     seqNr: 1,
     inFeedDirection: CardinalDirection.west,
     drawersToLeft: true,
@@ -75,7 +97,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
   late ModuleDrawerLoader moduleDrawerLoader = ModuleDrawerLoader(
     area: this,
-    position: const Position(11, 3),
+    position: const Position(14, 3),
     drawersFromLeft: true,
     seqNr: 1,
     inFeedDirection: CardinalDirection.west,
@@ -83,7 +105,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
-  GutBergmarkLiveBirdHandlingArea(ProductDefinition productDefinition)
+  BorgmeierLiveBirdHandlingArea(ProductDefinition productDefinition)
       : super(
           lineName: 'Line1',
           productDefinition: productDefinition,
@@ -96,11 +118,10 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 
   void _addMachines() {
-    machines.topLeftFirstMachine=const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -6.4);
+    machines.topLeftFirstMachine=const OffsetInMeters(metersFromLeft: 18, metersFromTop: -6.4);
 
     var drawerUnloaderLift = DrawerUnloaderLift(
       area: this,
-      
     );
     machines.add(drawerUnloaderLift);
     machines.link(drawerUnloader.drawersOut, drawerUnloaderLift.drawersIn);
@@ -194,7 +215,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
   void _row2() {
     put(ModuleCas(
       area: this,
-      position: const Position(1, 2),
+      position: const Position(4, 2),
       seqNr: 5,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -202,7 +223,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: const Position(2, 2),
+      position: const Position(5, 2),
       seqNr: 3,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -210,7 +231,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: const Position(3, 2),
+      position: const Position(6, 2),
       seqNr: 1,
       inAndOutFeedDirection: CardinalDirection.south,
       doorDirection: CardinalDirection.west,
@@ -218,7 +239,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(BirdHangingConveyor(
       area: this,
-      position: const Position(7, 2),
+      position: const Position(10, 2),
       direction: CardinalDirection.west,
     ));
   }
@@ -233,9 +254,21 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       defaultPositionWhenIdle: CardinalDirection.north,
     ));
 
+    put(ModuleConveyor(
+        area: this,
+        position: const Position(2, 3),
+        seqNr: 2,
+        inFeedDirection: CardinalDirection.west));
+
+    put(ModuleConveyor(
+        area: this,
+        position: const Position(3, 3),
+        seqNr: 3,
+        inFeedDirection: CardinalDirection.west));
+
     put(ModuleRotatingConveyor(
       area: this,
-      position: const Position(2, 3),
+      position: const Position(4, 3),
       seqNr: 2,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
@@ -244,8 +277,17 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleRotatingConveyor(
       area: this,
-      position: const Position(3, 3),
+      position: const Position(5, 3),
       seqNr: 3,
+      oppositeInFeeds: [CardinalDirection.north],
+      oppositeOutFeeds: [CardinalDirection.south],
+      defaultPositionWhenIdle: CardinalDirection.east,
+    ));
+
+    put(ModuleRotatingConveyor(
+      area: this,
+      position: const Position(6, 3),
+      seqNr: 4,
       oppositeInFeeds: [CardinalDirection.north],
       oppositeOutFeeds: [CardinalDirection.south],
       defaultPositionWhenIdle: CardinalDirection.east,
@@ -253,31 +295,15 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleConveyor(
       area: this,
-      position: const Position(4, 3),
-      seqNr: 2,
+      position: const Position(7, 3),
+      seqNr: 4,
       inFeedDirection: CardinalDirection.west,
     ));
 
     put(ModuleDeStacker(
       area: this,
-      position: const Position(5, 3),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.west,
-    ));
-
-    put(ModuleConveyor(
-      area: this,
-      position: const Position(6, 3),
-      seqNr: 3,
-      inFeedDirection: CardinalDirection.west,
-    ));
-
-    put(drawerUnloader);
-
-    put(ModuleConveyor(
-      area: this,
       position: const Position(8, 3),
-      seqNr: 4,
+      seqNr: 1,
       inFeedDirection: CardinalDirection.west,
     ));
 
@@ -288,23 +314,23 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
-//washer
+    put(drawerUnloader);
+
     put(ModuleConveyor(
       area: this,
-      position: const Position(10, 3),
+      position: const Position(11, 3),
       seqNr: 6,
       inFeedDirection: CardinalDirection.west,
     ));
 
-    put(moduleDrawerLoader);
-
-    put(ModuleStacker(
+    put(ModuleConveyor(
       area: this,
       position: const Position(12, 3),
-      seqNr: 1,
+      seqNr: 7,
       inFeedDirection: CardinalDirection.west,
     ));
 
+//washer
     put(ModuleConveyor(
       area: this,
       position: const Position(13, 3),
@@ -312,9 +338,25 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.west,
     ));
 
+    put(moduleDrawerLoader);
+
+    put(ModuleStacker(
+      area: this,
+      position: const Position(15, 3),
+      seqNr: 1,
+      inFeedDirection: CardinalDirection.west,
+    ));
+
+    put(ModuleConveyor(
+      area: this,
+      position: const Position(16, 3),
+      seqNr: 9,
+      inFeedDirection: CardinalDirection.west,
+    ));
+
     put(UnLoadingForkLiftTruck(
       area: this,
-      position: const Position(14, 3),
+      position: const Position(17, 3),
       inFeedDirection: CardinalDirection.west,
     ));
   }
@@ -327,9 +369,20 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       inFeedDirection: CardinalDirection.south,
     ));
 
+    // var lineSpeed16500 = productDefinition.lineSpeedInShacklesPerHour == 16500;
+    // if (lineSpeed16500) {
+      put(ModuleCas(
+        area: this,
+        position: const Position(4, 4),
+        seqNr: 6,
+        inAndOutFeedDirection: CardinalDirection.north,
+        doorDirection: CardinalDirection.east,
+      ));
+    // }
+
     put(ModuleCas(
       area: this,
-      position: const Position(2, 4),
+      position: const Position(5, 4),
       seqNr: 4,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
@@ -337,7 +390,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCas(
       area: this,
-      position: const Position(3, 4),
+      position: const Position(6, 4),
       seqNr: 2,
       inAndOutFeedDirection: CardinalDirection.north,
       doorDirection: CardinalDirection.east,
@@ -355,13 +408,26 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     put(ModuleCasAllocation(
       area: this,
-      position: const Position(4, 5),
-      positionToAllocate: const Position(1, 4),
+      position: const Position(7, 5),
+      positionToAllocate: const Position(3, 3),
     ));
 
     put(ModuleCasStart(
       area: this,
-      position: const Position(5, 5),
+      position: const Position(8, 5),
+      startIntervalFractions: <double>[
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1,
+        1,
+        1,
+        1.1,
+        1.2,
+        1.3,
+      ],
     ));
   }
 }
