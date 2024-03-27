@@ -4,7 +4,7 @@ import 'package:meyn_lbh_simulation/domain/area/name.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 import 'package:user_command/user_command.dart';
 
 class MonitorPanel extends StatefulWidget {
@@ -69,7 +69,7 @@ class MonitorTile extends StatelessWidget {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(14))),
       tileColor:
-          LiveBirdsHandlingStyle.of(context).machineColor.withOpacity(0.2),
+          Theme.of(context).liveBirdsHandling.machineColor.withOpacity(0.2),
       title: Text(name),
       subtitle: _createSubTitle(),
     );

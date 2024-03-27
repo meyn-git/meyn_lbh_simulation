@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class ModuleConveyorWidget extends StatelessWidget {
   final ModuleConveyor moduleConveyor;
@@ -9,19 +9,19 @@ class ModuleConveyorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     return RotationTransition(
       turns: AlwaysStoppedAnimation(
           moduleConveyor.inFeedDirection.opposite.toCompassDirection().degrees /
               360),
-      child: CustomPaint(painter: ModuleConveyorPainter(style)),
+      child: CustomPaint(painter: ModuleConveyorPainter(theme)),
     );
   }
 }
 
 class ModuleConveyorPainter extends CustomPainter {
-  final LiveBirdsHandlingStyle style;
-  ModuleConveyorPainter(this.style);
+  final LiveBirdsHandlingTheme theme;
+  ModuleConveyorPainter(this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -31,7 +31,7 @@ class ModuleConveyorPainter extends CustomPainter {
 
   void drawDirectionTriangle(Size size, Canvas canvas) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -43,7 +43,7 @@ class ModuleConveyorPainter extends CustomPainter {
 
   drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;

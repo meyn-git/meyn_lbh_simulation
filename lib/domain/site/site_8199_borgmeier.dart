@@ -118,7 +118,8 @@ class BorgmeierLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 
   void _addMachines() {
-    machines.topLeftFirstMachine=const OffsetInMeters(metersFromLeft: 18, metersFromTop: -6.4);
+    machines.topLeftFirstMachine =
+        const OffsetInMeters(metersFromLeft: 18, metersFromTop: -6.4);
 
     var drawerUnloaderLift = DrawerUnloaderLift(
       area: this,
@@ -371,13 +372,13 @@ class BorgmeierLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     // var lineSpeed16500 = productDefinition.lineSpeedInShacklesPerHour == 16500;
     // if (lineSpeed16500) {
-      put(ModuleCas(
-        area: this,
-        position: const Position(4, 4),
-        seqNr: 6,
-        inAndOutFeedDirection: CardinalDirection.north,
-        doorDirection: CardinalDirection.east,
-      ));
+    put(ModuleCas(
+      area: this,
+      position: const Position(4, 4),
+      seqNr: 6,
+      inAndOutFeedDirection: CardinalDirection.north,
+      doorDirection: CardinalDirection.east,
+    ));
     // }
 
     put(ModuleCas(

@@ -96,11 +96,11 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
   }
 
   void _addMachines() {
-    machines.topLeftFirstMachine=const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -6.4);
+    machines.topLeftFirstMachine =
+        const OffsetInMeters(metersFromLeft: 7.5, metersFromTop: -6.4);
 
     var drawerUnloaderLift = DrawerUnloaderLift(
       area: this,
-      
     );
     machines.add(drawerUnloaderLift);
     machines.link(drawerUnloader.drawersOut, drawerUnloaderLift.drawersIn);

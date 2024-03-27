@@ -398,7 +398,7 @@ abstract class DrawerPositionAndSize extends DrawerPosition {
   /// 1=normal drawer size
   /// 0.5=half the normal drawer size
   /// etc...
-  double scale(); 
+  double scale();
 }
 
 class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
@@ -509,7 +509,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   /// The drawer start is the middle of the leading edge of the drawer
-  /// Here we calculate the offset from drawer start to 
+  /// Here we calculate the offset from drawer start to
   /// the top left of the drawer.
   /// This depends on the start rotation.
   OffsetInMeters drawerStartToTopLeftDrawer(MachineLayout layout) {

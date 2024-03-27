@@ -32,7 +32,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_unloader.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/area/unloading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 import 'loading_fork_lift_truck.dart';
 import 'module.dart';
@@ -68,12 +68,12 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     var areaWidgetDelegate = AreaWidgetDelegate(player.scenario!);
     return player.scenario == null
         ? const Text("No scenario's")
         : Container(
-            color: style.backGroundColor,
+            color: theme.backGroundColor,
             child: Column(
               children: [
                 FittedBox(
@@ -385,19 +385,17 @@ class MachineLayout {
 
   MachineLayout(
       {required this.machines,
-      CompassDirection startDirection = const CompassDirection(0)}
-      
-      ) {
+      CompassDirection startDirection = const CompassDirection(0)}) {
     _placeMachines(startDirection);
   }
 
   void _placeMachines(
-      CompassDirection startDirection,
-      ) {
+    CompassDirection startDirection,
+  ) {
     if (machines.isEmpty) {
       return;
     }
-    
+
     var machine = machines.first;
     var topLeft = OffsetInMeters.zero;
     var rotation = startDirection;
@@ -436,7 +434,8 @@ class MachineLayout {
     _centers[machine] = topLeft + machine.sizeWhenFacingNorth.toOffset() * 0.5;
     if (machine is DrawerConveyor) {
       var toCenter = _centers[machine]!;
-      var centerToStart = machine.drawerIn.offsetFromCenterWhenFacingNorth.rotate(rotation);
+      var centerToStart =
+          machine.drawerIn.offsetFromCenterWhenFacingNorth.rotate(rotation);
       _drawerStarts[machine] = toCenter + centerToStart;
       var originalDrawerPath = machine.drawerPath;
       var rotatedDrawerPath = originalDrawerPath.rotate(rotation);
@@ -455,8 +454,9 @@ class MachineLayout {
             machine1.sizeWhenFacingNorth.toOffset() * 0.5;
         var machine1CenterToLink =
             link.offsetFromCenterWhenFacingNorth.rotate(machine1Rotation);
-        var machine2LinkToCenter =
-            link.linkedTo.offsetFromCenterWhenFacingNorth.rotate(machine2Rotation) * -1;
+        var machine2LinkToCenter = link.linkedTo.offsetFromCenterWhenFacingNorth
+                .rotate(machine2Rotation) *
+            -1;
         var machine2CenterToTopLeft =
             machine2.sizeWhenFacingNorth.toOffset() * -0.5;
         var machine2TopLeft = machine1TopLeft +
@@ -483,14 +483,14 @@ class MachineLayout {
   OffsetInMeters topLeftWhenFacingNorthOf(Machine machine) =>
       _topLefts[machine]!;
 
-
-final OffsetInMeters mysteryCorrection =
-     GrandeDrawerModuleType.size.toOffset() * -0.4;
+  final OffsetInMeters mysteryCorrection =
+      GrandeDrawerModuleType.size.toOffset() * -0.4;
 
   OffsetInMeters positionOnMachine(Machine machine,
           OffsetInMeters offsetFromMachineCenterWhenFacingNorth) =>
       centerOf(machine) +
-      offsetFromMachineCenterWhenFacingNorth.rotate(rotationOf(machine))+ mysteryCorrection;
+      offsetFromMachineCenterWhenFacingNorth.rotate(rotationOf(machine)) +
+      mysteryCorrection;
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
   /// to the center of the [Machine]

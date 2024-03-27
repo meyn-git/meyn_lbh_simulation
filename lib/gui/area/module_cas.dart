@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class ModuleCasWidget extends StatelessWidget {
   final ModuleCas cas;
@@ -10,19 +10,19 @@ class ModuleCasWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     return RotationTransition(
       turns: AlwaysStoppedAnimation(
           cas.inAndOutFeedDirection.toCompassDirection().toFraction()),
-      child: CustomPaint(painter: ModuleCasPainter(cas, style)),
+      child: CustomPaint(painter: ModuleCasPainter(cas, theme)),
     );
   }
 }
 
 class ModuleCasPainter extends CustomPainter {
   final ModuleCas cas;
-  final LiveBirdsHandlingStyle style;
-  ModuleCasPainter(this.cas, this.style);
+  final LiveBirdsHandlingTheme theme;
+  ModuleCasPainter(this.cas, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -34,7 +34,7 @@ class ModuleCasPainter extends CustomPainter {
 
   void _drawInFeedTriangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.55);
@@ -46,7 +46,7 @@ class ModuleCasPainter extends CustomPainter {
 
   void _drawOutFeedTriangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -58,7 +58,7 @@ class ModuleCasPainter extends CustomPainter {
 
   _drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;
@@ -69,7 +69,7 @@ class ModuleCasPainter extends CustomPainter {
 
   _drawAirIntakes(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
     bool left = cas.inAndOutFeedDirection == CardinalDirection.north &&
             cas.doorDirection == CardinalDirection.east ||

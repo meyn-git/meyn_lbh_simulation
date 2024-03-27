@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class GrandeDrawerWidget extends StatelessWidget {
   final MachineLayout layout;
@@ -12,22 +12,22 @@ class GrandeDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     return RotationTransition(
       turns: AlwaysStoppedAnimation(drawer.position.rotationInFraction(layout)),
       child: drawer.position is DrawerPositionAndSize
           ? Transform.scale(
               scale: (drawer.position as DrawerPositionAndSize).scale(),
-              child: CustomPaint(painter: DrawerPainter(drawer, style)))
-          : CustomPaint(painter: DrawerPainter(drawer, style)),
+              child: CustomPaint(painter: DrawerPainter(drawer, theme)))
+          : CustomPaint(painter: DrawerPainter(drawer, theme)),
     );
   }
 }
 
 class DrawerPainter extends CustomPainter {
   final GrandeDrawer drawer;
-  final LiveBirdsHandlingStyle style;
-  DrawerPainter(this.drawer, this.style);
+  final LiveBirdsHandlingTheme theme;
+  DrawerPainter(this.drawer, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -65,13 +65,13 @@ class DrawerPainter extends CustomPainter {
   Color _color() {
     switch (drawer.contents) {
       case BirdContents.noBirds:
-        return style.withoutBirdsColor;
+        return theme.withoutBirdsColor;
       case BirdContents.stunnedBirds:
-        return style.withStunnedBirdsColor;
+        return theme.withStunnedBirdsColor;
       case BirdContents.birdsBeingStunned:
-        return style.withBirdsBeingStunnedColor;
+        return theme.withBirdsBeingStunnedColor;
       case BirdContents.awakeBirds:
-        return style.withAwakeBirdsColor;
+        return theme.withAwakeBirdsColor;
     }
   }
 }

@@ -402,7 +402,7 @@ class InToLiftPosition extends DrawerPositionAndSize implements TimeProcessor {
   bool get completed => elapsed >= duration;
 
   OffsetInMeters get centerDrawerToTopLeftDrawer =>
-      GrandeDrawerModuleType.size.toOffset() * -0.5 * scale()*0.5;
+      GrandeDrawerModuleType.size.toOffset() * -0.5 * scale() * 0.5;
 
   @override
   double rotationInFraction(MachineLayout layout) =>
@@ -585,8 +585,9 @@ class LiftPositionUp extends DrawerPositionAndSize implements TimeProcessor {
   OffsetInMeters _drawerCenterStartPosition(MachineLayout layout) => layout
       .positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(startLevel));
 
-  OffsetInMeters _drawerCenterEndPosition(MachineLayout layout) => layout
-      .positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(startLevel+1));
+  OffsetInMeters _drawerCenterEndPosition(MachineLayout layout) =>
+      layout.positionOnMachine(
+          lift, lift.centerLiftToDrawerCenterInLift(startLevel + 1));
 
   late final double _scale = lift.minimizedDrawerSize.widthInMeters /
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;

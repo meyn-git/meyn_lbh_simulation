@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class ModuleGroupWidget extends StatelessWidget {
   final ModuleGroup moduleGroup;
@@ -9,10 +9,10 @@ class ModuleGroupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     return RotationTransition(
       turns: AlwaysStoppedAnimation(moduleGroup.direction.toFraction()),
-      child: CustomPaint(painter: ModuleGroupPainter(moduleGroup, style)),
+      child: CustomPaint(painter: ModuleGroupPainter(moduleGroup, theme)),
     );
   }
 }
@@ -20,8 +20,8 @@ class ModuleGroupWidget extends StatelessWidget {
 class ModuleGroupPainter extends CustomPainter {
   final ModuleGroup moduleGroup;
   static const compartmentSize = 0.30;
-  final LiveBirdsHandlingStyle style;
-  ModuleGroupPainter(this.moduleGroup, this.style);
+  final LiveBirdsHandlingTheme theme;
+  ModuleGroupPainter(this.moduleGroup, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -74,13 +74,13 @@ class ModuleGroupPainter extends CustomPainter {
   Color _colorFor(ModuleGroup moduleGroup) {
     switch (moduleGroup.contents) {
       case BirdContents.noBirds:
-        return style.withoutBirdsColor;
+        return theme.withoutBirdsColor;
       case BirdContents.stunnedBirds:
-        return style.withStunnedBirdsColor;
+        return theme.withStunnedBirdsColor;
       case BirdContents.birdsBeingStunned:
-        return style.withBirdsBeingStunnedColor;
+        return theme.withBirdsBeingStunnedColor;
       case BirdContents.awakeBirds:
-        return style.withAwakeBirdsColor;
+        return theme.withAwakeBirdsColor;
     }
   }
 

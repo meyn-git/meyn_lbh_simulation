@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class ModuleDeStackerWidget extends StatelessWidget {
   final ModuleDeStacker deStacker;
@@ -9,19 +9,19 @@ class ModuleDeStackerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     return RotationTransition(
         turns: AlwaysStoppedAnimation(
             deStacker.inFeedDirection.opposite.toCompassDirection().degrees /
                 360),
-        child: CustomPaint(painter: ModuleDeStackerPainter(deStacker, style)));
+        child: CustomPaint(painter: ModuleDeStackerPainter(deStacker, theme)));
   }
 }
 
 class ModuleDeStackerPainter extends CustomPainter {
   final ModuleDeStacker deStacker;
-  final LiveBirdsHandlingStyle style;
-  ModuleDeStackerPainter(this.deStacker, this.style);
+  final LiveBirdsHandlingTheme theme;
+  ModuleDeStackerPainter(this.deStacker, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -32,7 +32,7 @@ class ModuleDeStackerPainter extends CustomPainter {
 
   _drawDirectionTriangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.fill;
     var path = Path();
     path.moveTo(size.width * 0.45, size.height * 0.45);
@@ -44,7 +44,7 @@ class ModuleDeStackerPainter extends CustomPainter {
 
   _drawRectangle(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.3;
     var x2 = size.width * 0.7;
@@ -55,7 +55,7 @@ class ModuleDeStackerPainter extends CustomPainter {
 
   _drawSupports(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
     var x1 = size.width * 0.2;
     var y1 = size.height * 0.1;

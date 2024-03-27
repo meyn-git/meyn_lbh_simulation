@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
-import 'package:meyn_lbh_simulation/gui/style.dart';
+import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 import '../../domain/area/player.dart';
 
@@ -12,12 +12,12 @@ class BirdHangingConveyorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var style = LiveBirdsHandlingStyle.of(context);
+    var theme = Theme.of(context).liveBirdsHandling;
     return RotationTransition(
       turns: AlwaysStoppedAnimation(
           birdHangingConveyor.direction.toCompassDirection().toFraction()),
       child: CustomPaint(
-          painter: BirdHangingConveyorPainter(birdHangingConveyor, style)),
+          painter: BirdHangingConveyorPainter(birdHangingConveyor, theme)),
     );
   }
 
@@ -26,8 +26,8 @@ class BirdHangingConveyorWidget extends StatelessWidget {
 
 class BirdHangingConveyorPainter extends CustomPainter {
   final BirdHangingConveyor birdHangingConveyor;
-  final LiveBirdsHandlingStyle style;
-  BirdHangingConveyorPainter(this.birdHangingConveyor, this.style);
+  final LiveBirdsHandlingTheme theme;
+  BirdHangingConveyorPainter(this.birdHangingConveyor, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -37,7 +37,7 @@ class BirdHangingConveyorPainter extends CustomPainter {
 
   _paintLine(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = style.machineColor;
+    paint.color = theme.machineColor;
     canvas.drawLine(
       Offset(size.width / 2, 0.0),
       Offset(size.width / 2, size.height),
@@ -56,10 +56,10 @@ class BirdHangingConveyorPainter extends CustomPainter {
             birdHangingConveyor.timePerBird.inMilliseconds);
     var shackleLine = birdHangingConveyor.shackleLine;
     var fillPaint = Paint();
-    fillPaint.color = style.machineColor;
+    fillPaint.color = theme.machineColor;
     fillPaint.style = PaintingStyle.fill;
     var strokePaint = Paint();
-    strokePaint.color = style.machineColor;
+    strokePaint.color = theme.machineColor;
     strokePaint.style = PaintingStyle.stroke;
 
     for (int i = 0; i < 10; i++) {

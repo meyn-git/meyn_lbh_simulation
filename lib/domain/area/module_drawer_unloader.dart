@@ -12,7 +12,6 @@ import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
-
 class ModuleDrawerUnloader extends StateMachineCell
     implements Machine, BirdBuffer //TODO get rid of BirdBuffer
 {
@@ -401,7 +400,7 @@ class PusherOutSecondColumn extends DurationState<ModuleDrawerUnloader> {
         startPosition: unloader.position,
         nrOfBirds: nrOfBirdsPerDrawer,
         contents: contents,
-        position://TODO not displayed for some reason
+        position: //TODO not displayed for some reason
             UnloaderToLiftPosition(lift: unloader.drawerLift, level: level),
       );
       drawers.add(drawer);
@@ -469,7 +468,7 @@ class DrawerUnloaderLift extends StateMachine implements Machine {
     this.upDuration = const Duration(
         milliseconds:
             1600), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-    
+
     this.pushOutDuration = const Duration(
         milliseconds:
             2500), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
@@ -809,7 +808,7 @@ class LiftPosition extends DrawerPositionAndSize {
   OffsetInMeters topLeft(MachineLayout layout) =>
       layout.positionOnMachine(
           lift, lift.centerLiftToDrawerCenterInLift(level)) +
-      drawerCenterToDrawerTopLeft ;
+      drawerCenterToDrawerTopLeft;
 
   @override
   double rotationInFraction(MachineLayout layout) =>

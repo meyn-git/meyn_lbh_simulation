@@ -9,9 +9,10 @@ ThemeData createTheme(Brightness brightness) => ThemeData(
         color: meynColor,
         foregroundColor: Colors.white,
       ),
+      liveBirdsHandling: liveBirdsHandling.copyWith()
     );
 
-/// You can override the [LiveBirdsHandlingStyle]
+/// You can override the [LiveBirdsHandlingTheme]
 /// by adding the following to the [ThemeData]:
 ///
 /// LiveBirdsHandlingStyle: <ThemeExtension<dynamic>>[
@@ -25,7 +26,7 @@ ThemeData createTheme(Brightness brightness) => ThemeData(
 ///
 /// see https://api.flutter.dev/flutter/material/ThemeExtension-class.html
 
-class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
+class LiveBirdsHandlingTheme extends ThemeExtension<LiveBirdsHandlingTheme> {
   final Color backGroundColor;
   final Color machineColor;
   final Color withAwakeBirdsColor;
@@ -33,7 +34,7 @@ class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
   final Color withStunnedBirdsColor;
   final Color withoutBirdsColor;
 
-  LiveBirdsHandlingStyle(
+  LiveBirdsHandlingTheme(
       {required this.backGroundColor,
       required this.machineColor,
       required this.withAwakeBirdsColor,
@@ -41,22 +42,17 @@ class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
       required this.withStunnedBirdsColor,
       required this.withoutBirdsColor});
 
-  factory LiveBirdsHandlingStyle.of(BuildContext context) =>
-      Theme.of(context).extension<LiveBirdsHandlingStyle>() ??
-      LiveBirdsHandlingStyle.ofDefault(context);
-
-  factory LiveBirdsHandlingStyle.ofDefault(BuildContext context) =>
-      LiveBirdsHandlingStyle(
-          backGroundColor: Theme.of(context).scaffoldBackgroundColor,
-          machineColor:
-              Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
-          withAwakeBirdsColor: Colors.green,
-          withBirdsBeingStunnedColor: Colors.orange,
-          withStunnedBirdsColor: Colors.red,
-          withoutBirdsColor: Theme.of(context).colorScheme.onBackground);
+  LiveBirdsHandlingTheme.fromMainTheme(ThemeData theme)
+      : this(
+            backGroundColor: theme.scaffoldBackgroundColor,
+            machineColor: theme.colorScheme.onBackground.withOpacity(0.8),
+            withAwakeBirdsColor: Colors.green,
+            withBirdsBeingStunnedColor: Colors.orange,
+            withStunnedBirdsColor: Colors.red,
+            withoutBirdsColor: theme.colorScheme.onBackground);
 
   @override
-  LiveBirdsHandlingStyle copyWith({
+  LiveBirdsHandlingTheme copyWith({
     Color? backGroundColor,
     Color? machineColor,
     Color? withLiveBirdsColor,
@@ -64,7 +60,7 @@ class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
     Color? withStunnedBirdsColor,
     Color? withoutBirdsColor,
   }) =>
-      LiveBirdsHandlingStyle(
+      LiveBirdsHandlingTheme(
         backGroundColor: backGroundColor ?? this.backGroundColor,
         machineColor: machineColor ?? this.machineColor,
         withAwakeBirdsColor: withLiveBirdsColor ?? withAwakeBirdsColor,
@@ -75,12 +71,12 @@ class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
       );
 
   @override
-  LiveBirdsHandlingStyle lerp(
-      covariant ThemeExtension<LiveBirdsHandlingStyle>? other, double t) {
-    if (other is! LiveBirdsHandlingStyle) {
+  LiveBirdsHandlingTheme lerp(
+      covariant ThemeExtension<LiveBirdsHandlingTheme>? other, double t) {
+    if (other is! LiveBirdsHandlingTheme) {
       return this;
     }
-    return LiveBirdsHandlingStyle(
+    return LiveBirdsHandlingTheme(
         backGroundColor: Color.lerp(backGroundColor, other.backGroundColor, t)!,
         machineColor: Color.lerp(machineColor, other.machineColor, t)!,
         withAwakeBirdsColor:
@@ -92,4 +88,10 @@ class LiveBirdsHandlingStyle extends ThemeExtension<LiveBirdsHandlingStyle> {
         withoutBirdsColor:
             Color.lerp(withoutBirdsColor, other.withoutBirdsColor, t)!);
   }
+}
+
+extension LiveBirdsHandlingThemeExtension on ThemeData {
+  LiveBirdsHandlingTheme get liveBirdsHandling =>
+      extension<LiveBirdsHandlingTheme>() ??
+      LiveBirdsHandlingTheme.fromMainTheme(this);
 }
