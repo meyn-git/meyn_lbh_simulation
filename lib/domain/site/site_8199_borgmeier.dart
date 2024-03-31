@@ -414,21 +414,27 @@ class BorgmeierLiveBirdHandlingArea extends LiveBirdHandlingArea {
     ));
 
     put(ModuleCasStart(
-      area: this,
-      position: const Position(8, 5),
-      startIntervalFractions: <double>[
-        0.5,
-        0.6,
-        0.7,
-        0.8,
-        0.9,
-        1,
-        1,
-        1,
-        1.1,
-        1.2,
-        1.3,
-      ],
-    ));
+        area: this,
+        position: const Position(8, 5),
+        startIntervalFractions: <double>[
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1,
+          1,
+          1,
+          1.1,
+          1.2,
+          1.3,
+        ],
+
+        transportTimeCorrections: {
+          1: 12,
+          2: 12,
+          5: -12,
+          6: -12
+        }));
   }
 }

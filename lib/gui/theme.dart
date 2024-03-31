@@ -9,7 +9,6 @@ ThemeData createTheme(Brightness brightness) => ThemeData(
         color: meynColor,
         foregroundColor: Colors.white,
       ),
-      liveBirdsHandling: liveBirdsHandling.copyWith()
     );
 
 /// You can override the [LiveBirdsHandlingTheme]

@@ -28,11 +28,33 @@ class ModuleCasStart implements ActiveCell {
 
   static const Duration maxElapsedTime = Duration(minutes: 30);
 
-  ModuleCasStart(
-      {required this.area,
-      required this.position,
-      this.startIntervalFractions = defaultIntervalFractions,
-      this.name = "ModuleCasStart"});
+  /// travel time corrections for the CAS units
+  /// e.g.
+  ///     CAS6  CAS4  CAS2
+  /// =>   TT    TT    TT  =>
+  ///     CAS5  CAS3  CAS1
+  ///
+  /// Than [transportTimeCorrections] = {1: 12, 2:12, 5:-12, 6:-12}
+  /// So that the start interval for:
+  /// * CAS 1 & 2 will be 12 seconds later
+  /// * CAS 5 & 6 will be 12 seconds sooner
+  final Map<
+
+      /// [ModuleCas.seqNr]
+      int,
+
+      /// seconds of start interval correction
+      int> transportTimeCorrections;
+
+  Duration startInterval = hold;
+
+  ModuleCasStart({
+    required this.area,
+    required this.position,
+    this.startIntervalFractions = defaultIntervalFractions,
+    this.name = "ModuleCasStart",
+    this.transportTimeCorrections = const {},
+  });
 
   @override
   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
@@ -51,26 +73,27 @@ class ModuleCasStart implements ActiveCell {
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
-    var startInterval = nextStartInterval;
+    var longestWaitingCasUnit = _longestWaitingCasUnit;
+    startInterval = _startInterval(longestWaitingCasUnit);
 
     if (elapsedTime > maxElapsedTime) {
       elapsedTime = maxElapsedTime;
     } else {
       elapsedTime = elapsedTime + jump;
-      if (elapsedTime > startInterval) {
-        if (startLongestWaitingCasUnit()) {
-          elapsedTime = Duration.zero;
-        }
+      if (elapsedTime > startInterval && longestWaitingCasUnit != null) {
+        longestWaitingCasUnit.start();
+        elapsedTime = Duration.zero;
       }
     }
   }
 
-  Duration get nextStartInterval {
+  Duration _startInterval(ModuleCas? longestWaitingCasUnit) {
     var nrStunnedModules = numberOfWaitingStunnedModules;
     if (nrStunnedModules >= startIntervalFractions.length) {
       return hold;
     } else {
-      return _normalStartInterval * startIntervalFractions[nrStunnedModules];
+      return _normalStartInterval * startIntervalFractions[nrStunnedModules] +
+          _transportTimeCorrection(longestWaitingCasUnit);
     }
   }
 
@@ -103,8 +126,8 @@ class ModuleCasStart implements ActiveCell {
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('stunnedModules', numberOfWaitingStunnedModules)
       .appendProperty('baseInterval', _normalStartInterval)
-      .appendProperty('nextInterval',
-          nextStartInterval == hold ? 'onHold' : nextStartInterval)
+      .appendProperty(
+          'startInterval', startInterval == hold ? 'onHold' : startInterval)
       .appendProperty('elapsedTime', elapsedTime);
 
   @override
@@ -116,6 +139,8 @@ class ModuleCasStart implements ActiveCell {
           0,
           (previousValue, groupModule) =>
               previousValue + groupModule.numberOfModules);
+
+  late BirdHangingConveyor birdHangingConveyor = _findBirdHangingConveyors();
 
   BirdHangingConveyor _findBirdHangingConveyors() {
     var hangingConveyors = area.cells.whereType<BirdHangingConveyor>();
@@ -131,7 +156,7 @@ class ModuleCasStart implements ActiveCell {
   }
 
   Duration get _normalStartInterval {
-    var shacklesPerHour = _findBirdHangingConveyors().shacklesPerHour;
+    var shacklesPerHour = birdHangingConveyor.shacklesPerHour;
     var birdsPerModuleGroup =
         area.productDefinition.averageProductsPerModuleGroup;
     Duration startInterval = Duration(
@@ -143,37 +168,30 @@ class ModuleCasStart implements ActiveCell {
     return startInterval;
   }
 
-  /// Starts longest waiting CAS unit
-  /// returns true if a CAS unit was started
-  bool startLongestWaitingCasUnit() {
+  ModuleCas? get _longestWaitingCasUnit {
     List<ModuleCas> casUnits =
         area.cells.whereType<ModuleCas>().map((cell) => cell).toList();
     if (casUnits.isEmpty) {
       throw Exception('$LiveBirdHandlingArea error: No $ModuleCas cells found');
     }
     List<ModuleCas> casUnitsOrderedByLongestWaiting = casUnits
+        .where((moduleCas) => moduleCas.currentState is WaitForStart)
+        .toList()
       ..sort((a, b) =>
           a.waitingForStartDuration.compareTo(b.waitingForStartDuration) * -1);
-    var longestWaitingCasUnit = casUnitsOrderedByLongestWaiting.first;
-    if (longestWaitingCasUnit.currentState is WaitForStart) {
-      longestWaitingCasUnit.start();
-      return true;
-    } else {
-      return false;
-    }
+    return casUnitsOrderedByLongestWaiting.firstOrNull;
   }
-
-  // int _findNrOfBirdsPerModuleGroup() {
-  //   var forkLiftTruck = _findLoadingForkLiftTruck();
-  //   var moduleGroup = forkLiftTruck.createModuleGroup();
-  //   if (moduleGroup.type==ModuleType.square) {
-  //     return moduleGroup.numberOfBirds*2;// assuming square modules are put on the system 1 by 1, a module group is x2
-  //   } else {
-  //     return moduleGroup.numberOfBirds;
-  //   }
-  //
-  // }
 
   @override
   ModuleGroup? get moduleGroup => null;
+
+  Duration _transportTimeCorrection(ModuleCas? longestWaitingCasUnit) {
+    if (longestWaitingCasUnit == null ||
+        !transportTimeCorrections.containsKey(longestWaitingCasUnit.seqNr)) {
+      return Duration.zero;
+    } else {
+      return Duration(
+          seconds: transportTimeCorrections[longestWaitingCasUnit.seqNr]!);
+    }
+  }
 }
