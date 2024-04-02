@@ -360,8 +360,25 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     ));
 
     put(ModuleCasStart(
-      area: this,
-      position: const Position(5, 5),
-    ));
+        area: this,
+        position: const Position(5, 5),
+        startIntervalFractions: <double>[
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1,
+          1,
+          1,
+          1.1,
+          1.2,
+          1.3,
+        ],
+        transportTimeCorrections: {
+          3: -12,
+          4: -12,
+          5: -24,
+        }));
   }
 }
