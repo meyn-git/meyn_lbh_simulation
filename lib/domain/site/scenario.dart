@@ -1,7 +1,5 @@
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/gui/area/area.dart';
-
-import 'site.dart';
+import 'package:meyn_lbh_simulation/domain/site/site.dart';
 
 class Scenario {
   final Site site;

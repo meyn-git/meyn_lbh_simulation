@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
-import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
@@ -12,7 +11,6 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
 import 'site.dart';

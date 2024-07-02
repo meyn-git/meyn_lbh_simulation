@@ -15,7 +15,6 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_cas.dart';

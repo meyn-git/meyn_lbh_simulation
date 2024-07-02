@@ -187,7 +187,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
       : super(
           lineName: 'Chicken line',
           productDefinition: productDefinition,
-        ) {}
+        ) ;
 
   @override
   void createSystemsAndLinks() {

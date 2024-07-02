@@ -6,7 +6,6 @@ import 'package:meyn_lbh_simulation/domain/area/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:user_command/user_command.dart';
@@ -751,7 +750,7 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
   void _verifyDoorDirection(ModuleDrawerLoader loader) {
     var moduleGroup = loader.moduleGroup!;
     if (moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide &&
-        moduleGroup.direction.rotate(-90) != loader.drawerFeedInDirection) {//TODO 90?
+        moduleGroup.direction.rotate(90) != loader.drawerFeedInDirection) {
       throw ('Incorrect drawer in feed direction of the $ModuleGroup '
           'that was fed in to ${loader.name}');
     }

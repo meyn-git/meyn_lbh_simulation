@@ -82,16 +82,16 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
       _areaFactory() => (ProductDefinition productDefinition) =>
-          [BorgmeierLiveBirdHandlingArea(productDefinition)];
+          [simultaneously(productDefinition)];
 }
 
 /// See "\\meyn.nl\project\acaddrwg\8199 Borgmeier - Germany\2024\02 - Meyn drawings\Sales\8199s123z00g1.dwg"
-class BorgmeierLiveBirdHandlingArea extends LiveBirdHandlingArea {
+class simultaneously extends LiveBirdHandlingArea {
   /// Module systems
 
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
-  BorgmeierLiveBirdHandlingArea(ProductDefinition productDefinition)
+  simultaneously(ProductDefinition productDefinition)
       : super(
           lineName: 'Line1',
           productDefinition: productDefinition,
@@ -354,7 +354,7 @@ class BorgmeierLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
   ///Capacity can not be reached because unloader can not feed out, because transport trough module washer takes too long
 
-  ///FIXME: ModuleConveyors to feed out and feed in simultaniously
+  ///FIXME: ModuleConveyors to feed out and feed in simultaneously
 
   ///FIXME: Module washer to be 2 module conveyors that feed out and feed in simultaniously with force feed out when modulesIn.linkToOther.canFeedOut
 }

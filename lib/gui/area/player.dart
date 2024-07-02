@@ -215,7 +215,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
         value: 1,
         iconSize: 0,
         elevation: 16,
-        style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         onChanged: (int? newValue) {
           if (newValue != null) {
             setState(() {
@@ -243,7 +243,7 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
             child: Row(
               children: [
                 Icon(Icons.speed_rounded,
-                    color: Theme.of(context).colorScheme.onBackground),
+                    color: Theme.of(context).colorScheme.onSurface),
                 Text('x$value'),
               ],
             ),

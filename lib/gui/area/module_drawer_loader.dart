@@ -1,6 +1,4 @@
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/shape.dart';

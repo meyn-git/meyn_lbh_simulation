@@ -44,11 +44,11 @@ class LiveBirdsHandlingTheme extends ThemeExtension<LiveBirdsHandlingTheme> {
   LiveBirdsHandlingTheme.fromMainTheme(ThemeData theme)
       : this(
             backGroundColor: theme.scaffoldBackgroundColor,
-            machineColor: theme.colorScheme.onBackground.withOpacity(0.8),
+            machineColor: theme.colorScheme.onSurface.withOpacity(0.8),
             withAwakeBirdsColor: Colors.green,
             withBirdsBeingStunnedColor: Colors.orange,
             withStunnedBirdsColor: Colors.red,
-            withoutBirdsColor: theme.colorScheme.onBackground);
+            withoutBirdsColor: theme.colorScheme.onSurface);
 
   @override
   LiveBirdsHandlingTheme copyWith({

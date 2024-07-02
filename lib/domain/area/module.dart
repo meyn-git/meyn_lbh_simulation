@@ -14,7 +14,7 @@ import 'state_machine.dart';
 /// A [ModuleGroup] can be one or 2 modules that are transported together
 /// E.g. a stack of 2 modules, or 2 modules side by side
 ///
-/// TODO depricate this class and replace with new [ModulePosition] classes:
+/// TODO deprecate this class and replace with new [ModulePosition] classes:
 /// * After(Module)
 /// * OnTopOf(Module)
 ///
@@ -199,7 +199,7 @@ abstract class PositionOnSystem {
   OffsetInMeters center(SystemLayout layout);
 }
 
-class AtModuleGroupPlace implements PositionOnSystem {
+class AtModuleGroupPlace implements PositionOnSystem , Detailable {
   final ModuleGroupPlace place;
   OffsetInMeters? _topLeft;
 
@@ -232,7 +232,7 @@ class AtModuleGroupPlace implements PositionOnSystem {
   }
 }
 
-class BetweenModuleGroupPlaces implements PositionOnSystem, TimeProcessor {
+class BetweenModuleGroupPlaces implements PositionOnSystem, TimeProcessor, Detailable {
   late ModuleGroup moduleGroup;
   final ModuleGroupPlace source;
   final ModuleGroupPlace destination;
@@ -350,83 +350,6 @@ abstract class ModuleTransportCompletedListener {
 abstract class ModuleTransportStartedListener {
   void onModuleTransportStarted();
 }
-
-// /// A module location is either at a given position or traveling between 2 positions
-// ///TODO @Deprecated('Use [AtSystemPosition] or [ModuleBetweenMachines]')
-// class ModulePositionDeprecated implements ModulePosition, TimeProcessor {
-//   StateMachineCell source;
-//   StateMachineCell destination;
-//   late Duration duration;
-//   late Duration remainingDuration;
-
-//   ModulePositionDeprecated.forCel(StateMachineCell cell)
-//       : source = cell,
-//         destination = cell,
-//         duration = Duration.zero,
-//         remainingDuration = Duration.zero;
-
-//   ModulePositionDeprecated.betweenCells(
-//       {required this.source, required this.destination, Duration? duration}) {
-//     this.duration = duration ?? findLongestDuration(source, destination);
-//     remainingDuration = this.duration;
-//   }
-
-//   /// 0  =  0% of transportation is completed
-//   /// 0.5= 50% of transportation is completed
-//   /// 1  =100% of transportation is completed
-//   double get percentageCompleted => duration == Duration.zero
-//       ? 1
-//       : 1 - remainingDuration.inMilliseconds / duration.inMilliseconds;
-
-//   @override
-//   onUpdateToNextPointInTime(Duration jump) {
-//     if (remainingDuration > Duration.zero) {
-//       remainingDuration = remainingDuration - jump;
-//       if (remainingDuration <= Duration.zero) {
-//         source = destination;
-//       }
-//     } else {
-//       remainingDuration = Duration.zero;
-//     }
-//   }
-
-//   equals(StateMachineCell cell) =>
-//       source.position == cell.position &&
-//       destination.position == cell.position &&
-//       remainingDuration == Duration.zero;
-
-//   static Duration findLongestDuration(
-//     StateMachineCell source,
-//     StateMachineCell destination,
-//   ) {
-//     Duration outFeedDuration = source.outFeedDuration;
-//     Duration inFeedDuration = destination.inFeedDuration;
-//     return Duration(
-//         milliseconds:
-//             max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
-//   }
-
-//   bool get isMoving {
-//     return source != destination;
-//   }
-
-//   @override
-//   late String name = 'ModulePosition';
-
-//   @override
-//   ObjectDetails get objectDetails => isMoving
-//       ? ObjectDetails(name)
-//           .appendProperty('source', source.name)
-//           .appendProperty('destination', destination.name)
-//           .appendProperty('remainingDuration', remainingDuration)
-//       : ObjectDetails(name).appendProperty('at', source.name);
-
-//   @override
-//   String toString() => objectDetails.toString();
-
-//   transportingFrom(StateMachineCell stateMachineCell) =>
-//       source == stateMachineCell && destination != stateMachineCell;
-// }
 
 class Module implements Detailable {
   final int sequenceNumber;

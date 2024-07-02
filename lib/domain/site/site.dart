@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
-import 'package:meyn_lbh_simulation/domain/site/site_0000_machine_test.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_4054_taravis_sarvar.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_4649_gut_bergmark.dart';
 import 'package:meyn_lbh_simulation/domain/site/site_5021_ha_kylling_as.dart';
@@ -61,34 +60,17 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
       : super([
-          MicarnaSite(),
-          LopezSite(),
           BorgmeierSite(),
-          IndrolSite(),
-          DabeSite(),
-          FileniSite(),
-          DobrimexSite(),
-          HaerlandSite(),
-          VanDerLindenSite(),
-          HaerlandSite(),
-          HaKyllingAsSite(),
           GutBergmarkSite(),
+          MicarnaSite(),
+          VanDerLindenSite(),
+          LopezSite(),
+          HaerlandSite(),
           TaravisSite(),
-          SystemTestSite(),
-
-          // SystemTestSite(),
-          // BorgmeierSite(),
-          // GutBergmarkSite(),
-          // MicarnaSite(),
-          // VanDerLindenSite(),
-          // LopezSite(),
-          // HaerlandSite(),
-          // CarnjSite(),
-          // TaravisSite(),
-          // FileniSite(),
-          // IndrolSite(),
-          // HaKyllingAsSite(),
-          // DobrimexSite(),
-          // DabeSite(),
+          FileniSite(),
+          IndrolSite(),
+          HaKyllingAsSite(),
+          DobrimexSite(),
+          DabeSite(),
         ]);
 }

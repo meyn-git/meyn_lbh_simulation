@@ -1,44 +1,5 @@
 import 'dart:math';
 
-@Deprecated("Use CompassDirection instead.")
-enum CardinalDirection {
-  north,
-  east,
-  south,
-  west;
-
-  CompassDirection toCompassDirection() {
-    switch (this) {
-      case CardinalDirection.north:
-        return const CompassDirection(0);
-      case CardinalDirection.east:
-        return const CompassDirection(90);
-      case CardinalDirection.south:
-        return const CompassDirection(180);
-      case CardinalDirection.west:
-        return const CompassDirection(270);
-    }
-  }
-
-  CardinalDirection get opposite {
-    switch (this) {
-      case CardinalDirection.north:
-        return CardinalDirection.south;
-      case CardinalDirection.east:
-        return CardinalDirection.west;
-      case CardinalDirection.south:
-        return CardinalDirection.north;
-      case CardinalDirection.west:
-        return CardinalDirection.east;
-    }
-  }
-
-  bool isParallelTo(CardinalDirection otherDirection) =>
-      this == otherDirection || this == otherDirection.opposite;
-
-  bool isPerpendicularTo(CardinalDirection otherDirection) =>
-      !isParallelTo(otherDirection);
-}
 
 class CompassDirection {
   final int degrees;
@@ -64,14 +25,7 @@ class CompassDirection {
   CompassDirection operator -(CompassDirection other) =>
       CompassDirection(degrees - other.degrees);
 
-  CardinalDirection? toCardinalDirection() {
-    for (var cardinalDirection in CardinalDirection.values) {
-      if (cardinalDirection.toCompassDirection().degrees == degrees) {
-        return cardinalDirection;
-      }
-    }
-    return null;
-  }
+ 
 
   double toRadians() => degrees * pi / 180;
 

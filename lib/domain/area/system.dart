@@ -48,9 +48,7 @@ class ModuleGroupPlace {
 
 class Systems extends DelegatingList<System> {
   /// set [topLeftFirstMachine] when defining a [LiveBirdHandlingArea]
-  @Deprecated(
-      'remove [topLeftFirstMachine] when Cells have been made as Machines')
-  OffsetInMeters topLeftFirstMachine = OffsetInMeters.zero;
+  
 
   CompassDirection startDirection = const CompassDirection.north();
 
