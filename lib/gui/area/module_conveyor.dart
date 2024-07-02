@@ -1,57 +1,51 @@
-import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
+import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
-class ModuleConveyorWidget extends StatelessWidget {
-  final ModuleConveyor moduleConveyor;
-
-  const ModuleConveyorWidget(this.moduleConveyor, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context).liveBirdsHandling;
-    return RotationTransition(
-      turns: AlwaysStoppedAnimation(
-          moduleConveyor.inFeedDirection.opposite.toCompassDirection().degrees /
-              360),
-      child: CustomPaint(painter: ModuleConveyorPainter(theme)),
-    );
-  }
+class ModuleConveyorPainter extends ShapePainter {
+  ModuleConveyorPainter(ModuleConveyor conveyor, LiveBirdsHandlingTheme theme)
+      : super(shape: conveyor.shape, theme: theme);
 }
 
-class ModuleConveyorPainter extends CustomPainter {
-  final LiveBirdsHandlingTheme theme;
-  ModuleConveyorPainter(this.theme);
+class ModuleConveyorShape extends CompoundShape {
+  late final OffsetInMeters centerToConveyorEnd;
+  late final OffsetInMeters centerToModuleInLink;
+  late final OffsetInMeters centerToModuleOutLink;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    drawRectangle(canvas, size);
-    drawDirectionTriangle(size, canvas);
+  static const double conveyorWidthInMeters = 1.2;
+  static const double frameWidthInMeters = 0.065;
+
+  ModuleConveyorShape(ModuleConveyor moduleConveyor) {
+    var moduleGroupSurface =
+        moduleConveyor.area.productDefinition.moduleFamily.moduleGroupSurface;
+    var frameEast = Box(
+        xInMeters:
+            frameWidthInMeters, //standard grande drawer conveyor frame width
+        yInMeters: moduleConveyor.lengthInMeters);
+    var conveyor = Box(
+        xInMeters:
+            conveyorWidthInMeters, //standard grande drawer conveyor width
+        yInMeters: moduleConveyor.lengthInMeters);
+    var frameWest = Box(
+        xInMeters:
+            frameWidthInMeters, //standard grande drawer conveyor frame width
+        yInMeters: moduleConveyor.lengthInMeters);
+
+    var motor = Box(xInMeters: 0.3, yInMeters: 0.63);
+    link(frameWest.centerRight, conveyor.centerLeft);
+    link(conveyor.centerRight, frameEast.centerLeft);
+    link(frameEast.topRight.addY(0.1), motor.topLeft);
+    var centerToConveyorCenter =
+        topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
+    centerToConveyorEnd = OffsetInMeters(
+        xInMeters: centerToConveyorCenter.xInMeters,
+        yInMeters: yInMeters * -0.5 + moduleGroupSurface.yInMeters * 0.5 + 0.1);
+    centerToModuleInLink = OffsetInMeters(
+        xInMeters: centerToConveyorCenter.xInMeters,
+        yInMeters: yInMeters * 0.5);
+    centerToModuleOutLink = OffsetInMeters(
+        xInMeters: centerToConveyorCenter.xInMeters,
+        yInMeters: yInMeters * -0.5);
   }
-
-  void drawDirectionTriangle(Size size, Canvas canvas) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.fill;
-    var path = Path();
-    path.moveTo(size.width * 0.45, size.height * 0.45);
-    path.lineTo(size.width * 0.55, size.height * 0.45);
-    path.lineTo(size.width * 0.50, size.height * 0.4);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  drawRectangle(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.stroke;
-    var x1 = size.width * 0.3;
-    var x2 = size.width * 0.7;
-    var y1 = size.height * 0.1;
-    var y2 = size.height * 0.9;
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

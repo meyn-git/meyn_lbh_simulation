@@ -1,5 +1,10 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
@@ -7,25 +12,24 @@ import 'module.dart';
 import 'module_lift_position.dart';
 import 'state_machine.dart';
 
-class ModuleDeStacker extends StateMachineCell {
-  final CardinalDirection inFeedDirection;
+class ModuleDeStacker extends StateMachine implements PhysicalSystem {
+  final LiveBirdHandlingArea area;
 
   int nrOfModulesFeedingIn = 0;
   int currentHeightInCentiMeter;
   final Map<LiftPosition, int> heightsInCentiMeter;
   final int liftSpeedInCentiMeterPerSecond;
+  final Duration inFeedDuration;
+  final Duration outFeedDuration;
   final Duration supportsCloseDuration;
   final Duration supportsOpenDuration;
-  ModuleGroup? moduleGroupOnSupports;
+  late final ModuleDeStackerShape shape = ModuleDeStackerShape();
+
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   ModuleDeStacker({
-    required super.area,
-    required super.position,
-    super.name = 'ModuleDeStacker',
-    super.seqNr,
-    required this.inFeedDirection,
+    required this.area,
     this.supportsCloseDuration = const Duration(seconds: 3),
     this.supportsOpenDuration = const Duration(seconds: 3),
     Duration? inFeedDuration,
@@ -38,38 +42,56 @@ class ModuleDeStacker extends StateMachineCell {
       LiftPosition.supportTopModule: 150 + 150 + 30,
       LiftPosition.pickUpTopModule: 150 + 30
     },
-  }) : super(
+  })  : inFeedDuration = inFeedDuration ??
+            area.productDefinition.moduleSystem.stackerInFeedDuration,
+        outFeedDuration = outFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration,
+        super(
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
-          inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleSystem.stackerInFeedDuration,
-          outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
-  Cell get receivingNeighbor =>
-      area.neighboringCell(this, inFeedDirection.opposite);
+  late ModuleGroupPlace moduleGroupOnConveyorPosition = ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
+  );
 
-  Cell get sendingNeighbor => area.neighboringCell(this, inFeedDirection);
+  late ModuleGroupPlace moduleGroupOnSupportsPosition = ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToSupportsCenter,
+  );
+
+  late ModuleGroupInLink modulesIn = ModuleGroupInLink(
+    position: moduleGroupOnConveyorPosition,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
+    directionToOtherLink: const CompassDirection.south(),
+    inFeedDuration: inFeedDuration,
+    canFeedIn: () => currentState is WaitToFeedIn,
+  );
+
+  late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
+    position: moduleGroupOnConveyorPosition,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
+    directionToOtherLink: const CompassDirection.north(),
+    outFeedDuration: outFeedDuration,
+    durationUntilCanFeedOut: () =>
+        currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
+  );
 
   @override
-  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
+  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+    modulesIn,
+    modulesOut
+  ];
+
+  late final int seqNr = area.systems.seqNrOf(this);
 
   @override
-  bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection &&
-      currentState is WaitToFeedIn &&
-      moduleGroupOnSupports == null;
+  late String name = 'ModuleDeStacker$seqNr';
 
   @override
-  bool isFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite;
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
+  SizeInMeters get sizeWhenFacingNorth => shape.size;
 }
 
 class MoveLift extends DurationState<ModuleDeStacker> {
@@ -102,7 +124,6 @@ class MoveLift extends DurationState<ModuleDeStacker> {
   }
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleDeStacker deStacker) {
     deStacker.currentHeightInCentiMeter =
         deStacker.heightsInCentiMeter[goToPosition]!;
@@ -112,34 +133,40 @@ class MoveLift extends DurationState<ModuleDeStacker> {
   String get name => 'MoveLift';
 }
 
-class WaitToFeedIn extends State<ModuleDeStacker> {
+class WaitToFeedIn extends State<ModuleDeStacker>
+    implements ModuleTransportStartedListener {
+  bool transportStarted = false;
+
   @override
   String get name => 'WaitToFeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (_moduleGroupTransportedTo(deStacker)) {
+    if (transportStarted) {
       return FeedIn();
     }
     return null;
   }
 
-  bool _moduleGroupTransportedTo(ModuleDeStacker deStacker) {
-    return deStacker.area.moduleGroups
-        .any((moduleGroup) => moduleGroup.position.destination == deStacker);
+  @override
+  void onModuleTransportStarted() {
+    transportStarted = true;
   }
 }
 
-class FeedIn extends State<ModuleDeStacker> {
+class FeedIn extends State<ModuleDeStacker>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
   @override
   String get name => 'FeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (_transportCompleted(deStacker)) {
-      if (deStacker.moduleGroup!.numberOfModules == 1) {
+    if (transportCompleted) {
+      if (deStacker
+              .moduleGroupOnConveyorPosition.moduleGroup!.numberOfModules ==
+          1) {
         return MoveLift(LiftPosition.outFeed, WaitToFeedOut());
       } else {
         return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
@@ -148,8 +175,10 @@ class FeedIn extends State<ModuleDeStacker> {
     return null;
   }
 
-  bool _transportCompleted(ModuleDeStacker deStacker) =>
-      deStacker.moduleGroup != null;
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }
 
 class CloseModuleSupports extends DurationState<ModuleDeStacker> {
@@ -164,10 +193,12 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
         );
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleDeStacker deStacker) {
-    deStacker.moduleGroupOnSupports = deStacker.moduleGroup!.split();
-    deStacker.area.moduleGroups.add(deStacker.moduleGroupOnSupports!);
+    var moduleGroupOnSupports =
+        deStacker.moduleGroupOnConveyorPosition.moduleGroup!.split();
+    deStacker.area.moduleGroups.add(moduleGroupOnSupports!);
+    moduleGroupOnSupports.position =
+        AtModuleGroupPlace(deStacker.moduleGroupOnSupportsPosition);
   }
 }
 
@@ -183,9 +214,11 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
         );
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleDeStacker deStacker) {
-    deStacker.moduleGroupOnSupports = null;
+    var moduleGroupOnSupports =
+        deStacker.moduleGroupOnSupportsPosition.moduleGroup!;
+    moduleGroupOnSupports.position =
+        AtModuleGroupPlace(deStacker.moduleGroupOnConveyorPosition);
   }
 }
 
@@ -193,7 +226,6 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
   @override
   String get name => 'WaitToFeedOut';
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (_neighborCanFeedIn(deStacker) &&
         !_moduleGroupAtDestination(deStacker)) {
@@ -203,31 +235,32 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
   }
 
   bool _moduleGroupAtDestination(ModuleDeStacker deStacker) =>
-      deStacker.moduleGroup!.destination == deStacker;
+      deStacker.moduleGroupOnConveyorPosition.moduleGroup!.destination ==
+      deStacker;
 
-  _neighborCanFeedIn(ModuleDeStacker deStacker) =>
-      deStacker.receivingNeighbor.waitingToFeedIn(deStacker.inFeedDirection);
+  bool _neighborCanFeedIn(ModuleDeStacker deStacker) =>
+      deStacker.modulesOut.linkedTo!.canFeedIn();
 }
 
-class FeedOut extends State<ModuleDeStacker> {
-  @override
-  String get name => 'FeedOut';
-  ModuleGroup? transportedModuleGroup;
+class FeedOut extends State<ModuleDeStacker>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
 
   @override
-  // ignore: avoid_renaming_method_parameters
+  String get name => 'FeedOut';
+
+  @override
   void onStart(ModuleDeStacker deStacker) {
-    transportedModuleGroup = deStacker.moduleGroup;
-    transportedModuleGroup!.position = ModulePosition.betweenCells(
-        source: deStacker,
-        destination: deStacker.receivingNeighbor as StateMachineCell);
+    var transportedModuleGroup =
+        deStacker.moduleGroupOnConveyorPosition.moduleGroup!;
+    transportedModuleGroup.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(deStacker.modulesOut);
   }
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (_transportCompleted(deStacker)) {
-      if (deStacker.moduleGroupOnSupports == null) {
+    if (transportCompleted) {
+      if (deStacker.moduleGroupOnSupportsPosition.moduleGroup == null) {
         return MoveLift(LiftPosition.inFeed, WaitToFeedIn());
       } else {
         return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());
@@ -236,7 +269,8 @@ class FeedOut extends State<ModuleDeStacker> {
     return null;
   }
 
-  bool _transportCompleted(ModuleDeStacker deStacker) =>
-      transportedModuleGroup != null &&
-      transportedModuleGroup!.position.source != deStacker;
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }

@@ -1,67 +1,42 @@
-import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
-import 'module_cas.dart';
 
 /// Allocates the destination of a [ModuleGroup] of a given location depending on the
 /// state of the [ModuleCas] units and transport modules between this position
 /// and the [ModuleCas] units
-class ModuleCasAllocation implements ActiveCell {
-  @override
-  late LiveBirdHandlingArea area;
+class ModuleCasAllocation implements System, TimeProcessor {
+  final LiveBirdHandlingArea area;
 
   @override
-  late Position position;
-
-  @override
-  late String name;
+  late String name = 'ModuleCasAllocation';
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
-  final Position positionToAllocate;
-  List<Route> _cashedRoutesToCasUnits = [];
+  final ModuleGroupPlace allocationPlace;
+  late final List<ModuleGroupRoute> _routesToCasUnits = _findRoutesToCasUnits();
 
   ModuleCasAllocation({
     required this.area,
-    required this.position,
-    this.name = 'ModuleCasAllocation',
-    required this.positionToAllocate,
-  }) {
-    validatePositionToAllocateIsStateMachineCell();
-  }
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedIn(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) => false;
+    required this.allocationPlace,
+  });
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
-    var cellToAllocate = area.cellForPosition(positionToAllocate);
-    if (cellToAllocate is StateMachineCell) {
-      var destination = casWithHighestScore;
-      if (destination != null) {
-        var moduleGroupToAllocate = cellToAllocate.moduleGroup;
-        if (moduleGroupToAllocate != null) {
-          moduleGroupToAllocate.destination = destination;
-        }
-      }
+    var moduleGroupToAllocate = allocationPlace.moduleGroup;
+    if (moduleGroupToAllocate == null) {
+      return;
+    }
+    var destination = casWithHighestScore;
+    if (destination != null) {
+      moduleGroupToAllocate.destination = destination;
     }
   }
 
@@ -75,57 +50,42 @@ class ModuleCasAllocation implements ActiveCell {
   @override
   String toString() => objectDetails.toString();
 
-  List<Route> get routesToCasUnits {
-    if (_cashedRoutesToCasUnits.isEmpty) {
-      var cellToAllocate =
-          area.cellForPosition(positionToAllocate) as StateMachineCell;
-      _cashedRoutesToCasUnits = [];
+  List<ModuleGroupRoute> _findRoutesToCasUnits() {
+    var routesToCasUnits = <ModuleGroupRoute>[];
+    var source = allocationPlace.system;
+    var sourceOutLinks = source.links.whereType<ModuleGroupOutLink>();
+    for (var sourceOutLink in sourceOutLinks) {
       for (var casUnit in allModuleCasUnits) {
-        var route =
-            area.findRoute(source: cellToAllocate, destination: casUnit);
+        var route = sourceOutLink.findRoute(
+          destination: casUnit,
+        );
         if (route != null) {
-          _cashedRoutesToCasUnits.add(route);
+          routesToCasUnits.add(route);
         }
       }
     }
-    return _cashedRoutesToCasUnits;
+
+    return routesToCasUnits;
   }
 
-  List<ModuleCas> get allModuleCasUnits {
-    List<ModuleCas> allCasUnits =
-        area.cells.whereType<ModuleCas>().map((cell) => cell).toList();
-    return allCasUnits;
-  }
+  late final Iterable<ModuleCas> allModuleCasUnits =
+      area.systems.whereType<ModuleCas>();
 
   ModuleCas? get casWithHighestScore {
-    Map<String, double> casUnitScores = {}; //for debugging
     double highScore = 0;
     ModuleCas? casWithHighestScore;
-    for (var route in routesToCasUnits) {
+    for (var route in _routesToCasUnits) {
       var score = route.casNewStackScore;
-      casUnitScores[route.cas.name] = score;
       if (score > highScore) {
         highScore = score;
         casWithHighestScore = route.cas;
       }
     }
 
-    // print('${casWithHighestScore == null ? 'none' : casWithHighestScore.name} $casUnitScores');
     if (highScore == 0) {
       return null;
     } else {
       return casWithHighestScore;
-    }
-  }
-
-  @override
-  ModuleGroup? get moduleGroup => null;
-
-  void validatePositionToAllocateIsStateMachineCell() {
-    var cellToAllocate = area.cellForPosition(positionToAllocate);
-    if (cellToAllocate is! StateMachineCell) {
-      throw ArgumentError(
-          '$ModuleCasAllocation positionToAllocate=$positionToAllocate does not point to a $StateMachineCell');
     }
   }
 }

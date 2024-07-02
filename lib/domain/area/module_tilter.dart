@@ -1,5 +1,10 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
 import 'package:user_command/user_command.dart';
 
 import 'object_details.dart';
@@ -7,108 +12,97 @@ import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
-class ModuleTilter extends StateMachineCell implements BirdBuffer {
-  final CardinalDirection inFeedDirection;
-  @override
-  final CardinalDirection birdDirection;
+class ModuleTilter extends StateMachine implements PhysicalSystem {
+  final LiveBirdHandlingArea area;
+  final bool tiltToLeft;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
+  late final shape = ModuleTilterShape(this);
 
-  int birdsOnDumpBelt = 0;
-  int maxBirdsOnDumpBelt;
-
-  ///Number of birds on dumping belt between module and hanger (a buffer).
-  ///The tilter starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
-  ///Normally this number is between the number of birds in 1 or 2 modules
-  final int minBirdsOnDumpBeltBuffer;
   final Duration checkIfEmptyDuration;
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
+  final Duration inFeedDuration;
+  final Duration outFeedDuration;
 
-  ModuleTilter(
-      {required super.area,
-      required super.position,
-      super.name = 'ModuleTilter',
-      super.seqNr,
-      required this.inFeedDirection,
-      required this.birdDirection,
-      this.checkIfEmptyDuration = const Duration(seconds: 18),
-      Duration? inFeedDuration,
-      this.tiltForwardDuration = const Duration(seconds: 9),
-      this.tiltBackDuration = const Duration(seconds: 5),
-      Duration? outFeedDuration,
-      required this.minBirdsOnDumpBeltBuffer})
-      : maxBirdsOnDumpBelt = minBirdsOnDumpBeltBuffer,
+  late final CompassDirection doorDirection = (tiltToLeft
+          ? const CompassDirection.west()
+          : const CompassDirection.east())
+      .rotate(area.layout.rotationOf(this).degrees);
+
+  ModuleTilter({
+    required this.area,
+    required this.tiltToLeft,
+    this.checkIfEmptyDuration = const Duration(seconds: 18),
+    Duration? inFeedDuration,
+    this.tiltForwardDuration = const Duration(seconds: 9),
+    this.tiltBackDuration = const Duration(seconds: 5),
+    Duration? outFeedDuration,
+  })  : inFeedDuration = inFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration,
+        outFeedDuration = outFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration,
         super(
           initialState: CheckIfEmpty(),
-          inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
-          outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
         ) {
     _verifyDirections();
   }
 
-  bool get dumpBeltCanReceiveBirds =>
-      birdsOnDumpBelt < minBirdsOnDumpBeltBuffer;
-
-  /// 1=dump belt full with birds
-  /// 0=dump belt empty
-  double get dumpBeltLoad {
-    if (birdsOnDumpBelt > maxBirdsOnDumpBelt) {
-      maxBirdsOnDumpBelt = birdsOnDumpBelt;
-    }
-    return birdsOnDumpBelt / maxBirdsOnDumpBelt;
-  }
+  late final int seqNr = area.systems.seqNrOf(this);
 
   void _verifyDirections() {
-    if (inFeedDirection.isParallelTo(birdDirection)) {
-      throw ArgumentError(
-          "$LiveBirdHandlingArea error: $name: inFeedDirection and birdDirection must be perpendicular in layout configuration.");
-    }
-  }
-
-  Cell get receivingneighbor =>
-      area.neighboringCell(this, inFeedDirection.opposite);
-
-  Cell get sendingneighbor => area.neighboringCell(this, inFeedDirection);
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
-
-  @override
-  bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection && currentState is WaitToFeedIn;
-
-  @override
-  bool isFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite;
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
-
-  @override
-  bool removeBird() {
-    if (birdsOnDumpBelt > 0) {
-      birdsOnDumpBelt--;
-      return true;
-    } else {
-      return false;
-    }
+    // TODO
+    // if (inFeedDirection.isParallelTo(birdDirection)) {
+    //   throw ArgumentError(
+    //       "$LiveBirdHandlingArea error: $name: inFeedDirection and birdDirection must be perpendicular in layout configuration.");
+    // }
   }
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('maxBirdsOnDumpBelt', maxBirdsOnDumpBelt)
-      .appendProperty('minBirdsOnDumpBeltBuffer', minBirdsOnDumpBeltBuffer)
-      .appendProperty('birdsOnDumpBelt', birdsOnDumpBelt)
-      .appendProperty('moduleGroup', moduleGroup);
+      .appendProperty('moduleGroup', moduleGroupPosition.moduleGroup);
+
+  @override
+  late String name = 'ModuleTilter$seqNr';
+
+  late final moduleGroupPosition = ModuleGroupPlace(
+      system: this,
+      moduleGroups: area.moduleGroups,
+      offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter);
+
+  late final modulesIn = ModuleGroupInLink(
+      position: moduleGroupPosition,
+      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
+      directionToOtherLink: const CompassDirection.south(),
+      inFeedDuration: inFeedDuration,
+      canFeedIn: () => currentState is WaitToFeedIn);
+
+  late final modulesOut = ModuleGroupOutLink(
+      position: moduleGroupPosition,
+      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
+      directionToOtherLink: const CompassDirection.north(),
+      outFeedDuration: outFeedDuration,
+      durationUntilCanFeedOut: () =>
+          currentState is WaitToFeedOut ? Duration.zero : unknownDuration);
+
+  late final birdsOut = BirdsOutLink(
+    system: this,
+    offsetFromCenterWhenFacingNorth: shape.centerToBirdsOutLink,
+    directionToOtherLink:
+        tiltToLeft ? CompassDirection.west() : CompassDirection.east(),
+  );
+
+  @override
+  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+    modulesIn,
+    modulesOut,
+    birdsOut,
+  ];
+
+  @override
+  late SizeInMeters sizeWhenFacingNorth = shape.size;
 }
 
 class CheckIfEmpty extends DurationState<ModuleTilter> {
@@ -121,56 +115,62 @@ class CheckIfEmpty extends DurationState<ModuleTilter> {
             nextStateFunction: (tilter) => WaitToFeedIn());
 }
 
-class WaitToFeedIn extends State<ModuleTilter> {
+class WaitToFeedIn extends State<ModuleTilter>
+    implements ModuleTransportStartedListener {
+  bool transportStarted = false;
+
   @override
   String get name => 'WaitToFeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (_moduleGroupTransportedTo(tilter)) {
+    if (transportStarted) {
       return FeedIn();
     }
     return null;
   }
 
-  bool _moduleGroupTransportedTo(ModuleTilter tilter) {
-    return tilter.area.moduleGroups
-        .any((moduleGroup) => moduleGroup.position.destination == tilter);
+  @override
+  void onModuleTransportStarted() {
+    transportStarted = true;
   }
 }
 
-class FeedIn extends State<ModuleTilter> {
+class FeedIn extends State<ModuleTilter>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
   @override
   String get name => 'FeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (_transportCompleted(tilter)) {
+    if (transportCompleted) {
       return WaitToTilt();
     }
     return null;
   }
 
-  bool _transportCompleted(ModuleTilter tilter) => tilter.moduleGroup != null;
-
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleTilter tilter) {
     _verifyModule(tilter);
   }
 
   void _verifyModule(ModuleTilter tilter) {
-    var moduleGroup = tilter.moduleGroup!;
+    var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
     // TODO add later. The tilter was missuesed because as a drawer inloader. Fix when we have one.
     // if (moduleGroup.moduleFamily.compartmentType!=CompartmentType.doorOnOneSide) {
     //   throw ('In correct container type of the $ModuleGroup that was fed in to ${tilter.name}');
     // }
     if (moduleGroup.moduleFamily.compartmentType.hasDoor &&
-        moduleGroup.direction.toCardinalDirection() != tilter.birdDirection) {
+        moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');
     }
+  }
+
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
   }
 }
 
@@ -179,9 +179,8 @@ class WaitToTilt extends State<ModuleTilter> {
   String get name => 'WaitToTilt';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (tilter.dumpBeltCanReceiveBirds) {
+    if (tilter.birdsOut.linkedTo!.canReceiveBirds()) {
       return TiltForward();
     }
     return null;
@@ -198,10 +197,9 @@ class TiltForward extends DurationState<ModuleTilter> {
             nextStateFunction: (tilter) => TiltBack());
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleTilter tilter) {
-    var moduleGroup = tilter.moduleGroup!;
-    tilter.birdsOnDumpBelt += moduleGroup.numberOfBirds;
+    var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
+    tilter.birdsOut.linkedTo!.transferBirds(moduleGroup.numberOfBirds);
     moduleGroup.unloadBirds();
   }
 }
@@ -221,7 +219,6 @@ class WaitToFeedOut extends State<ModuleTilter> {
   String get name => 'WaitToFeedOut';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
     if (_neighborCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
       return FeedOut();
@@ -230,37 +227,38 @@ class WaitToFeedOut extends State<ModuleTilter> {
   }
 
   bool _moduleGroupAtDestination(ModuleTilter tilter) =>
-      tilter.moduleGroup!.destination == tilter;
+      tilter.moduleGroupPosition.moduleGroup!.destination == tilter;
 
   _neighborCanFeedIn(ModuleTilter tilter) =>
-      tilter.receivingneighbor.waitingToFeedIn(tilter.inFeedDirection);
+      tilter.modulesOut.linkedTo!.canFeedIn();
 }
 
-class FeedOut extends State<ModuleTilter> {
+class FeedOut extends State<ModuleTilter>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
   @override
   String get name => 'FeedOut';
 
   ModuleGroup? transportedModuleGroup;
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleTilter tilter) {
-    transportedModuleGroup = tilter.moduleGroup;
-    transportedModuleGroup!.position = ModulePosition.betweenCells(
-        source: tilter,
-        destination: tilter.receivingneighbor as StateMachineCell);
+    transportedModuleGroup = tilter.moduleGroupPosition.moduleGroup!;
+    transportedModuleGroup!.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(tilter.modulesOut);
   }
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (_transportCompleted(tilter)) {
+    if (transportCompleted) {
       return WaitToFeedIn();
     }
     return null;
   }
 
-  bool _transportCompleted(ModuleTilter tilter) =>
-      transportedModuleGroup != null &&
-      transportedModuleGroup!.position.source != tilter;
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }

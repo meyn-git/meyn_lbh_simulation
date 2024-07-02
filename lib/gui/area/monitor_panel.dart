@@ -58,10 +58,10 @@ class MonitorTile extends StatelessWidget {
     var name = _name();
     return ListTile(
       onTap: () {
-        if (objectToMonitor is HasCommands) {
+        if (objectToMonitor is Commandable) {
           CommandPopupMenu(
             context,
-            (objectToMonitor as HasCommands).commands,
+            (objectToMonitor as Commandable).commands,
             title: name,
           );
         }
@@ -76,8 +76,8 @@ class MonitorTile extends StatelessWidget {
   }
 
   String _name() {
-    if (objectToMonitor is HasName) {
-      return (objectToMonitor as HasName).name;
+    if (objectToMonitor is Namable) {
+      return (objectToMonitor as Namable).name;
     } else {
       return objectToMonitor
           .toString()
@@ -87,9 +87,8 @@ class MonitorTile extends StatelessWidget {
     }
   }
 
-  Widget? _createSubTitle() => objectToMonitor is HasObjectDetails
-      ? Text((objectToMonitor as HasObjectDetails)
-          .objectDetails
-          .propertiesToString(0))
+  Widget? _createSubTitle() => objectToMonitor is Detailable
+      ? Text(
+          (objectToMonitor as Detailable).objectDetails.propertiesToString(0))
       : null;
 }

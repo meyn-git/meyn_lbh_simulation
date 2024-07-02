@@ -4,14 +4,7 @@
             "name": "Flutter (lib\\main.dart)",
             "type": "dart",
             "request": "launch",
-            "program": "lib\\main.dart",
-            "flutterMode": "debug",
-        },
-        {
-            "name": "Flutter (tool\\publish.dart)",
-            "type": "dart",
-            "request": "launch",
-            "program": "tool\\publish.dart"
+            "program": "lib\\main.dart"
         }
     ]
 }

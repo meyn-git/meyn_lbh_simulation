@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
@@ -45,15 +46,16 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaFactory(),
               birdType: 'Turkey',
               lineSpeedInShacklesPerHour: 3600,
+              lineShacklePitchInInches: 12,
               casRecipe: dabeCasRecipe,
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpDoubleColumn,
+              moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  firstModule: MarelGpSquareModule6LevelTurkey()
+                  firstModule: MarelGpS1x6Turkey()
                       .dimensions
                       .capacityWithBirdsPerCompartment(6),
-                  secondModule: MarelGpSquareModule6LevelTurkey()
+                  secondModule: MarelGpS1x6Turkey()
                       .dimensions
                       .capacityWithBirdsPerCompartment(6),
                 )
@@ -70,96 +72,90 @@ class DabeLiveBirdHandlingArea extends LiveBirdHandlingArea {
       : super(
           lineName: 'Turkey line',
           productDefinition: productDefinition,
-        ) {
-    _row1(); // Cas 1, Cas 3, Cas 5
-    _row2(); // TT 3, TT 2, TT 1, Infeed, Fork lift
-    _row3(); // Buffer (Destacker), Cas 4, Cas 6, Cas Allocation
-    _row4(); // Hanging, Tilter, Cas Start
-    _row5(); // Outfeed
-    _row6(); // Fork lift
-  }
+        );
 
-  void _row1() {
-    // Cas 1, Cas 3, Cas 5
-    put(ModuleCas(
+  @override
+  void createSystemsAndLinks() {
+    var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
-      position: const Position(2, 1),
-      seqNr: 1,
-      inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.west,
-    ));
+      moduleBirdExitDirection: ModuleBirdExitDirection.right,
+    );
 
-    put(ModuleCas(
+    var loadingConveyor = ModuleConveyor(area: this, lengthInMeters: 3.75);
+
+    var mrc1 = ModuleRotatingConveyor(
       area: this,
-      position: const Position(3, 1),
-      seqNr: 3,
-      inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.west,
-    ));
+      lengthInMeters: 3.2,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.east()),
+        TurnPosition(
+            direction: const CompassDirection.south(), reverseFeedIn: true),
+        TurnPosition(direction: const CompassDirection.west()),
+        TurnPosition(
+            direction: const CompassDirection.north(), reverseFeedOut: true),
+      ],
+    );
 
-    put(ModuleCas(
+    var mrc2 = ModuleRotatingConveyor(
       area: this,
-      position: const Position(4, 1),
-      seqNr: 5,
-      inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.west,
-    ));
-  }
+      lengthInMeters: 3.2,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.east()),
+        TurnPosition(
+            direction: const CompassDirection.south(), reverseFeedIn: true),
+        TurnPosition(direction: const CompassDirection.west()),
+        TurnPosition(
+            direction: const CompassDirection.north(), reverseFeedOut: true),
+      ],
+    );
 
-  void _row2() {
-    // TT 3, TT 2, TT 1, Infeed, Fork lift
-    put(ModuleRotatingConveyor(
+    var mrc3 = ModuleRotatingConveyor(
       area: this,
-      position: const Position(2, 2),
-      seqNr: 10,
-      oppositeInFeeds: [CardinalDirection.south],
-      oppositeOutFeeds: [CardinalDirection.north],
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
+      lengthInMeters: 3.2,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.east()),
+        TurnPosition(
+          direction: const CompassDirection.south(),
+        ),
+        TurnPosition(
+            direction: const CompassDirection.north(), reverseFeedOut: true),
+      ],
+    );
 
-    put(ModuleRotatingConveyor(
+    var cas5 = ModuleCas(
       area: this,
-      position: const Position(3, 2),
-      seqNr: 9,
-      oppositeInFeeds: [CardinalDirection.south],
-      oppositeOutFeeds: [CardinalDirection.north],
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
+      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true, //TODO
+    );
 
-    put(ModuleRotatingConveyor(
+    var cas4 = ModuleCas(
       area: this,
-      position: const Position(4, 2),
-      seqNr: 8,
-      oppositeInFeeds: [CardinalDirection.south],
-      oppositeOutFeeds: [CardinalDirection.north],
-      defaultPositionWhenIdle: CardinalDirection.west,
-    ));
+      gasDuctsLeft: true, //TODO
+      slideDoorLeft: false, //TODO
+    );
 
-    put(ModuleConveyor(
+    var cas3 = ModuleCas(
       area: this,
-      position: const Position(5, 2),
-      seqNr: 7,
-      inFeedDirection: CardinalDirection.east,
-    ));
+      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true, //TODO
+    );
 
-    put(LoadingForkLiftTruck(
+    var cas2 = ModuleCas(
       area: this,
-      position: const Position(6, 2),
-      outFeedDirection: CardinalDirection.west,
-      doorDirection: CardinalDirection.north,
-      loadsSingeModule: false,
-    ));
-  }
+      gasDuctsLeft: true, //TODO
+      slideDoorLeft: false, //TODO
+    );
 
-  void _row3() {
-    // Buffer (Destacker), Cas 4, Cas 6, Cas Allocation
+    var cas1 = ModuleCas(
+      area: this,
+      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true, //TODO
+    );
+
     /// mimicking a de-merging conveyor: 1 [ModuleGroup] => 2x [ModuleGroup] to tilter
     /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
-    put(ModuleDeStacker(
+    var mc1 = ModuleDeStacker(
       area: this,
-      position: const Position(2, 3),
-      seqNr: 11,
-      inFeedDirection: CardinalDirection.north,
       heightsInCentiMeter: const {
         LiftPosition.inFeed: 0,
         LiftPosition.outFeed: 0,
@@ -168,71 +164,66 @@ class DabeLiveBirdHandlingArea extends LiveBirdHandlingArea {
       },
       supportsCloseDuration: Duration.zero,
       supportsOpenDuration: Duration.zero,
-    ));
+    );
 
-    put(ModuleCas(
+    var tilter = ModuleTilter(
       area: this,
-      position: const Position(3, 3),
-      seqNr: 4,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
-    ));
+      tiltToLeft: false,
+    );
 
-    put(ModuleCas(
+    var dumpConveyor = ModuleTilterDumpConveyor(
       area: this,
-      position: const Position(4, 3),
-      seqNr: 6,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.west,
-    ));
-
-    put(ModuleCasAllocation(
-      area: this,
-      position: const Position(5, 3),
-      positionToAllocate: const Position(5, 2),
-    ));
-  }
-
-  void _row4() {
-    // Hanging, Tilter, Cas Start
-    put(BirdHangingConveyor(
-      area: this,
-      position: const Position(1, 4),
-      direction: CardinalDirection.south,
-    ));
-
-    put(ModuleTilter(
-      area: this,
-      position: const Position(2, 4),
-      seqNr: 12,
-      inFeedDirection: CardinalDirection.north,
-      birdDirection: CardinalDirection.west,
       minBirdsOnDumpBeltBuffer:
-          productDefinition.averageProductsPerModuleGroup.round(),
+          (productDefinition.averageProductsPerModuleGroup).round(),
+      maxBirdsOnDumpBeltBuffer:
+          (productDefinition.averageProductsPerModuleGroup * 2).round(),
+    );
+
+    var shackleConveyor = ShackleConveyor(
+      area: this,
+      toLeft: true,
+    );
+
+    var unloadingConveyor = ModuleConveyor(area: this, lengthInMeters: 3.75);
+
+    var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
+
+// module transport
+    systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
+    systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
+    systems.link(mrc1.modulesOuts[1], cas4.modulesIn);
+    systems.link(
+      cas4.modulesOut,
+      mrc1.modulesIns[1],
+    );
+    systems.link(mrc1.modulesOuts[2], mrc2.modulesIns[0]);
+    systems.link(mrc1.modulesOuts[3], cas5.modulesIn);
+    systems.link(cas5.modulesOut, mrc1.modulesIns[3]);
+
+    systems.link(mrc2.modulesOuts[1], cas2.modulesIn);
+    systems.link(cas2.modulesOut, mrc2.modulesIns[1]);
+    systems.link(mrc2.modulesOuts[2], mrc3.modulesIns[0]);
+    systems.link(mrc2.modulesOuts[3], cas3.modulesIn);
+    systems.link(cas3.modulesOut, mrc2.modulesIns[3]);
+
+    systems.link(mrc3.modulesOuts[1], mc1.modulesIn);
+    systems.link(mrc3.modulesOuts[2], cas1.modulesIn);
+    systems.link(cas1.modulesOut, mrc3.modulesIns[2]);
+
+    systems.link(mc1.modulesOut, tilter.modulesIn);
+    systems.link(tilter.modulesOut, unloadingConveyor.modulesIn);
+    systems.link(
+        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+
+    /// bird transport
+    systems.link(tilter.birdsOut, dumpConveyor.birdsIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+
+    systems.add(ModuleCasAllocation(
+      area: this,
+      allocationPlace: loadingConveyor.moduleGroupPlace,
     ));
 
-    put(ModuleCasStart(
-      area: this,
-      position: const Position(5, 4),
-    ));
-  }
-
-  void _row5() {
-    // Outfeed
-    put(ModuleConveyor(
-      area: this,
-      position: const Position(2, 5),
-      seqNr: 13,
-      inFeedDirection: CardinalDirection.north,
-    ));
-  }
-
-  void _row6() {
-    // Fork lift
-    put(UnLoadingForkLiftTruck(
-      area: this,
-      position: const Position(2, 6),
-      inFeedDirection: CardinalDirection.north,
-    ));
+    systems.add(ModuleCasStart(area: this));
   }
 }

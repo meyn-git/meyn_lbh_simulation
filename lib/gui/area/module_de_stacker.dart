@@ -1,74 +1,54 @@
-import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
-class ModuleDeStackerWidget extends StatelessWidget {
-  final ModuleDeStacker deStacker;
-
-  const ModuleDeStackerWidget(this.deStacker, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context).liveBirdsHandling;
-    return RotationTransition(
-        turns: AlwaysStoppedAnimation(
-            deStacker.inFeedDirection.opposite.toCompassDirection().degrees /
-                360),
-        child: CustomPaint(painter: ModuleDeStackerPainter(deStacker, theme)));
-  }
+class ModuleDeStackerPainter extends ShapePainter {
+  ModuleDeStackerPainter(
+      ModuleDeStacker deStacker, LiveBirdsHandlingTheme theme)
+      : super(shape: deStacker.shape, theme: theme);
 }
 
-class ModuleDeStackerPainter extends CustomPainter {
-  final ModuleDeStacker deStacker;
-  final LiveBirdsHandlingTheme theme;
-  ModuleDeStackerPainter(this.deStacker, this.theme);
+class ModuleDeStackerShape extends CompoundShape {
+  static const double lengthInMeters = 3.4;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    _drawRectangle(canvas, size);
-    _drawSupports(canvas, size);
-    _drawDirectionTriangle(canvas, size);
+  late final Box conveyor;
+
+  ModuleDeStackerShape() {
+    var northEastLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
+    var southEastLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
+    var southWestLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
+    var northWestLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
+    var liftFrame = Box(xInMeters: 1.661, yInMeters: lengthInMeters);
+    var westConveyorFrame = Box(
+        xInMeters: ModuleConveyorShape.frameWidthInMeters,
+        yInMeters: lengthInMeters);
+    conveyor = Box(
+        xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
+        yInMeters: lengthInMeters);
+    var eastConveyorFrame = Box(
+        xInMeters: ModuleConveyorShape.frameWidthInMeters,
+        yInMeters: lengthInMeters);
+
+    link(liftFrame.centerCenter, conveyor.centerCenter);
+    link(liftFrame.topRight, northEastLeg.topLeft);
+    link(liftFrame.bottomRight, southEastLeg.bottomLeft);
+    link(liftFrame.bottomLeft, southWestLeg.bottomRight);
+    link(liftFrame.topLeft, northWestLeg.topRight);
+    link(conveyor.centerLeft, westConveyorFrame.centerRight);
+    link(conveyor.centerRight, eastConveyorFrame.centerLeft);
   }
 
-  _drawDirectionTriangle(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.fill;
-    var path = Path();
-    path.moveTo(size.width * 0.45, size.height * 0.45);
-    path.lineTo(size.width * 0.55, size.height * 0.45);
-    path.lineTo(size.width * 0.50, size.height * 0.4);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
+  late final OffsetInMeters centerToConveyorCenter =
+      topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
 
-  _drawRectangle(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.stroke;
-    var x1 = size.width * 0.3;
-    var x2 = size.width * 0.7;
-    var y1 = size.height * 0.1;
-    var y2 = size.height * 0.9;
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
-  }
+  late final OffsetInMeters centerToSupportsCenter =
+      centerToConveyorCenter.addX(0.1)..addY(0.1);
 
-  _drawSupports(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.stroke;
-    var x1 = size.width * 0.2;
-    var y1 = size.height * 0.1;
-    var x2 = size.width * 0.7;
-    var y2 = size.height * 0.7;
-    var width = size.width * 0.1;
-    var height = size.height * 0.2;
-    canvas.drawRect(Rect.fromLTWH(x1, y1, width, height), paint);
-    canvas.drawRect(Rect.fromLTWH(x2, y1, width, height), paint);
-    canvas.drawRect(Rect.fromLTWH(x1, y2, width, height), paint);
-    canvas.drawRect(Rect.fromLTWH(x2, y2, width, height), paint);
-  }
+  late final OffsetInMeters centerToModuleGroupOutLink =
+      centerToConveyorCenter.addY(lengthInMeters * -0.5);
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  late final OffsetInMeters centerToModuleGroupInLink =
+      centerToConveyorCenter.addY(lengthInMeters * 0.5);
 }

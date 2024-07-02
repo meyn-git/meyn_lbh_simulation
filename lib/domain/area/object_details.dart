@@ -76,7 +76,7 @@ class ObjectDetails {
   String _formattedPropertyValue(dynamic propertyValue) {
     if (propertyValue is Duration) {
       return _formattedDuration(propertyValue);
-    } else if (propertyValue is HasObjectDetails) {
+    } else if (propertyValue is Detailable) {
       return propertyValue.objectDetails.toString();
     } else {
       return propertyValue.toString();
@@ -89,6 +89,6 @@ class ObjectDetails {
   }
 }
 
-abstract class HasObjectDetails implements HasName {
+abstract class Detailable implements Namable {
   ObjectDetails get objectDetails;
 }

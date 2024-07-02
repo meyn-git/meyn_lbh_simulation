@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
 class Player {
@@ -29,8 +29,7 @@ class Player {
   set scenario(Scenario? scenario) {
     _scenario = scenario;
     if (scenario != null) {
-      var hangingConveyors =
-          scenario.area.cells.whereType<BirdHangingConveyor>();
+      var hangingConveyors = scenario.area.systems.whereType<ShackleConveyor>();
       objectsToMonitor.clear();
       objectsToMonitor.addAll(hangingConveyors);
     }

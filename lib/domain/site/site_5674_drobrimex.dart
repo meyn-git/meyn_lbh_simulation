@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:meyn_lbh_simulation/domain/area/bird_hanging_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
+import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
@@ -33,6 +35,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
               birdType: 'Chicken',
               lineSpeedInShacklesPerHour: 15000,
+              lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
@@ -53,6 +56,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// Running a too high line speed so we can determine the actual
               /// hanged birds/hour, by monitoring the [ShackleLine].
               lineSpeedInShacklesPerHour: 16500,
+              lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
@@ -73,6 +77,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// Runs 14200 b/h theoretically (see previous product definition),
               /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
               lineSpeedInShacklesPerHour: 12780,
+              lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
@@ -93,6 +98,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// Running a too high line speed so we can determine the actual
               /// hanged birds/hour, by monitoring the [ShackleLine].
               lineSpeedInShacklesPerHour: 19800,
+              lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
@@ -113,6 +119,7 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               /// Runs 17100 b/h theoretically (see previous product definition),
               /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
               lineSpeedInShacklesPerHour: 15390,
+              lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
@@ -136,170 +143,250 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
 
 enum DobrimexAreaType { fiveCasUnits, sixCasUnits }
 
+/// See "\\meyn.nl\project\acaddrwg\5674 Drobimex - Heintz - Poland\2021\02 - Meyn drawings\Sales\5674s138z00i1.dwg"
+/// See https://meyn-git.github.io/meyn_lbh_simulation_web/
 class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  final DobrimexAreaType areaType;
+
   DobrimexLiveBirdHandlingArea(
-      ProductDefinition productDefinition, DobrimexAreaType areaType)
+      ProductDefinition productDefinition, this.areaType)
       : super(
           lineName: 'Line 1',
           productDefinition: productDefinition,
-        ) {
-    _row1();
-    _row2(areaType);
-    _row3();
-    _row4();
-  }
+        );
 
-  void _row1() {
-    put(ModuleCas(
+  static const drawerSpeedInMetersPerSecond = 0.5; //TODO
+
+  @override
+  void createSystemsAndLinks() {
+    var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
-      position: const Position(2, 1),
-      seqNr: 5,
-      inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.east,
-    ));
-
-    put(ModuleCas(
+      moduleBirdExitDirection: ModuleBirdExitDirection.bothSides,
+    );
+    var loadingConveyor = ModuleConveyor(
       area: this,
-      position: const Position(3, 1),
-      seqNr: 3,
-      inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.east,
-    ));
+      lengthInMeters: 3.75,
+    );
 
-    put(ModuleCas(
+    var mrc1 = ModuleRotatingConveyor(
       area: this,
-      position: const Position(4, 1),
-      seqNr: 1,
-      inAndOutFeedDirection: CardinalDirection.south,
-      doorDirection: CardinalDirection.east,
-    ));
-  }
+      lengthInMeters: 3.2,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.south()),
+        TurnPosition(
+          direction: const CompassDirection.west(),
+          reverseFeedOut: true,
+        ),
+        TurnPosition(
+            direction: const CompassDirection.north(), reverseFeedIn: true),
+        TurnPosition(direction: const CompassDirection.east()),
+      ],
+    );
 
-  void _row2(DobrimexAreaType areaType) {
+    var mrc2 = ModuleRotatingConveyor(
+      area: this,
+      lengthInMeters: 3.2,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.west()),
+        TurnPosition(
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
+        TurnPosition(direction: const CompassDirection.east()),
+        TurnPosition(
+          direction: const CompassDirection.south(),
+          reverseFeedOut: true,
+        ),
+      ],
+    );
+
+    var mrc3 = ModuleRotatingConveyor(
+      area: this,
+      lengthInMeters: 3.2,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.west()),
+        TurnPosition(
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
+        TurnPosition(direction: const CompassDirection.east()),
+        TurnPosition(
+          direction: const CompassDirection.south(),
+          reverseFeedOut: true,
+        ),
+      ],
+    );
+
+    ModuleCas? cas6;
     if (areaType == DobrimexAreaType.sixCasUnits) {
-      put(ModuleCas(
+      cas6 = ModuleCas(
         area: this,
-        position: const Position(1, 2),
-        seqNr: 6,
-        inAndOutFeedDirection: CardinalDirection.east,
-        doorDirection: CardinalDirection.south,
-      ));
+        gasDuctsLeft: true, // TODO
+        slideDoorLeft: true, // TODO
+      );
     }
 
-    put(ModuleRotatingConveyor(
+    var cas5 = ModuleCas(
       area: this,
-      position: const Position(2, 2),
-      seqNr: 1,
-      oppositeInFeeds: [CardinalDirection.north],
-      oppositeOutFeeds: [CardinalDirection.south, CardinalDirection.west],
-      defaultPositionWhenIdle: CardinalDirection.north,
-    ));
+      gasDuctsLeft: true, // TODO
+      slideDoorLeft: false, // TODO
+    );
 
-    put(ModuleRotatingConveyor(
+    var cas4 = ModuleCas(
       area: this,
-      position: const Position(3, 2),
-      seqNr: 2,
-      oppositeInFeeds: [CardinalDirection.north],
-      oppositeOutFeeds: [CardinalDirection.south],
-      defaultPositionWhenIdle: CardinalDirection.east,
-    ));
+      gasDuctsLeft: true, // TODO
+      slideDoorLeft: true, // TODO
+    );
 
-    put(ModuleRotatingConveyor(
+    var cas3 = ModuleCas(
       area: this,
-      position: const Position(4, 2),
-      seqNr: 3,
-      oppositeInFeeds: [CardinalDirection.north],
-      oppositeOutFeeds: [CardinalDirection.south],
-      defaultPositionWhenIdle: CardinalDirection.east,
-    ));
+      gasDuctsLeft: true, // TODO
+      slideDoorLeft: false, // TODO
+    );
 
-    put(ModuleDeStacker(
+    var cas2 = ModuleCas(
       area: this,
-      position: const Position(5, 2),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.west,
-    ));
+      gasDuctsLeft: true, // TODO
+      slideDoorLeft: true, // TODO
+    );
 
-    //Gross weighing conveyor
-    put(ModuleConveyor(
+    var cas1 = ModuleCas(
       area: this,
-      position: const Position(6, 2),
-      seqNr: 2,
-      inFeedDirection: CardinalDirection.west,
-    ));
+      gasDuctsLeft: true, // TODO
+      slideDoorLeft: false, // TODO
+    );
 
-    put(ModuleRotatingConveyor(
+    var deStacker = ModuleDeStacker(area: this);
+
+    var mc1 = ModuleConveyor(area: this);
+
+    var mrc4 = ModuleRotatingConveyor(
       area: this,
-      position: const Position(7, 2),
-      seqNr: 4,
-      oppositeOutFeeds: [CardinalDirection.south],
-      defaultPositionWhenIdle: CardinalDirection.east,
-    ));
-  }
+      lengthInMeters: 2.75,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.west()),
+        TurnPosition(direction: const CompassDirection.south()),
+      ],
+    );
 
-  void _row3() {
-    put(ModuleConveyor(
-      area: this,
-      position: const Position(2, 3),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.south,
-    ));
+    var mc2 = ModuleConveyor(area: this);
 
-    put(ModuleCas(
-      area: this,
-      position: const Position(3, 3),
-      seqNr: 4,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.east,
-    ));
+    var mc3 = ModuleConveyor(area: this);
 
-    put(ModuleCas(
-      area: this,
-      position: const Position(4, 3),
-      seqNr: 2,
-      inAndOutFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.east,
-    ));
+    /// Drawer line 1
+    var unloader1 = ModuleDrawerRowUnloader(area: this, drawersToLeft: true);
 
-    put(ModuleTilter(
-      area: this,
-      position: const Position(7, 3),
-      seqNr: 1,
-      inFeedDirection: CardinalDirection.north,
-      birdDirection: CardinalDirection.east,
-      minBirdsOnDumpBeltBuffer:
-          productDefinition.averageProductsPerModuleGroup.round(),
-    ));
-
-    put(BirdHangingConveyor(
-      area: this,
-      position: const Position(8, 3),
-      direction: CardinalDirection.north,
-    ));
-  }
-
-  void _row4() {
-    put(LoadingForkLiftTruck(
-      area: this,
-      position: const Position(2, 4),
-      outFeedDirection: CardinalDirection.north,
-      doorDirection: CardinalDirection.east,
-    ));
-
-    put(ModuleCasAllocation(
+    var receiver1 = ModuleDrawerRowUnloaderReceiver(
         area: this,
-        position: const Position(3, 4),
-        positionToAllocate: const Position(2, 3)));
+        drawersToLeft: true,
+        crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
 
-    put(ModuleCasStart(
-      area: this,
-      position: const Position(4, 4),
-    ));
+    var dc1a = DrawerConveyor90Degrees(
+        clockwise: true, metersPerSecond: drawerSpeedInMetersPerSecond);
 
-    put(UnLoadingForkLiftTruck(
+    var dc1b = DrawerConveyorStraight(
+        lengthInMeters: 3, metersPerSecond: drawerSpeedInMetersPerSecond);
+
+    var hangingConveyor1 = DrawerHangingConveyor(
+      allDrawers: drawers,
+      hangers: 11,
+      metersPerSecondOfFirstConveyor: drawerSpeedInMetersPerSecond,
+      productDefinition: productDefinition,
+    );
+
+    var dc1c = DrawerRemover(
       area: this,
-      position: const Position(7, 4),
-      inFeedDirection: CardinalDirection.north,
-    ));
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
+
+    /// Drawer line 2
+    var unloader2 = ModuleDrawerRowUnloader(area: this, drawersToLeft: true);
+
+    var receiver2 = ModuleDrawerRowUnloaderReceiver(
+        area: this,
+        drawersToLeft: false,
+        crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
+
+    var dc2a = DrawerConveyor90Degrees(
+        clockwise: false, metersPerSecond: drawerSpeedInMetersPerSecond);
+
+    var dc2b = DrawerConveyorStraight(
+        lengthInMeters: 3, metersPerSecond: drawerSpeedInMetersPerSecond);
+
+    var hangingConveyor2 = DrawerHangingConveyor(
+      allDrawers: drawers,
+      hangers: 11,
+      metersPerSecondOfFirstConveyor: drawerSpeedInMetersPerSecond,
+      productDefinition: productDefinition,
+    );
+
+    var dc2c = DrawerRemover(
+      area: this,
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
+
+    var unloadConveyor = ModuleConveyor(area: this);
+
+    var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
+
+    systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
+    systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
+    if (areaType == DobrimexAreaType.sixCasUnits) {
+      systems.link(mrc1.modulesOuts[1], cas6!.modulesIn);
+      systems.link(cas6.modulesOut, mrc1.modulesIns[1]);
+    }
+    systems.link(mrc1.modulesOuts[2], cas5.modulesIn);
+    systems.link(cas5.modulesOut, mrc1.modulesIns[2]);
+    systems.link(mrc1.modulesOuts[3], mrc2.modulesIns[0]);
+    systems.link(mrc2.modulesOuts[1], cas3.modulesIn);
+    systems.link(cas3.modulesOut, mrc2.modulesIns[1]);
+    systems.link(mrc2.modulesOuts[3], cas4.modulesIn);
+    systems.link(cas4.modulesOut, mrc2.modulesIns[3]);
+    systems.link(mrc2.modulesOuts[2], mrc3.modulesIns[0]);
+    systems.link(mrc3.modulesOuts[1], cas1.modulesIn);
+    systems.link(cas1.modulesOut, mrc3.modulesIns[1]);
+    systems.link(mrc3.modulesOuts[3], cas2.modulesIn);
+    systems.link(cas2.modulesOut, mrc3.modulesIns[3]);
+    systems.link(mrc3.modulesOuts[2], deStacker.modulesIn);
+    systems.link(deStacker.modulesOut, mc1.modulesIn);
+    systems.link(mc1.modulesOut, mrc4.modulesIns[0]);
+    systems.link(mrc4.modulesOuts[1], mc2.modulesIn);
+    systems.link(mc2.modulesOut, mc3.modulesIn);
+    systems.link(mc3.modulesOut, unloader1.modulesIn);
+    systems.link(unloader1.modulesOut, unloader2.modulesIn);
+    systems.link(unloader2.modulesOut, unloadConveyor.modulesIn);
+    systems.link(unloadConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+
+    // drawers line 1
+    systems.link(unloader1.drawersOut, receiver1.drawersIn);
+    systems.link(receiver1.drawerOut, dc1a.drawerIn);
+    systems.link(dc1a.drawerOut, dc1b.drawerIn);
+    systems.link(dc1b.drawerOut, hangingConveyor1.drawerIn);
+    systems.link(hangingConveyor1.drawerOut, dc1c.drawerIn);
+
+    // drawers line 2
+    systems.link(unloader2.drawersOut, receiver2.drawersIn);
+    systems.link(receiver2.drawerOut, dc2a.drawerIn);
+    systems.link(dc2a.drawerOut, dc2b.drawerIn);
+    systems.link(dc2b.drawerOut, hangingConveyor2.drawerIn);
+    systems.link(hangingConveyor2.drawerOut, dc2c.drawerIn);
+
+    systems.add(ModuleCasAllocation(
+        area: this, allocationPlace: loadingConveyor.moduleGroupPlace));
+
+    systems.add(ModuleCasStart(area: this, startIntervalFractions: <double>[
+      0,
+      0.1,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1,
+      1,
+      1,
+      1,
+      1.5,
+      2,
+    ]));
   }
 }

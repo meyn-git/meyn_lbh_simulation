@@ -1,59 +1,80 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'state_machine.dart';
 
-class ModuleConveyor extends StateMachineCell {
-  final CardinalDirection inFeedDirection;
-
-  int nrOfModulesFeedingIn = 0;
-
+class ModuleConveyor extends StateMachine implements PhysicalSystem {
+  final Duration inFeedDuration;
+  final Duration outFeedDuration;
   final Duration checkIfEmptyDuration;
+  final double lengthInMeters;
+  final LiveBirdHandlingArea area;
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
+  late final ModuleConveyorShape shape = ModuleConveyorShape(this);
+
+  static const double defaultLengthInMeters = 2.75;
+
   ModuleConveyor({
-    required super.area,
-    required super.position,
-    super.name = 'ModuleConveyor',
-    super.seqNr,
-    required this.inFeedDirection,
+    required this.area,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration,
     Duration? outFeedDuration,
-  }) : super(
+    this.lengthInMeters = defaultLengthInMeters,
+  })  : inFeedDuration = inFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration *
+                (lengthInMeters / defaultLengthInMeters),
+        outFeedDuration = outFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration,
+        super(
           initialState: CheckIfEmpty(),
-          inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
-          outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
-  Cell get receivingNeighbor =>
-      area.neighboringCell(this, inFeedDirection.opposite);
+  late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
+    position: moduleGroupPlace,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
+    directionToOtherLink: const CompassDirection.south(),
+    inFeedDuration: inFeedDuration,
+    canFeedIn: () => currentState is WaitToFeedIn,
+  );
 
-  Cell get sendingNeighbor => area.neighboringCell(this, inFeedDirection);
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
-
-  @override
-  bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection && currentState is WaitToFeedIn;
-
-  @override
-  bool isFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite;
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
+  late final ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
+    position: moduleGroupPlace,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
+    directionToOtherLink: const CompassDirection.north(),
+    outFeedDuration: outFeedDuration,
+    durationUntilCanFeedOut: () =>
+        currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
+  );
 
   @override
-  bool waitingToFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite && currentState is WaitToFeedOut;
+  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+    modulesIn,
+    modulesOut
+  ];
+
+  late final int seqNr = area.systems.seqNrOf(this);
+
+  @override
+  late String name = 'ModuleConveyor$seqNr';
+
+  @override
+  late SizeInMeters sizeWhenFacingNorth = shape.size;
+
+  late final ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorEnd,
+  );
 }
 
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
@@ -67,40 +88,47 @@ class CheckIfEmpty extends DurationState<ModuleConveyor> {
   String get name => 'CheckIfEmpty';
 }
 
-class WaitToFeedIn extends State<ModuleConveyor> {
+class WaitToFeedIn extends State<ModuleConveyor>
+    implements ModuleTransportStartedListener {
+  var transportStarted = false;
+
   @override
   String get name => 'WaitToFeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (_moduleGroupTransportedTo(moduleConveyor)) {
+    if (transportStarted) {
       return FeedIn();
     }
     return null;
   }
 
-  bool _moduleGroupTransportedTo(ModuleConveyor moduleConveyor) {
-    return moduleConveyor.area.moduleGroups.any(
-        (moduleGroup) => moduleGroup.position.destination == moduleConveyor);
+  /// Must be called by FeedOut state of the preceding [PhysicalSystem]
+  @override
+  void onModuleTransportStarted() {
+    transportStarted = true;
   }
 }
 
-class FeedIn extends State<ModuleConveyor> {
+class FeedIn extends State<ModuleConveyor>
+    implements ModuleTransportCompletedListener {
   @override
   String get name => 'FeedIn';
+  bool transportCompleted = false;
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (_transportCompleted(moduleConveyor)) {
+    if (transportCompleted) {
       return WaitToFeedOut();
     }
     return null;
   }
 
-  bool _transportCompleted(ModuleConveyor moduleConveyor) =>
-      moduleConveyor.moduleGroup != null;
+  /// called by [BetweenModuleGroupPlaces]
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }
 
 class WaitToFeedOut extends State<ModuleConveyor> {
@@ -108,48 +136,47 @@ class WaitToFeedOut extends State<ModuleConveyor> {
   String get name => 'WaitToFeedOut';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (_neighborCanFeedIn(moduleConveyor) &&
+    if (neighborCanFeedIn(moduleConveyor) &&
         !_moduleGroupAtDestination(moduleConveyor)) {
       return FeedOut();
     }
     return null;
   }
 
-  bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
-      moduleConveyor.moduleGroup!.destination == moduleConveyor;
+  bool neighborCanFeedIn(ModuleConveyor moduleConveyor) =>
+      moduleConveyor.modulesOut.linkedTo!.canFeedIn();
 
-  _neighborCanFeedIn(ModuleConveyor moduleConveyor) =>
-      moduleConveyor.receivingNeighbor
-          .waitingToFeedIn(moduleConveyor.inFeedDirection);
+  bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
+      moduleConveyor.moduleGroupPlace.moduleGroup!.destination ==
+      moduleConveyor;
 }
 
-class FeedOut extends State<ModuleConveyor> {
+class FeedOut extends State<ModuleConveyor>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
   @override
   String get name => 'FeedOut';
 
-  ModuleGroup? transportedModuleGroup;
-
   @override
-  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleConveyor moduleConveyor) {
-    transportedModuleGroup = moduleConveyor.moduleGroup;
-    transportedModuleGroup!.position = ModulePosition.betweenCells(
-        source: moduleConveyor,
-        destination: moduleConveyor.receivingNeighbor as StateMachineCell);
+    var transportedModuleGroup = moduleConveyor.moduleGroupPlace.moduleGroup!;
+    transportedModuleGroup.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(moduleConveyor.modulesOut);
   }
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (_transportCompleted(moduleConveyor)) {
+    if (transportCompleted) {
       return WaitToFeedIn();
     }
     return null;
   }
 
-  bool _transportCompleted(ModuleConveyor moduleConveyor) =>
-      transportedModuleGroup != null &&
-      transportedModuleGroup!.position.source != moduleConveyor;
+  /// This method is called by ModuleTransport when completed
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }

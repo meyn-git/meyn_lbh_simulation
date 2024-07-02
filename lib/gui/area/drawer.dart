@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
-import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class GrandeDrawerWidget extends StatelessWidget {
-  final MachineLayout layout;
+  final SystemLayout layout;
   final GrandeDrawer drawer;
 
   GrandeDrawerWidget(this.layout, this.drawer) : super(key: UniqueKey());
@@ -17,7 +17,7 @@ class GrandeDrawerWidget extends StatelessWidget {
       turns: AlwaysStoppedAnimation(drawer.position.rotationInFraction(layout)),
       child: drawer.position is DrawerPositionAndSize
           ? Transform.scale(
-              scale: (drawer.position as DrawerPositionAndSize).scale(),
+              scale: (drawer.position as DrawerPositionAndSize).scale,
               child: CustomPaint(painter: DrawerPainter(drawer, theme)))
           : CustomPaint(painter: DrawerPainter(drawer, theme)),
     );
@@ -60,7 +60,7 @@ class DrawerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 
   Color _color() {
     switch (drawer.contents) {

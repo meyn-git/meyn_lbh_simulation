@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 
-abstract class StateMachine implements TimeProcessor, HasObjectDetails {
+abstract class StateMachine implements TimeProcessor, Detailable {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   State currentState;
 
@@ -35,40 +37,42 @@ abstract class StateMachine implements TimeProcessor, HasObjectDetails {
   String toString() => objectDetails.toString();
 }
 
-abstract class StateMachineCell extends StateMachine implements ActiveCell {
-  /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
-  @override
-  late LiveBirdHandlingArea area;
-  @override
-  late Position position;
-  @override
-  late String name;
-  final int? seqNr;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
+// @Deprecated('Use StateMachine instead')
+// abstract class StateMachineCell extends StateMachine implements ActiveCell {
+//   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
+//   @override
+//   late LiveBirdHandlingArea area;
+//   @override
+//   late Position position;
+//   @override
+//   late String name;
+//   final int? seqNr;
+//   final Duration inFeedDuration;
+//   final Duration outFeedDuration;
 
-  StateMachineCell({
-    required this.area,
-    required this.position,
-    required String name,
-    this.seqNr,
-    required super.initialState,
-    required this.inFeedDuration,
-    required this.outFeedDuration,
-  }) : name = "$name${seqNr ?? ''}";
+//   StateMachineCell({
+//     required this.area,
+//     required this.position,
+//     required String name,
+//     this.seqNr,
+//     required super.initialState,
+//     required this.inFeedDuration,
+//     required this.outFeedDuration,
+//   }) : name = "$name${seqNr ?? ''}";
 
-  @override
-  ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('currentState', currentState)
-      .appendProperty('moduleGroup', moduleGroup);
+//   @override
+//   ObjectDetails get objectDetails => ObjectDetails(name)
+//       .appendProperty('currentState', currentState)
+//       .appendProperty('moduleGroup', moduleGroup);
 
-  @override
-  String toString() => objectDetails.toString();
+//   @override
+//   String toString() => objectDetails.toString();
 
-  @override
-  ModuleGroup? get moduleGroup => area.moduleGroups
-      .firstWhereOrNull((moduleGroup) => moduleGroup.position.equals(this));
-}
+//   @override
+//   ModuleGroup? get moduleGroup =>
+//       area.moduleGroups.firstWhereOrNull((moduleGroup) =>
+//           (moduleGroup.position as ModulePositionDeprecated).equals(this));
+// }
 
 abstract class State<T extends StateMachine> {
   String get name;
@@ -103,15 +107,22 @@ abstract class DurationState<T extends StateMachine> extends State<T> {
   final Duration Function(T) durationFunction;
   final State<T> Function(T) nextStateFunction;
   Duration? _remainingDuration;
+  late Duration _startDuration;
 
   DurationState(
       {required this.durationFunction, required this.nextStateFunction});
 
-  Duration get remainingDuration => _remainingDuration ?? Duration.zero;
+  Duration get remainingDuration => _remainingDuration ?? _startDuration;
+  // 0 = starting
+  // in between  = in between starting and completed
+  // 1 = completed
+  double get completedFraction =>
+      1 - (_remainingDuration!.inMicroseconds / _startDuration.inMicroseconds);
 
   @override
   void onStart(T stateMachine) {
-    _remainingDuration = durationFunction(stateMachine);
+    _startDuration = durationFunction(stateMachine);
+    _remainingDuration = _startDuration;
   }
 
   @override
@@ -137,6 +148,7 @@ abstract class DurationState<T extends StateMachine> extends State<T> {
 }
 
 /// continues only when [completed] is set to true
+@Deprecated('Use other event listeners instead')
 abstract class WaitOnCompletedState<T extends StateMachine> extends State<T> {
   final State<T> Function(T) nextStateFunction;
   bool completed = false;
@@ -151,3 +163,45 @@ abstract class WaitOnCompletedState<T extends StateMachine> extends State<T> {
     return null;
   }
 }
+
+// @Deprecated(
+//     'This class should only be temporarily used during the conversion from Cell to System')
+// class DummyStateMachineCell extends StateMachineCell {
+//   @override
+//   List<Command> commands = [];
+
+//   DummyStateMachineCell({required super.area})
+//       : super(
+//             name: 'Dummy',
+//             position: const Position(0, 0),
+//             inFeedDuration: Duration.zero,
+//             outFeedDuration: Duration.zero,
+//             initialState: DummyState());
+
+//   @override
+//   bool almostWaitingToFeedOut(CardinalDirection direction) => false;
+
+//   @override
+//   bool isFeedIn(CardinalDirection direction) => false;
+
+//   @override
+//   bool isFeedOut(CardinalDirection direction) => false;
+
+//   @override
+//   bool waitingToFeedIn(CardinalDirection direction) => false;
+
+//   @override
+//   bool waitingToFeedOut(CardinalDirection direction) => false;
+// }
+
+// @Deprecated(
+//     'This class should only be temporarily used during the conversion from Cell to system')
+// class DummyState extends State {
+//   @override
+//   String get name => 'Dummy';
+
+//   @override
+//   State<StateMachine>? nextState(StateMachine stateMachine) {
+//     return null;
+//   }
+// }

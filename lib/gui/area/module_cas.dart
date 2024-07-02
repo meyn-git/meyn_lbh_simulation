@@ -1,94 +1,66 @@
-import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
+import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
-class ModuleCasWidget extends StatelessWidget {
-  final ModuleCas cas;
-
-  const ModuleCasWidget(this.cas, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context).liveBirdsHandling;
-    return RotationTransition(
-      turns: AlwaysStoppedAnimation(
-          cas.inAndOutFeedDirection.toCompassDirection().toFraction()),
-      child: CustomPaint(painter: ModuleCasPainter(cas, theme)),
-    );
-  }
+class ModuleCasPainter extends ShapePainter {
+  ModuleCasPainter(ModuleCas cas, LiveBirdsHandlingTheme theme)
+      : super(shape: cas.shape, theme: theme);
 }
 
-class ModuleCasPainter extends CustomPainter {
-  final ModuleCas cas;
-  final LiveBirdsHandlingTheme theme;
-  ModuleCasPainter(this.cas, this.theme);
+class ModuleCasShape extends CompoundShape {
+  late final Box cabin;
+  late final Box slideDoorRail;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    _drawRectangle(canvas, size);
-    _drawInFeedTriangle(canvas, size);
-    _drawOutFeedTriangle(canvas, size);
-    _drawAirIntakes(canvas, size);
+  late final CompassDirection gasDuctsDirection;
+
+  ModuleCasShape(ModuleCas cas) {
+    var moduleGroupSize =
+        cas.area.productDefinition.moduleFamily.moduleGroupSurface;
+    var cabinSize = (moduleGroupSize + cabinPadding * 2);
+    var leftPlatform = Box(xInMeters: 0.8, yInMeters: cabinSize.yInMeters);
+    cabin = Box(xInMeters: cabinSize.xInMeters, yInMeters: cabinSize.yInMeters);
+    var rightPlatform = Box(xInMeters: 0.8, yInMeters: cabinSize.yInMeters);
+    var inletDuct = Box(xInMeters: 0.3, yInMeters: 0.7);
+    var outletDuct = Box(xInMeters: 0.3, yInMeters: 0.7);
+    slideDoorRail = Box(xInMeters: 3.175, yInMeters: 0.2);
+
+    link(leftPlatform.centerRight, cabin.centerLeft);
+    link(cabin.centerRight, rightPlatform.centerLeft);
+
+    if (cas.slideDoorLeft) {
+      link(rightPlatform.bottomRight.addX(-0.75), slideDoorRail.topRight);
+    } else {
+      link(leftPlatform.bottomLeft.addX(0.75), slideDoorRail.topLeft);
+    }
+
+    var ductOffsetY =
+        (cabinSize.yInMeters - inletDuct.yInMeters - outletDuct.yInMeters) *
+            0.25;
+    if (cas.gasDuctsLeft) {
+      link(leftPlatform.topRight.addY(ductOffsetY), inletDuct.topRight);
+      link(leftPlatform.bottomRight.addY(-ductOffsetY), outletDuct.bottomRight);
+      gasDuctsDirection = const CompassDirection.west();
+    } else {
+      link(rightPlatform.topLeft.addY(ductOffsetY), inletDuct.topLeft);
+      link(rightPlatform.bottomLeft.addY(-ductOffsetY), outletDuct.bottomLeft);
+      gasDuctsDirection = const CompassDirection.east();
+    }
   }
 
-  void _drawInFeedTriangle(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.fill;
-    var path = Path();
-    path.moveTo(size.width * 0.45, size.height * 0.55);
-    path.lineTo(size.width * 0.55, size.height * 0.55);
-    path.lineTo(size.width * 0.50, size.height * 0.6);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
+  /// space between module and cabin
+  late final SizeInMeters cabinPadding =
+      const SizeInMeters(xInMeters: 0.15, yInMeters: 0.1);
 
-  void _drawOutFeedTriangle(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.fill;
-    var path = Path();
-    path.moveTo(size.width * 0.45, size.height * 0.45);
-    path.lineTo(size.width * 0.55, size.height * 0.45);
-    path.lineTo(size.width * 0.50, size.height * 0.4);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
+  late final OffsetInMeters centerToCabinCenter =
+      topLefts[cabin]! + cabin.centerCenter - centerCenter;
 
-  _drawRectangle(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.stroke;
-    var x1 = size.width * 0.3;
-    var x2 = size.width * 0.7;
-    var y1 = size.height * 0.1;
-    var y2 = size.height * 0.9;
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
-  }
+  late final OffsetInMeters centerToModuleGroupInOutLink =
+      centerToCabinCenter + _cabinCenterToModuleGroupInOutLink;
 
-  _drawAirIntakes(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.stroke;
-    bool left = cas.inAndOutFeedDirection == CardinalDirection.north &&
-            cas.doorDirection == CardinalDirection.east ||
-        cas.inAndOutFeedDirection == CardinalDirection.east &&
-            cas.doorDirection == CardinalDirection.south ||
-        cas.inAndOutFeedDirection == CardinalDirection.south &&
-            cas.doorDirection == CardinalDirection.west ||
-        cas.inAndOutFeedDirection == CardinalDirection.west &&
-            cas.doorDirection == CardinalDirection.north;
-
-    var x1 = left ? size.width * 0.2 : size.width * 0.7;
-    var y1 = size.height * 0.2;
-    var y2 = size.height * 0.6;
-    var width = size.width * 0.1;
-    var height = size.height * 0.2;
-    canvas.drawRect(Rect.fromLTWH(x1, y1, width, height), paint);
-    canvas.drawRect(Rect.fromLTWH(x1, y2, width, height), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  late final OffsetInMeters _cabinCenterToModuleGroupInOutLink = OffsetInMeters(
+    xInMeters: 0,
+    yInMeters: cabin.yInMeters * 0.5 + slideDoorRail.yInMeters,
+  );
 }

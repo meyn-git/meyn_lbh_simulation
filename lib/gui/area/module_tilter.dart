@@ -1,103 +1,54 @@
-import 'package:flutter/material.dart';
-import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
-import 'package:meyn_lbh_simulation/gui/theme.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 
-class ModuleTilterWidget extends StatelessWidget {
-  final ModuleTilter tilter;
+import '../../domain/area/module_tilter.dart';
+import 'shape.dart';
+import '../theme.dart';
 
-  const ModuleTilterWidget(this.tilter, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context).liveBirdsHandling;
-    return RotationTransition(
-      turns: AlwaysStoppedAnimation(
-          tilter.inFeedDirection.opposite.toCompassDirection().toFraction()),
-      child: CustomPaint(painter: ModuleTilterPainter(tilter, theme)),
-    );
-  }
+class ModuleTilterPainter extends ShapePainter {
+  ModuleTilterPainter(ModuleTilter tilter, LiveBirdsHandlingTheme theme)
+      : super(shape: tilter.shape, theme: theme);
 }
 
-class ModuleTilterPainter extends CustomPainter {
-  final ModuleTilter tilter;
-  final LiveBirdsHandlingTheme theme;
-  int maxBirdsOnDumpBelt;
+class ModuleTilterShape extends CompoundShape {
+  static const double lengthInMeters = 3.88;
 
-  ModuleTilterPainter(this.tilter, this.theme)
-      : maxBirdsOnDumpBelt = tilter.minBirdsOnDumpBeltBuffer;
+  late final Box conveyor;
+  late final OffsetInMeters centerToBirdsOutLink;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    _drawConveyor(canvas, size);
-    _drawReceivingConveyor(canvas, size);
-    _drawDirectionTriangle(size, canvas);
-    _drawBirdsOnReceivingConveyor(canvas, size);
+  ModuleTilterShape(ModuleTilter tilter) {
+    var pivotFrame1 = Box(xInMeters: 0.75, yInMeters: 0.35);
+    var pivotFrame2 = Box(xInMeters: 0.75, yInMeters: 0.35);
+    var leftConveyorFrame = Box(xInMeters: 0.25, yInMeters: lengthInMeters);
+    conveyor = Box(xInMeters: 1.35, yInMeters: lengthInMeters);
+    var rightConveyorFrame = Box(xInMeters: 0.25, yInMeters: lengthInMeters);
+    var platform = Box(xInMeters: 0.75, yInMeters: lengthInMeters);
+    if (tilter.tiltToLeft) {
+      link(leftConveyorFrame.centerRight, conveyor.centerLeft);
+      link(conveyor.centerRight, rightConveyorFrame.centerLeft);
+      link(rightConveyorFrame.centerRight, platform.centerLeft);
+      link(leftConveyorFrame.bottomLeft.addY(-0.25), pivotFrame1.bottomRight);
+      link(leftConveyorFrame.topLeft.addY(0.25), pivotFrame2.topRight);
+      centerToBirdsOutLink = topLefts[leftConveyorFrame]! +
+          leftConveyorFrame.centerLeft -
+          centerCenter;
+    } else {
+      link(platform.centerRight, leftConveyorFrame.centerLeft);
+      link(leftConveyorFrame.centerRight, conveyor.centerLeft);
+      link(conveyor.centerRight, rightConveyorFrame.centerLeft);
+      link(rightConveyorFrame.bottomRight.addY(-0.25), pivotFrame1.bottomLeft);
+      link(rightConveyorFrame.topRight.addY(0.25), pivotFrame2.topLeft);
+      centerToBirdsOutLink = topLefts[rightConveyorFrame]! +
+          rightConveyorFrame.centerRight -
+          centerCenter;
+    }
   }
 
-  void _drawDirectionTriangle(Size size, Canvas canvas) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.fill;
-    var path = Path();
-    path.moveTo(size.width * 0.45, size.height * 0.45);
-    path.lineTo(size.width * 0.55, size.height * 0.45);
-    path.lineTo(size.width * 0.50, size.height * 0.4);
-    path.close();
-    canvas.drawPath(path, paint);
-  }
+  late final OffsetInMeters centerToConveyorCenter =
+      topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
 
-  _drawConveyor(Canvas canvas, Size size) {
-    var paint = Paint();
-    paint.color = theme.machineColor;
-    paint.style = PaintingStyle.stroke;
-    var x1 = size.width * 0.3;
-    var x2 = size.width * 0.7;
-    var y1 = size.height * 0.1;
-    var y2 = size.height * 0.9;
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), paint);
-  }
+  late final OffsetInMeters centerToModuleGroupOutLink =
+      centerToConveyorCenter.addY(lengthInMeters * -0.5);
 
-  _drawReceivingConveyor(Canvas canvas, Size size) {
-    var conveyorPaint = Paint();
-    conveyorPaint.color = theme.machineColor;
-    conveyorPaint.style = PaintingStyle.stroke;
-
-    bool left = _dumpBeltOnLeftSide;
-    var x1 = left ? 0.0 : size.width * 0.7;
-    var x3 = left ? size.width * 0.3 : size.width;
-    var y1 = size.height * 0.1;
-    var y2 = size.height * 0.9;
-
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x3, y2), conveyorPaint);
-  }
-
-  _drawBirdsOnReceivingConveyor(Canvas canvas, Size size) {
-    var birdPaint = Paint();
-    birdPaint.color = theme.machineColor.withOpacity(0.5);
-    birdPaint.style = PaintingStyle.fill;
-
-    bool left = _dumpBeltOnLeftSide;
-
-    var x1 = left ? 0.0 : size.width - size.width * 0.3 * tilter.dumpBeltLoad;
-    var x2 = left ? size.width * 0.3 * tilter.dumpBeltLoad : size.width;
-    var y1 = size.height * 0.1;
-    var y2 = size.height * 0.9;
-
-    canvas.drawRect(Rect.fromLTRB(x1, y1, x2, y2), birdPaint);
-  }
-
-  bool get _dumpBeltOnLeftSide {
-    return tilter.inFeedDirection == CardinalDirection.north &&
-            tilter.birdDirection == CardinalDirection.east ||
-        tilter.inFeedDirection == CardinalDirection.east &&
-            tilter.birdDirection == CardinalDirection.south ||
-        tilter.inFeedDirection == CardinalDirection.south &&
-            tilter.birdDirection == CardinalDirection.west ||
-        tilter.inFeedDirection == CardinalDirection.west &&
-            tilter.birdDirection == CardinalDirection.north;
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  late final OffsetInMeters centerToModuleGroupInLink =
+      centerToConveyorCenter.addY(lengthInMeters * 0.5);
 }

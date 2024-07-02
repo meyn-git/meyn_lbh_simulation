@@ -1,6 +1,11 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_cas.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
@@ -8,83 +13,57 @@ import 'module.dart';
 import 'state_machine.dart';
 import 'unloading_fork_lift_truck.dart';
 
-class ModuleCas extends StateMachineCell {
-  /// the [CardinalDirection] the in and out feed is pointed towards
-  late final CasRecipe recipe;
-  final CardinalDirection inAndOutFeedDirection;
-  final CardinalDirection doorDirection;
+class ModuleCas extends StateMachine implements PhysicalSystem {
+  final LiveBirdHandlingArea area;
+  final Duration inFeedDuration;
+  final Duration outFeedDuration;
+  late CasRecipe recipe;
+  final bool gasDuctsLeft;
+  final bool slideDoorLeft;
   final Duration closeSlideDoorDuration;
   final Duration openSlideDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
+  late final CompassDirection doorDirection = shape.gasDuctsDirection.opposite
+      .rotate(area.layout.rotationOf(this).degrees);
+
   ModuleCas({
-    required LiveBirdHandlingArea area,
-    required super.position,
-    super.name = 'ModuleCas',
-    super.seqNr,
-    required this.inAndOutFeedDirection,
-    required this.doorDirection,
+    required this.area,
+    required this.slideDoorLeft,
+    required this.gasDuctsLeft,
     this.closeSlideDoorDuration = const Duration(seconds: 6),
     this.openSlideDoorDuration = const Duration(seconds: 6),
     Duration? inFeedDuration,
     Duration? outFeedDuration,
-  }) : super(
-          area: area,
+  })  : inFeedDuration = inFeedDuration ??
+            area.productDefinition.moduleSystem.casTransportDuration,
+        outFeedDuration = outFeedDuration ??
+            area.productDefinition.moduleSystem.casTransportDuration,
+        super(
           initialState: WaitToFeedIn(),
-          inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleSystem.casTransportDuration,
-          outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleSystem.casTransportDuration,
         ) {
-    _verifyDirections();
     _verifyCasRecipeIsDefined();
     recipe = area.productDefinition.casRecipe!;
   }
 
-  StateMachineCell get neighbor =>
-      area.neighboringCell(this, inAndOutFeedDirection) as StateMachineCell;
+  late final seqNr = area.systems.seqNrOf(this);
 
-  @override
-  bool isFeedIn(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection;
+  bool get canFeedIn => currentState is WaitToFeedIn || currentState is FeedIn;
 
-  @override
-  bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection && currentState is WaitToFeedIn;
+  bool get almostWaitingToFeedOut => durationUntilCanFeedOut != unknownDuration;
 
-  @override
-  bool isFeedOut(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection;
+  bool get waitingToFeedOut => currentState is WaitToFeedOut;
 
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection &&
-      (currentState is ExhaustStage ||
-          currentState is OpenSlideDoor ||
-          currentState is WaitToFeedOut ||
-          currentState is FeedOut);
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) =>
-      direction == inAndOutFeedDirection && currentState is WaitToFeedOut;
-
-  void _verifyDirections() {
-    if (inAndOutFeedDirection.isParallelTo(doorDirection)) {
-      throw ArgumentError(
-          "$LiveBirdHandlingArea error: $name: inAndOutFeedDirection and doorDirection must be perpendicular.");
-    }
-  }
-
-  StateMachineCell get moduleGroupDestinationAfterStunning {
-    var unloadingCell =
-        area.cells.firstWhereOrNull((cell) => cell is UnLoadingForkLiftTruck);
-    if (unloadingCell == null) {
+  PhysicalSystem get moduleGroupDestinationAfterStunning {
+    var unLoadingForkLiftTruck = area.systems.physicalSystems
+        .firstWhereOrNull((system) => system is UnLoadingForkLiftTruck);
+    if (unLoadingForkLiftTruck == null) {
       throw Exception(
           'The $LiveBirdHandlingArea MUST have a $UnLoadingForkLiftTruck.');
     }
-    return unloadingCell as StateMachineCell;
+    return unLoadingForkLiftTruck;
   }
 
   @override
@@ -113,6 +92,54 @@ class ModuleCas extends StateMachineCell {
           '$LiveBirdHandlingArea error: You must specify the casRecipe in the layout when it contains one or more $ModuleCas');
     }
   }
+
+  late ModuleCasShape shape = ModuleCasShape(this);
+
+  late ModuleGroupInLink modulesIn = ModuleGroupInLink(
+      position: moduleGroupPosition,
+      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
+      directionToOtherLink: const CompassDirection.south(),
+      inFeedDuration: inFeedDuration,
+      canFeedIn: () => canFeedIn);
+
+  late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
+      position: moduleGroupPosition,
+      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
+      directionToOtherLink: const CompassDirection.south(),
+      outFeedDuration: outFeedDuration,
+      durationUntilCanFeedOut: () => durationUntilCanFeedOut);
+
+  get durationUntilCanFeedOut {
+    if (currentState is OpenSlideDoor) {
+      return (currentState as OpenSlideDoor).remainingDuration;
+    }
+    if (currentState is ExhaustStage) {
+      return (currentState as ExhaustStage).remainingDuration +
+          openSlideDoorDuration;
+    }
+    if (currentState is WaitToFeedOut || currentState is FeedOut) {
+      return Duration.zero;
+    }
+    return unknownDuration;
+  }
+
+  @override
+  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+    modulesIn,
+    modulesOut
+  ];
+
+  @override
+  late String name = 'ModuleCas$seqNr';
+
+  @override
+  late SizeInMeters sizeWhenFacingNorth = shape.size;
+
+  late ModuleGroupPlace moduleGroupPosition = ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToCabinCenter,
+  );
 }
 
 class CasRecipe {
@@ -147,52 +174,58 @@ class CasRecipe {
         ], const Duration(seconds: 30));
 }
 
-class WaitToFeedIn extends State<ModuleCas> {
+class WaitToFeedIn extends State<ModuleCas>
+    implements ModuleTransportStartedListener {
+  bool transportStarted = false;
+
   @override
   String get name => 'WaitToFeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
-    if (_moduleGroupTransportedTo(cas)) {
+    if (transportStarted) {
       return FeedIn();
     }
     return null;
   }
 
-  bool _moduleGroupTransportedTo(ModuleCas cas) => cas.area.moduleGroups
-      .any((moduleGroup) => moduleGroup.position.destination == cas);
+  @override
+  void onModuleTransportStarted() {
+    transportStarted = true;
+  }
 }
 
-class FeedIn extends State<ModuleCas> {
+class FeedIn extends State<ModuleCas>
+    implements ModuleTransportCompletedListener {
+  bool completed = false;
+
   @override
   String get name => 'FeedIn';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
-    if (_transportCompleted(cas)) {
+    if (completed) {
       return WaitForStart();
     }
     return null;
   }
 
-  bool _transportCompleted(ModuleCas cas) => cas.moduleGroup != null;
-
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(ModuleCas cas) {
     _verifyDoorDirection(cas);
   }
 
   void _verifyDoorDirection(ModuleCas cas) {
-    var moduleGroup = cas.moduleGroup!;
-    var hasDoors = moduleGroup.moduleFamily.compartmentType ==
-        CompartmentType.doorOnOneSide;
-    if (hasDoors &&
-        moduleGroup.direction.toCardinalDirection() != cas.doorDirection) {
+    var moduleGroup = cas.moduleGroupPosition.moduleGroup!;
+    if (moduleGroup.moduleFamily.compartmentType.hasDoor &&
+        moduleGroup.direction.rotate(-90) != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
     }
+  }
+
+  @override
+  void onModuleTransportCompleted() {
+    completed = true;
   }
 }
 
@@ -203,7 +236,6 @@ class WaitForStart extends State<ModuleCas> {
   bool _start = false;
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas moduleCas) {
     if (_start) {
       _start = false;
@@ -263,11 +295,10 @@ class StunStage extends DurationState<ModuleCas> {
   String toString() => '$name (remaining: ${remainingDuration.inSeconds}sec)';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     if (stageNumber == 1) {
-      cas.moduleGroup!.startStunning();
+      cas.moduleGroupPosition.moduleGroup!.startStunning();
     }
   }
 }
@@ -282,12 +313,12 @@ class ExhaustStage extends DurationState<ModuleCas> {
   String get name => 'ExhaustStage';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     var destination = cas.moduleGroupDestinationAfterStunning;
-    cas.moduleGroup!.endStunning();
-    cas.moduleGroup!.destination = destination;
+    var moduleGroup = cas.moduleGroupPosition.moduleGroup!;
+    moduleGroup.endStunning();
+    moduleGroup.destination = destination;
   }
 }
 
@@ -307,7 +338,6 @@ class WaitToFeedOut extends State<ModuleCas> {
   String get name => 'WaitToFeedOut';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
     if (_neighborOkToFeedIn(cas)) {
       return FeedOut();
@@ -316,28 +346,32 @@ class WaitToFeedOut extends State<ModuleCas> {
   }
 
   bool _neighborOkToFeedIn(ModuleCas cas) =>
-      cas.neighbor.waitingToFeedIn(cas.inAndOutFeedDirection.opposite);
+      cas.modulesOut.linkedTo!.canFeedIn();
 }
 
-class FeedOut extends State<ModuleCas> {
+class FeedOut extends State<ModuleCas>
+    implements ModuleTransportCompletedListener {
+  bool completed = false;
+
   @override
   String get name => 'FeedOut';
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onStart(ModuleCas cas) {
-    cas.moduleGroup!.position =
-        ModulePosition.betweenCells(source: cas, destination: cas.neighbor);
+    cas.moduleGroupPosition.moduleGroup!.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(cas.modulesOut);
   }
 
   @override
-  // ignore: avoid_renaming_method_parameters
   State<ModuleCas>? nextState(ModuleCas cas) {
-    if (_transportCompleted(cas)) {
+    if (completed) {
       return WaitToFeedIn();
     }
     return null;
   }
 
-  bool _transportCompleted(ModuleCas cas) => cas.moduleGroup == null;
+  @override
+  void onModuleTransportCompleted() {
+    completed = true;
+  }
 }

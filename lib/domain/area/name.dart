@@ -1,3 +1,3 @@
-abstract class HasName {
-  late String name;
+abstract class Namable {
+  String get name;
 }

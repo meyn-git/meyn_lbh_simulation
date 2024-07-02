@@ -3,15 +3,37 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/gui/area/area.dart';
 
 import 'life_bird_handling_area.dart';
 import 'state_machine.dart';
 
 /// A [ModuleGroup] can be one or 2 modules that are transported together
 /// E.g. a stack of 2 modules, or 2 modules side by side
-class ModuleGroup extends TimeProcessor implements HasObjectDetails {
+///
+/// TODO depricate this class and replace with new [ModulePosition] classes:
+/// * After(Module)
+/// * OnTopOf(Module)
+///
+/// e.g: 2 stacked modules
+/// * module1.position=ModuleAtMachine()
+/// * module2.position=OnTopOf(module1)
+///
+/// e.g: 2 x 1/2 modules
+/// * module1.position=ModuleAtMachine()
+/// * module2.position=After(module1)
+///
+/// e.g: 4 x 1/2 modules
+/// * module1.position=ModuleAtMachine()
+/// * module2.position=OnTopOf(module1)
+/// * module3.position=After(module1)
+/// * module4.position=OnTopOf(module2)
+///
+/// Or make ModuleGroup extend DelegatingList<Module>
+class ModuleGroup extends TimeProcessor implements Detailable {
   final Module firstModule;
   Module? secondModule;
   final ModuleFamily moduleFamily;
@@ -19,8 +41,8 @@ class ModuleGroup extends TimeProcessor implements HasObjectDetails {
   /// The direction (rotation) of the module group. This is the direction
   /// that the doors would be pointing towards (if it has any)
   CompassDirection direction;
-  StateMachineCell destination;
-  ModulePosition position;
+  PhysicalSystem destination;
+  PositionOnSystem position;
 
   ModuleGroup({
     required this.moduleFamily,
@@ -36,8 +58,8 @@ class ModuleGroup extends TimeProcessor implements HasObjectDetails {
           Module? firstModule,
           Module? secondModule,
           CompassDirection? direction,
-          StateMachineCell? destination,
-          ModulePosition? position}) =>
+          PhysicalSystem? destination,
+          PositionOnSystem? position}) =>
       ModuleGroup(
           moduleFamily: moduleFamily ?? this.moduleFamily,
           firstModule: firstModule ?? this.firstModule,
@@ -53,7 +75,9 @@ class ModuleGroup extends TimeProcessor implements HasObjectDetails {
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
-    position.processNextTimeFrame(this, jump);
+    if (position is TimeProcessor) {
+      (position as TimeProcessor).onUpdateToNextPointInTime(jump);
+    }
     if (sinceLoadedOnSystem != null) {
       sinceLoadedOnSystem = sinceLoadedOnSystem! + jump;
     }
@@ -162,86 +186,249 @@ class ModuleGroup extends TimeProcessor implements HasObjectDetails {
     secondModule = null;
     return newModuleGroup;
   }
+
+  isBeingTransportedTo(PhysicalSystem system) =>
+      position is BetweenModuleGroupPlaces &&
+      (position as BetweenModuleGroupPlaces).destination.system == system;
 }
 
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
 
-/// A module location is either at a given position or traveling between 2 positions
-class ModulePosition implements HasObjectDetails {
-  StateMachineCell source;
-  StateMachineCell destination;
-  late Duration duration;
-  late Duration remainingDuration;
+abstract class PositionOnSystem {
+  /// topLeft of [AreaPanel] to the center of a thing on a [PhysicalSystem]
+  OffsetInMeters center(SystemLayout layout);
+}
 
-  ModulePosition.forCel(StateMachineCell cell)
-      : source = cell,
-        destination = cell,
-        duration = Duration.zero,
-        remainingDuration = Duration.zero;
+class AtModuleGroupPlace implements PositionOnSystem {
+  final ModuleGroupPlace place;
+  OffsetInMeters? _topLeft;
 
-  ModulePosition.betweenCells(
-      {required this.source, required this.destination, Duration? duration}) {
-    this.duration = duration ?? findLongestDuration(source, destination);
-    remainingDuration = this.duration;
+  @override
+  final String name = 'Module Position';
+
+  AtModuleGroupPlace(this.place);
+
+  @override
+  ObjectDetails get objectDetails =>
+      ObjectDetails(name)..appendProperty('position', place);
+
+  @override
+  OffsetInMeters center(SystemLayout layout) {
+    _topLeft = _topLeft ?? _calculateTopLeft(layout);
+    return _topLeft!;
   }
 
-  /// 0  =  0% of transportation is completed
-  /// 0.5= 50% of transportation is completed
-  /// 1  =100% of transportation is completed
-  double get percentageCompleted => duration == Duration.zero
-      ? 1
-      : 1 - remainingDuration.inMilliseconds / duration.inMilliseconds;
+  OffsetInMeters _calculateTopLeft(SystemLayout layout) {
+    var system = place.system;
+    var offset = place.offsetFromCenterWhenSystemFacingNorth;
+    var positionOnSystem = layout.positionOnSystem(system, offset);
+    var moduleDimensions =
+        MeynGrandeDrawerChicken4Level().dimensions; //TODO get from moduleGroup
+    var moduleCenterToModuleTopLeft = OffsetInMeters(
+            yInMeters: moduleDimensions.widthShortSide.defaultValue,
+            xInMeters: moduleDimensions.lengthLongSide.defaultValue) *
+        -0.5;
+    return positionOnSystem + moduleCenterToModuleTopLeft;
+  }
+}
 
-  processNextTimeFrame(ModuleGroup moduleGroup, Duration jump) {
-    if (remainingDuration > Duration.zero) {
-      remainingDuration = remainingDuration - jump;
-      if (remainingDuration <= Duration.zero) {
-        source = destination;
+class BetweenModuleGroupPlaces implements PositionOnSystem, TimeProcessor {
+  late ModuleGroup moduleGroup;
+  final ModuleGroupPlace source;
+  final ModuleGroupPlace destination;
+  final Duration duration;
+  OffsetInMeters? startPosition;
+  OffsetInMeters? travelPath;
+  Duration elapsed = Duration.zero;
+
+  @override
+  late String name = 'Module Transport';
+
+  BetweenModuleGroupPlaces({
+    required this.source,
+    required this.destination,
+    required this.duration,
+  }) : moduleGroup = source.moduleGroup! {
+    onModuleTransportStarted();
+  }
+
+  BetweenModuleGroupPlaces.forModuleOutLink(ModuleGroupOutLink moduleOutLink)
+      : source = moduleOutLink.position,
+        destination = moduleOutLink.linkedTo!.position,
+        duration = Duration(
+            milliseconds: max(moduleOutLink.outFeedDuration.inMilliseconds,
+                moduleOutLink.linkedTo!.inFeedDuration.inMilliseconds)),
+        moduleGroup = moduleOutLink.position.moduleGroup! {
+    onModuleTransportStarted();
+  }
+
+  void onModuleTransportStarted() {
+    _callOnModuleTransportStarted(source);
+    _callOnModuleTransportStarted(destination);
+  }
+
+  void _callOnModuleTransportStarted(ModuleGroupPlace position) {
+    var system = position.system;
+    if (system is StateMachine) {
+      var stateMachine = system as StateMachine;
+      if (stateMachine.currentState is ModuleTransportStartedListener) {
+        var listener =
+            stateMachine.currentState as ModuleTransportStartedListener;
+        listener.onModuleTransportStarted();
       }
-    } else {
-      remainingDuration = Duration.zero;
     }
   }
 
-  equals(StateMachineCell cell) =>
-      source.position == cell.position &&
-      destination.position == cell.position &&
-      remainingDuration == Duration.zero;
-
-  static Duration findLongestDuration(
-    StateMachineCell source,
-    StateMachineCell destination,
-  ) {
-    Duration outFeedDuration = source.outFeedDuration;
-    Duration inFeedDuration = destination.inFeedDuration;
-    return Duration(
-        milliseconds:
-            max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
-  }
-
-  bool get isMoving {
-    return source != destination;
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    elapsed += jump;
+    if (elapsed > duration) {
+      elapsed = duration;
+      onModuleTransportCompleted();
+      moduleGroup.position = AtModuleGroupPlace(destination);
+    }
   }
 
   @override
-  late String name = 'ModulePosition';
+  ObjectDetails get objectDetails => ObjectDetails(name)
+    ..appendProperty('source', source.system.name)
+    ..appendProperty('destination', destination.system.name);
 
   @override
-  ObjectDetails get objectDetails => isMoving
-      ? ObjectDetails(name)
-          .appendProperty('source', source.name)
-          .appendProperty('destination', destination.name)
-          .appendProperty('remainingDuration', remainingDuration)
-      : ObjectDetails(name).appendProperty('at', source.name);
+  OffsetInMeters center(SystemLayout layout) {
+    startPosition ??= _startPosition(layout);
+    travelPath ??= _travelPath(layout);
+    return startPosition! + travelPath! * completedFraction;
+  }
 
-  @override
-  String toString() => objectDetails.toString();
+  double get completedFraction =>
+      elapsed.inMicroseconds / duration.inMicroseconds;
 
-  transportingFrom(StateMachineCell stateMachineCell) =>
-      source == stateMachineCell && destination != stateMachineCell;
+  OffsetInMeters _startPosition(SystemLayout layout) =>
+      _modulePosition(layout, source);
+
+  OffsetInMeters _endPosition(SystemLayout layout) =>
+      _modulePosition(layout, destination);
+  OffsetInMeters _modulePosition(
+      SystemLayout layout, ModuleGroupPlace position) {
+    var system = position.system;
+    var offset = position.offsetFromCenterWhenSystemFacingNorth;
+    var positionOnSystem = layout.positionOnSystem(system, offset);
+    var moduleDimensions = MeynGrandeDrawerChicken4Level()
+        .dimensions; //TODO get from moduleGroup??
+    var moduleCenterToModuleTopLeft = OffsetInMeters(
+            yInMeters: moduleDimensions.widthShortSide.defaultValue,
+            xInMeters: moduleDimensions.lengthLongSide.defaultValue) *
+        -0.5;
+    return positionOnSystem + moduleCenterToModuleTopLeft;
+  }
+
+  OffsetInMeters _travelPath(SystemLayout layout) =>
+      _endPosition(layout) - startPosition!;
+
+  void onModuleTransportCompleted() {
+    _callOnModuleTransportCompleted(source.system);
+    _callOnModuleTransportCompleted(destination.system);
+  }
+
+  void _callOnModuleTransportCompleted(PhysicalSystem system) {
+    if (system is StateMachine) {
+      var stateMachine = system as StateMachine;
+      if (stateMachine.currentState is ModuleTransportCompletedListener) {
+        var listener =
+            stateMachine.currentState as ModuleTransportCompletedListener;
+        listener.onModuleTransportCompleted();
+      }
+    }
+  }
 }
 
-class Module implements HasObjectDetails {
+abstract class ModuleTransportCompletedListener {
+  void onModuleTransportCompleted();
+}
+
+abstract class ModuleTransportStartedListener {
+  void onModuleTransportStarted();
+}
+
+// /// A module location is either at a given position or traveling between 2 positions
+// ///TODO @Deprecated('Use [AtSystemPosition] or [ModuleBetweenMachines]')
+// class ModulePositionDeprecated implements ModulePosition, TimeProcessor {
+//   StateMachineCell source;
+//   StateMachineCell destination;
+//   late Duration duration;
+//   late Duration remainingDuration;
+
+//   ModulePositionDeprecated.forCel(StateMachineCell cell)
+//       : source = cell,
+//         destination = cell,
+//         duration = Duration.zero,
+//         remainingDuration = Duration.zero;
+
+//   ModulePositionDeprecated.betweenCells(
+//       {required this.source, required this.destination, Duration? duration}) {
+//     this.duration = duration ?? findLongestDuration(source, destination);
+//     remainingDuration = this.duration;
+//   }
+
+//   /// 0  =  0% of transportation is completed
+//   /// 0.5= 50% of transportation is completed
+//   /// 1  =100% of transportation is completed
+//   double get percentageCompleted => duration == Duration.zero
+//       ? 1
+//       : 1 - remainingDuration.inMilliseconds / duration.inMilliseconds;
+
+//   @override
+//   onUpdateToNextPointInTime(Duration jump) {
+//     if (remainingDuration > Duration.zero) {
+//       remainingDuration = remainingDuration - jump;
+//       if (remainingDuration <= Duration.zero) {
+//         source = destination;
+//       }
+//     } else {
+//       remainingDuration = Duration.zero;
+//     }
+//   }
+
+//   equals(StateMachineCell cell) =>
+//       source.position == cell.position &&
+//       destination.position == cell.position &&
+//       remainingDuration == Duration.zero;
+
+//   static Duration findLongestDuration(
+//     StateMachineCell source,
+//     StateMachineCell destination,
+//   ) {
+//     Duration outFeedDuration = source.outFeedDuration;
+//     Duration inFeedDuration = destination.inFeedDuration;
+//     return Duration(
+//         milliseconds:
+//             max(outFeedDuration.inMilliseconds, inFeedDuration.inMilliseconds));
+//   }
+
+//   bool get isMoving {
+//     return source != destination;
+//   }
+
+//   @override
+//   late String name = 'ModulePosition';
+
+//   @override
+//   ObjectDetails get objectDetails => isMoving
+//       ? ObjectDetails(name)
+//           .appendProperty('source', source.name)
+//           .appendProperty('destination', destination.name)
+//           .appendProperty('remainingDuration', remainingDuration)
+//       : ObjectDetails(name).appendProperty('at', source.name);
+
+//   @override
+//   String toString() => objectDetails.toString();
+
+//   transportingFrom(StateMachineCell stateMachineCell) =>
+//       source == stateMachineCell && destination != stateMachineCell;
+// }
+
+class Module implements Detailable {
   final int sequenceNumber;
   int nrOfBirds;
   int levels;
@@ -271,6 +458,8 @@ class Module implements HasObjectDetails {
   @override
   String toString() => objectDetails.toString();
 }
+
+enum ModuleBirdExitDirection { bothSides, left, right }
 
 enum ModuleSystem {
   ///following durations are based on measurements at: 7113-Tyson Union city
@@ -311,8 +500,7 @@ enum ModuleSystem {
       stackerInFeedDuration: Duration(milliseconds: 18700),
       deStackerInFeedDuration: Duration(milliseconds: 18700),
       casTransportDuration: Duration(milliseconds: 18700),
-      turnTableDegreesPerSecond:
-          5 // should be 10 but this resulted in 6 sec instead of 90 degrees in 9 seconds,
+      turnTableDegreesPerSecond: 10 // 90 degrees in 9 seconds,
       );
 
   const ModuleSystem(
@@ -329,57 +517,63 @@ enum ModuleSystem {
   final int turnTableDegreesPerSecond;
 }
 
+///TODO ModuleType to extend on ModuleFamily and ModuleDimensions to merge into ModuleType
 enum ModuleFamily {
   meynEvo(
-    supplier: Supplier.meyn,
-    compartmentType: CompartmentType.doorOnOneSide,
-    shape: ModuleShape.rectangularStacked,
-  ),
+      supplier: Supplier.meyn,
+      compartmentType: CompartmentType.doorOnOneSide,
+      shape: ModuleShape.rectangularStacked,
+      moduleGroupSurface: SizeInMeters(xInMeters: 1.2, yInMeters: 2.4)),
   meynGrandeDrawerDoubleColumn(
-    supplier: Supplier.meyn,
-    compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
-    shape: ModuleShape.rectangularStacked,
-  ),
+      supplier: Supplier.meyn,
+      compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
+      shape: ModuleShape.rectangularStacked,
+      moduleGroupSurface: SizeInMeters(xInMeters: 1.18, yInMeters: 2.43)),
   meynGrandeDrawerSingleColumn(
-    supplier: Supplier.meyn,
-    compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
-    shape: ModuleShape.squareSideBySide,
-  ),
+      supplier: Supplier.meyn,
+      compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
+      shape: ModuleShape.squareSideBySide,
+      moduleGroupSurface:
+          SizeInMeters(xInMeters: 1.18, yInMeters: 1.23 + 0.1 + 1.23)),
   meynMaxiLoad(
-    supplier: Supplier.meyn,
-    compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
-    shape: ModuleShape.rectangularStacked,
-  ),
+      //TODO rename to meynMaxiLoadTwin
+      supplier: Supplier.meyn,
+      compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
+      shape: ModuleShape.rectangularStacked,
+      moduleGroupSurface: SizeInMeters(xInMeters: 1.35, yInMeters: 2.43)),
   meynOmni(
-    supplier: Supplier.meyn,
-    compartmentType: CompartmentType.doorOnOneSide,
-    shape: ModuleShape.rectangularStacked,
-  ),
+      supplier: Supplier.meyn,
+      compartmentType: CompartmentType.doorOnOneSide,
+      shape: ModuleShape.rectangularStacked,
+      moduleGroupSurface: SizeInMeters(xInMeters: 1.35, yInMeters: 2.43)),
   angliaAutoFlow(
-    supplier: Supplier.angliaAutoFlow,
-    compartmentType: CompartmentType.drawerSlideInOutOnBothSides,
-    shape: ModuleShape.rectangularStacked,
-  ),
+      supplier: Supplier.angliaAutoFlow,
+      compartmentType: CompartmentType.drawerSlideInOutOnBothSides,
+      shape: ModuleShape.rectangularStacked,
+      moduleGroupSurface: SizeInMeters(xInMeters: 1.165, yInMeters: 2.438)),
   marelGpDoubleColumn(
-    supplier: Supplier.marel,
-    compartmentType: CompartmentType.doorOnOneSide,
-    shape: ModuleShape.squareSideBySide,
-  ),
+      supplier: Supplier.marel,
+      compartmentType: CompartmentType.doorOnOneSide,
+      shape: ModuleShape.rectangularStacked,
+      moduleGroupSurface: SizeInMeters(xInMeters: 1.2, yInMeters: 2.43)),
   marelGpSingleColumn(
-    supplier: Supplier.marel,
-    compartmentType: CompartmentType.doorOnOneSide,
-    shape: ModuleShape.rectangularStacked,
-  );
+      supplier: Supplier.marel,
+      compartmentType: CompartmentType.doorOnOneSide,
+      shape: ModuleShape.squareSideBySide,
+      moduleGroupSurface:
+          SizeInMeters(xInMeters: 1.2, yInMeters: 1.42 + 0.1 + 1.42));
 
   const ModuleFamily({
     required this.supplier,
     required this.shape,
     required this.compartmentType,
+    required this.moduleGroupSurface,
   });
 
   final Supplier supplier;
   final ModuleShape shape;
   final CompartmentType compartmentType;
+  final SizeInMeters moduleGroupSurface;
 }
 
 class ModuleType {
@@ -436,8 +630,8 @@ class GrandeDrawerModuleType extends ModuleType {
   static const double drawerOutSideLengthInMeters = 1.160;
 
   static const SizeInMeters size = SizeInMeters(
-      widthInMeters: drawerOutSideLengthInMeters,
-      heightInMeters: drawerOutSideLengthInMeters);
+      xInMeters: drawerOutSideLengthInMeters,
+      yInMeters: drawerOutSideLengthInMeters);
 
   GrandeDrawerModuleType({
     required super.moduleFamily,
@@ -596,10 +790,10 @@ class AngliaAutoFlowTurkey3Level extends ModuleType {
         );
 }
 
-class MarelGpSquareModule4Level extends ModuleType {
-  MarelGpSquareModule4Level()
+class MarelGpS1x4Chicken extends ModuleType {
+  MarelGpS1x4Chicken()
       : super(
-            moduleFamily: ModuleFamily.marelGpDoubleColumn,
+            moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(1.420),
@@ -613,10 +807,10 @@ class MarelGpSquareModule4Level extends ModuleType {
             ));
 }
 
-class MarelGpSquareModule5Level extends ModuleType {
-  MarelGpSquareModule5Level()
+class MarelGpS1x5Chicken extends ModuleType {
+  MarelGpS1x5Chicken()
       : super(
-            moduleFamily: ModuleFamily.marelGpDoubleColumn,
+            moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(1.420),
@@ -630,10 +824,10 @@ class MarelGpSquareModule5Level extends ModuleType {
             ));
 }
 
-class MarelGpSquareModule6LevelTurkey extends ModuleType {
-  MarelGpSquareModule6LevelTurkey()
+class MarelGpS1x6Turkey extends ModuleType {
+  MarelGpS1x6Turkey()
       : super(
-            moduleFamily: ModuleFamily.marelGpDoubleColumn,
+            moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.turkey,
             dimensions: ModuleDimensions(
               lengthLongSide: meters(1.420),
@@ -664,8 +858,8 @@ class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
             ));
 }
 
-class MarelGpStainlessSteelRectangular4LevelChicken extends ModuleType {
-  MarelGpStainlessSteelRectangular4LevelChicken()
+class MarelGpStainlessSteel2x4Chicken extends ModuleType {
+  MarelGpStainlessSteel2x4Chicken()
       : super(
             moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
@@ -682,7 +876,7 @@ class MarelGpStainlessSteelRectangular4LevelChicken extends ModuleType {
 }
 
 class MarelGpRectangular5LevelChicken extends ModuleType {
-  MarelGpRectangular5LevelChicken()
+  MarelGpRectangular5LevelChicken.MarelGp2x5Chicken()
       : super(
             moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
@@ -710,11 +904,11 @@ class ModuleTypes extends DelegatingList<ModuleType> {
           AngliaAutoFlowChickenSmall5Level(),
           AngliaAutoFlowChickenLarge4Level(),
           AngliaAutoFlowChickenLarge5Level(),
-          MarelGpSquareModule4Level(),
-          MarelGpSquareModule5Level(),
-          MarelGpStainlessSteelRectangular4LevelChicken(),
+          MarelGpS1x4Chicken(),
+          MarelGpS1x5Chicken(),
+          MarelGpStainlessSteel2x4Chicken(),
           MarelGpGalvanizedSteelRectangular4LevelChicken(),
-          MarelGpRectangular5LevelChicken(),
+          MarelGpRectangular5LevelChicken.MarelGp2x5Chicken(),
         ]);
 }
 
@@ -799,7 +993,7 @@ class ModuleDimensions {
     required this.levels,
     required this.compartmentsPerLevel,
     required this.birdFloorSpacePerCompartment,
-    required this.emptyWeight,
+    required this.emptyWeight, //TODO make emptyWeightStainlessSteel and emptyWeightGalvenized
   });
 
   Mass maxWeightPerCompartment(LoadDensity loadDensity) =>

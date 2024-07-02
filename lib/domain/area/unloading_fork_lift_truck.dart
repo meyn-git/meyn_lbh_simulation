@@ -1,88 +1,110 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
+import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
 import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
-class UnLoadingForkLiftTruck extends StateMachineCell {
-  final CardinalDirection inFeedDirection;
+class UnLoadingForkLiftTruck extends StateMachine
+    implements PhysicalSystem, AdditionalRotation {
+  final LiveBirdHandlingArea area;
+  final Duration putModuleGroupOnTruckDuration;
+  final Duration getModuleGroupFromConveyorDuration;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   UnLoadingForkLiftTruck({
-    required super.area,
-    required super.position,
-    super.name = 'UnLoadingForkLiftTruck',
-    super.seqNr,
-    required this.inFeedDirection,
-    Duration putModuleGroupOnTruckDuration =
-        const Duration(seconds: 5), //TODO 30s?
-    Duration getStackFromConveyorDuration =
+    required this.area,
+    this.putModuleGroupOnTruckDuration = const Duration(seconds: 5), //TODO 30s?
+    this.getModuleGroupFromConveyorDuration =
         const Duration(seconds: 5), //TODO 15s?
-  }) : super(
-            initialState: WaitingForFullConveyor(),
-            inFeedDuration: putModuleGroupOnTruckDuration,
-            outFeedDuration: getStackFromConveyorDuration);
+  }) : super(initialState: WaitingForFullConveyor());
 
-  StateMachineCell get sendingNeighbor =>
-      area.neighboringCell(this, inFeedDirection) as StateMachineCell;
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
+  late ModuleGroupInLink modulesIn = ModuleGroupInLink(
+      position: moduleGroupPosition,
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
+          xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
+      directionToOtherLink: const CompassDirection.north(),
+      inFeedDuration: getModuleGroupFromConveyorDuration,
+      canFeedIn: () => currentState is WaitingForFullConveyor);
 
   @override
-  bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection && currentState is WaitingForFullConveyor;
+  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+    modulesIn
+  ];
 
   @override
-  bool isFeedOut(CardinalDirection direction) => false;
+  String name = 'UnLoadingForkLiftTruck';
 
   @override
-  bool waitingToFeedOut(CardinalDirection direction) => false;
+  late SizeInMeters sizeWhenFacingNorth =
+      const SizeInMeters(xInMeters: 1.5, yInMeters: 5);
+
+  @override
+  CompassDirection get additionalRotation =>
+      currentState is PutModuleGroupOnTruck
+          ? const CompassDirection(180)
+          : const CompassDirection(0);
+
+  late ModuleGroupPlace moduleGroupPosition = ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth:
+        const OffsetInMeters(xInMeters: 0, yInMeters: -1.4),
+  );
 }
 
-class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck> {
+class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck>
+    implements ModuleTransportStartedListener {
+  bool transportStarted = false;
+
   @override
   String get name => 'WaitingForFullConveyor';
 
   @override
   State<UnLoadingForkLiftTruck>? nextState(
-      // ignore: avoid_renaming_method_parameters
       UnLoadingForkLiftTruck forkLiftTruck) {
-    if (_neighborCanFeedOut(forkLiftTruck)) {
+    if (transportStarted) {
       return GetModuleGroupFromConveyor();
     }
     return null;
   }
 
-  bool _neighborCanFeedOut(UnLoadingForkLiftTruck forkLiftTruck) {
-    return forkLiftTruck.area.moduleGroups.any(
-        (moduleGroup) => moduleGroup.position.destination == forkLiftTruck);
+  /// Called by [BetweenModuleGroupPlaces]
+  @override
+  void onModuleTransportStarted() {
+    transportStarted = true;
   }
 }
 
-class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck> {
+class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
   @override
   String get name => 'GetModuleGroupFromConveyor';
 
   @override
   State<UnLoadingForkLiftTruck>? nextState(
-      // ignore: avoid_renaming_method_parameters
       UnLoadingForkLiftTruck forkLiftTruck) {
-    if (_transportCompleted(forkLiftTruck)) {
+    if (transportCompleted) {
       return PutModuleGroupOnTruck();
     }
     return null;
   }
 
-  bool _transportCompleted(UnLoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.area.moduleGroups
-          .any((moduleGroup) => moduleGroup.position.source == forkLiftTruck);
+  /// Called by [BetweenModuleGroupPlaces]
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }
 
 class PutModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
@@ -91,13 +113,14 @@ class PutModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
 
   PutModuleGroupOnTruck()
       : super(
-            durationFunction: (forkLiftTruck) => forkLiftTruck.inFeedDuration,
+            durationFunction: (forkLiftTruck) =>
+                forkLiftTruck.putModuleGroupOnTruckDuration,
             nextStateFunction: (forkLiftTruck) => WaitingForFullConveyor());
 
   @override
-  // ignore: avoid_renaming_method_parameters
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
     //TODO keep track of trough put
-    forkLiftTruck.area.moduleGroups.remove(forkLiftTruck.moduleGroup);
+    var moduleGroup = forkLiftTruck.moduleGroupPosition.moduleGroup!;
+    forkLiftTruck.area.moduleGroups.remove(moduleGroup);
   }
 }

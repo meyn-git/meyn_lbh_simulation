@@ -19,8 +19,10 @@ class ModuleGroupWidget extends StatelessWidget {
 
 class ModuleGroupPainter extends CustomPainter {
   final ModuleGroup moduleGroup;
-  static const compartmentSize = 0.30;
   final LiveBirdsHandlingTheme theme;
+
+  /// 5% of module group length
+  static const gabBetweenModulesFraction = 0.05;
   ModuleGroupPainter(this.moduleGroup, this.theme);
 
   @override
@@ -32,12 +34,11 @@ class ModuleGroupPainter extends CustomPainter {
     }
   }
 
-  /// paints a square scalable module compartment with doors pointing north
+  /// paints a square scalable module compartment with doors facing west
   void _paintModuleCompartment({
     required Canvas canvas,
-    required Size size,
-    required double factor,
-    required Offset offset,
+    required Size compartmentSize,
+    required Offset topLeft,
     required bool paintTriangle,
   }) {
     var paint = Paint();
@@ -46,30 +47,30 @@ class ModuleGroupPainter extends CustomPainter {
 
     var path = Path();
     //rectangle starting bottom left
-    var left = offset.dx;
-    var middle = (size.width * factor) / 2 + offset.dx;
-    var right = size.width * factor + offset.dx;
-    var top = offset.dy;
-    var bottom = size.height * factor + offset.dy;
+    var left = topLeft.dx;
+    var right = topLeft.dx + compartmentSize.width;
+    var top = topLeft.dy;
+    var triangleMiddle = topLeft.dy + compartmentSize.height * 0.5;
+    var bottom = topLeft.dy + compartmentSize.height;
 
     // paint square
-    path.moveTo(left, bottom);
+    path.moveTo(right, bottom);
+    path.lineTo(left, bottom);
     path.lineTo(left, top);
     path.lineTo(right, top);
     path.lineTo(right, bottom);
-    path.lineTo(left, bottom);
 
     if (paintTriangle) {
-      //paint triangle pointing north
-      path.lineTo(middle, top);
-      path.lineTo(right, bottom);
+      //paint triangle pointing west
+      path.lineTo(left, triangleMiddle);
+      path.lineTo(right, top);
     }
 
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 
   Color _colorFor(ModuleGroup moduleGroup) {
     switch (moduleGroup.contents) {
@@ -92,37 +93,34 @@ class ModuleGroupPainter extends CustomPainter {
     }
   }
 
-  void _paintSingleSquareModule(Canvas canvas, Size size) {
-    var x1 = (size.width * (1 - compartmentSize)) / 2;
-    var y1 = (size.height * (1 - compartmentSize)) / 2;
+  void _paintSingleSquareModule(Canvas canvas, Size groupSize) {
+    var gabBetween = groupSize.height * gabBetweenModulesFraction;
+    var moduleSize = Size(groupSize.width, (groupSize.height - gabBetween) / 2);
     _paintModuleCompartment(
       canvas: canvas,
-      size: size,
-      factor: compartmentSize,
-      offset: Offset(x1, y1),
+      compartmentSize: moduleSize,
+      topLeft: Offset(0, (groupSize.height - moduleSize.height) / 2),
       paintTriangle:
           moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide,
     );
   }
 
-  void _paintDoubleSquareModuleSideBySide(Canvas canvas, Size size) {
-    var x1 = size.width * 0.15;
-    var y1 = (size.width * (1 - compartmentSize)) / 2;
+  // paints 2 modules side by side (note not 4 modules!)
+  void _paintDoubleSquareModuleSideBySide(Canvas canvas, Size groupSize) {
+    var gabBetween = groupSize.height * gabBetweenModulesFraction;
+    var compartmentSize =
+        Size(groupSize.width, (groupSize.height - gabBetween) / 2);
     _paintModuleCompartment(
       canvas: canvas,
-      size: size,
-      factor: compartmentSize,
-      offset: Offset(x1, y1),
+      compartmentSize: compartmentSize,
+      topLeft: Offset.zero,
       paintTriangle: moduleGroup.moduleFamily.compartmentType ==
           CompartmentType.doorOnOneSide,
     );
-    var x2 = size.width * (0.15 + compartmentSize + 0.1);
-    var y2 = y1;
     _paintModuleCompartment(
       canvas: canvas,
-      size: size,
-      factor: compartmentSize,
-      offset: Offset(x2, y2),
+      compartmentSize: compartmentSize,
+      topLeft: Offset(0, compartmentSize.height + gabBetween),
       paintTriangle:
           moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide,
     );
@@ -132,14 +130,14 @@ class ModuleGroupPainter extends CustomPainter {
     if (moduleGroup.numberOfModules == 1) {
       _paintSingleRectangularModule(
         canvas: canvas,
-        size: size,
+        moduleSize: size,
         paintTriangle:
             moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide,
       );
     } else {
       _paintStackedRectangularModules(
         canvas: canvas,
-        size: size,
+        groupSize: size,
         paintTriangle:
             moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide,
       );
@@ -148,50 +146,43 @@ class ModuleGroupPainter extends CustomPainter {
 
   void _paintSingleRectangularModule({
     required Canvas canvas,
-    required Size size,
-    Offset offset = Offset.zero,
+    required Size moduleSize,
+    Offset topLeft = Offset.zero,
     required bool paintTriangle,
   }) {
-    var x1 = size.width * 0.2 + offset.dx;
-    var y1 = (size.width * (1 - compartmentSize)) / 2 + offset.dy;
+    var compartmentSize = Size(moduleSize.width, moduleSize.height * 0.5);
     _paintModuleCompartment(
       canvas: canvas,
-      size: size,
-      factor: compartmentSize,
-      offset: Offset(x1, y1),
+      compartmentSize: compartmentSize,
+      topLeft: topLeft,
       paintTriangle: paintTriangle,
     );
-    var x2 = size.width * (0.2 + compartmentSize) + offset.dx;
-    var y2 = y1;
     _paintModuleCompartment(
       canvas: canvas,
-      size: size,
-      factor: compartmentSize,
-      offset: Offset(x2, y2),
+      compartmentSize: compartmentSize,
+      topLeft: Offset(topLeft.dx, topLeft.dy + moduleSize.height * 0.5),
       paintTriangle: paintTriangle,
     );
   }
 
   void _paintStackedRectangularModules({
     required Canvas canvas,
-    required Size size,
+    required Size groupSize,
     required bool paintTriangle,
   }) {
-    var moduleOffset = 0.015;
-    var x1 = -size.width * moduleOffset;
-    var y1 = -size.width * moduleOffset;
+    const moduleOffsetFactor = 0.05;
+    var moduleOffset = groupSize.width * moduleOffsetFactor;
+    var moduleSize = groupSize * (1 - moduleOffsetFactor);
     _paintSingleRectangularModule(
       canvas: canvas,
-      size: size,
-      offset: Offset(x1, y1),
+      moduleSize: moduleSize,
+      topLeft: Offset(0, moduleOffset),
       paintTriangle: false,
     );
-    var x2 = size.width * moduleOffset;
-    var y2 = size.width * moduleOffset;
     _paintSingleRectangularModule(
       canvas: canvas,
-      size: size,
-      offset: Offset(x2, y2),
+      moduleSize: moduleSize,
+      topLeft: Offset(moduleOffset, 0),
       paintTriangle: paintTriangle,
     );
   }

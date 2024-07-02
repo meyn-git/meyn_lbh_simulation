@@ -10,6 +10,9 @@ class AuthorizationService {
 
   get isAdmin => _loggedInUser == null ? false : _loggedInUser!.isAdmin;
 
+  List<Site> get sitesThatCanBeViewed =>
+      _loggedInUser?.sitesThatCanBeViewed ?? <Site>[];
+
   void login({
     required String name,
     required String passWord,
@@ -24,14 +27,14 @@ class AuthorizationService {
       if (!_users.any((user) => _passwordMatches(user, passWord))) {
         throw LoginException('Login failed: Invalid password.');
       }
-      if (sitesThatCanBeViewed.isNotEmpty) {
+      if (_loggedInUser!.sitesThatCanBeViewed.isNotEmpty) {
         throw LoginException(
             'Login failed: You are not allowed to view anything.');
       }
     } else {
       _loggedInUser = foundUser;
       var player = GetIt.instance<Player>();
-      player.scenario = Scenario.first();
+      player.scenario = Scenario.first(_loggedInUser!.sitesThatCanBeViewed);
       player.play();
     }
   }
@@ -41,9 +44,6 @@ class AuthorizationService {
 
   bool _nameMatches(User user, String name) =>
       user.name.toLowerCase() == name.toLowerCase().trim();
-
-  List<Site> get sitesThatCanBeViewed =>
-      _loggedInUser == null ? [] : _loggedInUser!.sitesThatCanBeViewed;
 
   void logout() {
     _loggedInUser = null;

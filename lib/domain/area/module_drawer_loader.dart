@@ -2,10 +2,13 @@
 
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
 import 'package:user_command/user_command.dart';
 
 import 'object_details.dart';
@@ -16,27 +19,43 @@ import 'state_machine.dart';
 // final OffsetInMeters mysteryCorrection =
 //     GrandeDrawerModuleType.size.toOffset() * -0.4;
 
-class DrawerLoaderLift extends StateMachine implements Machine {
+class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
-  @override
-  late String name = 'DrawerLoaderLift';
+
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
-  late ModuleDrawerLoader moduleDrawerLoader = _findModuleDrawerLoader();
+  late final ModuleDrawerLoader moduleDrawerLoader =
+      drawersOut.linkedTo!.system as ModuleDrawerLoader;
   final int nrOfLiftPositions;
   int nrOfDrawersToBePushedInModule = 0;
+
+  late final DrawerLoaderLiftShape shape = DrawerLoaderLiftShape(this);
 
   /// position[0]=bottom position in lift
   /// position[nrOfPositions-1]=top position in lift
   /// null =  without drawer
-  List<GrandeDrawer?> liftPositions;
+  //List<GrandeDrawer?> liftPositions;
   final Duration upDuration;
   final Duration feedInDrawerDuration;
-  final Duration pusherOutDuration;
-  final Duration pusherInDuration;
+  final Duration pusherPushDuration;
+  final Duration pusherBackDuration;
 
   Duration drawerPushOutCycle = Duration.zero;
   Durations drawerPushOutCycles = Durations(maxSize: 8);
+
+  late final List<DrawerLiftPlace> drawerLiftPlaces =
+      shape.centerLiftToDrawerCenterInLift
+          .map((offset) => DrawerLiftPlace(
+                system: this,
+                centerToDrawerCenterWhenSystemFacesNorth: offset,
+                level: shape.centerLiftToDrawerCenterInLift.indexOf(offset),
+              ))
+          .toList();
+
+  late final DrawerPlace drawerInPlace = DrawerPlace(
+      system: this,
+      centerToDrawerCenterWhenSystemFacesNorth: shape.centerToDrawerInLink
+          .addY(GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2));
 
   DrawerLoaderLift({
     required this.area,
@@ -45,15 +64,16 @@ class DrawerLoaderLift extends StateMachine implements Machine {
             1600), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
 
     this.feedInDrawerDuration = const Duration(milliseconds: 2500), // TODO
-    this.pusherOutDuration = const Duration(
+    this.pusherPushDuration = const Duration(
         milliseconds:
             2500), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-    this.pusherInDuration = const Duration(milliseconds: 2500), // TODO
+    this.pusherBackDuration = const Duration(milliseconds: 2500), // TODO
     this.nrOfLiftPositions = 6,
-  })  : liftPositions = List.filled(
-          nrOfLiftPositions,
-          null,
-        ),
+  }) :
+        // liftPositions = List.filled(
+        //         nrOfLiftPositions,
+        //         null,
+        //       ),
         super(
           initialState: SimultaneouslyFeedInAndFeedOutDrawers(),
         );
@@ -61,53 +81,49 @@ class DrawerLoaderLift extends StateMachine implements Machine {
   @override
   late SizeInMeters sizeWhenFacingNorth = _size();
 
-  bool get canGoUp =>
-      !bottomPositionIsEmpty &&
-      liftPositions.where((drawerPosition) => drawerPosition != null).length <=
-          levelsToLoad;
+  bool get canGoUp {
+    var drawersToPushOut = drawerLiftPlaces
+        .where((drawerPlace) =>
+            drawerPlace.level > 0 && drawerPlace.drawer != null)
+        .length;
+    return !bottomPositionIsEmpty && drawersToPushOut < levelsToLoad;
+  }
 
-  int get levelsToLoad => drawersOut.linkedTo.numberOfDrawersToFeedIn() == 0
-      ? minimumNumberOfLevelsInModule + 1
-      : drawersOut.linkedTo.numberOfDrawersToFeedIn();
+  int get levelsToLoad => drawersOut.linkedTo!.numberOfDrawersToFeedIn() == 0
+      ? minimumNumberOfLevelsInModule
+      : drawersOut.linkedTo!.numberOfDrawersToFeedIn();
 
   int minimumNumberOfLevelsInModule = 4; //TODO get this from productDefinition
 
-  List<GrandeDrawer> get drawersToFeedOut =>
-      liftPositions.getRange(1, liftPositions.length).whereNotNull().toList();
+  List<GrandeDrawer> get drawersToFeedOut => drawerLiftPlaces
+      .getRange(1, drawerLiftPlaces.length)
+      .map((e) => e.drawer)
+      .whereNotNull()
+      .toList();
 
   bool get canFeedOutDrawers =>
       moduleDrawerLoader.moduleGroup != null &&
       moduleDrawerLoader.moduleGroup!.firstModule.levels ==
           drawersToFeedOut.length;
 
-  SizeInMeters _size() {
-    var length = GrandeDrawerModuleType.drawerOutSideLengthInMeters * 1.2;
-    return SizeInMeters(widthInMeters: length, heightInMeters: length);
-  }
+  SizeInMeters _size() => shape.size;
 
   late DrawerInLink<DrawerLoaderLift> drawerIn = DrawerInLink<DrawerLoaderLift>(
-      owner: this,
-      offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: 0,
-          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
-      directionFromCenter: CardinalDirection.south.toCompassDirection());
+      system: this,
+      offsetFromCenterWhenFacingNorth: shape.centerToDrawerInLink,
+      directionToOtherLink: const CompassDirection.south());
 
   late DrawersOutLink<DrawerLoaderLift> drawersOut =
       DrawersOutLink<DrawerLoaderLift>(
-          owner: this,
-          offsetFromCenterWhenFacingNorth: OffsetInMeters(
-              metersFromLeft: 0,
-              metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2),
-          directionFromCenter: CardinalDirection.north.toCompassDirection());
+          system: this,
+          offsetFromCenterWhenFacingNorth: shape.centerToDrawersOutLink,
+          directionToOtherLink: const CompassDirection.north());
 
   @override
-  late List<Link> links = [
-    drawerIn, //TODO drawerOut
-    //TODO modulePositions
-  ];
+  late List<Link> links = [drawerIn, drawersOut];
 
   bool get liftIsEmpty =>
-      liftPositions.every((drawerPosition) => drawerPosition == null);
+      drawerLiftPlaces.every((drawerPlace) => drawerPlace.drawer == null);
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
@@ -123,17 +139,10 @@ class DrawerLoaderLift extends StateMachine implements Machine {
 
   List<GrandeDrawer> get drawers => moduleDrawerLoader.area.drawers;
 
-  late DrawerConveyor precedingConveyor =
-      drawerIn.linkedTo.owner as DrawerConveyor;
+  late final DrawerConveyor precedingConveyor =
+      drawerIn.linkedTo!.system as DrawerConveyor;
 
-  bool get bottomPositionIsEmpty {
-    return liftPositions.firstOrNull == null;
-  }
-
-  ModuleDrawerLoader _findModuleDrawerLoader() {
-    //TODO get this via a link
-    return area.cells.whereType<ModuleDrawerLoader>().first;
-  }
+  bool get bottomPositionIsEmpty => drawerLiftPlaces.first.drawer == null;
 
   GrandeDrawer? drawerAtEndOfPrecedingConveyor() =>
       drawers.firstWhereOrNull((drawer) =>
@@ -142,20 +151,10 @@ class DrawerLoaderLift extends StateMachine implements Machine {
               precedingConveyor &&
           (drawer.position as OnConveyorPosition).atEnd);
 
-  /// How far apart the minimized drawers are displayed.
-  /// See [minimizedDrawerSize]
-  late double minimizedDrawerDistance =
-      sizeWhenFacingNorth.heightInMeters / (nrOfLiftPositions + 1);
+  @override
+  late final String name = 'DrawerLoaderLift$seqNr';
 
-  /// the drawers are minimized inside the lift to show all drawers in the lift
-  late SizeInMeters minimizedDrawerSize = SizeInMeters(
-      widthInMeters: minimizedDrawerDistance * 0.8,
-      heightInMeters: minimizedDrawerDistance * 0.8);
-
-  OffsetInMeters centerLiftToDrawerCenterInLift(int level) => OffsetInMeters(
-      metersFromLeft: 0,
-      metersFromTop: (nrOfLiftPositions - level) * minimizedDrawerDistance -
-          sizeWhenFacingNorth.heightInMeters / 2);
+  late final seqNr = area.systems.seqNrOf(this);
 }
 
 typedef DrawerFeedInState = State<DrawerLoaderLift>;
@@ -178,8 +177,11 @@ class WaitingToFeedInDrawer extends DrawerFeedInState {
       drawerToFeedIn != null && lift.bottomPositionIsEmpty;
 }
 
-class FeedingInDrawer extends DrawerFeedInState {
+class FeedingInDrawer extends DrawerFeedInState
+    implements DrawerTransportCompletedListener {
   final GrandeDrawer drawerToFeedIn;
+
+  bool transportCompleted = false;
 
   FeedingInDrawer(this.drawerToFeedIn);
 
@@ -188,15 +190,18 @@ class FeedingInDrawer extends DrawerFeedInState {
 
   @override
   void onStart(DrawerLoaderLift lift) {
-    drawerToFeedIn.position = InToLiftPosition(lift);
+    drawerToFeedIn.position = BetweenDrawerConveyorAndDrawerLoader(lift);
   }
 
   @override
-  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
-    if ((drawerToFeedIn.position as InToLiftPosition).completed) {
-      return CompletedFeedInDrawer(drawerToFeedIn);
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) =>
+      transportCompleted ? CompletedFeedInDrawer(drawerToFeedIn) : null;
+
+  @override
+  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
+    if (betweenDrawerPlaces is BetweenDrawerConveyorAndDrawerLoader) {
+      transportCompleted = true;
     }
-    return null;
   }
 }
 
@@ -209,13 +214,7 @@ class CompletedFeedInDrawer extends DrawerFeedInState {
   String get name => 'CompletedFeedInDrawer';
 
   @override
-  void onStart(DrawerLoaderLift lift) {
-    drawerToFeedIn.position = LiftPosition(lift: lift, level: 0);
-    lift.liftPositions[0] = drawerToFeedIn;
-  }
-
-  @override
-  State<DrawerLoaderLift>? nextState(DrawerLoaderLift stateMachine) {
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift drawerLoaderLift) {
     return null;
   }
 }
@@ -235,8 +234,11 @@ class WaitingToFeedOutDrawers extends DrawersFeedOutState {
   }
 }
 
-class FeedingOutDrawers extends DrawersFeedOutState {
+class FeedingOutDrawers extends DrawersFeedOutState
+    implements DrawerTransportCompletedListener {
   final List<GrandeDrawer> drawersToFeedOut;
+
+  bool transportCompleted = false;
   FeedingOutDrawers(this.drawersToFeedOut);
 
   @override
@@ -244,84 +246,80 @@ class FeedingOutDrawers extends DrawersFeedOutState {
 
   @override
   void onStart(DrawerLoaderLift lift) {
-    for (int level = 0; level < drawersToFeedOut.length; level++) {
-      var drawerToFeedOut = drawersToFeedOut[level];
-      drawerToFeedOut.position = LiftToLoaderPosition(lift: lift, level: level);
+    for (var drawerToFeedOut in drawersToFeedOut) {
+      var position = (drawerToFeedOut.position as AtDrawerPlace);
+      var level = (position.drawerPlace as DrawerLiftPlace).level;
+      drawerToFeedOut.position =
+          BetweenLiftAndDrawerLoader(lift: lift, level: level);
     }
   }
 
   @override
-  State<DrawerLoaderLift>? nextState(DrawerLoaderLift stateMachine) {
-    if (completed) {
-      return CompletedFeedOutDrawer(drawersToFeedOut);
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift drawerLoaderLift) =>
+      transportCompleted ? CompletedFeedOutDrawers() : null;
+
+  @override
+  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
+    if (betweenDrawerPlaces is BetweenLiftAndDrawerLoader) {
+      transportCompleted = true;
     }
-    return null;
   }
 
-  bool get completed =>
-      (drawersToFeedOut.first.position is LiftToLoaderPosition) &&
-      (drawersToFeedOut.first.position as LiftToLoaderPosition).completed;
+  @override
+  void onCompleted(DrawerLoaderLift lift) {
+    for (var drawer in drawersToFeedOut) {
+      lift.area.drawers.remove(drawer);
+    }
+  }
 }
 
-class CompletedFeedOutDrawer extends DrawersFeedOutState {
-  final List<GrandeDrawer> drawersToFeedOut;
-  CompletedFeedOutDrawer(this.drawersToFeedOut);
-
+class CompletedFeedOutDrawers extends DrawersFeedOutState {
   @override
   String get name => 'CompletedFeedOutDrawer';
 
   @override
-  void onStart(DrawerLoaderLift lift) {
-    for (var drawer in drawersToFeedOut) {
-      var index = lift.liftPositions.indexOf(drawer);
-      lift.liftPositions[index] = null;
-      lift.area.drawers.remove(drawer);
-    }
-    lift.moduleDrawerLoader.onDrawersFeedInCompleted(drawersToFeedOut);
-  }
-
-  @override
-  State<DrawerLoaderLift>? nextState(DrawerLoaderLift stateMachine) {
+  State<DrawerLoaderLift>? nextState(DrawerLoaderLift drawerLoaderLift) {
     return null;
   }
 }
 
-class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
-  SimultaneouslyFeedInAndFeedOutDrawers();
-  DrawerFeedInState drawerInFeedState = WaitingToFeedInDrawer();
-  DrawersFeedOutState drawersOutFeedState = WaitingToFeedOutDrawers();
+class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift>
+    implements DrawerTransportCompletedListener {
+  DrawerFeedInState drawerFeedInState = WaitingToFeedInDrawer();
+  DrawersFeedOutState drawersFeedOutState = WaitingToFeedOutDrawers();
   GrandeDrawer? drawerToFeedIn;
   List<GrandeDrawer> drawersToFeedOut = [];
   @override
-  String get name => '${drawerInFeedState.name}, '
-      '${drawersOutFeedState.name}';
+  String get name => 'SimultaneouslyFeedInAndFeedOutDrawers\n'
+      '  ${drawerFeedInState.name}\n'
+      '  ${drawersFeedOutState.name}';
 
-  /// this method acts like a state machine for parallel states:
-  /// * [drawerInFeedState]
-  /// * [drawerInFeedState]
+  /// this method acts like a state system for parallel states:
+  /// * [drawerFeedInState]
+  /// * [drawerFeedInState]
   @override
   void onUpdateToNextPointInTime(DrawerLoaderLift lift, Duration jump) {
-    drawerInFeedState.onUpdateToNextPointInTime(lift, jump);
-    var nextInFeedState = drawerInFeedState.nextState(lift);
+    drawerFeedInState.onUpdateToNextPointInTime(lift, jump);
+    var nextInFeedState = drawerFeedInState.nextState(lift);
     if (nextInFeedState != null) {
-      drawerInFeedState.onCompleted(lift);
-      drawerInFeedState = nextInFeedState;
+      drawerFeedInState.onCompleted(lift);
+      drawerFeedInState = nextInFeedState;
       nextInFeedState.onStart(lift);
     }
 
-    drawersOutFeedState.onUpdateToNextPointInTime(lift, jump);
-    var nextOutFeedState = drawersOutFeedState.nextState(lift);
+    drawersFeedOutState.onUpdateToNextPointInTime(lift, jump);
+    var nextOutFeedState = drawersFeedOutState.nextState(lift);
     if (nextOutFeedState != null) {
-      drawersOutFeedState.onCompleted(lift);
-      drawersOutFeedState = nextOutFeedState;
+      drawersFeedOutState.onCompleted(lift);
+      drawersFeedOutState = nextOutFeedState;
       nextOutFeedState.onStart(lift);
     }
   }
 
   @override
   State<DrawerLoaderLift>? nextState(DrawerLoaderLift lift) {
-    if (drawerInFeedState is FeedingInDrawer ||
-        drawersOutFeedState is FeedingOutDrawers) {
+    if (drawerFeedInState is FeedingInDrawer ||
+        drawersFeedOutState is FeedingOutDrawers) {
       // wait until feed in or feed out is completed
       return null;
     }
@@ -332,15 +330,17 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift> {
     return null;
   }
 
-  bool get feedingInDrawer =>
-      drawerToFeedIn != null &&
-      drawerToFeedIn!.position is InToLiftPosition &&
-      !(drawerToFeedIn!.position as InToLiftPosition).completed;
-
-  bool get feedingOutDrawers =>
-      drawersToFeedOut.isNotEmpty &&
-      !drawersToFeedOut.any(
-          (drawer) => !(drawer.position as LiftToLoaderPosition).completed);
+  @override
+  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
+    if (drawerFeedInState is DrawerTransportCompletedListener) {
+      (drawerFeedInState as DrawerTransportCompletedListener)
+          .onDrawerTransportCompleted(betweenDrawerPlaces);
+    }
+    if (drawersFeedOutState is DrawerTransportCompletedListener) {
+      (drawersFeedOutState as DrawerTransportCompletedListener)
+          .onDrawerTransportCompleted(betweenDrawerPlaces);
+    }
+  }
 }
 
 class RaiseLift extends DurationState<DrawerLoaderLift> {
@@ -356,265 +356,183 @@ class RaiseLift extends DurationState<DrawerLoaderLift> {
   @override
   void onStart(DrawerLoaderLift lift) {
     super.onStart(lift);
-    if (lift.liftPositions.last != null) {
+    if (lift.drawerLiftPlaces.last.drawer != null) {
       throw Exception('Can not raise LoaderDrawerLift when drawer is in top.');
     }
-    for (var liftPos in lift.liftPositions) {
-      if (liftPos is GrandeDrawer && liftPos.position is LiftPosition) {
-        var level = (liftPos.position as LiftPosition).level;
-        liftPos.position = LiftPositionUp(lift: lift, startLevel: level);
-      }
-    }
-  }
-
-  @override
-  void onCompleted(DrawerLoaderLift lift) {
-    super.onCompleted(lift);
-    if (lift.liftPositions.last != null) {
-      throw Exception('Can not raise LoaderDrawerLift when drawer is in top.');
-    }
-    var newPositions = [
-      null,
-      ...lift.liftPositions.getRange(0, lift.nrOfLiftPositions - 1)
-    ];
-    lift.liftPositions = newPositions;
-    for (int level = 0; level < lift.liftPositions.length; level++) {
-      var pos = lift.liftPositions[level];
-      if (pos is GrandeDrawer) {
-        pos.position = LiftPosition(lift: lift, level: level);
+    for (DrawerLiftPlace drawerPlace in lift.drawerLiftPlaces) {
+      GrandeDrawer? drawer = drawerPlace.drawer;
+      if (drawer != null) {
+        drawer.position =
+            BetweenLiftPositions(lift: lift, startLevel: drawerPlace.level);
       }
     }
   }
 }
 
-class InToLiftPosition extends DrawerPositionAndSize implements TimeProcessor {
-  final DrawerLoaderLift lift;
-  OffsetInMeters? vector;
-  OffsetInMeters? startPosition;
-  Duration elapsed = Duration.zero;
-  final Duration duration;
-
-  final double startScale = 1;
-  late double endScale = lift.minimizedDrawerSize.widthInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
-  InToLiftPosition(this.lift) : duration = lift.pusherOutDuration;
-
-  bool get completed => elapsed >= duration;
-
-  OffsetInMeters get centerDrawerToTopLeftDrawer =>
-      GrandeDrawerModuleType.size.toOffset() * -0.5 * scale() * 0.5;
-
-  @override
-  double rotationInFraction(MachineLayout layout) =>
-      layout.rotationOf(lift).toFraction();
-
-  @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    vector ??= _vector(layout);
-    startPosition ??= _drawerCenterStartPosition(layout);
-    return startPosition! +
-        vector! * completedFraction +
-        centerDrawerToTopLeftDrawer;
-  }
-
-  double get completedFraction =>
-      elapsed.inMilliseconds / duration.inMilliseconds;
-
-  @override
-  void onUpdateToNextPointInTime(Duration jump) {
-    if (elapsed < duration) {
-      elapsed += jump;
-    }
-    if (elapsed > duration) {
-      elapsed = duration;
-    }
-  }
-
-  OffsetInMeters _vector(MachineLayout layout) {
-    var startPosition = _drawerCenterStartPosition(layout);
-    var endPosition = _drawerCenterEndPosition(layout);
-    return endPosition - startPosition;
-  }
-
-  OffsetInMeters _drawerCenterEndPosition(MachineLayout layout) =>
-      layout.positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(0));
-
-  OffsetInMeters _drawerCenterStartPosition(MachineLayout layout) {
-    var offsetFromCenterWhenFacingNorth =
-        lift.drawerIn.offsetFromCenterWhenFacingNorth +
-            const OffsetInMeters(
-                metersFromLeft: 0,
-                metersFromTop:
-                    GrandeDrawerModuleType.drawerOutSideLengthInMeters * 0.5);
-    return layout.positionOnMachine(lift, offsetFromCenterWhenFacingNorth);
-  }
-
-  @override
-  double scale() =>
-      (startScale - endScale) * (1 - completedFraction) + endScale;
-}
-
-class LiftToLoaderPosition extends DrawerPositionAndSize
+class BetweenDrawerConveyorAndDrawerLoader extends BetweenDrawerPlaces
     implements TimeProcessor {
   late DrawerLoaderLift lift;
-  int level;
-  OffsetInMeters? vector;
-  OffsetInMeters? startPosition;
-  Duration elapsed = Duration.zero;
-  final Duration duration;
 
-  late double startScale = lift.minimizedDrawerSize.widthInMeters /
+  final double startScale = 1;
+  late final double endScale = lift.shape.minimizedDrawerSize.xInMeters /
+      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+
+  BetweenDrawerConveyorAndDrawerLoader._(
+      {required this.lift,
+      required super.drawerRotation,
+      required super.duration,
+      required super.startPlace,
+      required super.destinationPlace});
+
+  factory BetweenDrawerConveyorAndDrawerLoader(DrawerLoaderLift lift) {
+    var drawerRotation = lift.area.layout.rotationOf(lift);
+    var startPlace = lift.drawerInPlace;
+    var drawer = lift.drawerAtEndOfPrecedingConveyor();
+    if (drawer == null) {
+      throw Exception('No drawer at lift.drawerInPlace');
+    }
+    startPlace.drawer = drawer;
+    var destinationPlace = lift.drawerLiftPlaces[0];
+    return BetweenDrawerConveyorAndDrawerLoader._(
+        lift: lift,
+        drawerRotation: drawerRotation,
+        duration: lift.pusherPushDuration,
+        startPlace: startPlace,
+        destinationPlace: destinationPlace);
+  }
+
+  @override
+  double get scale => (endScale - startScale) * completedFraction + startScale;
+}
+
+class BetweenLiftAndDrawerLoader extends BetweenDrawerPlaces
+    implements TimeProcessor {
+  late DrawerLoaderLift lift;
+
+  late double startScale = lift.shape.minimizedDrawerSize.xInMeters /
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;
   final double endScale = 1;
-  LiftToLoaderPosition({required this.lift, required this.level})
-      : duration = lift.pusherOutDuration;
 
-  bool get completed => elapsed >= duration;
+  BetweenLiftAndDrawerLoader._(
+      {required this.lift,
+      required super.drawerRotation,
+      required super.duration,
+      required super.startPlace,
+      required super.destinationPlace});
 
-  OffsetInMeters get drawerCenterToDrawerTopLeft =>
-      GrandeDrawerModuleType.size.toOffset() * -0.5 * scale();
-
-  @override
-  void onUpdateToNextPointInTime(Duration jump) {
-    if (elapsed < duration) {
-      elapsed += jump;
-    }
-    if (elapsed > duration) {
-      elapsed = duration;
-    }
+  factory BetweenLiftAndDrawerLoader(
+      {required DrawerLoaderLift lift, required int level}) {
+    var drawerRotation = lift.area.layout.rotationOf(lift);
+    var loader = lift.drawersOut.linkedTo!.system as ModuleDrawerLoader;
+    var startPlace = lift.drawerLiftPlaces[level];
+    var destinationPlace = loader.drawerPlaces[level];
+    return BetweenLiftAndDrawerLoader._(
+        lift: lift,
+        drawerRotation: drawerRotation,
+        duration: lift.pusherPushDuration,
+        startPlace: startPlace,
+        destinationPlace: destinationPlace);
   }
 
-  @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    startPosition ??= _drawerCenterStartPosition(layout);
-    vector ??= _vector(layout);
-    return startPosition! +
-        (vector! * completedFraction) +
-        drawerCenterToDrawerTopLeft;
-  }
-
-  double get completedFraction =>
-      elapsed.inMilliseconds / duration.inMilliseconds;
+// // TODO can not do this while drawers are iterated
+// // See https://stackoverflow.com/questions/54150583/concurrent-modification-during-iteration-while-trying-to-remove-object-from-a-li
+//   @override
+//   void onCompleted() {
+//     super.onCompleted();
+//     lift.area.drawers.remove(transportedDrawer);
+//   }
 
   @override
-  double rotationInFraction(MachineLayout layout) =>
-      layout.rotationOf(lift).toFraction();
-
-  OffsetInMeters _vector(MachineLayout layout) =>
-      drawerCenterEndPosition(layout) - _drawerCenterStartPosition(layout);
-
-  OffsetInMeters drawerCenterEndPosition(MachineLayout layout) {
-    ///TODO get from loader
-    return layout.centerOf(lift) +
-        const OffsetInMeters(metersFromLeft: 0, metersFromTop: 1.5);
-  }
-
-  OffsetInMeters _drawerCenterStartPosition(MachineLayout layout) => layout
-      .positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(level));
-
-  @override
-  double scale() => (endScale - startScale) * completedFraction + startScale;
+  double get scale => (endScale - startScale) * completedFraction + startScale;
 }
 
-class LiftPosition extends DrawerPositionAndSize {
+class LiftPosition extends AtDrawerPlace {
   DrawerLoaderLift lift;
   int level;
-  late OffsetInMeters drawerCenterToDrawerTopLeft =
-      GrandeDrawerModuleType.size.toOffset() * -0.5 * _scale;
-  LiftPosition({
-    required this.lift,
-    required this.level,
-  });
 
-  @override
-  OffsetInMeters topLeft(MachineLayout layout) =>
-      layout.positionOnMachine(
-          lift, lift.centerLiftToDrawerCenterInLift(level)) +
-      drawerCenterToDrawerTopLeft;
-
-  @override
-  double rotationInFraction(MachineLayout layout) =>
-      layout.rotationOf(lift).toFraction();
-
-  late final double _scale = lift.minimizedDrawerSize.widthInMeters /
+  late final double _scale = lift.shape.minimizedDrawerSize.xInMeters /
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;
 
+  LiftPosition._(super.drawerPlace, {required this.lift, required this.level});
+
+  factory LiftPosition({
+    required DrawerLoaderLift lift,
+    required int level,
+  }) {
+    var destinationPlace = lift.drawerLiftPlaces[level];
+    return LiftPosition._(destinationPlace, lift: lift, level: level);
+  }
+
   @override
-  double scale() => _scale;
+  double get scale => _scale;
 }
 
-class LiftPositionUp extends DrawerPositionAndSize implements TimeProcessor {
+class BetweenLiftPositions extends BetweenDrawerPlaces {
   final DrawerLoaderLift lift;
-  int startLevel;
-  OffsetInMeters? vector;
-  OffsetInMeters? startPosition;
-  Duration elapsed = Duration.zero;
-  final Duration duration;
+  // int startLevel;
 
-  late OffsetInMeters drawerCenterToDrawerTopLeft =
-      GrandeDrawerModuleType.size.toOffset() * -0.5 * _scale;
-
-  LiftPositionUp({required this.lift, required this.startLevel})
-      : duration = lift.upDuration;
-
-  @override
-  void onUpdateToNextPointInTime(Duration jump) {
-    if (elapsed < duration) {
-      elapsed += jump;
-    }
-    if (elapsed > duration) {
-      elapsed = duration;
-    }
-  }
-
-  @override
-  OffsetInMeters topLeft(MachineLayout layout) {
-    startPosition ??= _drawerCenterStartPosition(layout);
-    vector ??= _vector(layout);
-    var completed = elapsed.inMilliseconds / duration.inMilliseconds;
-    return startPosition! + (vector! * completed) + drawerCenterToDrawerTopLeft;
-  }
-
-  @override
-  double rotationInFraction(MachineLayout layout) =>
-      layout.rotationOf(lift).toFraction();
-
-  OffsetInMeters _vector(MachineLayout layout) => vector =
-      _drawerCenterEndPosition(layout) - _drawerCenterStartPosition(layout);
-
-  OffsetInMeters _drawerCenterStartPosition(MachineLayout layout) => layout
-      .positionOnMachine(lift, lift.centerLiftToDrawerCenterInLift(startLevel));
-
-  OffsetInMeters _drawerCenterEndPosition(MachineLayout layout) =>
-      layout.positionOnMachine(
-          lift, lift.centerLiftToDrawerCenterInLift(startLevel + 1));
-
-  late final double _scale = lift.minimizedDrawerSize.widthInMeters /
+  late final double _scale = lift.shape.minimizedDrawerSize.xInMeters /
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;
 
+  BetweenLiftPositions._(
+      {required this.lift,
+      required super.drawerRotation,
+      required super.duration,
+      required super.startPlace,
+      required super.destinationPlace});
+
+  factory BetweenLiftPositions(
+      {required DrawerLoaderLift lift, required int startLevel}) {
+    var drawerRotation = lift.area.layout.rotationOf(lift);
+    var startPlace = lift.drawerLiftPlaces[startLevel];
+    var destinationPlace = lift.drawerLiftPlaces[startLevel + 1];
+    return BetweenLiftPositions._(
+        lift: lift,
+        drawerRotation: drawerRotation,
+        duration: lift.upDuration,
+        startPlace: startPlace,
+        destinationPlace: destinationPlace);
+  }
+
   @override
-  double scale() => _scale;
+  double get scale => _scale;
 }
 
-class ModuleDrawerLoader extends StateMachineCell implements Machine {
-  final CardinalDirection inFeedDirection;
+class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
+  final LiveBirdHandlingArea area;
 
   ///Number of birds on dumping belt between module and hanger (a buffer).
   ///The loader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
   ///Normally this number is between the number of birds in 1 or 2 modules
   final Duration checkIfEmptyDuration;
   final Duration feedInToSecondColumn;
+  final Duration inFeedDuration;
+  final Duration outFeedDuration;
   final bool drawersFromLeft;
   Duration? durationPerModule;
 
   Durations durationsPerModule = Durations(maxSize: 8);
 
+  late final ModuleDrawerLoaderShape shape = ModuleDrawerLoaderShape(this);
+
+  late final List<DrawerPlace> drawerPlaces = [
+    for (int level = 0; level <= 5; level++)
+      DrawerPlace(
+          system: this,
+          centerToDrawerCenterWhenSystemFacesNorth:
+              shape.centerToConveyorCenter)
+  ];
+
+  late final CompassDirection drawerFeedInDirection = drawersIn
+      .directionToOtherLink
+      .rotate(area.layout.rotationOf(this).degrees);
+
+  ModuleGroup? get moduleGroup =>
+      moduleGroupPositionFirstColumn.moduleGroup ??
+      moduleGroupPositionSecondColumn.moduleGroup;
+
   ModuleDrawerLoader({
-    required super.area,
-    required super.position,
-    super.name = 'ModuleDrawerLoader',
-    super.seqNr,
-    required this.inFeedDirection,
+    required this.area,
     required this.drawersFromLeft,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration =
@@ -624,12 +542,12 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
     this.feedInToSecondColumn = const Duration(
         milliseconds:
             6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-  }) : super(
+  })  : inFeedDuration = inFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration,
+        outFeedDuration = outFeedDuration ??
+            area.productDefinition.moduleSystem.conveyorTransportDuration,
+        super(
           initialState: CheckIfEmpty(),
-          inFeedDuration: inFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
-          outFeedDuration: outFeedDuration ??
-              area.productDefinition.moduleSystem.conveyorTransportDuration,
         );
 
   @override
@@ -638,32 +556,66 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
   ];
 
   @override
-  late SizeInMeters sizeWhenFacingNorth = const SizeInMeters(
-      widthInMeters: 3, heightInMeters: 3); //TODO 3 meters is an assumption
+  late final SizeInMeters sizeWhenFacingNorth = shape.size;
 
-  late DrawersInLink drawersIn = DrawersInLink(
-      owner: this,
-      offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: drawersFromLeft
-              ? -sizeWhenFacingNorth.widthInMeters / 2
-              : sizeWhenFacingNorth.widthInMeters / 2,
-          metersFromTop: 0),
-      directionFromCenter: drawersFromLeft
-          ? inFeedDirection.toCompassDirection().rotate(-90)
-          : inFeedDirection.toCompassDirection().rotate(90),
-      numberOfDrawersToFeedIn: numberOfDrawersToFeedIn,
-      onFeedInStarted: onDrawersFeedInStarted,
-      onFeedInCompleted: onDrawersFeedInCompleted);
+  late final DrawersInLink drawersIn = DrawersInLink(
+    system: this,
+    offsetFromCenterWhenFacingNorth: shape.centerToDrawersInLink,
+    directionToOtherLink: drawersFromLeft
+        ? const CompassDirection.east()
+        : const CompassDirection.west(),
+    numberOfDrawersToFeedIn: numberOfDrawersToFeedIn,
+  );
+
+  late final ModuleGroupPlace moduleGroupPositionFirstColumn = ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToFirstColumn,
+  );
+
+  late final ModuleGroupPlace moduleGroupPositionSecondColumn =
+      ModuleGroupPlace(
+    system: this,
+    moduleGroups: area.moduleGroups,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToSecondColumn,
+  );
+
+  late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
+    position: moduleGroupPositionFirstColumn,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
+    directionToOtherLink: const CompassDirection.south(),
+    inFeedDuration: inFeedDuration,
+    canFeedIn: canFeedIn,
+  );
+
+  bool canFeedIn() {
+    return currentState is FeedOutAndFeedInToFirstColumnSimultaneously &&
+        (currentState as FeedOutAndFeedInToFirstColumnSimultaneously)
+                .inFeedState ==
+            InFeedState.waitingOnNeighbor;
+  }
+
+  late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
+    position: moduleGroupPositionSecondColumn,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
+    directionToOtherLink: const CompassDirection.north(),
+    outFeedDuration: outFeedDuration,
+    durationUntilCanFeedOut: () =>
+        canFeedOut() ? Duration.zero : unknownDuration,
+  );
+
+  bool canFeedOut() {
+    return currentState is FeedOutAndFeedInToFirstColumnSimultaneously &&
+        (currentState as FeedOutAndFeedInToFirstColumnSimultaneously)
+                .outFeedState ==
+            OutFeedState.waitingOnNeighbor;
+  }
 
   @override
-  late List<Link> links = [drawersIn]; //TODO add containerIn and containerOut
+  late List<Link> links = [modulesIn, drawersIn, modulesOut];
 
   late DrawerLoaderLift drawerLift =
-      drawersIn.linkedTo.owner as DrawerLoaderLift;
-
-  get inFeedNeighbor => area.neighboringCell(this, inFeedDirection);
-
-  get outFeedNeighbor => area.neighboringCell(this, inFeedDirection.opposite);
+      drawersIn.linkedTo!.system as DrawerLoaderLift;
 
   bool get waitingToFeedInDrawers => (currentState is WaitToPushInFirstColumn ||
       currentState is WaitToPushInSecondColumn);
@@ -675,37 +627,6 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
       durationPerModule = durationPerModule! + jump;
     }
   }
-
-  Cell get receivingNeighbor =>
-      area.neighboringCell(this, inFeedDirection.opposite);
-
-  Cell get sendingNeighbor => area.neighboringCell(this, inFeedDirection);
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => direction == inFeedDirection;
-
-  @override
-  bool waitingToFeedIn(CardinalDirection direction) =>
-      direction == inFeedDirection &&
-      currentState is FeedOutAndFeedInToFirstColumnSimultaneously &&
-      (currentState as FeedOutAndFeedInToFirstColumnSimultaneously)
-              .inFeedState ==
-          InFeedState.waitingOnNeighbor;
-
-  @override
-  bool isFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite;
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) =>
-      direction == inFeedDirection.opposite &&
-      currentState is FeedOutAndFeedInToFirstColumnSimultaneously &&
-      (currentState as FeedOutAndFeedInToFirstColumnSimultaneously)
-              .outFeedState ==
-          OutFeedState.waitingOnNeighbor;
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
@@ -722,18 +643,10 @@ class ModuleDrawerLoader extends StateMachineCell implements Machine {
   int numberOfDrawersToFeedIn() =>
       !waitingToFeedInDrawers ? 0 : moduleGroup!.firstModule.levels;
 
-  void onDrawersFeedInStarted() {
-    //TODO
-  }
+  @override
+  late final String name = 'ModuleDrawerLoader$seqNr';
 
-  void onDrawersFeedInCompleted(List<GrandeDrawer> drawers) {
-    if (currentState is WaitToPushInFirstColumn) {
-      (currentState as WaitToPushInFirstColumn).completed = true;
-    }
-    if (currentState is WaitToPushInSecondColumn) {
-      (currentState as WaitToPushInSecondColumn).completed = true;
-    }
-  }
+  late final int seqNr = area.systems.seqNrOf(this);
 }
 
 class CheckIfEmpty extends DurationState<ModuleDrawerLoader> {
@@ -792,15 +705,13 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
   bool _inFeedCompleted(ModuleDrawerLoader loader) =>
       loader.moduleGroup != null;
 
-  bool _inFeedStarted(ModuleDrawerLoader loader) {
-    return loader.area.moduleGroups
-        .any((moduleGroup) => moduleGroup.position.destination == loader);
-  }
+  bool _inFeedStarted(ModuleDrawerLoader loader) => loader.area.moduleGroups
+      .any((moduleGroup) => moduleGroup.isBeingTransportedTo(loader));
 
   void processOutFeedState(ModuleDrawerLoader loader, Duration jump) {
     switch (outFeedState) {
       case OutFeedState.waitingOnNeighbor:
-        if (_outFeedStarted(loader)) {
+        if (_outFeedCanStart(loader)) {
           outFeedState = OutFeedState.transporting;
           transportModuleOut(loader);
         }
@@ -815,14 +726,14 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
   }
 
   void transportModuleOut(ModuleDrawerLoader loader) {
-    moduleGroupTransportedOut = loader.moduleGroup;
-    moduleGroupTransportedOut!.position = ModulePosition.betweenCells(
-        source: loader,
-        destination: loader.outFeedNeighbor as StateMachineCell);
+    moduleGroupTransportedOut =
+        loader.moduleGroupPositionSecondColumn.moduleGroup!;
+    moduleGroupTransportedOut!.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(loader.modulesOut);
   }
 
-  _outFeedStarted(ModuleDrawerLoader loader) =>
-      loader.receivingNeighbor.waitingToFeedIn(loader.inFeedDirection);
+  _outFeedCanStart(ModuleDrawerLoader loader) =>
+      loader.modulesOut.linkedTo!.canFeedIn();
 
   @override
   State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) {
@@ -839,69 +750,92 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
 
   void _verifyDoorDirection(ModuleDrawerLoader loader) {
     var moduleGroup = loader.moduleGroup!;
-    var oneSideIn = moduleGroup.moduleFamily.compartmentType ==
-        CompartmentType.doorOnOneSide;
-    if (oneSideIn &&
-        moduleGroup.direction !=
-            loader.inFeedDirection
-                .toCompassDirection()
-                .rotate(loader.drawersFromLeft ? -90 : 90)) {
-      throw ('In correct door direction of the $ModuleGroup that was fed in to ${loader.name}');
+    if (moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide &&
+        moduleGroup.direction.rotate(-90) != loader.drawerFeedInDirection) {//TODO 90?
+      throw ('Incorrect drawer in feed direction of the $ModuleGroup '
+          'that was fed in to ${loader.name}');
     }
   }
 
   bool _outFeedCompleted(ModuleDrawerLoader loader) =>
       moduleGroupTransportedOut != null &&
-      moduleGroupTransportedOut!.position.destination == loader.outFeedNeighbor;
+      moduleGroupTransportedOut!.position is AtModuleGroupPlace &&
+      (moduleGroupTransportedOut!.position as AtModuleGroupPlace).place ==
+          loader.modulesOut.linkedTo!.position;
 }
 
 enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
 
 enum OutFeedState { waitingOnNeighbor, transporting, done }
 
-class WaitToPushInFirstColumn extends WaitOnCompletedState<ModuleDrawerLoader> {
-  WaitToPushInFirstColumn()
-      : super(nextStateFunction: (_) => FeedInToSecondColumn());
+class WaitToPushInFirstColumn extends State<ModuleDrawerLoader>
+    implements DrawerTransportCompletedListener {
+  bool transportCompleted = false;
 
   @override
   String get name => 'WaitToPushInFirstColumn';
 
   @override
-  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) {
+  void onStart(ModuleDrawerLoader loader) {
     var moduleGroup = loader.moduleGroup!;
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('Loader can not handle stacked containers');
     }
-    return super.nextState(loader);
+  }
+
+  @override
+  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
+      transportCompleted ? FeedInToSecondColumn() : null;
+
+  @override
+  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
+    if (betweenDrawerPlaces is BetweenLiftAndDrawerLoader) {
+      transportCompleted = true;
+    }
   }
 }
 
-class FeedInToSecondColumn extends DurationState<ModuleDrawerLoader> {
+class FeedInToSecondColumn extends State<ModuleDrawerLoader>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
   @override
   String get name => 'FeedInToSecondColumn';
 
-  FeedInToSecondColumn()
-      : super(
-            durationFunction: (loader) => loader.feedInToSecondColumn,
-            nextStateFunction: (loader) => WaitToPushInSecondColumn());
+  @override
+  void onStart(ModuleDrawerLoader loader) {
+    var moduleGroup = loader.moduleGroupPositionFirstColumn.moduleGroup!;
+    moduleGroup.position = BetweenModuleGroupPlaces(
+        source: loader.moduleGroupPositionFirstColumn,
+        destination: loader.moduleGroupPositionSecondColumn,
+        duration: loader.feedInToSecondColumn);
+  }
+
+  @override
+  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
+      transportCompleted ? WaitToPushInSecondColumn() : null;
+
+  @override
+  void onModuleTransportCompleted() {
+    transportCompleted = true;
+  }
 }
 
-class WaitToPushInSecondColumn
-    extends WaitOnCompletedState<ModuleDrawerLoader> {
-  WaitToPushInSecondColumn()
-      : super(
-            nextStateFunction: (_) =>
-                FeedOutAndFeedInToFirstColumnSimultaneously());
+class WaitToPushInSecondColumn extends State<ModuleDrawerLoader>
+    implements DrawerTransportCompletedListener {
+  bool transportCompleted = false;
 
   @override
   String get name => 'WaitToPushInSecondColumn';
 
   @override
-  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) {
-    var moduleGroup = loader.moduleGroup!;
-    if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Loader can not handle stacked containers');
+  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
+      transportCompleted ? FeedOutAndFeedInToFirstColumnSimultaneously() : null;
+
+  @override
+  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
+    if (betweenDrawerPlaces is BetweenLiftAndDrawerLoader) {
+      transportCompleted = true;
     }
-    return super.nextState(loader);
   }
 }

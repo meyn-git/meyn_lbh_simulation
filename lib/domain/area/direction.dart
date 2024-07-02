@@ -1,5 +1,6 @@
 import 'dart:math';
 
+@Deprecated("Use CompassDirection instead.")
 enum CardinalDirection {
   north,
   east,
@@ -45,6 +46,7 @@ class CompassDirection {
 
   const CompassDirection(int degrees) : degrees = degrees % max;
 
+  const CompassDirection.unknown() : degrees = -1;
   const CompassDirection.north() : degrees = 0;
   const CompassDirection.east() : degrees = 90;
   const CompassDirection.south() : degrees = 180;
@@ -77,7 +79,7 @@ class CompassDirection {
   double toFraction() => degrees / max;
 
   int clockWiseDistanceInDegrees(CompassDirection destination) {
-    if (degrees < destination.degrees) {
+    if (degrees <= destination.degrees) {
       return destination.degrees - degrees;
     } else {
       return max - degrees + destination.degrees;
@@ -85,7 +87,7 @@ class CompassDirection {
   }
 
   int counterClockWiseDistanceInDegrees(CompassDirection destination) {
-    if (degrees > destination.degrees) {
+    if (degrees >= destination.degrees) {
       return degrees - destination.degrees;
     } else {
       return degrees + max - destination.degrees;

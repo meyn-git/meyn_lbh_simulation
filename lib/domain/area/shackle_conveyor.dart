@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/shackle_conveyor.dart';
 import 'package:user_command/user_command.dart';
 
-import 'life_bird_handling_area.dart';
-import 'module.dart';
-import 'module_tilter.dart';
-
-class BirdHangingConveyor implements ActiveCell {
+class ShackleConveyor implements PhysicalSystem, TimeProcessor {
+  final LiveBirdHandlingArea area;
   @override
-  late LiveBirdHandlingArea area;
-  @override
-  late Position position;
-  @override
-  late String name = "BirdHangingConveyor${seqNr ?? ''}";
+  late String name = "ShackleConveyor$seqNr";
   @override
   late List<Command> commands = [
     RemoveFromMonitorPanel(this),
     _startCommand,
     _stopCommand
   ];
-  final int? seqNr;
-  final CardinalDirection direction;
+  late final seqNr = area.systems.seqNrOf(this);
+
   final int shacklesPerHour;
-  ShackleLine shackleLine = ShackleLine();
+  final int shacklePitchInInches;
   Duration elapsedTime = Duration.zero;
-  late BirdBuffer birdBuffer = _findBirdBuffer();
   static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
+
+  final bool toLeft;
+
+  bool hasBirdToHang = false;
 
   Command get _startCommand => Command.dynamic(
         name: () => 'Start line',
@@ -51,12 +51,11 @@ class BirdHangingConveyor implements ActiveCell {
 
   bool _running = false;
 
-  BirdHangingConveyor({
+  ShackleConveyor({
     required this.area,
-    required this.position,
-    required this.direction,
-    this.seqNr,
+    required this.toLeft,
   })  : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
+        shacklePitchInInches = area.productDefinition.lineShacklePitchInInches,
         timePerBird = Duration(
             microseconds: (hourInMicroSeconds /
                     area.productDefinition.lineSpeedInShacklesPerHour)
@@ -69,62 +68,50 @@ class BirdHangingConveyor implements ActiveCell {
   set running(bool running) {
     _running = running;
     if (running) {
-      shackleLine.startLine();
+      startLine();
     }
   }
 
-  BirdBuffer _findBirdBuffer() {
-    for (var neighborDirection in CardinalDirection.values) {
-      var neighbor = area.neighboringCell(this, neighborDirection);
-      if (neighbor is BirdBuffer &&
-          (neighbor as BirdBuffer).birdDirection ==
-              neighborDirection.opposite) {
-        return neighbor as BirdBuffer;
-      }
-    }
-    throw Exception(
-        '$LiveBirdHandlingArea error: $name must connect to a $BirdBuffer (e.g. a $ModuleTilter)');
-  }
+  late final ShackleConveyorShape shape = ShackleConveyorShape(this);
+
+  late final birdIn = BirdInLink(
+      system: this,
+      offsetFromCenterWhenFacingNorth: shape.centerToBirdInLink,
+      directionToOtherLink: toLeft
+          ? const CompassDirection.west()
+          : const CompassDirection.east(),
+      canReceiveBird: () => !hasBirdToHang,
+      transferBird: transferBird);
 
   @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedOut(CardinalDirection direction) => false;
-
-  @override
-  ModuleGroup? get moduleGroup => null;
+  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+    birdIn
+  ];
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
     if (running) {
-      shackleLine.addRunningTime(jump);
+      addRunningTime(jump);
       elapsedTime += jump;
 
       while (elapsedTime > timePerBird) {
-        bool hasBird = birdBuffer.removeBird();
-        shackleLine.nextShackle(hasBird: hasBird);
+        nextShackle(hasBird: hasBirdToHang);
+        hasBirdToHang = false;
         elapsedTime = elapsedTime - timePerBird; //remainder
       }
     }
   }
 
   @override
-  bool waitingToFeedIn(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('shacklesPerHour', shacklesPerHour)
-      .appendProperty('shackleLine', shackleLine);
-}
+      .appendProperty('runningTime', _runningTime)
+      .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
+      .appendProperty(
+          'hangedBirdsPerHourSinceStart', hangedBirdsPerHourSinceStart)
+      .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
+      .appendProperty('lineEfficiency', lineEfficiency);
 
-class ShackleLine implements HasObjectDetails {
   static const int maxSize = 100;
   final List<bool> _shackles = []; // true if shackle has a bird, false if not
   int hangedBirdsSinceStart = 0;
@@ -180,18 +167,6 @@ class ShackleLine implements HasObjectDetails {
       _runningTime.inMilliseconds / const Duration(hours: 1).inMilliseconds;
 
   @override
-  late String name = 'ShackleLine';
-
-  @override
-  ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('runningTime', _runningTime)
-      .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
-      .appendProperty(
-          'hangedBirdsPerHourSinceStart', hangedBirdsPerHourSinceStart)
-      .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
-      .appendProperty('lineEfficiency', lineEfficiency);
-
-  @override
   String toString() => objectDetails.toString();
 
   void startLine() {
@@ -203,5 +178,16 @@ class ShackleLine implements HasObjectDetails {
     if (!_waitForFirstBird) {
       _runningTime = _runningTime + jump;
     }
+  }
+
+  @override
+  late SizeInMeters sizeWhenFacingNorth = shape.size;
+
+  void transferBird() {
+    if (hasBirdToHang) {
+      throw Exception('Cant transfer a bird if there is one already. '
+          'First check if its empty with canReceiveBird.');
+    }
+    hasBirdToHang = true;
   }
 }

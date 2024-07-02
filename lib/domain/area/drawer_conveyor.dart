@@ -5,14 +5,14 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/domain/area/machine.dart';
+import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
-import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
-abstract class DrawerConveyor implements Machine {
+abstract class DrawerConveyor implements PhysicalSystem {
   /// * y: number of meters in north/south direction, e.g.:
   ///   * -3 = 3 meters north
   ///   * +2 = 2 meters south
@@ -26,7 +26,7 @@ abstract class DrawerConveyor implements Machine {
   /// simple drawer conveyors protrude 0m
   /// drawer weighers, washers, rotators protrude 0,3m?
   /// hanging platform protrude 1m?
-  late double machineProtrudesInMeters;
+  late double systemProtrudesInMeters;
 
   late DrawerInLink drawerIn;
 
@@ -38,7 +38,7 @@ abstract class DrawerConveyor implements Machine {
 
 class DrawerConveyorStraight implements DrawerConveyor {
   @override
-  late double machineProtrudesInMeters;
+  late double systemProtrudesInMeters;
 
   /// the path to travel (in meters) for the drawer in [DefaultOrientation]
   @override
@@ -56,30 +56,28 @@ class DrawerConveyorStraight implements DrawerConveyor {
   DrawerConveyorStraight({
     required this.lengthInMeters,
     required this.metersPerSecond,
-    this.machineProtrudesInMeters = 0,
+    this.systemProtrudesInMeters = 0,
   }) : drawerPath = DrawerPath.straight(lengthInMeters);
 
   @override
   late SizeInMeters sizeWhenFacingNorth = SizeInMeters(
-      widthInMeters:
-          DrawerConveyor.chainWidthInMeters + machineProtrudesInMeters * 2,
-      heightInMeters: lengthInMeters);
+      xInMeters:
+          DrawerConveyor.chainWidthInMeters + systemProtrudesInMeters * 2,
+      yInMeters: lengthInMeters);
 
   @override
   late DrawerInLink drawerIn = DrawerInLink<DrawerConveyorStraight>(
-      owner: this,
+      system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: 0,
-          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
-      directionFromCenter: CardinalDirection.south.toCompassDirection());
+          xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters / 2),
+      directionToOtherLink: const CompassDirection.south());
 
   @override
   late DrawerOutLink drawerOut = DrawerOutLink(
-      owner: this,
+      system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: 0,
-          metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2),
-      directionFromCenter: CardinalDirection.north.toCompassDirection());
+          xInMeters: 0, yInMeters: -sizeWhenFacingNorth.yInMeters / 2),
+      directionToOtherLink: const CompassDirection.north());
 
   @override
   late List<Link> links = [drawerIn, drawerOut];
@@ -90,7 +88,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
 
 class DrawerConveyor90Degrees implements DrawerConveyor {
   @override
-  late double machineProtrudesInMeters;
+  late double systemProtrudesInMeters;
   @override
   late DrawerPath drawerPath;
   @override
@@ -113,41 +111,66 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
 
   @override
   late SizeInMeters sizeWhenFacingNorth = SizeInMeters(
-      widthInMeters: drawerPath.outWard.widthInMeters +
+      xInMeters: drawerPath.outWard.widthInMeters +
           DrawerConveyor.chainWidthInMeters / 2,
-      heightInMeters: drawerPath.outWard.heightInMeters +
+      yInMeters: drawerPath.outWard.heightInMeters +
           DrawerConveyor.chainWidthInMeters / 2);
 
   @override
   late DrawerInLink drawerIn = DrawerInLink(
-      owner: this,
+      system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: clockwise
-              ? -sizeWhenFacingNorth.widthInMeters / 2 +
+          xInMeters: clockwise
+              ? -sizeWhenFacingNorth.xInMeters / 2 +
                   DrawerConveyor.chainWidthInMeters / 2
-              : sizeWhenFacingNorth.widthInMeters / 2 -
+              : sizeWhenFacingNorth.xInMeters / 2 -
                   DrawerConveyor.chainWidthInMeters / 2,
-          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
-      directionFromCenter: CardinalDirection.south.toCompassDirection());
+          yInMeters: sizeWhenFacingNorth.yInMeters / 2),
+      directionToOtherLink: const CompassDirection.south());
 
   @override
   late DrawerOutLink drawerOut = DrawerOutLink(
-      owner: this,
+      system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: clockwise
-              ? sizeWhenFacingNorth.widthInMeters / 2
-              : -sizeWhenFacingNorth.widthInMeters / 2,
-          metersFromTop: -sizeWhenFacingNorth.heightInMeters / 2 +
+          xInMeters: clockwise
+              ? sizeWhenFacingNorth.xInMeters / 2
+              : -sizeWhenFacingNorth.xInMeters / 2,
+          yInMeters: -sizeWhenFacingNorth.yInMeters / 2 +
               DrawerConveyor.chainWidthInMeters / 2),
-      directionFromCenter: clockwise
-          ? CardinalDirection.east.toCompassDirection()
-          : CardinalDirection.west.toCompassDirection());
+      directionToOtherLink: clockwise
+          ? const CompassDirection.east()
+          : const CompassDirection.west());
 
   @override
   late List<Link> links = [drawerIn, drawerOut];
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name);
+}
+
+/// A [DrawerConveyorStraight] that magically removes drawers
+/// when they are at the end. E.g. manual processing or incomplete layouts
+class DrawerRemover extends DrawerConveyorStraight implements TimeProcessor {
+  LiveBirdHandlingArea area;
+
+  DrawerRemover({required this.area, required super.metersPerSecond})
+      : super(
+          lengthInMeters: 2,
+        );
+
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    var drawers = area.drawers;
+    var drawersAtEnd = drawers
+        .where((drawer) =>
+            drawer.position is OnConveyorPosition &&
+            (drawer.position as OnConveyorPosition).atEnd)
+        .toList();
+    for (var drawerAtEnd in drawersAtEnd) {
+      drawerAtEnd.position = RemovedPosition();
+      drawers.remove(drawerAtEnd);
+    }
+  }
 }
 
 class DrawerHangingConveyor extends DrawerConveyorStraight
@@ -175,7 +198,7 @@ class DrawerHangingConveyor extends DrawerConveyorStraight
     required this.productDefinition,
     required int hangers,
     required double metersPerSecondOfFirstConveyor,
-    super.machineProtrudesInMeters = 1,
+    super.systemProtrudesInMeters = 1,
     required this.allDrawers,
   }) : super(
           metersPerSecond: metersPerSecondOfFirstConveyor,
@@ -222,7 +245,8 @@ class DrawerHangingConveyor extends DrawerConveyorStraight
 class DrawerSoakingConveyor extends DrawerConveyorStraight {
   DrawerSoakingConveyor({
     required super.metersPerSecond,
-    super.machineProtrudesInMeters = 0.3,
+    super.systemProtrudesInMeters =
+        (1.47 - DrawerConveyor.chainWidthInMeters) / 2,
   }) : super(
             lengthInMeters:
                 10.5 // includes up towards washer TODO fixed length or min residence time?
@@ -232,7 +256,8 @@ class DrawerSoakingConveyor extends DrawerConveyorStraight {
 class DrawerWashingConveyor extends DrawerConveyorStraight {
   DrawerWashingConveyor({
     required super.metersPerSecond,
-    super.machineProtrudesInMeters = 0.3,
+    super.systemProtrudesInMeters =
+        (1.7 - DrawerConveyor.chainWidthInMeters) / 2,
   }) : super(lengthInMeters: 8.5 //TODO fixed length or min residence time?
             );
 }
@@ -240,7 +265,7 @@ class DrawerWashingConveyor extends DrawerConveyorStraight {
 class DrawerWeighingConveyor extends DrawerConveyorStraight {
   DrawerWeighingConveyor({
     required super.metersPerSecond,
-    super.machineProtrudesInMeters = 0.2,
+    super.systemProtrudesInMeters = 0.2,
   }) : super(lengthInMeters: 1.4 //TODO verify
             );
 }
@@ -250,7 +275,7 @@ class DrawerTurningConveyor extends DrawerConveyorStraight {
     double diameter = 1 //TODO verify
     ,
     super.metersPerSecond = 2,
-    super.machineProtrudesInMeters = 0.2,
+    super.systemProtrudesInMeters = 0.2,
   }) : super(
           lengthInMeters: diameter,
         );
@@ -258,31 +283,29 @@ class DrawerTurningConveyor extends DrawerConveyorStraight {
   @override
   // ignore: overridden_fields
   late DrawerOutLink drawerOut = DrawerOutLink(
-      owner: this,
+      system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          metersFromLeft: 0,
-          metersFromTop: sizeWhenFacingNorth.heightInMeters / 2),
-      directionFromCenter: CardinalDirection.south.toCompassDirection());
+          xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters / 2),
+      directionToOtherLink: const CompassDirection.south());
 }
 
 class DrawerPath extends DelegatingList<OffsetInMeters> {
   DrawerPath(super.base);
 
   factory DrawerPath.straight(double meters) =>
-      DrawerPath([OffsetInMeters(metersFromLeft: 0, metersFromTop: -meters)]);
+      DrawerPath([OffsetInMeters(xInMeters: 0, yInMeters: -meters)]);
 
   factory DrawerPath.ninetyDegreeCorner(bool clockwise, double lengthInMeters) {
     const steps = 12; //preferably a multitude of 3 (360 degrees)
     var vectors = DrawerPath([]);
-    var angle = CardinalDirection.north.toCompassDirection();
+    var angle = const CompassDirection.north();
     for (int i = 0; i < steps; i++) {
       var stepRotationInDegrees =
           (90 / (steps + 1)).round() * (clockwise ? 1 : -1);
       angle = angle.rotate(stepRotationInDegrees);
-      var x = sin(angle.toRadians()) * (lengthInMeters / steps);
-      var y =
-          -cos(angle.toRadians()) * (lengthInMeters / steps); //up is negative
-      var vector = OffsetInMeters(metersFromLeft: x, metersFromTop: y);
+      var vector =
+          OffsetInMeters(xInMeters: 0, yInMeters: lengthInMeters / steps * -1)
+              .rotate(angle);
       vectors.add(vector);
     }
     return DrawerPath(vectors);
@@ -323,17 +346,17 @@ class Outward {
     var point = OffsetInMeters.zero;
     for (var vector in vectors) {
       point += vector;
-      if (point.metersFromLeft < 0) {
-        leftInMeters = min(leftInMeters, point.metersFromLeft);
+      if (point.yInMeters < 0) {
+        leftInMeters = min(leftInMeters, point.yInMeters);
       }
-      if (point.metersFromLeft > 0) {
-        rightInMeters = max(rightInMeters, point.metersFromLeft);
+      if (point.yInMeters > 0) {
+        rightInMeters = max(rightInMeters, point.yInMeters);
       }
-      if (point.metersFromTop < 0) {
-        upInMeters = min(upInMeters, point.metersFromTop);
+      if (point.xInMeters < 0) {
+        upInMeters = min(upInMeters, point.xInMeters);
       }
-      if (point.metersFromTop > 0) {
-        downInMeters = max(downInMeters, point.metersFromTop);
+      if (point.xInMeters > 0) {
+        downInMeters = max(downInMeters, point.xInMeters);
       }
     }
     return Outward(
@@ -353,13 +376,13 @@ class GrandeDrawer implements TimeProcessor {
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;
   BirdContents contents;
   DrawerPosition position;
-  final Position startPosition;
+  //final Position startPosition;
 
   /// Distance traveled in meters from [startPosition]
   Offset traveledPath = Offset.zero;
 
   GrandeDrawer({
-    required this.startPosition,
+    //required this.startPosition,
     required int nrOfBirds,
     required this.contents,
     required this.position,
@@ -386,11 +409,21 @@ abstract class DrawerPosition {
   /// returns the center front position of the [GrandeDrawer]
   /// relative to the center position of a [DrawerConveyor]
   /// when the DrawerConveyor is in [DefaultOrientation]
-  /// in meters
-  OffsetInMeters topLeft(MachineLayout layout);
+  OffsetInMeters topLeft(SystemLayout layout);
 
   /// 0..1: 0=north, 0.25=east, 0.5=south, 0.75=west
-  double rotationInFraction(MachineLayout layout);
+  double rotationInFraction(SystemLayout layout);
+}
+
+/// Removed from [LiveBirdHandlingArea]
+/// Needed because an other drawer may still look
+/// at the position of the preceding (removed) drawer
+class RemovedPosition extends DrawerPosition {
+  @override
+  double rotationInFraction(SystemLayout layout) => 0;
+
+  @override
+  OffsetInMeters topLeft(SystemLayout layout) => OffsetInMeters.zero;
 }
 
 abstract class DrawerPositionAndSize extends DrawerPosition {
@@ -398,7 +431,7 @@ abstract class DrawerPositionAndSize extends DrawerPosition {
   /// 1=normal drawer size
   /// 0.5=half the normal drawer size
   /// etc...
-  double scale();
+  double get scale;
 }
 
 class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
@@ -427,7 +460,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   @override
   void onUpdateToNextPointInTime(Duration jump) {
     /// note that the drawerPath of the conveyor is not rotated,
-    /// because this is done in the [MachineLayout]
+    /// because this is done in the [SystemLayout]
     /// This should not matter because we needs its length only here
     var drawerPath = conveyor.drawerPath;
     var metersPerSecond = conveyorSpeed;
@@ -451,9 +484,9 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
         //recursive call for next vector for the remaining time
         onUpdateToNextPointInTime(remainingJump);
       } else {
-        var nextMachine = conveyor.drawerOut.linkedTo.owner;
-        if (nextMachine is DrawerConveyor) {
-          conveyor = nextMachine;
+        var nextSystem = conveyor.drawerOut.linkedTo?.system;
+        if (nextSystem != null && nextSystem is DrawerConveyor) {
+          conveyor = nextSystem;
           vectorIndex = 0;
           traveledMetersOnVector = 0;
           //recursive call for next vector for the remaining time
@@ -494,12 +527,12 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
 
   /// calculates the current position (offset) of a drawer on a conveyor
   @override
-  OffsetInMeters topLeft(MachineLayout layout) =>
+  OffsetInMeters topLeft(SystemLayout layout) =>
       layout.drawerStartOf(conveyor) +
       drawerStartToTopLeftDrawer(layout) +
       traveledOnConveyor(layout);
 
-  OffsetInMeters traveledOnConveyor(MachineLayout layout) {
+  OffsetInMeters traveledOnConveyor(SystemLayout layout) {
     var drawerPath = layout.drawerPathOf(conveyor);
     var vector = drawerPath[vectorIndex];
     var completedFraction = traveledMetersOnVector / vector.lengthInMeters;
@@ -512,16 +545,16 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   /// Here we calculate the offset from drawer start to
   /// the top left of the drawer.
   /// This depends on the start rotation.
-  OffsetInMeters drawerStartToTopLeftDrawer(MachineLayout layout) {
+  OffsetInMeters drawerStartToTopLeftDrawer(SystemLayout layout) {
     double halveDrawerLength =
         GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
     var startRotation = rotationInRadians(layout, 0);
-    double metersFromLeft =
+    double xInMeters =
         -halveDrawerLength + -sin(startRotation) * halveDrawerLength;
-    double metersFromTop =
+    double yInMeters =
         -halveDrawerLength + cos(startRotation) * halveDrawerLength;
-    var centerToTopLeft = OffsetInMeters(
-        metersFromLeft: metersFromLeft, metersFromTop: metersFromTop);
+    var centerToTopLeft =
+        OffsetInMeters(xInMeters: xInMeters, yInMeters: yInMeters);
     return centerToTopLeft;
   }
 
@@ -547,10 +580,10 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   }
 
   @override
-  double rotationInFraction(MachineLayout layout) =>
+  double rotationInFraction(SystemLayout layout) =>
       rotationInRadians(layout, vectorIndex) / (2 * pi);
 
-  double rotationInRadians(MachineLayout layout, int index) =>
+  double rotationInRadians(SystemLayout layout, int index) =>
       layout.drawerPathOf(conveyor)[vectorIndex].directionInRadians;
 
   double metersBetweenThisAndPrecedingDrawer() {

@@ -1,22 +1,18 @@
-import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
-import 'bird_hanging_conveyor.dart';
 import 'life_bird_handling_area.dart';
 import 'module.dart';
 import 'module_cas.dart';
 
 /// Starts CAS units depending on the line speed, nr of birds per module
 /// (=modules/hour) compensated for the number of stunned modules waiting
-class ModuleCasStart implements ActiveCell {
+class ModuleCasStart implements System, TimeProcessor {
+  final LiveBirdHandlingArea area;
   @override
-  late LiveBirdHandlingArea area;
-  @override
-  late Position position;
-  @override
-  late String name;
+  late String name = "ModuleCasStart";
   final List<double> startIntervalFractions;
 
   @override
@@ -39,9 +35,7 @@ class ModuleCasStart implements ActiveCell {
   /// * CAS 1 & 2 will be 12 seconds later
   /// * CAS 5 & 6 will be 12 seconds sooner
   final Map<
-
-      /// [ModuleCas.seqNr]
-      int,
+      ModuleCas,
 
       /// seconds of start interval correction
       int> transportTimeCorrections;
@@ -50,26 +44,9 @@ class ModuleCasStart implements ActiveCell {
 
   ModuleCasStart({
     required this.area,
-    required this.position,
     this.startIntervalFractions = defaultIntervalFractions,
-    this.name = "ModuleCasStart",
     this.transportTimeCorrections = const {},
   });
-
-  @override
-  bool almostWaitingToFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedIn(CardinalDirection direction) => false;
-
-  @override
-  bool isFeedOut(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedIn(CardinalDirection direction) => false;
-
-  @override
-  bool waitingToFeedOut(CardinalDirection direction) => false;
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
@@ -92,12 +69,12 @@ class ModuleCasStart implements ActiveCell {
     if (nrStunnedModules >= startIntervalFractions.length) {
       return hold;
     } else {
-      return _normalStartInterval * startIntervalFractions[nrStunnedModules] +
+      return normalStartInterval * startIntervalFractions[nrStunnedModules] +
           _transportTimeCorrection(longestWaitingCasUnit);
     }
   }
 
-  /// nr of stunned containers = normal CAS start interval *
+  /// nr of stunned containers = normal CAS start interval * fraction
   ///                        0 = _normalStartInterval * 0 = 0 = start ASAP
   ///                        1 = _normalStartInterval * 0.5
   ///                        2 = _normalStartInterval * 0.75
@@ -125,7 +102,7 @@ class ModuleCasStart implements ActiveCell {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('stunnedModules', numberOfWaitingStunnedModules)
-      .appendProperty('baseInterval', _normalStartInterval)
+      .appendProperty('baseInterval', normalStartInterval)
       .appendProperty(
           'startInterval', startInterval == hold ? 'onHold' : startInterval)
       .appendProperty('elapsedTime', elapsedTime);
@@ -140,37 +117,19 @@ class ModuleCasStart implements ActiveCell {
           (previousValue, groupModule) =>
               previousValue + groupModule.numberOfModules);
 
-  late BirdHangingConveyor birdHangingConveyor = _findBirdHangingConveyors();
+  late int shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour;
 
-  BirdHangingConveyor _findBirdHangingConveyors() {
-    var hangingConveyors = area.cells.whereType<BirdHangingConveyor>();
-    if (hangingConveyors.isEmpty) {
-      throw Exception(
-          'Could not find a $BirdHangingConveyor in $LiveBirdHandlingArea');
-    }
-    if (hangingConveyors.length > 1) {
-      throw Exception(
-          "Found multiple $BirdHangingConveyor's in $LiveBirdHandlingArea");
-    }
-    return hangingConveyors.first;
-  }
+  late double birdsPerModuleGroup =
+      area.productDefinition.averageProductsPerModuleGroup;
 
-  Duration get _normalStartInterval {
-    var shacklesPerHour = birdHangingConveyor.shacklesPerHour;
-    var birdsPerModuleGroup =
-        area.productDefinition.averageProductsPerModuleGroup;
-    Duration startInterval = Duration(
-        microseconds: (3600 /
-                shacklesPerHour *
-                birdsPerModuleGroup *
-                Duration.microsecondsPerSecond)
-            .round());
-    return startInterval;
-  }
+  late Duration normalStartInterval = Duration(
+      microseconds: (3600 /
+              shacklesPerHour *
+              birdsPerModuleGroup *
+              Duration.microsecondsPerSecond)
+          .round());
 
   ModuleCas? get _longestWaitingCasUnit {
-    List<ModuleCas> casUnits =
-        area.cells.whereType<ModuleCas>().map((cell) => cell).toList();
     if (casUnits.isEmpty) {
       throw Exception('$LiveBirdHandlingArea error: No $ModuleCas cells found');
     }
@@ -182,16 +141,15 @@ class ModuleCasStart implements ActiveCell {
     return casUnitsOrderedByLongestWaiting.firstOrNull;
   }
 
-  @override
-  ModuleGroup? get moduleGroup => null;
+  late Iterable<ModuleCas> casUnits = area.systems.whereType<ModuleCas>();
 
   Duration _transportTimeCorrection(ModuleCas? longestWaitingCasUnit) {
     if (longestWaitingCasUnit == null ||
-        !transportTimeCorrections.containsKey(longestWaitingCasUnit.seqNr)) {
+        !transportTimeCorrections.containsKey(longestWaitingCasUnit)) {
       return Duration.zero;
     } else {
       return Duration(
-          seconds: transportTimeCorrections[longestWaitingCasUnit.seqNr]!);
+          seconds: transportTimeCorrections[longestWaitingCasUnit]!);
     }
   }
 }

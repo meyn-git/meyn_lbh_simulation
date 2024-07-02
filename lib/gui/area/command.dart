@@ -3,8 +3,8 @@ import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:user_command/user_command.dart';
 
-abstract class HasCommands {
-  late List<Command> commands;
+abstract class Commandable {
+  List<Command> get commands;
 }
 
 // class AddToMonitorPanel extends Command {
