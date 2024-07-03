@@ -118,13 +118,10 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
       systemPositionsWithModules.containsKey(position);
 }
 
-
-
 abstract class TimeProcessor {
   /// method to change the state of the object to the next point in time
   void onUpdateToNextPointInTime(Duration jump);
 }
-
 
 class ProductDefinition {
   final String birdType; //TODO should be obtained from moduleGroupCapacities

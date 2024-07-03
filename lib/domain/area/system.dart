@@ -48,7 +48,6 @@ class ModuleGroupPlace {
 
 class Systems extends DelegatingList<System> {
   /// set [topLeftFirstMachine] when defining a [LiveBirdHandlingArea]
-  
 
   CompassDirection startDirection = const CompassDirection.north();
 

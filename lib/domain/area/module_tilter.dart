@@ -90,8 +90,9 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   late final birdsOut = BirdsOutLink(
     system: this,
     offsetFromCenterWhenFacingNorth: shape.centerToBirdsOutLink,
-    directionToOtherLink:
-        tiltToLeft ? CompassDirection.west() : CompassDirection.east(),
+    directionToOtherLink: tiltToLeft
+        ? const CompassDirection.west()
+        : const CompassDirection.east(),
   );
 
   @override
@@ -158,10 +159,6 @@ class FeedIn extends State<ModuleTilter>
 
   void _verifyModule(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
-    // TODO add later. The tilter was missuesed because as a drawer inloader. Fix when we have one.
-    // if (moduleGroup.moduleFamily.compartmentType!=CompartmentType.doorOnOneSide) {
-    //   throw ('In correct container type of the $ModuleGroup that was fed in to ${tilter.name}');
-    // }
     if (moduleGroup.moduleFamily.compartmentType.hasDoor &&
         moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');

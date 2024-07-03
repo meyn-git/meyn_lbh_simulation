@@ -199,7 +199,7 @@ abstract class PositionOnSystem {
   OffsetInMeters center(SystemLayout layout);
 }
 
-class AtModuleGroupPlace implements PositionOnSystem , Detailable {
+class AtModuleGroupPlace implements PositionOnSystem, Detailable {
   final ModuleGroupPlace place;
   OffsetInMeters? _topLeft;
 
@@ -232,7 +232,8 @@ class AtModuleGroupPlace implements PositionOnSystem , Detailable {
   }
 }
 
-class BetweenModuleGroupPlaces implements PositionOnSystem, TimeProcessor, Detailable {
+class BetweenModuleGroupPlaces
+    implements PositionOnSystem, TimeProcessor, Detailable {
   late ModuleGroup moduleGroup;
   final ModuleGroupPlace source;
   final ModuleGroupPlace destination;
@@ -799,7 +800,7 @@ class MarelGpStainlessSteel2x4Chicken extends ModuleType {
 }
 
 class MarelGpRectangular5LevelChicken extends ModuleType {
-  MarelGpRectangular5LevelChicken.MarelGp2x5Chicken()
+  MarelGpRectangular5LevelChicken.marelGp2x5Chicken()
       : super(
             moduleFamily: ModuleFamily.marelGpSingleColumn,
             birdType: BirdType.chicken,
@@ -831,7 +832,7 @@ class ModuleTypes extends DelegatingList<ModuleType> {
           MarelGpS1x5Chicken(),
           MarelGpStainlessSteel2x4Chicken(),
           MarelGpGalvanizedSteelRectangular4LevelChicken(),
-          MarelGpRectangular5LevelChicken.MarelGp2x5Chicken(),
+          MarelGpRectangular5LevelChicken.marelGp2x5Chicken(),
         ]);
 }
 
@@ -916,7 +917,7 @@ class ModuleDimensions {
     required this.levels,
     required this.compartmentsPerLevel,
     required this.birdFloorSpacePerCompartment,
-    required this.emptyWeight, //TODO make emptyWeightStainlessSteel and emptyWeightGalvenized
+    required this.emptyWeight, //TODO make emptyWeightStainlessSteel and emptyWeightGalvanized
   });
 
   Mass maxWeightPerCompartment(LoadDensity loadDensity) =>

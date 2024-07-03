@@ -1,6 +1,5 @@
 import 'dart:math';
 
-
 class CompassDirection {
   final int degrees;
   static const int max = 360;
@@ -24,8 +23,6 @@ class CompassDirection {
 
   CompassDirection operator -(CompassDirection other) =>
       CompassDirection(degrees - other.degrees);
-
- 
 
   double toRadians() => degrees * pi / 180;
 

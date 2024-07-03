@@ -58,7 +58,7 @@ class ModuleDrawerColumnUnloaderShape extends CompoundShape {
         xInMeters: centerToConveyorCenter.xInMeters,
         yInMeters: yInMeters * -0.5);
     centerToDrawersOutLink = (drawerUnloader.drawersToLeft
-            ? topLefts[frameWest]! +  frameWest.centerLeft
+            ? topLefts[frameWest]! + frameWest.centerLeft
             : topLefts[frameEast]! + frameEast.centerRight) -
         centerCenter;
   }

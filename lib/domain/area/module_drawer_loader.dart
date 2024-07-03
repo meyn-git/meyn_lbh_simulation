@@ -68,12 +68,7 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
             2500), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
     this.pusherBackDuration = const Duration(milliseconds: 2500), // TODO
     this.nrOfLiftPositions = 6,
-  }) :
-        // liftPositions = List.filled(
-        //         nrOfLiftPositions,
-        //         null,
-        //       ),
-        super(
+  }) : super(
           initialState: SimultaneouslyFeedInAndFeedOutDrawers(),
         );
 

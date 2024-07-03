@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
@@ -55,10 +54,11 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
                     child: Text(scenarioTitle,
                         style: const TextStyle(fontSize: 25))),
                 Expanded(
-                  child: Align(
-                    child: AspectRatio(
-                      aspectRatio: areaWidgetDelegate.area.layout.aspectRatio,
-                      child: InteractiveViewer(
+                  child: InteractiveViewer(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: AspectRatio(
+                        aspectRatio: areaWidgetDelegate.area.layout.aspectRatio,
                         child: LayoutBuilder(
                           builder: (context, constraints) => Listener(
                             onPointerUp: (event) => onPointerUp(

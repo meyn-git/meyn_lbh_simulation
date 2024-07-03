@@ -91,9 +91,6 @@ class ModuleRotatingConveyor extends StateMachine
     }
 
     var onFeedInPosition = currentDirection == best.feedInDirection;
-    if (onFeedInPosition && seqNr == 1) {
-      print(turnPosition.direction);
-    }
 
     return onFeedInPosition;
   }
