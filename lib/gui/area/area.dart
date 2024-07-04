@@ -59,15 +59,9 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
                       alignment: Alignment.center,
                       child: AspectRatio(
                         aspectRatio: areaWidgetDelegate.area.layout.aspectRatio,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) => Listener(
-                            onPointerUp: (event) => onPointerUp(
-                                event, areaWidgetDelegate, constraints),
-                            child: CustomMultiChildLayout(
-                                delegate: areaWidgetDelegate,
-                                children: createChildren(player.scenario!)),
-                          ),
-                        ),
+                        child: CustomMultiChildLayout(
+                            delegate: areaWidgetDelegate,
+                            children: createChildren(player.scenario!)),
                       ),
                     ),
                   ),
@@ -110,7 +104,7 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     List<Widget> widgets = [];
     for (var system in area.systems.physicalSystems) {
       widgets
-          .add(LayoutId(id: system, child: MachineWidget(area.layout, system)));
+          .add(LayoutId(id: system, child: SystemWidget(area.layout, system)));
     }
     return widgets;
   }
@@ -133,77 +127,6 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
         player.scenario!.area.onUpdateToNextPointInTime(player.jump);
       }
     });
-  }
-
-  void onPointerUp(PointerUpEvent event, AreaWidgetDelegate areaWidgetDelegate,
-      BoxConstraints constraints) {
-    var size = areaWidgetDelegate.getSize(constraints);
-    var objectsToMonitor = <Object>{};
-    objectsToMonitor
-        .addAll(objectsToAddToMonitor(event, areaWidgetDelegate, size));
-    GetIt.instance<Player>().objectsToMonitor.addAll(objectsToMonitor);
-  }
-
-  List<Detailable> objectsToAddToMonitor(PointerUpEvent event,
-      AreaWidgetDelegate areaWidgetDelegate, Size areaSize) {
-    var objectsToAddToMonitor = <Detailable>[];
-    var sizePerMeter = areaWidgetDelegate._lengthPerMeter(areaSize);
-    for (var system in areaWidgetDelegate.area.systems.physicalSystems) {
-      if (clickedOnSystem(
-        areaWidgetDelegate.area.layout,
-        system,
-        sizePerMeter,
-        event.position,
-      )) {
-        objectsToAddToMonitor
-            .addAll(relatedObjectsToMonitor(system, areaWidgetDelegate));
-        objectsToAddToMonitor.add(system);
-      }
-    }
-    return objectsToAddToMonitor;
-  }
-
-  List<Detailable> relatedObjectsToMonitor(
-      PhysicalSystem system, AreaWidgetDelegate areaWidgetDelegate) {
-    var relatedObjects = <Detailable>[];
-    if (system is ModuleCas) {
-      relatedObjects
-          .addAll(areaWidgetDelegate.area.systems.whereType<ModuleCasStart>());
-    }
-    for (var moduleCasAllocation
-        in areaWidgetDelegate.area.systems.whereType<ModuleCasAllocation>()) {
-      if (system == moduleCasAllocation.allocationPlace.system) {
-        relatedObjects.add(moduleCasAllocation);
-      }
-    }
-
-    return relatedObjects;
-  }
-
-  bool clickedOnSystem(SystemLayout layout, PhysicalSystem system,
-      double sizePerMeter, Offset pointer) {
-    /// TODO: Listener only listens when there is a child where clicked.
-    /// We place all machines facing north and then rotate,
-    /// but the size is still facing north.
-    /// The begin end end of a long conveyor that is rotated 90 degrees
-    /// is therefore not clickable.
-    /// We need to extend its size to Size(max(s.x,s.y),max(s.x,s.y))
-    var pointerInMeters = OffsetInMeters(
-      xInMeters: pointer.dx / sizePerMeter,
-      yInMeters: pointer.dy / sizePerMeter,
-    );
-    var mysteriousCorrection =
-        const OffsetInMeters(xInMeters: 0, yInMeters: 11);
-    var systemCenter = layout.centerOf(system) + mysteriousCorrection;
-    var systemCenterToPointer = pointerInMeters - systemCenter;
-    var rotationToNorth = CompassDirection(-layout.rotationOf(system).degrees);
-    var northPointingSystemCenterToPointer =
-        systemCenterToPointer.rotate(rotationToNorth);
-    var size = system.sizeWhenFacingNorth.toOffsetInMeters();
-    var systemCenterToTopLeft = size * -0.5;
-    var systemCenterToBottomRight = size * 0.5;
-    return northPointingSystemCenterToPointer >= systemCenterToTopLeft &&
-        northPointingSystemCenterToPointer <= systemCenterToBottomRight;
   }
 }
 

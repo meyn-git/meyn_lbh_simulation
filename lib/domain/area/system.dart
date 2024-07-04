@@ -34,7 +34,7 @@ abstract class AdditionalRotation {
 class ModuleGroupPlace {
   final PhysicalSystem system;
   final ModuleGroups
-      _moduleGroups; // TODO change to ModuleGroup? moduleGroup, to be uodated by BetweenModuleGroup Places See DrawerPlace
+      _moduleGroups; // TODO change to ModuleGroup? moduleGroup, to be updated by BetweenModuleGroup Places See DrawerPlace
   final OffsetInMeters offsetFromCenterWhenSystemFacingNorth;
 
   ModuleGroupPlace(
