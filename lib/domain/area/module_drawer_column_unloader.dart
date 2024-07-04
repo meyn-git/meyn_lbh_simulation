@@ -89,13 +89,11 @@ class ModuleDrawerColumnUnloader extends StateMachine
 
   late ModuleGroupPlace moduleGroupPositionFirstColumn = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToFirstColumn,
   );
 
   late ModuleGroupPlace moduleGroupPositionSecondColumn = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToSecondColumn,
   );
 

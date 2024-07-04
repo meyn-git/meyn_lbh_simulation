@@ -55,7 +55,6 @@ class UnLoadingForkLiftTruck extends StateMachine
 
   late ModuleGroupPlace moduleGroupPosition = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth:
         const OffsetInMeters(xInMeters: 0, yInMeters: -1.4),
   );

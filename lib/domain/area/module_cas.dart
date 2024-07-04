@@ -137,7 +137,6 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
 
   late ModuleGroupPlace moduleGroupPosition = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToCabinCenter,
   );
 }

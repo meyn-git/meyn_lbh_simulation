@@ -50,20 +50,18 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
         );
 
-  late ModuleGroupPlace moduleGroupOnConveyorPosition = ModuleGroupPlace(
+  late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
   );
 
-  late ModuleGroupPlace moduleGroupOnSupportsPosition = ModuleGroupPlace(
+  late ModuleGroupPlace onSupportsPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToSupportsCenter,
   );
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    position: moduleGroupOnConveyorPosition,
+    position: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -71,7 +69,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   );
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    position: moduleGroupOnConveyorPosition,
+    position: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -164,9 +162,7 @@ class FeedIn extends State<ModuleDeStacker>
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (transportCompleted) {
-      if (deStacker
-              .moduleGroupOnConveyorPosition.moduleGroup!.numberOfModules ==
-          1) {
+      if (deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1) {
         return MoveLift(LiftPosition.outFeed, WaitToFeedOut());
       } else {
         return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
@@ -194,11 +190,11 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
-    var moduleGroupOnSupports =
-        deStacker.moduleGroupOnConveyorPosition.moduleGroup!.split();
+    var moduleGroupOnSupports = deStacker.onConveyorPlace.moduleGroup!.split();
     deStacker.area.moduleGroups.add(moduleGroupOnSupports!);
     moduleGroupOnSupports.position =
-        AtModuleGroupPlace(deStacker.moduleGroupOnSupportsPosition);
+        AtModuleGroupPlace(deStacker.onSupportsPlace);
+    deStacker.onSupportsPlace.moduleGroup = moduleGroupOnSupports;
   }
 }
 
@@ -215,10 +211,10 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
-    var moduleGroupOnSupports =
-        deStacker.moduleGroupOnSupportsPosition.moduleGroup!;
-    moduleGroupOnSupports.position =
-        AtModuleGroupPlace(deStacker.moduleGroupOnConveyorPosition);
+    var moduleGroup = deStacker.onSupportsPlace.moduleGroup!;
+    moduleGroup.position = AtModuleGroupPlace(deStacker.onConveyorPlace);
+    deStacker.onSupportsPlace.moduleGroup = null;
+    deStacker.onConveyorPlace.moduleGroup = moduleGroup;
   }
 }
 
@@ -235,8 +231,7 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
   }
 
   bool _moduleGroupAtDestination(ModuleDeStacker deStacker) =>
-      deStacker.moduleGroupOnConveyorPosition.moduleGroup!.destination ==
-      deStacker;
+      deStacker.onConveyorPlace.moduleGroup!.destination == deStacker;
 
   bool _neighborCanFeedIn(ModuleDeStacker deStacker) =>
       deStacker.modulesOut.linkedTo!.canFeedIn();
@@ -251,8 +246,7 @@ class FeedOut extends State<ModuleDeStacker>
 
   @override
   void onStart(ModuleDeStacker deStacker) {
-    var transportedModuleGroup =
-        deStacker.moduleGroupOnConveyorPosition.moduleGroup!;
+    var transportedModuleGroup = deStacker.onConveyorPlace.moduleGroup!;
     transportedModuleGroup.position =
         BetweenModuleGroupPlaces.forModuleOutLink(deStacker.modulesOut);
   }
@@ -260,7 +254,7 @@ class FeedOut extends State<ModuleDeStacker>
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (transportCompleted) {
-      if (deStacker.moduleGroupOnSupportsPosition.moduleGroup == null) {
+      if (deStacker.onSupportsPlace.moduleGroup == null) {
         return MoveLift(LiftPosition.inFeed, WaitToFeedIn());
       } else {
         return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());

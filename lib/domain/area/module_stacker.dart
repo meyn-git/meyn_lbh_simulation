@@ -49,20 +49,18 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
         );
 
-  late ModuleGroupPlace moduleGroupOnConveyorPlace = ModuleGroupPlace(
+  late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
   );
 
-  late ModuleGroupPlace moduleGroupOnSupportsPlace = ModuleGroupPlace(
+  late ModuleGroupPlace onSupportsPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToSupportsCenter,
   );
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    position: moduleGroupOnConveyorPlace,
+    position: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -70,7 +68,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
   );
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    position: moduleGroupOnConveyorPlace,
+    position: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -163,7 +161,7 @@ class FeedIn extends State<ModuleStacker>
   @override
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
     if (transportCompleted) {
-      if (stacker.moduleGroupOnSupportsPlace.moduleGroup == null) {
+      if (stacker.onSupportsPlace.moduleGroup == null) {
         return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
       } else {
         return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());
@@ -191,9 +189,10 @@ class CloseModuleSupports extends DurationState<ModuleStacker> {
 
   @override
   void onCompleted(ModuleStacker stacker) {
-    var moduleGroupOnConveyor = stacker.moduleGroupOnConveyorPlace.moduleGroup!;
-    moduleGroupOnConveyor.position =
-        AtModuleGroupPlace(stacker.moduleGroupOnSupportsPlace);
+    var moduleGroup = stacker.onConveyorPlace.moduleGroup!;
+    moduleGroup.position = AtModuleGroupPlace(stacker.onSupportsPlace);
+    stacker.onConveyorPlace.moduleGroup = null;
+    stacker.onSupportsPlace.moduleGroup = moduleGroup;
   }
 }
 
@@ -214,10 +213,11 @@ class OpenModuleSupports extends DurationState<ModuleStacker> {
   }
 
   void _mergeModuleGroup(ModuleStacker stacker) {
-    var moduleGroupOnConveyor = stacker.moduleGroupOnConveyorPlace.moduleGroup!;
-    var moduleGroupOnSupports = stacker.moduleGroupOnSupportsPlace.moduleGroup!;
+    var moduleGroupOnConveyor = stacker.onConveyorPlace.moduleGroup!;
+    var moduleGroupOnSupports = stacker.onSupportsPlace.moduleGroup!;
     moduleGroupOnConveyor.secondModule = moduleGroupOnSupports.firstModule;
     stacker.area.moduleGroups.remove(moduleGroupOnSupports);
+    stacker.onSupportsPlace.moduleGroup = null;
   }
 }
 
@@ -234,7 +234,7 @@ class WaitToFeedOut extends State<ModuleStacker> {
   }
 
   bool _moduleGroupAtDestination(ModuleStacker stacker) =>
-      stacker.moduleGroupOnConveyorPlace.moduleGroup!.destination == stacker;
+      stacker.onConveyorPlace.moduleGroup!.destination == stacker;
 
   bool _neighborCanFeedIn(ModuleStacker stacker) =>
       stacker.modulesOut.linkedTo!.canFeedIn();
@@ -251,8 +251,7 @@ class FeedOut extends State<ModuleStacker>
 
   @override
   void onStart(ModuleStacker stacker) {
-    var transportedModuleGroup =
-        stacker.moduleGroupOnConveyorPlace.moduleGroup!;
+    var transportedModuleGroup = stacker.onConveyorPlace.moduleGroup!;
     transportedModuleGroup.position =
         BetweenModuleGroupPlaces.forModuleOutLink(stacker.modulesOut);
   }

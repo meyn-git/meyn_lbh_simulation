@@ -66,7 +66,7 @@ class LoadingForkLiftTruck extends StateMachine
               ),
         direction: moduleGroupDirection,
         destination: _findModuleGroupDestination(),
-        position: AtModuleGroupPlace(moduleGroupPosition));
+        position: AtModuleGroupPlace(moduleGroupPlace));
     return moduleGroup;
   }
 
@@ -134,7 +134,7 @@ class LoadingForkLiftTruck extends StateMachine
   }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-      position: moduleGroupPosition,
+      position: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
           xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
       directionToOtherLink: const CompassDirection.north(),
@@ -161,9 +161,8 @@ class LoadingForkLiftTruck extends StateMachine
           ? const CompassDirection(180)
           : const CompassDirection(0);
 
-  late ModuleGroupPlace moduleGroupPosition = ModuleGroupPlace(
+  late ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth:
         const OffsetInMeters(xInMeters: 0, yInMeters: -1.4),
   );
@@ -184,10 +183,11 @@ class GetModuleGroupFromTruck extends DurationState<LoadingForkLiftTruck> {
 
   @override
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
-    if (forkLiftTruck.moduleGroupPosition.moduleGroup == null) {
+    if (forkLiftTruck.moduleGroupPlace.moduleGroup == null) {
       var newModuleGroup = forkLiftTruck.createModuleGroup();
       _verifyDestination(forkLiftTruck, newModuleGroup.destination);
       forkLiftTruck.area.moduleGroups.add(newModuleGroup);
+      forkLiftTruck.moduleGroupPlace.moduleGroup = newModuleGroup;
     }
   }
 
@@ -231,7 +231,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
 
   @override
   void onStart(LoadingForkLiftTruck forkLiftTruck) {
-    var moduleGroup = forkLiftTruck.moduleGroupPosition.moduleGroup!;
+    var moduleGroup = forkLiftTruck.moduleGroupPlace.moduleGroup!;
 
     if (forkLiftTruck.loadsSingleModule) {
       if (moduleGroup.numberOfModules > 1) {
@@ -257,7 +257,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
   }
 
   bool _putSecondModuleOnConveyor(LoadingForkLiftTruck forkLiftTruck) {
-    var moduleGroup = forkLiftTruck.moduleGroupPosition.moduleGroup;
+    var moduleGroup = forkLiftTruck.moduleGroupPlace.moduleGroup;
     return forkLiftTruck.loadsSingleModule &&
         moduleGroup != null &&
         moduleGroup.numberOfModules == 1 &&

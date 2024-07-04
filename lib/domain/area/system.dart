@@ -33,17 +33,13 @@ abstract class AdditionalRotation {
 /// A Physical place on a [System] that can contain a [ModuleGroup]
 class ModuleGroupPlace {
   final PhysicalSystem system;
-  final ModuleGroups
-      _moduleGroups; // TODO change to ModuleGroup? moduleGroup, to be updated by BetweenModuleGroup Places See DrawerPlace
+  ModuleGroup?
+      moduleGroup; // TODO change to ModuleGroup? moduleGroup, to be updated by BetweenModuleGroup Places See DrawerPlace
   final OffsetInMeters offsetFromCenterWhenSystemFacingNorth;
 
   ModuleGroupPlace(
       {required this.system,
-      required ModuleGroups moduleGroups,
-      required this.offsetFromCenterWhenSystemFacingNorth})
-      : _moduleGroups = moduleGroups;
-
-  ModuleGroup? get moduleGroup => _moduleGroups.at(this);
+      required this.offsetFromCenterWhenSystemFacingNorth});
 }
 
 class Systems extends DelegatingList<System> {

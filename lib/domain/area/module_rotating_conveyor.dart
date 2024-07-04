@@ -384,7 +384,6 @@ class ModuleRotatingConveyor extends StateMachine
 
   late final ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: OffsetInMeters.zero,
   );
 

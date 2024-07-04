@@ -72,7 +72,6 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
 
   late final ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorEnd,
   );
 }

@@ -69,7 +69,6 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
 
   late final moduleGroupPosition = ModuleGroupPlace(
       system: this,
-      moduleGroups: area.moduleGroups,
       offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter);
 
   late final modulesIn = ModuleGroupInLink(

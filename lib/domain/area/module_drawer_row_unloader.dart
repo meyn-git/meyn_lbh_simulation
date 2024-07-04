@@ -99,7 +99,6 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
 
   late ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
   );
 

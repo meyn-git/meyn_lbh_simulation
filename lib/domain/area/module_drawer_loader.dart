@@ -563,14 +563,12 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
 
   late final ModuleGroupPlace moduleGroupPositionFirstColumn = ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToFirstColumn,
   );
 
   late final ModuleGroupPlace moduleGroupPositionSecondColumn =
       ModuleGroupPlace(
     system: this,
-    moduleGroups: area.moduleGroups,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToSecondColumn,
   );
 

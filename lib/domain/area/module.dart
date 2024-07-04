@@ -245,6 +245,8 @@ class BetweenModuleGroupPlaces
   @override
   late String name = 'Module Transport';
 
+  late final ModuleGroup transportedModuleGroup;
+
   BetweenModuleGroupPlaces({
     required this.source,
     required this.destination,
@@ -264,6 +266,8 @@ class BetweenModuleGroupPlaces
   }
 
   void onModuleTransportStarted() {
+    transportedModuleGroup = source.moduleGroup!;
+    source.moduleGroup = null;
     _callOnModuleTransportStarted(source);
     _callOnModuleTransportStarted(destination);
   }
@@ -330,6 +334,8 @@ class BetweenModuleGroupPlaces
   void onModuleTransportCompleted() {
     _callOnModuleTransportCompleted(source.system);
     _callOnModuleTransportCompleted(destination.system);
+    transportedModuleGroup.position = AtModuleGroupPlace(destination);
+    destination.moduleGroup = transportedModuleGroup;
   }
 
   void _callOnModuleTransportCompleted(PhysicalSystem system) {
