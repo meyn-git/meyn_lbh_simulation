@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 
@@ -29,9 +31,14 @@ class Player {
   set scenario(Scenario? scenario) {
     _scenario = scenario;
     if (scenario != null) {
-      var hangingConveyors = scenario.area.systems.whereType<ShackleConveyor>();
+      Iterable<Detailable> shackleConveyors =
+          scenario.area.systems.whereType<ShackleConveyor>();
+      if (shackleConveyors.isEmpty) {
+        shackleConveyors =
+            scenario.area.systems.whereType<DrawerHangingConveyor>();
+      }
       objectsToMonitor.clear();
-      objectsToMonitor.addAll(hangingConveyors);
+      objectsToMonitor.addAll(shackleConveyors);
     }
   }
 

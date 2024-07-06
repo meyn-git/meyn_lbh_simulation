@@ -233,18 +233,31 @@ class simultaneously extends LiveBirdHandlingArea {
 
     systems.add(ModuleCasStart(
       area: this,
-      startIntervalFractions: <double>[
-        0.5,
-        0.6,
+      // startIntervalFractions: <double>[
+      //   0.5,
+      //   0.6,
+      //   0.7,
+      //   0.8,
+      //   0.9,
+      //   1,
+      //   1,
+      //   1,
+      //   1.1,
+      //   1.2,
+      //   1.3,
+      // ],
+        startIntervalFractions: <double>[
         0.7,
         0.8,
         0.9,
         1,
         1,
-        1,
+        1.033,
+        1.066,
         1.1,
+        1.133,
+        1.166,
         1.2,
-        1.3,
       ],
       transportTimeCorrections: {cas1: 12, cas2: 12, cas5: -12, cas6: -12},
     ));
@@ -304,6 +317,8 @@ class simultaneously extends LiveBirdHandlingArea {
         hangers: 11, // TODO 11 hangers for 15000?
         metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
         allDrawers: drawers);
+
+
 
     var conveyor3 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,

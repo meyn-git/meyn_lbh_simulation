@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 abstract class DrawerConveyorPainter extends CustomPainter {
@@ -16,10 +17,19 @@ abstract class DrawerConveyorPainter extends CustomPainter {
 }
 
 class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
-  final DrawerConveyorStraight drawerConveyor;
+  final SizeInMeters sizeWhenFacingNorth;
+  final double systemProtrudesInMeters;
   final LiveBirdsHandlingTheme theme;
 
-  DrawerConveyorStraightPainter(this.drawerConveyor, this.theme);
+  DrawerConveyorStraightPainter(
+      DrawerConveyorStraight drawerConveyor, this.theme)
+      : systemProtrudesInMeters = drawerConveyor.systemProtrudesInMeters,
+        sizeWhenFacingNorth = drawerConveyor.sizeWhenFacingNorth;
+
+  DrawerConveyorStraightPainter.withSizes(
+      {required this.systemProtrudesInMeters,
+      required this.sizeWhenFacingNorth,
+      required this.theme});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -28,7 +38,7 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
     paint.style = PaintingStyle.stroke;
 
     var path = Path();
-    if (drawerConveyor.systemProtrudesInMeters > 0) {
+    if (systemProtrudesInMeters > 0) {
       addMachineCircumferenceToPath(path, size);
     }
 
@@ -41,8 +51,8 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 
   void addConveyorChainsToPath(Path path, Size size) {
-    var totalWidthInMeters = drawerConveyor.sizeWhenFacingNorth.xInMeters;
-    var offSet = drawerConveyor.systemProtrudesInMeters / totalWidthInMeters;
+    var totalWidthInMeters = sizeWhenFacingNorth.xInMeters;
+    var offSet = systemProtrudesInMeters / totalWidthInMeters;
     path.moveTo(size.width * offSet, 0);
     path.lineTo(size.width * offSet, size.height);
     path.moveTo(size.width * (1 - offSet), 0);

@@ -16,6 +16,7 @@ abstract class System implements Namable, Commandable, Detailable {}
 
 abstract class PhysicalSystem extends System {
   /// See [DefaultOrientation]
+  /// TODO replace with Shape get shape;
   SizeInMeters get sizeWhenFacingNorth;
 
   /// all links to other [PhysicalSystem]s
@@ -24,6 +25,7 @@ abstract class PhysicalSystem extends System {
   @override
   String toString() => objectDetails.toString();
 }
+
 
 /// an optional [PhysicalSystem] capability
 abstract class AdditionalRotation {

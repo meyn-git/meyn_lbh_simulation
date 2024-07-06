@@ -46,7 +46,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
   @override
   late double metersPerSecond;
   @override
-  late String name = 'DrawerConveyorStraight';
+  String get name => 'DrawerConveyorStraight';
   @override
   late List<Command> commands = [
     RemoveFromMonitorPanel(this),
@@ -83,7 +83,7 @@ class DrawerConveyorStraight implements DrawerConveyor {
   late List<Link> links = [drawerIn, drawerOut];
 
   @override
-  ObjectDetails get objectDetails => ObjectDetails(name);
+  late final ObjectDetails objectDetails = ObjectDetails(name);
 }
 
 class DrawerConveyor90Degrees implements DrawerConveyor {
@@ -173,9 +173,7 @@ class DrawerRemover extends DrawerConveyorStraight implements TimeProcessor {
   }
 }
 
-class DrawerHangingConveyor extends DrawerConveyorStraight
-    implements TimeProcessor {
-  bool stopped = false;
+class DrawerHangingConveyor extends DrawerConveyorStraight {
   final ProductDefinition productDefinition;
   final List<GrandeDrawer> allDrawers;
   List<GrandeDrawer> drawersOnConveyor = [];
@@ -207,19 +205,22 @@ class DrawerHangingConveyor extends DrawerConveyorStraight
         );
 
   @override
-  void onUpdateToNextPointInTime(Duration jump) {
-    drawersOnConveyor = findDrawersOnConveyor();
-    if (drawersOnConveyor.length > 5) {
-      //TODO: improve
-      stopped = false;
-    }
-  }
+  final String name = 'DrawerHangingConveyor';
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('sinceEndStunAtLastHanger', sinceEndStunAtLastHanger);
 
   List<GrandeDrawer> findDrawersOnConveyor() => allDrawers
       .where((drawer) =>
           drawer.position is OnConveyorPosition &&
           (drawer.position as OnConveyorPosition).conveyor == this)
       .toList();
+
+  GrandeDrawer? get firstDrawerOnConveyor => allDrawers.firstWhereOrNull(
+      (drawer) =>
+          drawer.position is OnConveyorPosition &&
+          (drawer.position as OnConveyorPosition).conveyor == this);
 
   late double secondsPerDrawer = 3600 /
       (productDefinition.lineSpeedInShacklesPerHour /
@@ -228,7 +229,7 @@ class DrawerHangingConveyor extends DrawerConveyorStraight
   late double lastConveyorSpeed =
       GrandeDrawerModuleType.drawerOutSideLengthInMeters / secondsPerDrawer;
 
-  double get metersPerSecondOfLastConveyor => stopped ? 0 : lastConveyorSpeed;
+  Duration? get sinceEndStunAtLastHanger => firstDrawerOnConveyor?.sinceEndStun;
 
   /// The last conveyor of the [DrawerHangingConveyor] is speed controlled:
   /// * for optimal hanging performance (all hangers have birds available)
@@ -238,8 +239,6 @@ class DrawerHangingConveyor extends DrawerConveyorStraight
   /// [metersPerSecondOfEndConveyor].
   bool isOnLastConveyor(double traveledMetersOnVector) =>
       traveledMetersOnVector > firstConveyorInMeters;
-
-  ///
 }
 
 class DrawerSoakingConveyor extends DrawerConveyorStraight {
@@ -510,7 +509,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
     if (conveyor is DrawerHangingConveyor &&
         (conveyor as DrawerHangingConveyor)
             .isOnLastConveyor(traveledMetersOnVector)) {
-      return (conveyor as DrawerHangingConveyor).metersPerSecondOfLastConveyor;
+      return (conveyor as DrawerHangingConveyor).lastConveyorSpeed;
     } else {
       return conveyor.metersPerSecond;
     }
