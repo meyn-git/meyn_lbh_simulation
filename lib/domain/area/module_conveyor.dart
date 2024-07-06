@@ -40,7 +40,7 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
         );
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    position: moduleGroupPlace,
+    place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -48,7 +48,7 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
   );
 
   late final ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    position: moduleGroupPlace,
+    place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -104,7 +104,7 @@ class WaitToFeedIn extends State<ModuleConveyor>
 
   /// Must be called by FeedOut state of the preceding [PhysicalSystem]
   @override
-  void onModuleTransportStarted() {
+  void onModuleTransportStarted(_) {
     transportStarted = true;
   }
 }
@@ -125,7 +125,7 @@ class FeedIn extends State<ModuleConveyor>
 
   /// called by [BetweenModuleGroupPlaces]
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }
@@ -175,7 +175,7 @@ class FeedOut extends State<ModuleConveyor>
 
   /// This method is called by ModuleTransport when completed
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }

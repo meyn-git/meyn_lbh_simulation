@@ -132,7 +132,7 @@ class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
   int get numberOfModulesGroupsOnRoute {
     int total = 0;
     for (var moduleGroupOut in this) {
-      if (moduleGroupOut.position.moduleGroup != null &&
+      if (moduleGroupOut.place.moduleGroup != null &&
           moduleGroupOut != first &&
           moduleGroupOut != last) {
         total++;

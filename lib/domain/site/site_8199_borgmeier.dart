@@ -13,6 +13,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
@@ -201,9 +202,14 @@ class simultaneously extends LiveBirdHandlingArea {
 
     var mc5 = ModuleConveyor(area: this);
 
-    var moduleWasher = ModuleConveyor(
+    var modulePreWasher = ModuleWasherConveyor(
       area: this,
-      lengthInMeters: 5.5,
+      lengthInMeters: 5.5 / 2,
+    );
+
+    var moduleMainWasher = ModuleWasherConveyor(
+      area: this,
+      lengthInMeters: 5.5 / 2,
     );
 
     var moduleDrawerLoader = ModuleDrawerLoader(
@@ -225,24 +231,23 @@ class simultaneously extends LiveBirdHandlingArea {
       allocationPlace: mc2.moduleGroupPlace,
     ));
 
-    systems.add(ModuleCasStart(area: this, startIntervalFractions: <double>[
-      0.5,
-      0.6,
-      0.7,
-      0.8,
-      0.9,
-      1,
-      1,
-      1,
-      1.1,
-      1.2,
-      1.3,
-    ], transportTimeCorrections: {
-      cas1: 12,
-      cas2: 12,
-      cas5: -12,
-      cas6: -12
-    }));
+    systems.add(ModuleCasStart(
+      area: this,
+      startIntervalFractions: <double>[
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1,
+        1,
+        1,
+        1.1,
+        1.2,
+        1.3,
+      ],
+      transportTimeCorrections: {cas1: 12, cas2: 12, cas5: -12, cas6: -12},
+    ));
 
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mc1.modulesIn);
@@ -269,8 +274,9 @@ class simultaneously extends LiveBirdHandlingArea {
     systems.link(deStacker.modulesOut, mc4.modulesIn);
     systems.link(mc4.modulesOut, drawerUnloader.modulesIn);
     systems.link(drawerUnloader.modulesOut, mc5.modulesIn);
-    systems.link(mc5.modulesOut, moduleWasher.modulesIn);
-    systems.link(moduleWasher.modulesOut, moduleDrawerLoader.modulesIn);
+    systems.link(mc5.modulesOut, modulePreWasher.modulesIn);
+    systems.link(modulePreWasher.modulesOut, moduleMainWasher.modulesIn);
+    systems.link(moduleMainWasher.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, stacker.modulesIn);
     systems.link(stacker.modulesOut, unloadingConveyor.modulesIn);
     systems.link(

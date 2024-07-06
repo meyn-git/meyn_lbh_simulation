@@ -76,15 +76,15 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
     extends Link<OWNER, ModuleGroupOutLink> {
   final Duration inFeedDuration;
   final bool Function() canFeedIn;
-  final ModuleGroupPlace position;
+  final ModuleGroupPlace place;
 
   ModuleGroupInLink({
-    required this.position,
+    required this.place,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
     required this.inFeedDuration,
     required this.canFeedIn,
-  }) : super(system: (position.system as OWNER));
+  }) : super(system: (place.system as OWNER));
 
   @override
   String toString() =>
@@ -99,15 +99,15 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
   /// * [Duration] = Time until the [PhysicalSystem] can feed out a module
   /// * [unknownDuration] = Unknown when the [PhysicalSystem] can feed out a module
   final Duration Function() durationUntilCanFeedOut;
-  final ModuleGroupPlace position;
+  final ModuleGroupPlace place;
 
   ModuleGroupOutLink({
-    required this.position,
+    required this.place,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
     required this.outFeedDuration,
     required this.durationUntilCanFeedOut,
-  }) : super(system: (position.system as OWNER));
+  }) : super(system: (place.system as OWNER));
 
   ModuleGroupRoute? findRoute(
       {required PhysicalSystem destination, ModuleGroupRoute? routeSoFar}) {

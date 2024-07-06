@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
@@ -148,12 +149,12 @@ class AreaWith3CASUnits extends LiveBirdHandlingArea {
 
     var birdDetection = ModuleConveyor(area: this);
 
-    var modulePreWasher = ModuleConveyor(
+    var modulePreWasher = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 5.55,
     );
 
-    var moduleMainWasher = ModuleConveyor(
+    var moduleMainWasher = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 5.55,
     );

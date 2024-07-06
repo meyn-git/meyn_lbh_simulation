@@ -10,6 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart'
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
@@ -32,6 +33,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter_dump_conveyor.dart';
+import 'package:meyn_lbh_simulation/gui/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/gui/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
@@ -124,6 +126,10 @@ CustomPainter createSystemPainter(
   if (system is ModuleTilterDumpConveyor) {
     return ModuleTilterDumpConveyorPainter(system, theme);
   }
+  if (system is ModuleWasherConveyor) {
+    return ModuleWasherConveyorPainter(system, theme);
+  }
+
   if (system is ShackleConveyor) {
     return ShackleConveyorPainter(system, theme);
   }

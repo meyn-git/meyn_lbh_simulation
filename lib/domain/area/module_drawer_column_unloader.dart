@@ -98,7 +98,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   );
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    position: moduleGroupPositionFirstColumn,
+    place: moduleGroupPositionFirstColumn,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -112,7 +112,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    position: moduleGroupPositionSecondColumn,
+    place: moduleGroupPositionSecondColumn,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -282,7 +282,7 @@ class FeedOutAndFeedInModuleSimultaneously
       moduleGroupTransportedOut != null &&
       moduleGroupTransportedOut!.position is AtModuleGroupPlace &&
       (moduleGroupTransportedOut!.position as AtModuleGroupPlace).place ==
-          unloader.modulesOut.linkedTo!.position;
+          unloader.modulesOut.linkedTo!.place;
 }
 
 enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
@@ -331,6 +331,7 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
         nrOfBirds: nrOfBirdsPerDrawer,
         contents: contents,
         position: AtDrawerPlace(unloader.drawerPlaces[level]),
+        sinceEndStun: moduleGroup.sinceEndStun,
       );
       drawers.add(drawer);
       unloader.drawerPlaces[level].drawer = drawer;
@@ -385,7 +386,7 @@ class FeedInToSecondColumn extends State<ModuleDrawerColumnUnloader>
   }
 
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }
@@ -432,6 +433,7 @@ class PusherOutSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
         nrOfBirds: nrOfBirdsPerDrawer,
         contents: contents,
         position: AtDrawerPlace(unloader.drawerPlaces[level]),
+        sinceEndStun: moduleGroup.sinceEndStun,
       );
       drawers.add(drawer);
       unloader.drawerPlaces[level].drawer = drawer;

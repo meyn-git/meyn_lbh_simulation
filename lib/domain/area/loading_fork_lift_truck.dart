@@ -134,7 +134,7 @@ class LoadingForkLiftTruck extends StateMachine
   }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-      position: moduleGroupPlace,
+      place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
           xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
       directionToOtherLink: const CompassDirection.north(),
@@ -266,7 +266,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
 
   /// called by [ModuleTransport.forModuleOutLink()]
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }

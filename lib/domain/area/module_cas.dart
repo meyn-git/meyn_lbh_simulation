@@ -96,14 +96,14 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
   late ModuleCasShape shape = ModuleCasShape(this);
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-      position: moduleGroupPosition,
+      place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
       inFeedDuration: inFeedDuration,
       canFeedIn: () => canFeedIn);
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-      position: moduleGroupPosition,
+      place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
       outFeedDuration: outFeedDuration,
@@ -189,7 +189,7 @@ class WaitToFeedIn extends State<ModuleCas>
   }
 
   @override
-  void onModuleTransportStarted() {
+  void onModuleTransportStarted(_) {
     transportStarted = true;
   }
 }
@@ -223,7 +223,7 @@ class FeedIn extends State<ModuleCas>
   }
 
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     completed = true;
   }
 }
@@ -370,7 +370,7 @@ class FeedOut extends State<ModuleCas>
   }
 
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     completed = true;
   }
 }

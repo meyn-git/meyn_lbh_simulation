@@ -1,7 +1,8 @@
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
+import 'package:meyn_lbh_simulation/domain/area/name.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 
-abstract class StateMachine implements TimeProcessor, Detailable {
+abstract class StateMachine implements TimeProcessor, Detailable, Namable {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   State currentState;
 
@@ -25,8 +26,8 @@ abstract class StateMachine implements TimeProcessor, Detailable {
   }
 
   @override
-  ObjectDetails get objectDetails => ObjectDetails('StateMachine')
-      .appendProperty('currentState', currentState);
+  ObjectDetails get objectDetails =>
+      ObjectDetails(name).appendProperty('currentState', currentState);
 
   @override
   String toString() => objectDetails.toString();

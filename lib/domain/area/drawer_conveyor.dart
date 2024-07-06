@@ -376,7 +376,7 @@ class GrandeDrawer implements TimeProcessor {
       GrandeDrawerModuleType.drawerOutSideLengthInMeters;
   BirdContents contents;
   DrawerPosition position;
-  //final Position startPosition;
+  Duration? sinceEndStun;
 
   /// Distance traveled in meters from [startPosition]
   Offset traveledPath = Offset.zero;
@@ -386,6 +386,7 @@ class GrandeDrawer implements TimeProcessor {
     required int nrOfBirds,
     required this.contents,
     required this.position,
+    required this.sinceEndStun,
   }) : _nrOfBirds = nrOfBirds;
 
   set nrOfBirds(int nrOfBirds) {
@@ -401,6 +402,9 @@ class GrandeDrawer implements TimeProcessor {
   void onUpdateToNextPointInTime(Duration jump) {
     if (position is TimeProcessor) {
       (position as TimeProcessor).onUpdateToNextPointInTime(jump);
+    }
+    if (sinceEndStun != null) {
+      sinceEndStun = sinceEndStun! + jump;
     }
   }
 }

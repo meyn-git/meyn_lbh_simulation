@@ -573,7 +573,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   );
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    position: moduleGroupPositionFirstColumn,
+    place: moduleGroupPositionFirstColumn,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -588,7 +588,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    position: moduleGroupPositionSecondColumn,
+    place: moduleGroupPositionSecondColumn,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -753,7 +753,7 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
       moduleGroupTransportedOut != null &&
       moduleGroupTransportedOut!.position is AtModuleGroupPlace &&
       (moduleGroupTransportedOut!.position as AtModuleGroupPlace).place ==
-          loader.modulesOut.linkedTo!.position;
+          loader.modulesOut.linkedTo!.place;
 }
 
 enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
@@ -808,7 +808,7 @@ class FeedInToSecondColumn extends State<ModuleDrawerLoader>
       transportCompleted ? WaitToPushInSecondColumn() : null;
 
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }

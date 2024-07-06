@@ -103,7 +103,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
   );
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    position: moduleGroupPlace,
+    place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -117,7 +117,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
   }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    position: moduleGroupPlace,
+    place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -283,7 +283,7 @@ class FeedOutAndFeedInModulesSimultaneously
       moduleGroupTransportedOut != null &&
       moduleGroupTransportedOut!.position is AtModuleGroupPlace &&
       (moduleGroupTransportedOut!.position as AtModuleGroupPlace).place ==
-          unloader.modulesOut.linkedTo!.position;
+          unloader.modulesOut.linkedTo!.place;
 
   bool moduleGroupIsEmpty(ModuleDrawerRowUnloader unloader) {
     var moduleGroup = unloader.moduleGroupPlace.moduleGroup;
@@ -404,9 +404,12 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
 
     for (int i = 0; i < unloader.drawersPerRow; i++) {
       var newDrawer = GrandeDrawer(
-          nrOfBirds: nrOfBirdsPerDrawer,
-          contents: contents,
-          position: AtDrawerPlace(unloader.drawerPlaces[i]));
+        nrOfBirds: nrOfBirdsPerDrawer,
+        contents: contents,
+        position: AtDrawerPlace(unloader.drawerPlaces[i]),
+        sinceEndStun: moduleGroup.sinceEndStun,
+      );
+
       drawers.add(newDrawer);
       unloader.drawerPlaces[i].drawer = newDrawer;
       var drawerPlace = receiver(unloader).receivingConveyors.drawerPlaces[i];

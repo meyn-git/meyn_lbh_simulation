@@ -187,7 +187,7 @@ class ModuleRotatingConveyor extends StateMachine
     if (neighborModuleOutLink == null) {
       return 0;
     }
-    var neighborModuleGroup = neighborModuleOutLink.position.moduleGroup;
+    var neighborModuleGroup = neighborModuleOutLink.place.moduleGroup;
     if (neighborModuleGroup == null) {
       return 0;
     }
@@ -300,7 +300,7 @@ class ModuleRotatingConveyor extends StateMachine
     var inLinks = <ModuleGroupInLink>[];
     for (var turnPosition in turnPositions) {
       inLinks.add(ModuleGroupInLink(
-          position: moduleGroupPlace,
+          place: moduleGroupPlace,
           offsetFromCenterWhenFacingNorth:
               shape.centerToModuleGroupLink(turnPosition.direction),
           directionToOtherLink: turnPosition.direction,
@@ -314,7 +314,7 @@ class ModuleRotatingConveyor extends StateMachine
     var outLinks = <ModuleGroupOutLink>[];
     for (var turnPosition in turnPositions) {
       outLinks.add(ModuleGroupOutLink(
-          position: moduleGroupPlace,
+          place: moduleGroupPlace,
           offsetFromCenterWhenFacingNorth:
               shape.centerToModuleGroupLink(turnPosition.direction),
           directionToOtherLink: turnPosition.direction,
@@ -537,7 +537,7 @@ class TurnToFeedIn extends TurnState implements ModuleTransportStartedListener {
   }
 
   @override
-  void onModuleTransportStarted() {
+  void onModuleTransportStarted(_) {
     feedInStarted = true;
   }
 }
@@ -558,7 +558,7 @@ class FeedIn extends State<ModuleRotatingConveyor>
   }
 
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     completed = true;
   }
 }
@@ -655,7 +655,7 @@ class FeedOut extends State<ModuleRotatingConveyor>
   }
 
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     completed = true;
   }
 }

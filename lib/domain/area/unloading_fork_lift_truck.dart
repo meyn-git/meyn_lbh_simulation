@@ -28,7 +28,7 @@ class UnLoadingForkLiftTruck extends StateMachine
   }) : super(initialState: WaitingForFullConveyor());
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-      position: moduleGroupPosition,
+      place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
           xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
       directionToOtherLink: const CompassDirection.north(),
@@ -78,7 +78,7 @@ class WaitingForFullConveyor extends State<UnLoadingForkLiftTruck>
 
   /// Called by [BetweenModuleGroupPlaces]
   @override
-  void onModuleTransportStarted() {
+  void onModuleTransportStarted(_) {
     transportStarted = true;
   }
 }
@@ -101,7 +101,7 @@ class GetModuleGroupFromConveyor extends State<UnLoadingForkLiftTruck>
 
   /// Called by [BetweenModuleGroupPlaces]
   @override
-  void onModuleTransportCompleted() {
+  void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }

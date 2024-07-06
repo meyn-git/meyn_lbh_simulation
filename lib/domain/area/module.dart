@@ -256,12 +256,12 @@ class BetweenModuleGroupPlaces
   }
 
   BetweenModuleGroupPlaces.forModuleOutLink(ModuleGroupOutLink moduleOutLink)
-      : source = moduleOutLink.position,
-        destination = moduleOutLink.linkedTo!.position,
+      : source = moduleOutLink.place,
+        destination = moduleOutLink.linkedTo!.place,
         duration = Duration(
             milliseconds: max(moduleOutLink.outFeedDuration.inMilliseconds,
                 moduleOutLink.linkedTo!.inFeedDuration.inMilliseconds)),
-        moduleGroup = moduleOutLink.position.moduleGroup! {
+        moduleGroup = moduleOutLink.place.moduleGroup! {
     onModuleTransportStarted();
   }
 
@@ -279,7 +279,7 @@ class BetweenModuleGroupPlaces
       if (stateMachine.currentState is ModuleTransportStartedListener) {
         var listener =
             stateMachine.currentState as ModuleTransportStartedListener;
-        listener.onModuleTransportStarted();
+        listener.onModuleTransportStarted(this);
       }
     }
   }
@@ -344,18 +344,20 @@ class BetweenModuleGroupPlaces
       if (stateMachine.currentState is ModuleTransportCompletedListener) {
         var listener =
             stateMachine.currentState as ModuleTransportCompletedListener;
-        listener.onModuleTransportCompleted();
+        listener.onModuleTransportCompleted(this);
       }
     }
   }
 }
 
 abstract class ModuleTransportCompletedListener {
-  void onModuleTransportCompleted();
+  void onModuleTransportCompleted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces);
 }
 
 abstract class ModuleTransportStartedListener {
-  void onModuleTransportStarted();
+  void onModuleTransportStarted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces);
 }
 
 class Module implements Detailable {
