@@ -2,7 +2,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
@@ -177,6 +177,10 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
   final ProductDefinition productDefinition;
   final List<GrandeDrawer> allDrawers;
   List<GrandeDrawer> drawersOnConveyor = [];
+  
+  Duration? durationPerModule;
+
+  Durations durationsPerModule = Durations(maxSize: 8);
 
   /// the last conveyor of the [DrawerHangingConveyor] is speed controlled:
   /// * for optimal hanging performance (all hangers have birds available)
@@ -378,7 +382,7 @@ class GrandeDrawer implements TimeProcessor {
   Duration? sinceEndStun;
 
   /// Distance traveled in meters from [startPosition]
-  Offset traveledPath = Offset.zero;
+  material.Offset traveledPath = material.Offset.zero;
 
   GrandeDrawer({
     //required this.startPosition,

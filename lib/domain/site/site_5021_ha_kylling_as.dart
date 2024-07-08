@@ -41,17 +41,17 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               birdType: 'Chicken',
               lineSpeedInShacklesPerHour: 12500,
               lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
+              casRecipe: NksCasRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
                     firstModule: MeynGrandeDrawerChicken4Level()
                         .dimensions
-                        .capacityWithBirdsPerCompartment(33),
+                        .capacityWithBirdsPerCompartment(34),
                     secondModule: MeynGrandeDrawerChicken4Level()
                         .dimensions
-                        .capacityWithBirdsPerCompartment(33))
+                        .capacityWithBirdsPerCompartment(34))
               ]),
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
@@ -72,6 +72,20 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
                         .capacityWithBirdsPerCompartment(37))
               ]),
         ]);
+}
+
+/// 2024-08-07 According to Aize Land (Meyn sales person):
+/// standaard Meyn gas receipt is 6 min -> 360 sec.
+/// Volgens rapport van Wietse Leguijt is daar 32 sec van af gehaald in de laatste fase. Dat zou 328 sec total betekenen voor 1 cyclus.
+class NksCasRecipe extends CasRecipe {
+  NksCasRecipe()
+      : super(const [
+          Duration(seconds: 60), //18%
+          Duration(seconds: 60), //28%
+          Duration(seconds: 60), //33%
+          Duration(seconds: 60), //38%
+          Duration(seconds: 120 - 32) //67%
+        ], const Duration(seconds: 30));
 }
 
 class AreaWithGp extends LiveBirdHandlingArea {
@@ -418,7 +432,18 @@ class AreaWithGrande extends LiveBirdHandlingArea {
     systems.link(conveyor9.drawerOut, drawerLoaderLift.drawerIn);
     systems.link(drawerLoaderLift.drawersOut, loader.drawersIn);
 
-    systems.add(ModuleCasStart(area: this));
+    systems.add(ModuleCasStart(area: this, startIntervalFractions: <double>[
+      0.7,
+      0.8,
+      0.9,
+      1,
+      1,
+      1.25,
+      1.5,
+      1.75,
+      2,
+      2.25,
+    ]));
     systems.add(
         ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace));
   }
