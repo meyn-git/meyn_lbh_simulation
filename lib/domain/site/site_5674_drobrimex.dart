@@ -11,6 +11,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
 import 'site.dart';
@@ -280,7 +281,8 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
         crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
 
     var dc1a = DrawerConveyor90Degrees(
-        clockwise: true, metersPerSecond: drawerSpeedInMetersPerSecond);
+        direction: Direction.clockWise,
+        metersPerSecond: drawerSpeedInMetersPerSecond);
 
     var dc1b = DrawerConveyorStraight(
         lengthInMeters: 3, metersPerSecond: drawerSpeedInMetersPerSecond);
@@ -306,7 +308,8 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
         crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
 
     var dc2a = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerSpeedInMetersPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerSpeedInMetersPerSecond);
 
     var dc2b = DrawerConveyorStraight(
         lengthInMeters: 3, metersPerSecond: drawerSpeedInMetersPerSecond);

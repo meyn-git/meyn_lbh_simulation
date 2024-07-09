@@ -204,10 +204,12 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     );
 
     var conveyor0 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor1 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor2 = DrawerConveyorStraight(
         lengthInMeters: 3,
@@ -245,7 +247,8 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(
         lengthInMeters: 2.9,
@@ -396,7 +399,8 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor2 = DrawerConveyorStraight(
         lengthInMeters: 3,
@@ -434,7 +438,8 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(
         lengthInMeters: 1.4,

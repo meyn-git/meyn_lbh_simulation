@@ -14,6 +14,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.da
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
@@ -306,7 +307,8 @@ class simultaneously extends LiveBirdHandlingArea {
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor2 = DrawerConveyorStraight(
         lengthInMeters: 3,
@@ -344,7 +346,8 @@ class simultaneously extends LiveBirdHandlingArea {
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(
         lengthInMeters: 1.4,

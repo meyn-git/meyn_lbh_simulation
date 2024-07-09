@@ -93,13 +93,13 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
   }
 
   void addQuarterCircleToPath(Path path, double radius, Offset circleCenter) {
-    var rotation = drawerConveyor.clockwise
+    var rotation = drawerConveyor.direction == Direction.clockWise
         ? const CompassDirection.west()
         : const CompassDirection.east();
     var position = positionOnCircle(circleCenter, radius, rotation);
     path.moveTo(position.dx, position.dy);
 
-    var stepInDegrees = drawerConveyor.clockwise ? 10 : -10;
+    var stepInDegrees = drawerConveyor.direction.sign * 10;
     for (int i = 0; i <= 9; i++) {
       position = positionOnCircle(circleCenter, radius, rotation);
       path.lineTo(position.dx, position.dy);
@@ -115,7 +115,8 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
     return circleCenter + centerToCirclePoint;
   }
 
-  Offset _circleCenter(Size size) => drawerConveyor.clockwise
-      ? Offset(size.width, size.height)
-      : Offset(0, size.height);
+  Offset _circleCenter(Size size) =>
+      drawerConveyor.direction == Direction.clockWise
+          ? Offset(size.width, size.height)
+          : Offset(0, size.height);
 }

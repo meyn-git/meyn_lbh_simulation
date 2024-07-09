@@ -17,6 +17,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
 import 'site.dart';
@@ -354,12 +355,13 @@ class AreaWithGrande extends LiveBirdHandlingArea {
     );
 
     var conveyor0 = DrawerConveyor90Degrees(
-      clockwise: true,
+      direction: Direction.clockWise,
       metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var hangingConveyor = DrawerHangingConveyor(
         productDefinition: productDefinition,
@@ -403,7 +405,8 @@ class AreaWithGrande extends LiveBirdHandlingArea {
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+        direction: Direction.counterClockWise,
+        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(
         lengthInMeters: 0.1,

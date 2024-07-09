@@ -98,14 +98,14 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   @override
   late String name = 'DrawerConveyor90Degrees';
 
-  final bool clockwise;
+  final Direction direction;
 
   DrawerConveyor90Degrees(
       {double lengthInMeters = 4.3,
-      required this.clockwise,
+      required this.direction,
       required this.metersPerSecond})
       : drawerPath = DrawerPath.ninetyDegreeCorner(
-          clockwise,
+          direction,
           lengthInMeters,
         );
 
@@ -120,7 +120,7 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   late DrawerInLink drawerIn = DrawerInLink(
       system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          xInMeters: clockwise
+          xInMeters: direction == Direction.clockWise
               ? -sizeWhenFacingNorth.xInMeters / 2 +
                   DrawerConveyor.chainWidthInMeters / 2
               : sizeWhenFacingNorth.xInMeters / 2 -
@@ -132,12 +132,12 @@ class DrawerConveyor90Degrees implements DrawerConveyor {
   late DrawerOutLink drawerOut = DrawerOutLink(
       system: this,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          xInMeters: clockwise
+          xInMeters: direction == Direction.clockWise
               ? sizeWhenFacingNorth.xInMeters / 2
               : -sizeWhenFacingNorth.xInMeters / 2,
           yInMeters: -sizeWhenFacingNorth.yInMeters / 2 +
               DrawerConveyor.chainWidthInMeters / 2),
-      directionToOtherLink: clockwise
+      directionToOtherLink: direction == Direction.clockWise
           ? const CompassDirection.east()
           : const CompassDirection.west());
 
@@ -298,13 +298,13 @@ class DrawerPath extends DelegatingList<OffsetInMeters> {
   factory DrawerPath.straight(double meters) =>
       DrawerPath([OffsetInMeters(xInMeters: 0, yInMeters: -meters)]);
 
-  factory DrawerPath.ninetyDegreeCorner(bool clockwise, double lengthInMeters) {
+  factory DrawerPath.ninetyDegreeCorner(
+      Direction direction, double lengthInMeters) {
     const steps = 12; //preferably a multitude of 3 (360 degrees)
     var vectors = DrawerPath([]);
     var angle = const CompassDirection.north();
     for (int i = 0; i < steps; i++) {
-      var stepRotationInDegrees =
-          (90 / (steps + 1)).round() * (clockwise ? 1 : -1);
+      var stepRotationInDegrees = (90 / (steps + 1)).round() * (direction.sign);
       angle = angle.rotate(stepRotationInDegrees);
       var vector =
           OffsetInMeters(xInMeters: 0, yInMeters: lengthInMeters / steps * -1)

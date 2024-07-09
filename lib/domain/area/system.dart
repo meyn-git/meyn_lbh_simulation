@@ -356,4 +356,11 @@ class Durations {
       durations.isEmpty ? 0 : 3600000 / average.inMilliseconds;
 }
 
-enum Direction { clockWise, counterClockWise }
+enum Direction {
+  counterClockWise(-1),
+  clockWise(1);
+
+  final int sign;
+
+  const Direction(this.sign);
+}
