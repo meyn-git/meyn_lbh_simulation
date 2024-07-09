@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
+//TODO make this a concrete class with GENERIC TYPE and remove all implementations
 abstract class ShapePainter extends CustomPainter {
   final LiveBirdsHandlingTheme theme;
   final Shape shape;

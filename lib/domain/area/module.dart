@@ -351,11 +351,13 @@ class BetweenModuleGroupPlaces
 }
 
 abstract class ModuleTransportCompletedListener {
+  /// Will be called by [BetweenModuleGroupPlaces]
   void onModuleTransportCompleted(
       BetweenModuleGroupPlaces betweenModuleGroupPlaces);
 }
 
 abstract class ModuleTransportStartedListener {
+  /// Will be called by [BetweenModuleGroupPlaces]
   void onModuleTransportStarted(
       BetweenModuleGroupPlaces betweenModuleGroupPlaces);
 }

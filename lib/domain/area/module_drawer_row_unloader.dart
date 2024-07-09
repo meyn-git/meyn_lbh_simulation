@@ -779,7 +779,7 @@ class CrossOverConveyorFeedingOut extends State<CrossOver> {
           (conveyorStartToCenter.xInMeters - centerToDrawerPlace.xInMeters)
                   .abs() +
               GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
-      if (!crossOverConveyor.receiver.drawersToLeft)         {
+      if (!crossOverConveyor.receiver.drawersToLeft) {
         distanceTraveled += GrandeDrawerModuleType.drawerOutSideLengthInMeters;
       }
       if (i > 0) {
@@ -788,7 +788,8 @@ class CrossOverConveyorFeedingOut extends State<CrossOver> {
       drawer.position = OnConveyorPosition(conveyor,
           precedingDrawer: crossOverConveyor.lastAddedDrawer,
           traveledMetersOnVector: distanceTraveled);
-          (drawer.position as OnConveyorPosition).metersTraveledOnDrawerConveyors=distanceTraveled;
+      (drawer.position as OnConveyorPosition).metersTraveledOnDrawerConveyors =
+          distanceTraveled;
       crossOverConveyor.drawerPlaces[i].drawer = null;
       crossOverConveyor.lastAddedDrawer = drawer;
     }

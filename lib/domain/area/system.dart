@@ -26,7 +26,6 @@ abstract class PhysicalSystem extends System {
   String toString() => objectDetails.toString();
 }
 
-
 /// an optional [PhysicalSystem] capability
 abstract class AdditionalRotation {
   CompassDirection get additionalRotation;
@@ -356,3 +355,5 @@ class Durations {
   double get averagePerHour =>
       durations.isEmpty ? 0 : 3600000 / average.inMilliseconds;
 }
+
+enum Direction { clockWise, counterClockWise }

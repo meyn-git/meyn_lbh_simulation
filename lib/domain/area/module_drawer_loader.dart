@@ -744,7 +744,7 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
     var moduleGroup = loader.moduleGroup!;
     if (moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(90) != loader.drawerFeedInDirection) {
-       throw ('Incorrect drawer in feed direction of the $ModuleGroup '
+      throw ('Incorrect drawer in feed direction of the $ModuleGroup '
           'that was fed in to ${loader.name}');
     }
   }

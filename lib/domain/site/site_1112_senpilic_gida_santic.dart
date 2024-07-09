@@ -4,6 +4,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_buffer_lane.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
@@ -13,6 +14,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart'
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 
@@ -93,7 +95,18 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    var loadingConveyor = ModuleConveyor(area: this);
+    var bufferIn1 = ModuleBufferAngleTransferInFeed(
+      area: this,
+      moduleOutDirection: Direction.counterClockWise,
+    );
+    var bufferIn2 = ModuleBufferConveyor(area: this);
+    var bufferIn3 = ModuleBufferConveyor(area: this);
+    var bufferIn4 = ModuleBufferConveyor(area: this);
+    var bufferIn5 = ModuleBufferConveyor(area: this);
+    var bufferIn6 = ModuleBufferAngleTransferOutFeed(
+      area: this,
+      moduleOutDirection: Direction.clockWise,
+    );
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
@@ -111,14 +124,12 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var mc2 = ModuleConveyor(area: this);
 
-    
     var drawerUnloader = ModuleDrawerRowUnloader(
       area: this,
       drawersToLeft: true,
     );
 
-var mc3 = ModuleConveyor(area: this);
-
+    var mc3 = ModuleConveyor(area: this);
 
     var mc4 = ModuleConveyor(area: this);
     var modulePreWasher =
@@ -140,11 +151,31 @@ var mc3 = ModuleConveyor(area: this);
     );
 
     var stacker = ModuleStacker(area: this);
-    var unloadConveyor = ModuleConveyor(area: this);
+
+    var bufferOut1 = ModuleBufferAngleTransferInFeed(
+      area: this,
+      moduleOutDirection: Direction.clockWise,
+    );
+    var bufferOut2 = ModuleBufferConveyor(area: this);
+    var bufferOut3 = ModuleBufferConveyor(area: this);
+    var bufferOut4 = ModuleBufferConveyor(area: this);
+    var bufferOut5 = ModuleBufferConveyor(area: this);
+    var bufferOut6 = ModuleBufferAngleTransferOutFeed(
+      area: this,
+      moduleOutDirection: Direction.counterClockWise,
+    );
+
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-    systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
-    systems.link(loadingConveyor.modulesOut, deStacker.modulesIn);
+    // systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
+    // systems.link(loadingConveyor.modulesOut, deStacker.modulesIn);
+    systems.link(loadingForkLiftTruck.modulesOut, bufferIn1.modulesIn);
+    systems.link(bufferIn1.modulesOut, bufferIn2.modulesIn);
+    systems.link(bufferIn2.modulesOut, bufferIn3.modulesIn);
+    systems.link(bufferIn3.modulesOut, bufferIn4.modulesIn);
+    systems.link(bufferIn4.modulesOut, bufferIn5.modulesIn);
+    systems.link(bufferIn5.modulesOut, bufferIn6.modulesIn);
+    systems.link(bufferIn6.modulesOut, deStacker.modulesIn);
     systems.link(deStacker.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], mc1.modulesIn);
     systems.link(mc1.modulesOut, mc2.modulesIn);
@@ -156,8 +187,13 @@ var mc3 = ModuleConveyor(area: this);
     systems.link(moduleMainWasher.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, mrc2.modulesIns[0]);
     systems.link(mrc2.modulesOuts[1], stacker.modulesIn);
-    systems.link(stacker.modulesOut, unloadConveyor.modulesIn);
-    systems.link(unloadConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+    systems.link(stacker.modulesOut, bufferOut1.modulesIn);
+    systems.link(bufferOut1.modulesOut, bufferOut2.modulesIn);
+    systems.link(bufferOut2.modulesOut, bufferOut3.modulesIn);
+    systems.link(bufferOut3.modulesOut, bufferOut4.modulesIn);
+    systems.link(bufferOut4.modulesOut, bufferOut5.modulesIn);
+    systems.link(bufferOut5.modulesOut, bufferOut6.modulesIn);
+    systems.link(bufferOut6.modulesOut, unLoadingForkLiftTruck.modulesIn);
 
     // drawers
 
@@ -166,7 +202,6 @@ var mc3 = ModuleConveyor(area: this);
       drawersToLeft: false,
       crossOverFeedOutMetersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
-
 
     var conveyor0 = DrawerConveyor90Degrees(
         clockwise: false, metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
@@ -253,7 +288,18 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    var loadingConveyor = ModuleConveyor(area: this);
+    var bufferIn1 = ModuleBufferAngleTransferInFeed(
+      area: this,
+      moduleOutDirection: Direction.counterClockWise,
+    );
+    var bufferIn2 = ModuleBufferConveyor(area: this);
+    var bufferIn3 = ModuleBufferConveyor(area: this);
+    var bufferIn4 = ModuleBufferConveyor(area: this);
+    var bufferIn5 = ModuleBufferConveyor(area: this);
+    var bufferIn6 = ModuleBufferAngleTransferOutFeed(
+      area: this,
+      moduleOutDirection: Direction.clockWise,
+    );
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
@@ -265,8 +311,9 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       ],
     );
 
-    var deStacker = ModuleDeStacker(area: this, liftSpeedInCentiMeterPerSecond: 40//TODO!!
-    );
+    var deStacker =
+        ModuleDeStacker(area: this, liftSpeedInCentiMeterPerSecond: 40 //TODO!!
+            );
 
     var mc1 = ModuleConveyor(area: this);
 
@@ -298,11 +345,29 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     );
 
     var stacker = ModuleStacker(area: this);
-    var unloadConveyor = ModuleConveyor(area: this);
+
+    var bufferOut1 = ModuleBufferAngleTransferInFeed(
+      area: this,
+      moduleOutDirection: Direction.clockWise,
+    );
+    var bufferOut2 = ModuleBufferConveyor(area: this);
+    var bufferOut3 = ModuleBufferConveyor(area: this);
+    var bufferOut4 = ModuleBufferConveyor(area: this);
+    var bufferOut5 = ModuleBufferConveyor(area: this);
+    var bufferOut6 = ModuleBufferAngleTransferOutFeed(
+      area: this,
+      moduleOutDirection: Direction.counterClockWise,
+    );
+
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-    systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
-    systems.link(loadingConveyor.modulesOut, deStacker.modulesIn);
+    systems.link(loadingForkLiftTruck.modulesOut, bufferIn1.modulesIn);
+    systems.link(bufferIn1.modulesOut, bufferIn2.modulesIn);
+    systems.link(bufferIn2.modulesOut, bufferIn3.modulesIn);
+    systems.link(bufferIn3.modulesOut, bufferIn4.modulesIn);
+    systems.link(bufferIn4.modulesOut, bufferIn5.modulesIn);
+    systems.link(bufferIn5.modulesOut, bufferIn6.modulesIn);
+    systems.link(bufferIn6.modulesOut, deStacker.modulesIn);
     systems.link(deStacker.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], mc1.modulesIn);
     systems.link(mc1.modulesOut, mc2.modulesIn);
@@ -314,8 +379,13 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     systems.link(moduleMainWasher.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, mrc2.modulesIns[0]);
     systems.link(mrc2.modulesOuts[1], stacker.modulesIn);
-    systems.link(stacker.modulesOut, unloadConveyor.modulesIn);
-    systems.link(unloadConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+    systems.link(stacker.modulesOut, bufferOut1.modulesIn);
+    systems.link(bufferOut1.modulesOut, bufferOut2.modulesIn);
+    systems.link(bufferOut2.modulesOut, bufferOut3.modulesIn);
+    systems.link(bufferOut3.modulesOut, bufferOut4.modulesIn);
+    systems.link(bufferOut4.modulesOut, bufferOut5.modulesIn);
+    systems.link(bufferOut5.modulesOut, bufferOut6.modulesIn);
+    systems.link(bufferOut6.modulesOut, unLoadingForkLiftTruck.modulesIn);
 
     // drawers
 

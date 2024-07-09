@@ -177,7 +177,7 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
   final ProductDefinition productDefinition;
   final List<GrandeDrawer> allDrawers;
   List<GrandeDrawer> drawersOnConveyor = [];
-  
+
   Duration? durationPerModule;
 
   Durations durationsPerModule = Durations(maxSize: 8);

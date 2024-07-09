@@ -246,7 +246,7 @@ class simultaneously extends LiveBirdHandlingArea {
       //   1.2,
       //   1.3,
       // ],
-        startIntervalFractions: <double>[
+      startIntervalFractions: <double>[
         0.7,
         0.8,
         0.9,
@@ -317,8 +317,6 @@ class simultaneously extends LiveBirdHandlingArea {
         hangers: 11, // TODO 11 hangers for 15000?
         metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
         allDrawers: drawers);
-
-
 
     var conveyor3 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
