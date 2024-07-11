@@ -26,7 +26,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
   final Duration pusherBackDuration;
   final Duration liftUpToTopDuration;
   final Duration liftOneLevelDownDuration;
-  final bool drawersToLeft;
+  final Direction drawerOutDirection;
 
   @override
   late final List<Command> commands = [
@@ -60,7 +60,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
 
   ModuleDrawerRowUnloader({
     required this.area,
-    required this.drawersToLeft,
+    required this.drawerOutDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration =
         const Duration(milliseconds: 9300), // TODO remove default value?
@@ -84,13 +84,6 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
 
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
-
-  // late DrawersOutLink drawersOut = DrawersOutLink(
-  //     system: this,
-  //     offsetFromCenterWhenFacingNorth: shape.centerToDrawersOutLink,
-  //     directionToOtherLink: drawersToLeft
-  //         ? const CompassDirection.west()
-  //         : const CompassDirection.east());
 
   late final ModuleDrawerRowUnloaderShape shape =
       ModuleDrawerRowUnloaderShape(this);
@@ -467,7 +460,7 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
       DrawerReceivingConveyors(this);
   late final CrossOver crossOver = CrossOver(this);
   late final shape = ModuleDrawerRowUnloaderReceiverShape(this);
-  final bool drawersToLeft;
+  final Direction drawerOutDirection;
   final drawersPerRow = 2;
   final Duration receivingConveyorsFeedOutDuration;
   final Duration receivingConveyorsStopperDownDuration;
@@ -481,7 +474,7 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
 
   ModuleDrawerRowUnloaderReceiver({
     required this.area,
-    required this.drawersToLeft,
+    required this.drawerOutDirection,
     this.receivingConveyorsFeedOutDuration = const Duration(milliseconds: 2500),
     this.receivingConveyorsStopperDownDuration =
         const Duration(milliseconds: 500),
@@ -779,7 +772,8 @@ class CrossOverConveyorFeedingOut extends State<CrossOver> {
           (conveyorStartToCenter.xInMeters - centerToDrawerPlace.xInMeters)
                   .abs() +
               GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
-      if (!crossOverConveyor.receiver.drawersToLeft) {
+      if (crossOverConveyor.receiver.drawerOutDirection ==
+          Direction.counterClockWise) {
         distanceTraveled += GrandeDrawerModuleType.drawerOutSideLengthInMeters;
       }
       if (i > 0) {

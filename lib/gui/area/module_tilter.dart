@@ -22,7 +22,7 @@ class ModuleTilterShape extends CompoundShape {
     conveyor = Box(xInMeters: 1.35, yInMeters: lengthInMeters);
     var rightConveyorFrame = Box(xInMeters: 0.25, yInMeters: lengthInMeters);
     var platform = Box(xInMeters: 0.75, yInMeters: lengthInMeters);
-    if (tilter.tiltToLeft) {
+    if (tilter.tiltDirection == Direction.counterClockWise) {
       link(leftConveyorFrame.centerRight, conveyor.centerLeft);
       link(conveyor.centerRight, rightConveyorFrame.centerLeft);
       link(rightConveyorFrame.centerRight, platform.centerLeft);

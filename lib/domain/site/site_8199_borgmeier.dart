@@ -196,7 +196,7 @@ class simultaneously extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
     );
 
     var mc4 = ModuleConveyor(area: this);

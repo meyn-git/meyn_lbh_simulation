@@ -25,7 +25,7 @@ class ShackleConveyor implements PhysicalSystem, TimeProcessor {
   Duration elapsedTime = Duration.zero;
   static final int hourInMicroSeconds = const Duration(hours: 1).inMicroseconds;
 
-  final bool toLeft;
+  final Direction direction;
 
   bool hasBirdToHang = false;
 
@@ -53,7 +53,7 @@ class ShackleConveyor implements PhysicalSystem, TimeProcessor {
 
   ShackleConveyor({
     required this.area,
-    required this.toLeft,
+    required this.direction,
   })  : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
         shacklePitchInInches = area.productDefinition.lineShacklePitchInInches,
         timePerBird = Duration(
@@ -77,7 +77,7 @@ class ShackleConveyor implements PhysicalSystem, TimeProcessor {
   late final birdIn = BirdInLink(
       system: this,
       offsetFromCenterWhenFacingNorth: shape.centerToBirdInLink,
-      directionToOtherLink: toLeft
+      directionToOtherLink: direction == Direction.counterClockWise
           ? const CompassDirection.west()
           : const CompassDirection.east(),
       canReceiveBird: () => !hasBirdToHang,

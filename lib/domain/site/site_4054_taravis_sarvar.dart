@@ -263,13 +263,13 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var unloader = ModuleDrawerRowUnloader(
       area: this,
-      drawersToLeft: false,
+      drawerOutDirection: Direction.clockWise,
     );
 
     var drawerConveyorSpeedInMeterPerSecond = 0.7;
     var receiver = ModuleDrawerRowUnloaderReceiver(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
       crossOverFeedOutMetersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 

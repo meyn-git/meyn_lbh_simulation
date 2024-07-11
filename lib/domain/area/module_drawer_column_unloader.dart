@@ -26,7 +26,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   final Duration pusherOutDuration;
   final Duration pusherInDuration;
   final Duration feedInToSecondColumn;
-  final bool drawersToLeft;
+  final Direction drawerOutDirection;
 
   @override
   late List<Command> commands = [
@@ -51,7 +51,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
 
   ModuleDrawerColumnUnloader({
     required this.area,
-    required this.drawersToLeft,
+    required this.drawerOutDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration =
         const Duration(milliseconds: 9300), // TODO remove default value?
@@ -80,7 +80,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   late DrawersOutLink drawersOut = DrawersOutLink(
       system: this,
       offsetFromCenterWhenFacingNorth: shape.centerToDrawersOutLink,
-      directionToOtherLink: drawersToLeft
+      directionToOtherLink: drawerOutDirection == Direction.counterClockWise
           ? const CompassDirection.west()
           : const CompassDirection.east());
 

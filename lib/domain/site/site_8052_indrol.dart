@@ -14,6 +14,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 
 import 'site.dart';
@@ -240,14 +241,14 @@ class Area extends LiveBirdHandlingArea {
 
     var tilter = ModuleTilter(
       area: this,
-      tiltToLeft: true,
+      tiltDirection: Direction.counterClockWise,
     );
 
     var dumpConveyor = ModuleTilterDumpConveyor(area: this);
 
     var shackleConveyor = ShackleConveyor(
       area: this,
-      toLeft: false,
+      direction: Direction.clockWise,
     );
 
     var tareWeigher = ModuleConveyor(area: this);

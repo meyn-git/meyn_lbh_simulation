@@ -90,6 +90,8 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
         );
   @override
   void createSystemsAndLinks() {
+    systems.startDirection = const CompassDirection.west();
+
     var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
@@ -126,7 +128,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerRowUnloader(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
     );
 
     var mc3 = ModuleConveyor(area: this);
@@ -199,7 +201,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var drawerUnloaderLift = ModuleDrawerRowUnloaderReceiver(
       area: this,
-      drawersToLeft: false,
+      drawerOutDirection: Direction.clockWise,
       crossOverFeedOutMetersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 
@@ -286,6 +288,8 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
         );
   @override
   void createSystemsAndLinks() {
+    systems.startDirection = const CompassDirection.west();
+
     var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
@@ -324,7 +328,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
     );
 
     var mc3 = ModuleConveyor(area: this);

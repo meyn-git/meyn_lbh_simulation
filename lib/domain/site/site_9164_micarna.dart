@@ -238,7 +238,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
-      drawersToLeft: false,
+      drawerOutDirection: Direction.clockWise,
     );
 
     var mc4 = ModuleConveyor(area: this);

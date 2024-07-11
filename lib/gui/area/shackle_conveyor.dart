@@ -15,7 +15,7 @@ class ShackleConveyorShape extends Shape {
   static const double inchInMeters = 0.0254;
 
   late final OffsetInMeters centerToBirdInLink = OffsetInMeters(
-      xInMeters: shackleConveyor.toLeft
+      xInMeters: shackleConveyor.direction == Direction.counterClockWise
           ? shackleDiameterInMeters * -0.5
           : shackleDiameterInMeters * 0.5,
       yInMeters: 2);

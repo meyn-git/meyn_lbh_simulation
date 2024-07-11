@@ -14,7 +14,7 @@ import 'state_machine.dart';
 
 class ModuleTilter extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
-  final bool tiltToLeft;
+  final Direction tiltDirection;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -26,14 +26,15 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   final Duration inFeedDuration;
   final Duration outFeedDuration;
 
-  late final CompassDirection doorDirection = (tiltToLeft
-          ? const CompassDirection.west()
-          : const CompassDirection.east())
-      .rotate(area.layout.rotationOf(this).degrees);
+  late final CompassDirection doorDirection =
+      (tiltDirection == Direction.counterClockWise
+              ? const CompassDirection.west()
+              : const CompassDirection.east())
+          .rotate(area.layout.rotationOf(this).degrees);
 
   ModuleTilter({
     required this.area,
-    required this.tiltToLeft,
+    required this.tiltDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration,
     this.tiltForwardDuration = const Duration(seconds: 9),
@@ -89,7 +90,7 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   late final birdsOut = BirdsOutLink(
     system: this,
     offsetFromCenterWhenFacingNorth: shape.centerToBirdsOutLink,
-    directionToOtherLink: tiltToLeft
+    directionToOtherLink: tiltDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
   );

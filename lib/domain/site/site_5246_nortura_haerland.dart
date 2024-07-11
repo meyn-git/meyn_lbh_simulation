@@ -14,6 +14,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
+import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/site/site.dart';
 
@@ -209,11 +210,12 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
       slideDoorLeft: true,
     );
 
-    var unloader = ModuleDrawerRowUnloader(area: this, drawersToLeft: true);
+    var unloader = ModuleDrawerRowUnloader(
+        area: this, drawerOutDirection: Direction.counterClockWise);
 
     var receiver = ModuleDrawerRowUnloaderReceiver(
         area: this,
-        drawersToLeft: true,
+        drawerOutDirection: Direction.counterClockWise,
         crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
 
     var drawerConveyor = DrawerConveyorStraight(
@@ -384,14 +386,14 @@ class HaerlandLiveBirdHandlingChickenArea extends LiveBirdHandlingArea {
 
     var tilter = ModuleTilter(
       area: this,
-      tiltToLeft: false,
+      tiltDirection: Direction.clockWise,
     );
 
     var dumpConveyor = ModuleTilterDumpConveyor(area: this);
 
     var shackleConveyor = ShackleConveyor(
       area: this,
-      toLeft: true,
+      direction: Direction.counterClockWise,
     );
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);

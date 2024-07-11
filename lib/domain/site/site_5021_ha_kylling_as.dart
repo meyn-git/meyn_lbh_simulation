@@ -148,7 +148,7 @@ class AreaWithGp extends LiveBirdHandlingArea {
 
     var tilter = ModuleTilter(
       area: this,
-      tiltToLeft: true,
+      tiltDirection: Direction.counterClockWise,
     );
 
     var dumpConveyor = ModuleTilterDumpConveyor(
@@ -159,7 +159,7 @@ class AreaWithGp extends LiveBirdHandlingArea {
 
     var shackleConveyor = ShackleConveyor(
       area: this,
-      toLeft: false,
+      direction: Direction.clockWise,
     );
 
     var unloadingConveyor = ModuleConveyor(area: this, lengthInMeters: 3.75);
@@ -266,7 +266,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
 
     var unloader = ModuleDrawerRowUnloader(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
     );
 
     var mrc3 = ModuleRotatingConveyor(
@@ -350,7 +350,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
     var drawerConveyorSpeedInMeterPerSecond = 0.7;
     var receiver = ModuleDrawerRowUnloaderReceiver(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
       crossOverFeedOutMetersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 

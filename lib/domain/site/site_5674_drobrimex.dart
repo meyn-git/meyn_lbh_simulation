@@ -273,11 +273,12 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var mc3 = ModuleConveyor(area: this);
 
     /// Drawer line 1
-    var unloader1 = ModuleDrawerRowUnloader(area: this, drawersToLeft: true);
+    var unloader1 = ModuleDrawerRowUnloader(
+        area: this, drawerOutDirection: Direction.counterClockWise);
 
     var receiver1 = ModuleDrawerRowUnloaderReceiver(
         area: this,
-        drawersToLeft: true,
+        drawerOutDirection: Direction.counterClockWise,
         crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
 
     var dc1a = DrawerConveyor90Degrees(
@@ -300,11 +301,12 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     );
 
     /// Drawer line 2
-    var unloader2 = ModuleDrawerRowUnloader(area: this, drawersToLeft: true);
+    var unloader2 = ModuleDrawerRowUnloader(
+        area: this, drawerOutDirection: Direction.counterClockWise);
 
     var receiver2 = ModuleDrawerRowUnloaderReceiver(
         area: this,
-        drawersToLeft: false,
+        drawerOutDirection: Direction.clockWise,
         crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
 
     var dc2a = DrawerConveyor90Degrees(

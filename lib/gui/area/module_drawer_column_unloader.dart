@@ -40,7 +40,7 @@ class ModuleDrawerColumnUnloaderShape extends CompoundShape {
     link(frameWest.centerRight, conveyor.centerLeft);
     link(conveyor.centerRight, frameEast.centerLeft);
     link(frameEast.topRight.addY(0.1), motor.topLeft);
-    if (drawerUnloader.drawersToLeft) {
+    if (drawerUnloader.drawerOutDirection == Direction.counterClockWise) {
       link(frameEast.centerRight, pusherFrame.centerLeft);
     } else {
       link(frameWest.centerLeft, pusherFrame.centerRight);
@@ -57,10 +57,11 @@ class ModuleDrawerColumnUnloaderShape extends CompoundShape {
     centerToModuleOutLink = OffsetInMeters(
         xInMeters: centerToConveyorCenter.xInMeters,
         yInMeters: yInMeters * -0.5);
-    centerToDrawersOutLink = (drawerUnloader.drawersToLeft
-            ? topLefts[frameWest]! + frameWest.centerLeft
-            : topLefts[frameEast]! + frameEast.centerRight) -
-        centerCenter;
+    centerToDrawersOutLink =
+        (drawerUnloader.drawerOutDirection == Direction.counterClockWise
+                ? topLefts[frameWest]! + frameWest.centerLeft
+                : topLefts[frameEast]! + frameEast.centerRight) -
+            centerCenter;
   }
 }
 

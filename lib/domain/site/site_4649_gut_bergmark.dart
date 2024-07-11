@@ -96,8 +96,8 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas5 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true,
+      gasDuctsLeft: false,
     );
 
     var mrc2 = ModuleRotatingConveyor(
@@ -119,14 +119,14 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas4 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true,
+      gasDuctsLeft: false,
     );
 
     var cas3 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true,
+      gasDuctsLeft: false,
     );
 
     var mrc3 = ModuleRotatingConveyor(
@@ -148,14 +148,14 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas2 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true,
+      gasDuctsLeft: false,
     );
 
     var cas1 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      slideDoorLeft: true,
+      gasDuctsLeft: false,
     );
 
     var mc1 = ModuleConveyor(area: this);
@@ -166,7 +166,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
-      drawersToLeft: true,
+      drawerOutDirection: Direction.counterClockWise,
     );
 
     var drawerUnloaderLift = DrawerUnloaderLift(area: this);

@@ -50,7 +50,7 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
     link(liftFrame.topLeft, northWestLeg.topRight);
     link(conveyor.centerLeft, westConveyorFrame.centerRight);
     link(conveyor.centerRight, eastConveyorFrame.centerLeft);
-    if (unloader.drawersToLeft) {
+    if (unloader.drawerOutDirection == Direction.counterClockWise) {
       link(liftFrame.centerRight, pusher.centerLeft);
       centerToDrawersOutLink =
           topLefts[liftFrame]! + liftFrame.centerLeft - centerCenter;
@@ -70,9 +70,9 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
     var yFromCenterInMeters = yDrawers /
         unloader.drawersPerRow *
         0.5 *
-        (unloader.drawersToLeft ? 1 : -1);
+        unloader.drawerOutDirection.sign;
     var yDistanceBetweenDrawersInMeters =
-        yDrawers / unloader.drawersPerRow * (unloader.drawersToLeft ? -1 : 1);
+        yDrawers / unloader.drawersPerRow * unloader.drawerOutDirection.sign;
     for (int i = 0; i < unloader.drawersPerRow; i++) {
       centerToLiftConveyorDrawerCenters.add(centerToConveyorCenter
           .addY(yFromCenterInMeters)
@@ -120,7 +120,7 @@ class ModuleDrawerRowUnloaderReceiverShape extends CompoundShape {
     link(cover1.topCenter, cover2.bottomCenter);
     link(cover2.topCenter, platform.bottomCenter);
 
-    if (receiver.drawersToLeft) {
+    if (receiver.drawerOutDirection == Direction.counterClockWise) {
       link(cover2.topLeft.addX(-0.9), drawerConveyor.topLeft);
       centerToFeedOutConveyorInLink =
           topLefts[drawerConveyor]! + drawerConveyor.centerRight - centerCenter;
