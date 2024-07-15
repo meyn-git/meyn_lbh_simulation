@@ -70,7 +70,8 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
     var yFromCenterInMeters = yDrawers /
         unloader.drawersPerRow *
         0.5 *
-        unloader.drawerOutDirection.sign;
+        unloader.drawerOutDirection.sign *
+        -1;
     var yDistanceBetweenDrawersInMeters =
         yDrawers / unloader.drawersPerRow * unloader.drawerOutDirection.sign;
     for (int i = 0; i < unloader.drawersPerRow; i++) {

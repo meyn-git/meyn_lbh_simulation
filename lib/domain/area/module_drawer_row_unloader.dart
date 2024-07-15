@@ -405,12 +405,12 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
 
       drawers.add(newDrawer);
       unloader.drawerPlaces[i].drawer = newDrawer;
-      var drawerPlace = receiver(unloader).receivingConveyors.drawerPlaces[i];
+      var destination = receiver(unloader).receivingConveyors.drawerPlaces[i];
       newDrawer.position = BetweenDrawerPlaces(
           drawerRotation: drawerRotation,
           duration: unloader.pusherPushDuration,
           startPlace: unloader.drawerPlaces[i],
-          destinationPlace: drawerPlace);
+          destinationPlace: destination);
     }
     return drawers;
   }
@@ -773,7 +773,7 @@ class CrossOverConveyorFeedingOut extends State<CrossOver> {
                   .abs() +
               GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
       if (crossOverConveyor.receiver.drawerOutDirection ==
-          Direction.counterClockWise) {
+          Direction.clockWise) {
         distanceTraveled += GrandeDrawerModuleType.drawerOutSideLengthInMeters;
       }
       if (i > 0) {
