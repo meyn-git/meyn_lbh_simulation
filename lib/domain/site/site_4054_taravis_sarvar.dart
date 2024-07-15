@@ -45,18 +45,22 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageNormalBirdWeight, 100),
-                          averageNormalBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageNormalBirdWeight, 100),
-                          averageNormalBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(
+                                  averageNormalBirdWeight, 100),
+                              averageNormalBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(
+                                  averageNormalBirdWeight, 100),
+                              averageNormalBirdWeight),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -67,18 +71,22 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageNormalBirdWeight, 90),
-                          averageNormalBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageNormalBirdWeight, 90),
-                          averageNormalBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(
+                                  averageNormalBirdWeight, 90),
+                              averageNormalBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(
+                                  averageNormalBirdWeight, 90),
+                              averageNormalBirdWeight),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -89,22 +97,24 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.floorSpaceInCm2(
-                              minCm2FloorSpacePerKgLiveWeight: 160,
-                              loadingPercentage: 100),
-                          averageHeavyBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.floorSpaceInCm2(
-                              minCm2FloorSpacePerKgLiveWeight: 160,
-                              loadingPercentage: 100),
-                          averageHeavyBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.floorSpaceInCm2(
+                                  minCm2FloorSpacePerKgLiveWeight: 160,
+                                  loadingPercentage: 100),
+                              averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.floorSpaceInCm2(
+                                  minCm2FloorSpacePerKgLiveWeight: 160,
+                                  loadingPercentage: 100),
+                              averageHeavyBirdWeight),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -115,22 +125,24 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.floorSpaceInCm2(
-                              minCm2FloorSpacePerKgLiveWeight: 160,
-                              loadingPercentage: 90),
-                          averageHeavyBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.floorSpaceInCm2(
-                              minCm2FloorSpacePerKgLiveWeight: 160,
-                              loadingPercentage: 90),
-                          averageHeavyBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.floorSpaceInCm2(
+                                  minCm2FloorSpacePerKgLiveWeight: 160,
+                                  loadingPercentage: 90),
+                              averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.floorSpaceInCm2(
+                                  minCm2FloorSpacePerKgLiveWeight: 160,
+                                  loadingPercentage: 90),
+                              averageHeavyBirdWeight),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -141,18 +153,22 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageHeavyBirdWeight, 100),
-                          averageHeavyBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageHeavyBirdWeight, 100),
-                          averageHeavyBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(
+                                  averageHeavyBirdWeight, 100),
+                              averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(
+                                  averageHeavyBirdWeight, 100),
+                              averageHeavyBirdWeight),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -163,18 +179,20 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
-                          averageHeavyBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
-                          averageHeavyBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
+                              averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
+                              averageHeavyBirdWeight),
+                })
               ]),
         ]);
 

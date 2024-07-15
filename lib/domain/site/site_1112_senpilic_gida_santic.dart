@@ -49,14 +49,16 @@ class SenpelicProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(22),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(22),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(22),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(22),
+                })
               ]),
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
@@ -68,14 +70,16 @@ class SenpelicProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(22),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(22),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(22),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(22),
+                })
               ]),
         ]);
 }

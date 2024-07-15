@@ -52,14 +52,14 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x6Turkey()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x6Turkey()
                       .dimensions
                       .capacityWithBirdsPerCompartment(6),
-                  secondModule: MarelGpS1x6Turkey()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x6Turkey()
                       .dimensions
                       .capacityWithBirdsPerCompartment(6),
-                )
+                })
               ]),
         ]);
 

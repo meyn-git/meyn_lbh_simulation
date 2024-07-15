@@ -33,9 +33,8 @@ import 'state_machine.dart';
 /// * module4.position=OnTopOf(module2)
 ///
 /// Or make ModuleGroup extend DelegatingList<Module>
-class ModuleGroup extends TimeProcessor implements Detailable {
-  final Module firstModule;
-  Module? secondModule;
+class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
+    implements TimeProcessor, Detailable {
   final ModuleFamily moduleFamily;
 
   /// The direction (rotation) of the module group. This is the direction
@@ -45,33 +44,14 @@ class ModuleGroup extends TimeProcessor implements Detailable {
   PositionOnSystem position;
 
   ModuleGroup({
+    required Map<PositionWithinModuleGroup, Module> modules,
     required this.moduleFamily,
-    required this.firstModule,
-    this.secondModule,
     required this.direction,
     required this.destination,
     required this.position,
-  });
+  }) : super(modules);
 
-  ModuleGroup copyWith(
-          {ModuleFamily? moduleFamily,
-          Module? firstModule,
-          Module? secondModule,
-          CompassDirection? direction,
-          PhysicalSystem? destination,
-          PositionOnSystem? position}) =>
-      ModuleGroup(
-          moduleFamily: moduleFamily ?? this.moduleFamily,
-          firstModule: firstModule ?? this.firstModule,
-          direction: direction ?? this.direction,
-          destination: destination ?? this.destination,
-          position: position ?? this.position);
-
-  int get numberOfModules => 1 + ((secondModule == null) ? 0 : 1);
-
-  int get numberOfBirds =>
-      firstModule.nrOfBirds +
-      ((secondModule == null) ? 0 : secondModule!.nrOfBirds);
+  int get numberOfModules => keys.length;
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
@@ -98,19 +78,18 @@ class ModuleGroup extends TimeProcessor implements Detailable {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('doorDirection', direction)
-      .appendProperty('destination', destination.name)
-      .appendProperty('firstModule', firstModule)
-      .appendProperty('secondModule', secondModule);
+      .appendProperty('destination', destination.name);
 
   @override
   String toString() => objectDetails.toString();
 
-  Duration? get sinceLoadedOnSystem => firstModule.sinceLoadedOnSystem;
+  Iterable<Module> get modules => values;
+
+  Duration? get sinceLoadedOnSystem => modules.firstOrNull?.sinceLoadedOnSystem;
 
   set sinceLoadedOnSystem(Duration? duration) {
-    firstModule.sinceLoadedOnSystem = duration;
-    if (secondModule != null) {
-      secondModule!.sinceLoadedOnSystem = duration;
+    for (var module in modules) {
+      module.sinceLoadedOnSystem = duration;
     }
   }
 
@@ -118,12 +97,11 @@ class ModuleGroup extends TimeProcessor implements Detailable {
     sinceLoadedOnSystem = Duration.zero;
   }
 
-  Duration? get sinceStartStun => firstModule.sinceStartStun;
+  Duration? get sinceStartStun => modules.firstOrNull?.sinceStartStun;
 
   set sinceStartStun(Duration? duration) {
-    firstModule.sinceStartStun = duration;
-    if (secondModule != null) {
-      secondModule!.sinceStartStun = duration;
+    for (var module in modules) {
+      module.sinceStartStun = duration;
     }
   }
 
@@ -131,12 +109,11 @@ class ModuleGroup extends TimeProcessor implements Detailable {
     sinceStartStun = Duration.zero;
   }
 
-  Duration? get sinceEndStun => firstModule.sinceEndStun;
+  Duration? get sinceEndStun => modules.firstOrNull?.sinceEndStun;
 
   set sinceEndStun(Duration? duration) {
-    firstModule.sinceEndStun = duration;
-    if (secondModule != null) {
-      secondModule!.sinceEndStun = duration;
+    for (var module in modules) {
+      module.sinceEndStun = duration;
     }
   }
 
@@ -144,20 +121,20 @@ class ModuleGroup extends TimeProcessor implements Detailable {
     sinceEndStun = Duration.zero;
   }
 
-  Duration? get sinceBirdsUnloaded => firstModule.sinceBirdsUnloaded;
+  Duration? get sinceBirdsUnloaded => modules.firstOrNull?.sinceBirdsUnloaded;
 
   set sinceBirdsUnloaded(Duration? duration) {
-    firstModule.sinceBirdsUnloaded = duration;
-    if (secondModule != null) {
-      secondModule!.sinceBirdsUnloaded = duration;
+    for (var module in modules) {
+      module.sinceBirdsUnloaded = duration;
     }
   }
 
+  int get numberOfBirds => values.map((module) => module.nrOfBirds).sum;
+
   void unloadBirds() {
     sinceBirdsUnloaded = Duration.zero;
-    firstModule.nrOfBirds = 0;
-    if (secondModule != null) {
-      secondModule!.nrOfBirds = 0;
+    for (var module in modules) {
+      module.nrOfBirds = 0;
     }
   }
 
@@ -173,23 +150,42 @@ class ModuleGroup extends TimeProcessor implements Detailable {
     }
   }
 
-  /// Splits the [ModuleGroup] int 2 different [ModuleGroup]s:
-  /// - The [ModuleGroup.secondModule] is removed from the existing [ModuleGroup]
-  /// - returns a new copied [ModuleGroup] where [ModuleGroup.firstModule]=[ModuleGroup.secondModule]
-  ModuleGroup? split() {
-    if (secondModule == null) {
-      throw Exception(
-          'You can not split a $ModuleGroup that contains only one module');
-    }
-    var newModuleGroup =
-        copyWith(firstModule: secondModule, secondModule: null);
-    secondModule = null;
-    return newModuleGroup;
-  }
+  get stacks => keys.map((position) => position.stack).toSet().length;
+
+  // TODO removed because there are many ways to split a [ModuleGroup]
+  // /// Splits the [ModuleGroup] int 2 different [ModuleGroup]s:
+  // /// - The [ModuleGroup.secondModule] is removed from the existing [ModuleGroup]
+  // /// - returns a new copied [ModuleGroup] where [ModuleGroup.firstModule]=[ModuleGroup.secondModule]
+  // ModuleGroup? split() {
+  //   if (secondModule == null) {
+  //     throw Exception(
+  //         'You can not split a $ModuleGroup that contains only one module');
+  //   }
+  //   var newModuleGroup =
+  //       copyWith(PositionWithinModuleGroup.firstBottom: secondModule, PositionWithinModuleGroup.firstTop: null);
+  //   secondModule = null;
+  //   return newModuleGroup;
+  // }
 
   isBeingTransportedTo(PhysicalSystem system) =>
       position is BetweenModuleGroupPlaces &&
       (position as BetweenModuleGroupPlaces).destination.system == system;
+}
+
+enum PositionWithinModuleGroup {
+  firstBottom(stack: 0, level: 0),
+  firstTop(stack: 0, level: 1);
+
+  /// the stack number of a [Module] within a [ModuleGroup]
+  /// * 0= first (leading stack)
+  /// * 1= second stack (if any)
+  final int stack;
+
+  /// the level of a [Module] within a [ModuleGroup]
+  /// * 0= bottom level
+  /// * 1= stacked on bottom level (if any)
+  final int level;
+  const PositionWithinModuleGroup({required this.stack, required this.level});
 }
 
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
@@ -989,33 +985,38 @@ class ModuleCapacity {
   }
 }
 
-class ModuleGroupCapacity {
+class ModuleGroupCapacity
+    extends DelegatingMap<PositionWithinModuleGroup, ModuleCapacity> {
   /// how often this Module Combination is loaded on to the system
-  /// 1=100% of the time, 1/4=25% of the time
+  /// 1=100% of the time, 0.25=25% of the time
   final double occurrence;
-  final ModuleCapacity firstModule;
-  final ModuleCapacity? secondModule;
 
-  ModuleGroupCapacity({
+  ModuleGroupCapacity(
+    super.moduleCapacities, {
     this.occurrence = 1,
-    required this.firstModule,
-    this.secondModule,
   });
 
+  Iterable<ModuleCapacity> get capacities => values;
+
   int get numberOfBirds =>
-      firstModule.numberOfBirds +
-      (secondModule == null ? 0 : secondModule!.numberOfBirds);
+      capacities.map((capacity) => capacity.numberOfBirds).sum;
 
   @override
   String toString() {
-    if (secondModule == null) {
-      return firstModule.toString();
+    var strings = values.map((capacity) => capacity.toString()).toList();
+    var result = StringBuffer();
+    for (String string in strings.toSet()) {
+      var count = strings.where((s) => s == string).length;
+      if (result.length > 0) {
+        result.write('+');
+      }
+      if (count > 1) {
+        result.write('$count$string');
+      } else {
+        result.write(string);
+      }
     }
-    if (firstModule.toString() == secondModule.toString()) {
-      return '2x$firstModule';
-    } else {
-      return '$firstModule+$secondModule';
-    }
+    return result.toString();
   }
 }
 

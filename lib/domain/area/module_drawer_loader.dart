@@ -97,7 +97,7 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
 
   bool get canFeedOutDrawers =>
       moduleDrawerLoader.moduleGroup != null &&
-      moduleDrawerLoader.moduleGroup!.firstModule.levels ==
+      moduleDrawerLoader.moduleGroup!.modules.first.levels ==
           drawersToFeedOut.length;
 
   SizeInMeters _size() => shape.size;
@@ -633,7 +633,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   }
 
   int numberOfDrawersToFeedIn() =>
-      !waitingToFeedInDrawers ? 0 : moduleGroup!.firstModule.levels;
+      !waitingToFeedInDrawers ? 0 : moduleGroup!.modules.first.levels;
 
   @override
   late final String name = 'ModuleDrawerLoader$seqNr';

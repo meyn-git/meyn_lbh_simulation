@@ -43,11 +43,12 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowTurkey3Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(8),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowTurkey3Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(8),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactoryTurkey(),
@@ -58,11 +59,12 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowTurkey3Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(3),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowTurkey3Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(3),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactoryTurkey(),
@@ -73,11 +75,12 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowTurkey3Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(1),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowTurkey3Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(1),
+                })
               ]),
 
           /// Lost chicken line to Marel Atlas
@@ -90,14 +93,14 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x4Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(birdsPerCompartment),
-                  secondModule: MarelGpS1x4Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(birdsPerCompartment),
-                )
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactoryChicken(),
@@ -108,14 +111,14 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x4Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(birdsPerCompartment),
-                  secondModule: MarelGpS1x4Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(birdsPerCompartment),
-                )
+                })
               ]),
         ]);
 

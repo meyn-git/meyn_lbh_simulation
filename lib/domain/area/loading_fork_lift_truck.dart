@@ -48,25 +48,21 @@ class LoadingForkLiftTruck extends StateMachine
       moduleBirdExitDirection == ModuleBirdExitDirection.left ? 180 : 0;
 
   ModuleGroup createModuleGroup() {
-    var moduleGroupCapacity = _randomModuleGroupCapacity();
+    var capacities = _randomModuleGroupCapacity();
 
     var moduleGroup = ModuleGroup(
         moduleFamily: area.productDefinition.moduleFamily,
-        firstModule: Module(
-          nrOfBirds: moduleGroupCapacity.firstModule.numberOfBirds,
-          levels: moduleGroupCapacity.firstModule.levels,
-          sequenceNumber: ++sequenceNumber,
-        ),
-        secondModule: moduleGroupCapacity.secondModule == null
-            ? null
-            : Module(
-                nrOfBirds: moduleGroupCapacity.secondModule!.numberOfBirds,
-                levels: moduleGroupCapacity.secondModule!.levels,
-                sequenceNumber: ++sequenceNumber,
-              ),
         direction: moduleGroupDirection,
         destination: _findModuleGroupDestination(),
-        position: AtModuleGroupPlace(moduleGroupPlace));
+        position: AtModuleGroupPlace(moduleGroupPlace),
+        modules: capacities.map((position, capacity) => MapEntry(
+            position,
+            Module(
+              nrOfBirds: capacity.numberOfBirds,
+              levels: capacity.levels,
+              sequenceNumber: ++sequenceNumber,
+            ))));
+
     return moduleGroup;
   }
 
@@ -235,7 +231,20 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
 
     if (forkLiftTruck.loadsSingleModule) {
       if (moduleGroup.numberOfModules > 1) {
-        forkLiftTruck.area.moduleGroups.add(moduleGroup.split()!);
+        if (moduleGroup.stacks > 1) {
+          throw (Exception('$name can only de-stack single stacks'));
+        }
+        Module module = moduleGroup[PositionWithinModuleGroup.firstBottom]!;
+        moduleGroup.remove(PositionWithinModuleGroup.firstBottom);
+
+        var newModuleGroup = ModuleGroup(
+            modules: {PositionWithinModuleGroup.firstBottom: module},
+            moduleFamily: moduleGroup.moduleFamily,
+            direction: moduleGroup.direction,
+            destination: moduleGroup.destination,
+            position: AtModuleGroupPlace(forkLiftTruck.moduleGroupPlace));
+        forkLiftTruck.area.moduleGroups.add(newModuleGroup);
+        forkLiftTruck.moduleGroupPlace.moduleGroup = newModuleGroup;
       }
     }
 

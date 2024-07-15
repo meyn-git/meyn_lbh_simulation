@@ -85,10 +85,12 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: femaleTurkeyMinWeightCapacity,
-                  secondModule: femaleTurkeyMinWeightCapacity,
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      femaleTurkeyMinWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      femaleTurkeyMinWeightCapacity,
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -99,10 +101,12 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: femaleTurkeyAverageWeightCapacity,
-                  secondModule: femaleTurkeyAverageWeightCapacity,
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      femaleTurkeyAverageWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      femaleTurkeyAverageWeightCapacity,
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -113,10 +117,12 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: femaleTurkeyMaxWeightCapacity,
-                  secondModule: femaleTurkeyMaxWeightCapacity,
-                ),
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      femaleTurkeyMaxWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      femaleTurkeyMaxWeightCapacity,
+                }),
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -127,10 +133,12 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: maleTurkeyMinWeightCapacity,
-                  secondModule: maleTurkeyMinWeightCapacity,
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      maleTurkeyMinWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      maleTurkeyMinWeightCapacity,
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -141,10 +149,12 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: maleTurkeyAverageWeightCapacity,
-                  secondModule: maleTurkeyAverageWeightCapacity,
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      maleTurkeyAverageWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      maleTurkeyAverageWeightCapacity,
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(),
@@ -155,10 +165,12 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: maleTurkeyMaxWeightCapacity,
-                  secondModule: maleTurkeyMaxWeightCapacity,
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      maleTurkeyMaxWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      maleTurkeyMaxWeightCapacity,
+                })
               ]),
         ]);
 

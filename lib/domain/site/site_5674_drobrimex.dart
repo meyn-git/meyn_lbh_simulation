@@ -39,14 +39,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                  secondModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
@@ -60,14 +62,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                  secondModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
@@ -81,14 +85,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                  secondModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
@@ -102,14 +108,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                  secondModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                })
               ]),
           ProductDefinition(
               areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
@@ -123,14 +131,16 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                  secondModule: AngliaAutoFlowChickenSmall4Level()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(15),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop:
+                      AngliaAutoFlowChickenSmall4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(15),
+                })
               ]),
         ]);
 

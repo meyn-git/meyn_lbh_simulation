@@ -45,14 +45,14 @@ class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
                 /// according to:  \\meyn.nl\project\acaddrwg\5836 Van der Linden - The Netherlands\2021\02 - Meyn drawings\Sales\5836s102z00b1-Model.pdf
                 /// min = 192 per container (190)
                 /// mac = 252 per container
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x5Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x5Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment((190 / 5).round()),
-                  secondModule: MarelGpS1x5Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x5Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment((190 / 5).round()),
-                )
+                })
               ]),
         ]);
 

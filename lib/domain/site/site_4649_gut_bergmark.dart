@@ -48,14 +48,16 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken5Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken5Level()
+                          .dimensions
+                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
+                })
               ]),
         ]);
 

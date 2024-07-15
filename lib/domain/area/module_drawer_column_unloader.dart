@@ -301,7 +301,7 @@ class WaitToPushOutFirstColumn extends State<ModuleDrawerColumnUnloader> {
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('Unloader can not handle stacked containers');
     }
-    int levels = moduleGroup.firstModule.levels;
+    int levels = moduleGroup.modules.first.levels;
     if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
       return PushOutFirstColumn();
     }
@@ -322,7 +322,7 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
     super.onStart(unloader);
     var drawers = unloader.area.drawers;
     var moduleGroup = unloader.moduleGroupPositionFirstColumn.moduleGroup!;
-    var module = moduleGroup.firstModule;
+    var module = moduleGroup.modules.first;
     var levels = module.levels;
     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
     var contents = moduleGroup.contents;
@@ -402,7 +402,7 @@ class WaitToPushOutSecondColumn extends State<ModuleDrawerColumnUnloader> {
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('Unloader can not handle stacked containers');
     }
-    int levels = moduleGroup.firstModule.levels;
+    int levels = moduleGroup.modules.first.levels;
     if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
       return PusherOutSecondColumn();
     }
@@ -424,7 +424,7 @@ class PusherOutSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
     super.onStart(unloader);
     var drawers = unloader.area.drawers;
     var moduleGroup = unloader.moduleGroupPositionSecondColumn.moduleGroup!;
-    var module = moduleGroup.firstModule;
+    var module = moduleGroup.modules.first;
     var levels = module.levels;
     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
     var contents = moduleGroup.contents;

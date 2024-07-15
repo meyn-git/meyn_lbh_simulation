@@ -47,14 +47,14 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x4Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(26),
-                  secondModule: MarelGpS1x5Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x5Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(26),
-                )
+                })
               ]),
           ProductDefinition(
               // 1,3 stacks per hour
@@ -66,14 +66,14 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x4Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(33),
-                  secondModule: MarelGpS1x5Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x5Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(33),
-                )
+                })
               ]),
           ProductDefinition(
               //0.6319997 stacks per hour
@@ -85,14 +85,14 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x4Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(52),
-                  secondModule: MarelGpS1x5Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x5Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(52),
-                )
+                })
               ]),
           ProductDefinition(
               //0,8379
@@ -104,14 +104,14 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MarelGpS1x4Chicken()
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(54),
-                  secondModule: MarelGpS1x5Chicken()
+                  PositionWithinModuleGroup.firstTop: MarelGpS1x5Chicken()
                       .dimensions
                       .capacityWithBirdsPerCompartment(54),
-                )
+                })
               ]),
         ]);
 

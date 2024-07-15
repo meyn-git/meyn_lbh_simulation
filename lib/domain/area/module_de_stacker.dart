@@ -190,10 +190,20 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
-    var moduleGroupOnSupports = deStacker.onConveyorPlace.moduleGroup!.split();
-    deStacker.area.moduleGroups.add(moduleGroupOnSupports!);
-    moduleGroupOnSupports.position =
-        AtModuleGroupPlace(deStacker.onSupportsPlace);
+    var moduleGroupOnConveyor = deStacker.onConveyorPlace.moduleGroup!;
+    if (moduleGroupOnConveyor.stacks > 1) {
+      throw Exception('$name can only de-stack a single stack at a time!');
+    }
+    Module module = moduleGroupOnConveyor[PositionWithinModuleGroup.firstTop]!;
+    moduleGroupOnConveyor.remove(PositionWithinModuleGroup.firstTop);
+
+    var moduleGroupOnSupports = ModuleGroup(
+        modules: {PositionWithinModuleGroup.firstBottom: module},
+        moduleFamily: moduleGroupOnConveyor.moduleFamily,
+        direction: moduleGroupOnConveyor.direction,
+        destination: moduleGroupOnConveyor.destination,
+        position: AtModuleGroupPlace(deStacker.onSupportsPlace));
+    deStacker.area.moduleGroups.add(moduleGroupOnSupports);
     deStacker.onSupportsPlace.moduleGroup = moduleGroupOnSupports;
   }
 }

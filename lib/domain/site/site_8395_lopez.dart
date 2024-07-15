@@ -41,16 +41,17 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
                 ModuleGroupCapacity(
-                  // bird weight min: 2,3 avr: 2,8 max 3kg
-                  firstModule: ModuleCapacity(
-                      levels: 4,
-                      compartmentsPerLevel: 2,
-                      birdsPerCompartment: 24),
-                  secondModule: ModuleCapacity(
-                      levels: 5,
-                      compartmentsPerLevel: 2,
-                      birdsPerCompartment: 24),
-                )
+                    // bird weight min: 2,3 avr: 2,8 max 3kg
+                    {
+                      PositionWithinModuleGroup.firstBottom: ModuleCapacity(
+                          levels: 4,
+                          compartmentsPerLevel: 2,
+                          birdsPerCompartment: 24),
+                      PositionWithinModuleGroup.firstTop: ModuleCapacity(
+                          levels: 5,
+                          compartmentsPerLevel: 2,
+                          birdsPerCompartment: 24),
+                    })
               ]),
         ]);
 

@@ -215,7 +215,8 @@ class OpenModuleSupports extends DurationState<ModuleStacker> {
   void _mergeModuleGroup(ModuleStacker stacker) {
     var moduleGroupOnConveyor = stacker.onConveyorPlace.moduleGroup!;
     var moduleGroupOnSupports = stacker.onSupportsPlace.moduleGroup!;
-    moduleGroupOnConveyor.secondModule = moduleGroupOnSupports.firstModule;
+    moduleGroupOnConveyor[PositionWithinModuleGroup.firstTop] =
+        moduleGroupOnSupports.modules.first;
     stacker.area.moduleGroups.remove(moduleGroupOnSupports);
     stacker.onSupportsPlace.moduleGroup = null;
   }

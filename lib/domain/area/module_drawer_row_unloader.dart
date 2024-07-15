@@ -386,7 +386,7 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('Unloader can not handle stacked containers');
     }
-    var module = moduleGroup.firstModule;
+    var module = moduleGroup.modules.first;
     var levels = module.levels;
     var nrOfBirdsPerDrawer =
         module.nrOfBirds / unloader.drawersPerRow ~/ levels;
@@ -433,7 +433,7 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
   @override
   void onCompleted(ModuleDrawerRowUnloader unloader) {
     var moduleGroup = unloader.moduleGroupPlace.moduleGroup!;
-    var module = moduleGroup.firstModule;
+    var module = moduleGroup.modules.first;
     var moduleEmpty = unloader.liftLevel.level == module.levels;
     if (moduleEmpty) {
       moduleGroup.unloadBirds();

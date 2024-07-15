@@ -228,8 +228,8 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
 
   late double secondsPerDrawer = 3600 /
       (productDefinition.lineSpeedInShacklesPerHour /
-          productDefinition
-              .moduleGroupCapacities.first.firstModule.birdsPerCompartment);
+          productDefinition.moduleGroupCapacities.first.capacities.first
+              .birdsPerCompartment);
   late double lastConveyorSpeed =
       GrandeDrawerModuleType.drawerOutSideLengthInMeters / secondsPerDrawer;
 

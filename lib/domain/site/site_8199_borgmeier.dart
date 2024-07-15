@@ -48,16 +48,18 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          loadDensityHeaviestFlock, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken5Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          loadDensityHeaviestFlock, maxBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              loadDensityHeaviestFlock, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken5Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              loadDensityHeaviestFlock, maxBirdWeight),
+                })
               ]),
           ProductDefinition(
               //13500 b/h
@@ -69,16 +71,18 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          loadDensityHeaviestFlock, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken5Level()
-                      .dimensions
-                      .capacityWithDensity(
-                          loadDensityHeaviestFlock, maxBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              loadDensityHeaviestFlock, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken5Level()
+                          .dimensions
+                          .capacityWithDensity(
+                              loadDensityHeaviestFlock, maxBirdWeight),
+                })
               ]),
         ]);
 

@@ -46,10 +46,10 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
           //     moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
           //     moduleGroupCapacities: [
           //       ModuleGroupCapacity(
-          //         firstModule: MeynGrandeDrawerChicken4Level()
+          //         PositionWithinModuleGroup.firstBottom: MeynGrandeDrawerChicken4Level()
           //             .dimensions
           //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
-          //         secondModule: MeynGrandeDrawerChicken4Level()
+          //         PositionWithinModuleGroup.firstTop: MeynGrandeDrawerChicken4Level()
           //             .dimensions
           //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
           //       )
@@ -63,10 +63,10 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
           //     moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
           //     moduleGroupCapacities: [
           //       ModuleGroupCapacity(
-          //         firstModule: MeynGrandeDrawerChicken5Level()
+          //         PositionWithinModuleGroup.firstBottom: MeynGrandeDrawerChicken5Level()
           //             .dimensions
           //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
-          //         secondModule: MeynGrandeDrawerChicken4Level()
+          //         PositionWithinModuleGroup.firstTop: MeynGrandeDrawerChicken4Level()
           //             .dimensions
           //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
           //       )
@@ -80,14 +80,16 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                  firstModule: MeynGrandeDrawerChicken5Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  secondModule: MeynGrandeDrawerChicken4Level()
-                      .dimensions
-                      .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                )
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken5Level()
+                          .dimensions
+                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
+                })
               ]),
         ]);
 

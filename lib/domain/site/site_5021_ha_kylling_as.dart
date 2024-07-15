@@ -46,13 +46,16 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                    firstModule: MeynGrandeDrawerChicken4Level()
-                        .dimensions
-                        .capacityWithBirdsPerCompartment(34),
-                    secondModule: MeynGrandeDrawerChicken4Level()
-                        .dimensions
-                        .capacityWithBirdsPerCompartment(34))
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(34),
+                  PositionWithinModuleGroup.firstTop:
+                      MeynGrandeDrawerChicken4Level()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(34)
+                })
               ]),
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
@@ -64,13 +67,16 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
               moduleGroupCapacities: [
-                ModuleGroupCapacity(
-                    firstModule: MarelGpStainlessSteel2x4Chicken()
-                        .dimensions
-                        .capacityWithBirdsPerCompartment(37),
-                    secondModule: MarelGpStainlessSteel2x4Chicken()
-                        .dimensions
-                        .capacityWithBirdsPerCompartment(37))
+                ModuleGroupCapacity({
+                  PositionWithinModuleGroup.firstBottom:
+                      MarelGpStainlessSteel2x4Chicken()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(37),
+                  PositionWithinModuleGroup.firstTop:
+                      MarelGpStainlessSteel2x4Chicken()
+                          .dimensions
+                          .capacityWithBirdsPerCompartment(37)
+                })
               ]),
         ]);
 }
