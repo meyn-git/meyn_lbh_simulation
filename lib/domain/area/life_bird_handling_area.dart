@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -124,20 +125,20 @@ abstract class TimeProcessor {
 }
 
 class ProductDefinition {
-  final String birdType; //TODO should be obtained from moduleGroupCapacities
+  final String birdType;
   final int lineSpeedInShacklesPerHour;
   final int lineShacklePitchInInches;
-  final List<TruckRow>
-      truckRows; // verify if module groups are identical (family dimensions, bird type)
+  final List<TruckRow> truckRows;
   final CasRecipe? casRecipe;
-  final ModuleSystem
-      moduleSystem; //TODO should be obtained from moduleGroupCapacities
+
+  late final ModuleSystem moduleSystem = ModuleSystem.ofVariantBase(
+      truckRows.first.templates.first.variant as ModuleVariantBase);
+
   final List<LiveBirdHandlingArea> Function(ProductDefinition)
       areaFactory; //TODO does this have to be a list?
 
   ProductDefinition({
     required this.areaFactory,
-    required this.moduleSystem,
     required this.birdType,
     required this.lineSpeedInShacklesPerHour,
     required this.lineShacklePitchInInches,

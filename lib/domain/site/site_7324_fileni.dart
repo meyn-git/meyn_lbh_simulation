@@ -45,7 +45,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -69,7 +68,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 6000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -93,7 +91,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 7000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -117,7 +114,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 10000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

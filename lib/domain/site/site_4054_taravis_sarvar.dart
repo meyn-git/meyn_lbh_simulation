@@ -43,7 +43,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -76,7 +75,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -109,7 +107,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -146,7 +143,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -183,7 +179,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -216,7 +211,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 8000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

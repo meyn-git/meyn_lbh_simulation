@@ -41,7 +41,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 950,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -57,7 +56,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 800,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -73,7 +71,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 100,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -91,7 +88,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 12500,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -114,7 +110,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 15000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

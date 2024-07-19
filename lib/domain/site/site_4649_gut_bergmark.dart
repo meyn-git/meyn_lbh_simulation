@@ -46,7 +46,6 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 15000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

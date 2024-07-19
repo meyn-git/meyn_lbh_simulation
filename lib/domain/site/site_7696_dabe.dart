@@ -50,7 +50,6 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 3600,
               lineShacklePitchInInches: 12,
               casRecipe: dabeCasRecipe,
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

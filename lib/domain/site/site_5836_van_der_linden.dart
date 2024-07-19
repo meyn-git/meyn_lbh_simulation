@@ -40,7 +40,6 @@ class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 7000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 /// according to:  \\meyn.nl\project\acaddrwg\5836 Van der Linden - The Netherlands\2021\02 - Meyn drawings\Sales\5836s102z00b1-Model.pdf
                 /// min = 192 per container (190)

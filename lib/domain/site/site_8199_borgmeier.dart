@@ -46,7 +46,6 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 15000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -76,7 +75,6 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 16500,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

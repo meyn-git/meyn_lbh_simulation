@@ -407,8 +407,7 @@ class Module implements Detailable {
 enum ModuleBirdExitDirection { bothSides, left, right }
 
 enum ModuleSystem {
-  ///following durations are based on measurements at: 7113-Tyson Union city
-  meynVdlRectangularContainers(
+  meynContainersOrModulesWith2OrMoreCompartmentsPerLevel(
     stackerInFeedDuration: Duration(seconds: 14),
     deStackerInFeedDuration: Duration(seconds: 14),
     conveyorTransportDuration: Duration(seconds: 12),
@@ -418,19 +417,17 @@ enum ModuleSystem {
     ,
   ),
 
-  /// Same as [meynVdlRectangularContainers]
-  meynGrandeDrawerContainers(
-    stackerInFeedDuration: Duration(seconds: 14),
-    deStackerInFeedDuration: Duration(seconds: 14),
-    conveyorTransportDuration: Duration(seconds: 12),
-    casTransportDuration: Duration(seconds: 14),
-    turnTableDegreesPerSecond: 15
-    // 90 degrees in 6 seconds
-    ,
-  ),
+  ///following durations are based on measurements at: 7696-Dabe-Germanyk
+  meynContainersOrModulesWith1CompartmentsPerLevel(
+      conveyorTransportDuration: Duration(milliseconds: 13400),
+      stackerInFeedDuration: Duration(milliseconds: 18700),
+      deStackerInFeedDuration: Duration(milliseconds: 18700),
+      casTransportDuration: Duration(milliseconds: 18700),
+      turnTableDegreesPerSecond: 10 // 90 degrees in 9 seconds,
+      ),
 
   ///following durations are based on measurements at: 8052-Indrol Grodzisk
-  meynOmni(
+  meynOmnia(
       conveyorTransportDuration: Duration(seconds: 19),
       stackerInFeedDuration: Duration(seconds: 19),
       deStackerInFeedDuration: Duration(seconds: 19),
@@ -438,15 +435,7 @@ enum ModuleSystem {
       turnTableDegreesPerSecond: 8
       // 90 degrees in 11.5 seconds
       ),
-
-  ///following durations are based on measurements at: 7696-Dabe-Germanyk
-  meynSingleColumnContainers(
-      conveyorTransportDuration: Duration(milliseconds: 13400),
-      stackerInFeedDuration: Duration(milliseconds: 18700),
-      deStackerInFeedDuration: Duration(milliseconds: 18700),
-      casTransportDuration: Duration(milliseconds: 18700),
-      turnTableDegreesPerSecond: 10 // 90 degrees in 9 seconds,
-      );
+  ;
 
   const ModuleSystem(
       {required this.stackerInFeedDuration,
@@ -460,6 +449,16 @@ enum ModuleSystem {
   final Duration conveyorTransportDuration;
   final Duration casTransportDuration;
   final int turnTableDegreesPerSecond;
+
+  static ModuleSystem ofVariantBase(ModuleVariantBase base) {
+    if (base.family == 'Omnia') {
+      return ModuleSystem.meynOmnia;
+    }
+    if (base.compartmentsPerLevel == 1) {
+      return ModuleSystem.meynContainersOrModulesWith1CompartmentsPerLevel;
+    }
+    return ModuleSystem.meynContainersOrModulesWith2OrMoreCompartmentsPerLevel;
+  }
 }
 
 class LoadDensity extends DerivedMeasurement<Area, Mass> {

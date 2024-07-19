@@ -95,7 +95,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 3600,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              moduleSystem: ModuleSystem.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -110,7 +109,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 3600,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              moduleSystem: ModuleSystem.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -125,7 +123,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 3600,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              moduleSystem: ModuleSystem.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -140,7 +137,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 1800,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              moduleSystem: ModuleSystem.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -155,7 +151,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 1800,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              moduleSystem: ModuleSystem.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -170,7 +165,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 1800,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              moduleSystem: ModuleSystem.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:

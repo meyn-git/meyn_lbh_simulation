@@ -44,7 +44,6 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
               lineSpeedInShacklesPerHour: 13500,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              moduleSystem: ModuleSystem.meynSingleColumnContainers,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
