@@ -199,7 +199,6 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
 
     var moduleGroupOnSupports = ModuleGroup(
         modules: {PositionWithinModuleGroup.firstBottom: module},
-        family: moduleGroupOnConveyor.family,
         direction: moduleGroupOnConveyor.direction,
         destination: moduleGroupOnConveyor.destination,
         position: AtModuleGroupPlace(deStacker.onSupportsPlace));

@@ -38,7 +38,6 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -67,7 +66,6 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -96,7 +94,6 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -125,7 +122,6 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -154,7 +150,6 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

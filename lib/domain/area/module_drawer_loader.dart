@@ -6,6 +6,7 @@ import 'package:meyn_lbh_simulation/domain/area/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
@@ -98,7 +99,7 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
 
   bool get canFeedOutDrawers =>
       moduleDrawerLoader.moduleGroup != null &&
-      moduleDrawerLoader.moduleGroup!.modules.first.levels ==
+      moduleDrawerLoader.moduleGroup!.modules.first.variant.levels ==
           drawersToFeedOut.length;
 
   SizeInMeters _size() => shape.size;
@@ -634,7 +635,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   }
 
   int numberOfDrawersToFeedIn() =>
-      !waitingToFeedInDrawers ? 0 : moduleGroup!.modules.first.levels;
+      !waitingToFeedInDrawers ? 0 : moduleGroup!.modules.first.variant.levels;
 
   @override
   late final String name = 'ModuleDrawerLoader$seqNr';
@@ -743,10 +744,14 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
 
   void _verifyDoorDirection(ModuleDrawerLoader loader) {
     var moduleGroup = loader.moduleGroup!;
-    if (moduleGroup.family.compartmentType.birdsExitOnOneSide &&
+    if (moduleGroup.compartment is CompartmentWithDoor) {
+      throw Exception('${loader.name} can only unload drawer modules '
+          'and not containers with doors');
+    }
+    if (moduleGroup.compartment.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(90) != loader.drawerFeedInDirection) {
-      throw ('Incorrect drawer in feed direction of the $ModuleGroup '
-          'that was fed in to ${loader.name}');
+      throw Exception('${loader.name}: Incorrect drawer in feed direction of '
+          '$ModuleGroup');
     }
   }
 

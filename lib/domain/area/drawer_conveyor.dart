@@ -229,7 +229,7 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
   late double secondsPerDrawer = 3600 /
       (productDefinition.lineSpeedInShacklesPerHour /
           productDefinition
-              .truckRows.first.capacities.first.birdsPerCompartment);
+              .truckRows.first.templates.first.birdsPerCompartment);
   late double lastConveyorSpeed = lastConveyorInMeters / secondsPerDrawer;
 
   Duration? get sinceEndStunAtLastHanger => firstDrawerOnConveyor?.sinceEndStun;

@@ -48,32 +48,31 @@ class LoadingForkLiftTruck extends StateMachine
       moduleBirdExitDirection == ModuleBirdExitDirection.left ? 180 : 0;
 
   ModuleGroup createModuleGroup() {
-    var capacities = _randomModuleGroupCapacity();
+    var truckRow = _randomTruckRow();
 
     var moduleGroup = ModuleGroup(
-        family: area.productDefinition.moduleFamily,
         direction: moduleGroupDirection,
         destination: _findModuleGroupDestination(),
         position: AtModuleGroupPlace(moduleGroupPlace),
-        modules: capacities.map((position, capacity) => MapEntry(
+        modules: truckRow.map((position, template) => MapEntry(
             position,
             Module(
-              nrOfBirds: capacity.numberOfBirds,
-              levels: capacity.levels,
+              variant: template.variant,
+              nrOfBirds: template.numberOfBirds,
               sequenceNumber: ++sequenceNumber,
             ))));
 
     return moduleGroup;
   }
 
-  TruckRow _randomModuleGroupCapacity() {
+  TruckRow _randomTruckRow() {
     var total = 0.0;
     double totalOccurrence = _totalOccurrence();
     var random = totalOccurrence * Random().nextDouble();
-    for (var moduleCombination in area.productDefinition.truckRows) {
-      total += moduleCombination.occurrence;
+    for (var truckRow in area.productDefinition.truckRows) {
+      total += truckRow.occurrence;
       if (random <= total) {
-        return moduleCombination;
+        return truckRow;
       }
     }
     return area.productDefinition.truckRows.last;
@@ -237,7 +236,6 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
 
         var newModuleGroup = ModuleGroup(
             modules: {PositionWithinModuleGroup.firstBottom: module},
-            family: moduleGroup.family,
             direction: moduleGroup.direction,
             destination: moduleGroup.destination,
             position: AtModuleGroupPlace(forkLiftTruck.moduleGroupPlace));

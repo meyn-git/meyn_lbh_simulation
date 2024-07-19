@@ -7,6 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -268,13 +269,15 @@ class FeedOutAndFeedInModuleSimultaneously
   void _verifyModule(ModuleDrawerColumnUnloader unloader) {
     var moduleGroup = (unloader.moduleGroupPositionFirstColumn.moduleGroup ??
         unloader.moduleGroupPositionSecondColumn.moduleGroup)!;
-    if (moduleGroup.family.compartmentType == CompartmentType.doorOnOneSide) {
-      throw ('In correct container type of the $ModuleGroup that was fed in to ${unloader.name}');
-    }
-    if (moduleGroup.family.compartmentType.birdsExitOnOneSide &&
+    if (moduleGroup.compartment.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
-      throw ('Incorrect drawer out feed direction of the $ModuleGroup '
-          'that was fed in to ${unloader.name}');
+      if (moduleGroup.compartment is CompartmentWithDoor) {
+        throw ('In correct container type of the $ModuleGroup '
+            'that was fed in to ${unloader.name}');
+      } else {
+        throw ('Incorrect drawer out feed direction of the $ModuleGroup '
+            'that was fed in to ${unloader.name}');
+      }
     }
   }
 
@@ -301,7 +304,7 @@ class WaitToPushOutFirstColumn extends State<ModuleDrawerColumnUnloader> {
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('Unloader can not handle stacked containers');
     }
-    int levels = moduleGroup.modules.first.levels;
+    int levels = moduleGroup.modules.first.variant.levels;
     if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
       return PushOutFirstColumn();
     }
@@ -323,7 +326,7 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
     var drawers = unloader.area.drawers;
     var moduleGroup = unloader.moduleGroupPositionFirstColumn.moduleGroup!;
     var module = moduleGroup.modules.first;
-    var levels = module.levels;
+    var levels = module.variant.levels;
     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
     var contents = moduleGroup.contents;
     for (int level = levels - 1; level >= 0; level--) {
@@ -402,7 +405,7 @@ class WaitToPushOutSecondColumn extends State<ModuleDrawerColumnUnloader> {
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('Unloader can not handle stacked containers');
     }
-    int levels = moduleGroup.modules.first.levels;
+    int levels = moduleGroup.modules.first.variant.levels;
     if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
       return PusherOutSecondColumn();
     }
@@ -425,7 +428,7 @@ class PusherOutSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
     var drawers = unloader.area.drawers;
     var moduleGroup = unloader.moduleGroupPositionSecondColumn.moduleGroup!;
     var module = moduleGroup.modules.first;
-    var levels = module.levels;
+    var levels = module.variant.levels;
     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
     var contents = moduleGroup.contents;
     for (int level = levels - 1; level >= 0; level--) {

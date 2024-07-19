@@ -2,6 +2,7 @@
 
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
@@ -159,9 +160,12 @@ class FeedIn extends State<ModuleTilter>
 
   void _verifyModule(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
-    if (moduleGroup.family.compartmentType.hasDoor &&
-        moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
-      throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');
+    if (moduleGroup.compartment is! CompartmentWithDoor) {
+      throw Exception('${tilter.name} can only unload containers with doors');
+    }
+    if (moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
+      throw Exception('${tilter.name}: In correct door direction of '
+          '$ModuleGroup');
     }
   }
 

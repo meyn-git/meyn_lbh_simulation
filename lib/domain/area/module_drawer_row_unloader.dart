@@ -7,6 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -261,14 +262,14 @@ class FeedOutAndFeedInModulesSimultaneously
   void _verifyModule(ModuleDrawerRowUnloader unloader) {
     var moduleGroup = (unloader.moduleGroupPlace.moduleGroup ??
         unloader.moduleGroupPlace.moduleGroup)!;
-    if (moduleGroup.family.compartmentType == CompartmentType.doorOnOneSide) {
-      throw ('Incorrect container type of the $ModuleGroup '
-          'that was fed in to ${unloader.name}');
+    if (moduleGroup.compartment is CompartmentWithDoor) {
+      throw Exception('${unloader.name} can only unload drawer modules '
+          'and not containers with doors');
     }
-    if (moduleGroup.family.compartmentType.birdsExitOnOneSide &&
+    if (moduleGroup.compartment.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
-      throw ('Incorrect drawer out feed direction of the $ModuleGroup '
-          'that was fed in to ${unloader.name}');
+      throw Exception('${unloader.name}: Incorrect drawer in feed direction of '
+          '$ModuleGroup');
     }
   }
 
@@ -387,7 +388,7 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
       throw Exception('Unloader can not handle stacked containers');
     }
     var module = moduleGroup.modules.first;
-    var levels = module.levels;
+    var levels = module.variant.levels;
     var nrOfBirdsPerDrawer =
         module.nrOfBirds / unloader.drawersPerRow ~/ levels;
     var contents = moduleGroup.contents;
@@ -434,7 +435,7 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
   void onCompleted(ModuleDrawerRowUnloader unloader) {
     var moduleGroup = unloader.moduleGroupPlace.moduleGroup!;
     var module = moduleGroup.modules.first;
-    var moduleEmpty = unloader.liftLevel.level == module.levels;
+    var moduleEmpty = unloader.liftLevel.level == module.variant.levels;
     if (moduleEmpty) {
       moduleGroup.unloadBirds();
     }

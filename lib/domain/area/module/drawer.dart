@@ -146,4 +146,22 @@ class DrawerVariant implements Compartment {
     required this.birdsExitOnOneSide,
     required this.weightInKiloGrams,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      other is DrawerVariant &&
+      other.heightInMeters == heightInMeters &&
+      other.footprint == footprint &&
+      other.birdFloorSpaceInSquareMeters == birdFloorSpaceInSquareMeters &&
+      other.birdsExitOnOneSide == birdsExitOnOneSide &&
+      other.weightInKiloGrams == weightInKiloGrams;
+
+  @override
+  int get hashCode => Object.hash(
+        heightInMeters,
+        footprint,
+        birdFloorSpaceInSquareMeters,
+        birdsExitOnOneSide,
+        weightInKiloGrams,
+      );
 }

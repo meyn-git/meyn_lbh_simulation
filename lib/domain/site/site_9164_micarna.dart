@@ -45,7 +45,6 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

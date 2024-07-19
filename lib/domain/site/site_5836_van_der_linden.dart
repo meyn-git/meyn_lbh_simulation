@@ -41,7 +41,6 @@ class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 /// according to:  \\meyn.nl\project\acaddrwg\5836 Van der Linden - The Netherlands\2021\02 - Meyn drawings\Sales\5836s102z00b1-Model.pdf
                 /// min = 192 per container (190)
@@ -53,7 +52,7 @@ class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
                       .l5
                       .build()
                       .withBirdsPerCompartment((190 / 5).round()),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
                       .marel
                       .gps
                       .l5

@@ -34,9 +34,8 @@ class ModuleGroupShape extends CompoundShape {
     var positions = moduleGroup.keys;
     var topLevel = positions.map((p) => p.level).reduce(max);
     for (var position in positions) {
-      bool showOutDirection =
-          moduleGroup.family.compartmentType.birdsExitOnOneSide &&
-              position.level == topLevel;
+      bool showOutDirection = moduleGroup.compartment.birdsExitOnOneSide &&
+          position.level == topLevel;
       var moduleShape = ModuleShape(moduleGroup, showOutDirection);
       var topLeft = OffsetInMeters.zero
           .addX(position.level * offsetPerLevel)
@@ -50,7 +49,7 @@ class ModuleGroupShape extends CompoundShape {
 class ModuleShape extends CompoundShape {
   ModuleShape(ModuleGroup moduleGroup, bool showOutDirection) {
     var topLeft = OffsetInMeters.zero;
-    for (int i = 0; i < moduleGroup.family.compartmentsPerLevel; i++) {
+    for (int i = 0; i < moduleGroup.compartmentsPerLevel; i++) {
       var compartment = ModuleCompartmentShape(moduleGroup, showOutDirection);
       add(topLeft, compartment);
       topLeft = topLeft.addY(moduleGroup.compartmentSize.yInMeters);

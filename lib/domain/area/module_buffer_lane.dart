@@ -97,10 +97,10 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
   @override
   late final Shape shape = Box(
       xInMeters:
-          area.productDefinition.moduleFamily.footprintSingleModule.yInMeters +
+          area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
               0.27,
       yInMeters:
-          area.productDefinition.moduleFamily.footprintSingleModule.xInMeters +
+          area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
               0.2);
 }
 
@@ -151,10 +151,10 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
   @override
   late final Shape shape = Box(
       xInMeters:
-          area.productDefinition.moduleFamily.footprintSingleModule.xInMeters +
+          area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
               0.2,
       yInMeters:
-          area.productDefinition.moduleFamily.footprintSingleModule.yInMeters +
+          area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
               0.27);
 
   ///TODO add frame left or right based on [moduleOutDirection]
@@ -210,10 +210,10 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
   @override
   late final Shape shape = Box(
       xInMeters:
-          area.productDefinition.moduleFamily.footprintSingleModule.yInMeters +
+          area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
               0.27,
       yInMeters:
-          area.productDefinition.moduleFamily.footprintSingleModule.xInMeters +
+          area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
               0.2);
 
   ///TODO add frame left or right based on [moduleOutDirection]

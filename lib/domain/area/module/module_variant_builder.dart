@@ -51,7 +51,7 @@ class ModuleVariantLeafBuilder extends ModuleVariantBuilder {
       family: values.family!,
       version: values.version,
       birdType: values.birdType!,
-      footprint: values.footprint!,
+      moduleFootprint: values.footprint!,
       compartment: values.compartment!,
       levels: values.levels!,
       compartmentsPerLevel: values.compartmentsPerLevel!,
@@ -72,14 +72,31 @@ class ModuleVariantLeafBuilder extends ModuleVariantBuilder {
   }
 }
 
-class ModuleVariant {
+abstract class ModuleVariantBase {
+  Brand get brand;
+  String get family;
+  ModuleVersion? get version;
+  SizeInMeters get moduleFootprint;
+  Compartment get compartment;
+  BirdType get birdType;
+  int get compartmentsPerLevel;
+}
+
+class ModuleVariant implements ModuleVariantBase {
+  @override
   final Brand brand;
+  @override
   final String family;
+  @override
   final ModuleVersion? version;
-  final SizeInMeters footprint;
+  @override
+  final SizeInMeters moduleFootprint;
+  @override
   final Compartment compartment;
   final int levels;
+  @override
   final BirdType birdType;
+  @override
   final int compartmentsPerLevel;
   final double? headSpaceInMeters;
   // [totalHeightInMeters] is with cam
@@ -94,7 +111,7 @@ class ModuleVariant {
     required this.family,
     this.version,
     required this.birdType,
-    required this.footprint,
+    required this.moduleFootprint,
     required this.compartment,
     required this.levels,
     required this.compartmentsPerLevel,
@@ -105,17 +122,13 @@ class ModuleVariant {
     this.weightWithoutBirdsInKiloGram,
   });
 
-  ModuleCapacity withBirdsPerCompartment(int birdsPerCompartment) =>
-      ModuleCapacity(
-          compartmentsPerLevel: compartmentsPerLevel,
-          levels: levels,
-          birdsPerCompartment: birdsPerCompartment);
+  ModuleTemplate withBirdsPerCompartment(int birdsPerCompartment) =>
+      ModuleTemplate(variant: this, birdsPerCompartment: birdsPerCompartment);
 
-  ModuleCapacity withLoadDensity(
+  ModuleTemplate withLoadDensity(
           LoadDensity loadDensity, Mass averageNormalBirdWeight) =>
-      ModuleCapacity(
-          compartmentsPerLevel: compartmentsPerLevel,
-          levels: levels,
+      ModuleTemplate(
+          variant: this,
           birdsPerCompartment: birdsPerCompartment(
               loadDensity: loadDensity,
               averageBirdWeightOfHeaviestFlock: averageNormalBirdWeight));
@@ -131,6 +144,15 @@ class ModuleVariant {
       (maxWeightPerCompartment(loadDensity).as(grams) /
               averageBirdWeightOfHeaviestFlock.as(grams))
           .truncate();
+
+  bool hasShameBaseAs(ModuleVariantBase variant) =>
+      variant.brand == brand &&
+      variant.family == family &&
+      variant.version == version &&
+      variant.moduleFootprint == moduleFootprint &&
+      variant.compartment == compartment &&
+      variant.birdType == birdType &&
+      variant.compartmentsPerLevel == compartmentsPerLevel;
 }
 
 abstract class Compartment {
@@ -146,6 +168,16 @@ class CompartmentWithDoor implements Compartment {
   final bool birdsExitOnOneSide = true;
 
   CompartmentWithDoor({required this.birdFloorSpaceInSquareMeters});
+
+  @override
+  bool operator ==(Object other) =>
+      other is CompartmentWithDoor &&
+      other.birdsExitOnOneSide == birdsExitOnOneSide &&
+      other.birdFloorSpaceInSquareMeters == birdFloorSpaceInSquareMeters;
+
+  @override
+  int get hashCode =>
+      Object.hash(birdsExitOnOneSide, birdFloorSpaceInSquareMeters);
 }
 
 /// Copy of ModuleVariant where all fields can be nullable
@@ -226,4 +258,14 @@ class ModuleVersion {
   final String description;
 
   ModuleVersion({required this.name, required this.description});
+
+  @override
+  int get hashCode => Object.hash(name, description);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ModuleVersion &&
+        other.name == name &&
+        other.description == description;
+  }
 }

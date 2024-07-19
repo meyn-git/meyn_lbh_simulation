@@ -51,7 +51,6 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: dabeCasRecipe,
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -59,7 +58,7 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
                       .gpsk
                       .build()
                       .withBirdsPerCompartment(6),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
                       .marel
                       .gpsk
                       .build()

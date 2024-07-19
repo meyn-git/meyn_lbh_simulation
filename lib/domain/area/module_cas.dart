@@ -3,6 +3,7 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_cas.dart';
@@ -216,7 +217,7 @@ class FeedIn extends State<ModuleCas>
 
   void _verifyDoorDirection(ModuleCas cas) {
     var moduleGroup = cas.moduleGroupPosition.moduleGroup!;
-    if (moduleGroup.family.compartmentType.hasDoor &&
+    if (moduleGroup.compartment is CompartmentWithDoor &&
         moduleGroup.direction.rotate(-90) != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
     }

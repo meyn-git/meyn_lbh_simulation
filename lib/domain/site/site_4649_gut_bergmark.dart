@@ -47,7 +47,6 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

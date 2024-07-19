@@ -54,34 +54,34 @@ class IndrolSite extends Site {
 ///  - max birds: 300/18kg= 16 birds/level x 3 levels= 48 birds per module
 
 class ProductDefinitions extends DelegatingList<ProductDefinition> {
-  static final ModuleCapacity femaleTurkeyMaxWeightCapacity = BrandBuilder()
+  static final ModuleTemplate femaleTurkeyMaxWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
       .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(11.5)));
 
-  static final ModuleCapacity femaleTurkeyAverageWeightCapacity = BrandBuilder()
+  static final ModuleTemplate femaleTurkeyAverageWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
       .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(10.0)));
-  static final ModuleCapacity femaleTurkeyMinWeightCapacity = BrandBuilder()
+  static final ModuleTemplate femaleTurkeyMinWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
       .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(8.5)));
 
-  static final ModuleCapacity maleTurkeyMaxWeightCapacity = BrandBuilder()
+  static final ModuleTemplate maleTurkeyMaxWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
       .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(23)));
-  static final ModuleCapacity maleTurkeyAverageWeightCapacity = BrandBuilder()
+  static final ModuleTemplate maleTurkeyAverageWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
       .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(20)));
-  static final ModuleCapacity maleTurkeyMinWeightCapacity = BrandBuilder()
+  static final ModuleTemplate maleTurkeyMinWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
@@ -96,7 +96,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
-              moduleFamily: ModuleFamily.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -112,7 +111,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
-              moduleFamily: ModuleFamily.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -128,7 +126,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
-              moduleFamily: ModuleFamily.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -144,7 +141,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
-              moduleFamily: ModuleFamily.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -160,7 +156,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
-              moduleFamily: ModuleFamily.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:
@@ -176,7 +171,6 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
-              moduleFamily: ModuleFamily.meynOmni,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom:

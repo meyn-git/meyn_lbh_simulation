@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
@@ -38,19 +39,22 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow(
                     // bird weight min: 2,3 avr: 2,8 max 3kg
                     {
-                      PositionWithinModuleGroup.firstBottom: ModuleCapacity(
-                          levels: 4,
-                          compartmentsPerLevel: 2,
-                          birdsPerCompartment: 24),
-                      PositionWithinModuleGroup.firstTop: ModuleCapacity(
-                          levels: 5,
-                          compartmentsPerLevel: 2,
-                          birdsPerCompartment: 24),
+                      PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                          .marel
+                          .gps
+                          .l4
+                          .build()
+                          .withBirdsPerCompartment(24),
+                      PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                          .marel
+                          .gps
+                          .l5
+                          .build()
+                          .withBirdsPerCompartment(24),
                     })
               ]),
         ]);

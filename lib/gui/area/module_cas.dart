@@ -16,9 +16,9 @@ class ModuleCasShape extends CompoundShape {
   late final CompassDirection gasDuctsDirection;
 
   ModuleCasShape(ModuleCas cas) {
-    var moduleGroupSize =
-        cas.area.productDefinition.moduleFamily.footprintSingleModule;
-    var cabinSize = (moduleGroupSize + cabinPadding * 2);
+    var truckRowFootprint =
+        cas.area.productDefinition.truckRows.first.footprintOnSystem;
+    var cabinSize = (truckRowFootprint + cabinPadding * 2);
     var leftPlatform = Box(xInMeters: 0.8, yInMeters: cabinSize.yInMeters);
     cabin = Box(xInMeters: cabinSize.xInMeters, yInMeters: cabinSize.yInMeters);
     var rightPlatform = Box(xInMeters: 0.8, yInMeters: cabinSize.yInMeters);

@@ -127,9 +127,6 @@ class ProductDefinition {
   final String birdType; //TODO should be obtained from moduleGroupCapacities
   final int lineSpeedInShacklesPerHour;
   final int lineShacklePitchInInches;
-  @Deprecated('Use truckRow.moduleVariantBase')
-  final ModuleFamily
-      moduleFamily; //TODO should be obtained from moduleGroupCapacities
   final List<TruckRow>
       truckRows; // verify if module groups are identical (family dimensions, bird type)
   final CasRecipe? casRecipe;
@@ -144,11 +141,11 @@ class ProductDefinition {
     required this.birdType,
     required this.lineSpeedInShacklesPerHour,
     required this.lineShacklePitchInInches,
-    required this.moduleFamily,
     required this.truckRows,
     required this.casRecipe,
   }) {
-    _verifyModuleGroupCapacities();
+    _verifyTruckRowsAreNotEmpty();
+    _verifyTruckRowModulesHaveSameBase();
   }
 
   List<LiveBirdHandlingArea> get areas => areaFactory(this);
@@ -168,9 +165,24 @@ class ProductDefinition {
     return '$birdType-${lineSpeedInShacklesPerHour}b/h-${truckRows.join(' ')}';
   }
 
-  void _verifyModuleGroupCapacities() {
+  void _verifyTruckRowsAreNotEmpty() {
     if (truckRows.isEmpty) {
-      throw ArgumentError('May not be empty', 'moduleGroupCapacities');
+      throw ArgumentError('May not be empty', 'truckRows');
+    }
+    for (var truckRow in truckRows) {
+      truckRow.validateIsNotEmpty();
+    }
+  }
+
+  void _verifyTruckRowModulesHaveSameBase() {
+    var firstVariant = truckRows.first.templates.first.variant;
+    for (var truckRow in truckRows) {
+      var variants = truckRow.templates.map((template) => template.variant);
+      for (var variant in variants) {
+        if (!firstVariant.hasShameBaseAs(variant)) {
+          throw ArgumentError('All templates must have the same module base');
+        }
+      }
     }
   }
 }

@@ -42,7 +42,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -59,7 +58,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -76,7 +74,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.angliaAutoFlow,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -95,7 +92,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -119,7 +115,6 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()

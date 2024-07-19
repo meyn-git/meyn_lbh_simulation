@@ -46,7 +46,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -55,7 +54,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                       .l5
                       .build()
                       .withBirdsPerCompartment(26),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
                       .marel
                       .gps
                       .l4
@@ -71,7 +70,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -80,7 +78,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                       .l5
                       .build()
                       .withBirdsPerCompartment(33),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
                       .marel
                       .gps
                       .l4
@@ -96,7 +94,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -105,7 +102,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                       .l5
                       .build()
                       .withBirdsPerCompartment(52),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
                       .marel
                       .gps
                       .l4
@@ -121,7 +118,6 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
-              moduleFamily: ModuleFamily.marelGpSingleColumn,
               truckRows: [
                 TruckRow({
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
@@ -130,7 +126,7 @@ class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
                       .l5
                       .build()
                       .withBirdsPerCompartment(54),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
                       .marel
                       .gps
                       .l4

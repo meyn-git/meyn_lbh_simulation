@@ -321,6 +321,10 @@ class GrandeDrawerM4C1Builder extends ModuleVariantBuilder {
       : super(
             values: ModuleVariantValues(
           compartmentsPerLevel: 1,
+          footprint: const SizeInMeters(
+            xInMeters: 1.18,
+            yInMeters: 1.23,
+          ),
         ));
 }
 
