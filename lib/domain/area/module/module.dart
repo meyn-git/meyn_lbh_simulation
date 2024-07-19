@@ -581,7 +581,7 @@ class TruckRow
         result.write('+');
       }
       if (count > 1) {
-        result.write('$count$string');
+        result.write('${count}x$string');
       } else {
         result.write(string);
       }
