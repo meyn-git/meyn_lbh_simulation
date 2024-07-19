@@ -3,7 +3,8 @@ import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -47,16 +48,26 @@ class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken5Level()
-                          .dimensions
-                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(minLoadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l5
+                      .gs
+                      .build()
+                      .withLoadDensity(minLoadDensity, maxBirdWeight),
                 })
               ]),
         ]);

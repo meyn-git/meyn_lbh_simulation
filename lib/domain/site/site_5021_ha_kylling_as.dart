@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
@@ -9,7 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -45,16 +46,26 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: NksCasRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(34),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(34)
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withBirdsPerCompartment(34),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withBirdsPerCompartment(34),
                 })
               ]),
           ProductDefinition(
@@ -66,16 +77,20 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MarelGpStainlessSteel2x4Chicken()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(37),
-                  PositionWithinModuleGroup.firstTop:
-                      MarelGpStainlessSteel2x4Chicken()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(37)
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .marel
+                      .gpl
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(37),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .marel
+                      .gpl
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(37)
                 })
               ]),
         ]);
@@ -160,7 +175,7 @@ class AreaWithGp extends LiveBirdHandlingArea {
     var dumpConveyor = ModuleTilterDumpConveyor(
         area: this,
         minBirdsOnDumpBeltBuffer:
-            productDefinition.moduleGroupCapacities.first.numberOfBirds,
+            productDefinition.truckRows.first.numberOfBirds,
         lengthInMeters: 3.2);
 
     var shackleConveyor = ShackleConveyor(

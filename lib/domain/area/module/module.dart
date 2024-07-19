@@ -7,9 +7,10 @@ import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/module.dart';
 
-import 'life_bird_handling_area.dart';
-import 'state_machine.dart';
+import '../life_bird_handling_area.dart';
+import '../state_machine.dart';
 
 /// A [ModuleGroup] can be one or 2 modules that are transported together
 /// E.g. a stack of 2 modules, or 2 modules side by side
@@ -35,7 +36,7 @@ import 'state_machine.dart';
 /// Or make ModuleGroup extend DelegatingList<Module>
 class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
     implements TimeProcessor, Detailable {
-  final ModuleFamily moduleFamily;
+  final ModuleFamily family;
 
   /// The direction (rotation) of the module group. This is the direction
   /// that the doors would be pointing towards (if it has any)
@@ -43,13 +44,17 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   PhysicalSystem destination;
   PositionOnSystem position;
 
+  late ModuleGroupShape shape;
+
   ModuleGroup({
     required Map<PositionWithinModuleGroup, Module> modules,
-    required this.moduleFamily,
+    required this.family,
     required this.direction,
     required this.destination,
     required this.position,
-  }) : super(modules);
+  }) : super(modules) {
+    shape = ModuleGroupShape(this);
+  }
 
   int get numberOfModules => keys.length;
 
@@ -73,7 +78,19 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   }
 
   @override
+  Module? remove(Object? key) {
+    var remove = super.remove(key);
+    shape = ModuleGroupShape(this);
+    return remove;
+  }
+
+  @override
   late String name = 'ModuleGroup';
+
+  late final compartmentSize = SizeInMeters(
+      xInMeters: family.footprintSingleModule.xInMeters,
+      yInMeters:
+          family.footprintSingleModule.yInMeters / family.compartmentsPerLevel);
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
@@ -152,21 +169,6 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
 
   get stacks => keys.map((position) => position.stack).toSet().length;
 
-  // TODO removed because there are many ways to split a [ModuleGroup]
-  // /// Splits the [ModuleGroup] int 2 different [ModuleGroup]s:
-  // /// - The [ModuleGroup.secondModule] is removed from the existing [ModuleGroup]
-  // /// - returns a new copied [ModuleGroup] where [ModuleGroup.firstModule]=[ModuleGroup.secondModule]
-  // ModuleGroup? split() {
-  //   if (secondModule == null) {
-  //     throw Exception(
-  //         'You can not split a $ModuleGroup that contains only one module');
-  //   }
-  //   var newModuleGroup =
-  //       copyWith(PositionWithinModuleGroup.firstBottom: secondModule, PositionWithinModuleGroup.firstTop: null);
-  //   secondModule = null;
-  //   return newModuleGroup;
-  // }
-
   isBeingTransportedTo(PhysicalSystem system) =>
       position is BetweenModuleGroupPlaces &&
       (position as BetweenModuleGroupPlaces).destination.system == system;
@@ -174,7 +176,10 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
 
 enum PositionWithinModuleGroup {
   firstBottom(stack: 0, level: 0),
-  firstTop(stack: 0, level: 1);
+  firstTop(stack: 0, level: 1),
+  secondBottom(stack: 1, level: 0),
+  secondTop(stack: 1, level: 1),
+  ;
 
   /// the stack number of a [Module] within a [ModuleGroup]
   /// * 0= first (leading stack)
@@ -197,7 +202,7 @@ abstract class PositionOnSystem {
 
 class AtModuleGroupPlace implements PositionOnSystem, Detailable {
   final ModuleGroupPlace place;
-  OffsetInMeters? _topLeft;
+  OffsetInMeters? _center;
 
   @override
   final String name = 'Module Position';
@@ -210,21 +215,15 @@ class AtModuleGroupPlace implements PositionOnSystem, Detailable {
 
   @override
   OffsetInMeters center(SystemLayout layout) {
-    _topLeft = _topLeft ?? _calculateTopLeft(layout);
-    return _topLeft!;
+    _center = _center ?? _calculateCenter(layout);
+    return _center!;
   }
 
-  OffsetInMeters _calculateTopLeft(SystemLayout layout) {
+  OffsetInMeters _calculateCenter(SystemLayout layout) {
     var system = place.system;
     var offset = place.offsetFromCenterWhenSystemFacingNorth;
     var positionOnSystem = layout.positionOnSystem(system, offset);
-    var moduleDimensions =
-        MeynGrandeDrawerChicken4Level().dimensions; //TODO get from moduleGroup
-    var moduleCenterToModuleTopLeft = OffsetInMeters(
-            yInMeters: moduleDimensions.widthShortSide.defaultValue,
-            xInMeters: moduleDimensions.lengthLongSide.defaultValue) *
-        -0.5;
-    return positionOnSystem + moduleCenterToModuleTopLeft;
+    return positionOnSystem;
   }
 }
 
@@ -306,22 +305,16 @@ class BetweenModuleGroupPlaces
       elapsed.inMicroseconds / duration.inMicroseconds;
 
   OffsetInMeters _startPosition(SystemLayout layout) =>
-      _modulePosition(layout, source);
+      _moduleCenterPosition(layout, source);
 
   OffsetInMeters _endPosition(SystemLayout layout) =>
-      _modulePosition(layout, destination);
-  OffsetInMeters _modulePosition(
+      _moduleCenterPosition(layout, destination);
+
+  OffsetInMeters _moduleCenterPosition(
       SystemLayout layout, ModuleGroupPlace position) {
     var system = position.system;
     var offset = position.offsetFromCenterWhenSystemFacingNorth;
-    var positionOnSystem = layout.positionOnSystem(system, offset);
-    var moduleDimensions = MeynGrandeDrawerChicken4Level()
-        .dimensions; //TODO get from moduleGroup??
-    var moduleCenterToModuleTopLeft = OffsetInMeters(
-            yInMeters: moduleDimensions.widthShortSide.defaultValue,
-            xInMeters: moduleDimensions.lengthLongSide.defaultValue) *
-        -0.5;
-    return positionOnSystem + moduleCenterToModuleTopLeft;
+    return layout.positionOnSystem(system, offset);
   }
 
   OffsetInMeters _travelPath(SystemLayout layout) =>
@@ -447,65 +440,64 @@ enum ModuleSystem {
   final int turnTableDegreesPerSecond;
 }
 
-///TODO ModuleType to extend on ModuleFamily and ModuleDimensions to merge into ModuleType
+@Deprecated('Use ModuleVariant instead')
 enum ModuleFamily {
   meynEvo(
-      supplier: Supplier.meyn,
+      supplier: Brand.meyn,
       compartmentType: CompartmentType.doorOnOneSide,
-      shape: ModuleShape.rectangularStacked,
-      moduleGroupSurface: SizeInMeters(xInMeters: 1.2, yInMeters: 2.4)),
+      compartmentsPerLevel: 2,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.2, yInMeters: 2.4)),
   meynGrandeDrawerDoubleColumn(
-      supplier: Supplier.meyn,
+      supplier: Brand.meyn,
       compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
-      shape: ModuleShape.rectangularStacked,
-      moduleGroupSurface: SizeInMeters(xInMeters: 1.18, yInMeters: 2.43)),
+      compartmentsPerLevel: 2,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.18, yInMeters: 2.43)),
   meynGrandeDrawerSingleColumn(
-      supplier: Supplier.meyn,
+      supplier: Brand.meyn,
       compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
-      shape: ModuleShape.squareSideBySide,
-      moduleGroupSurface:
-          SizeInMeters(xInMeters: 1.18, yInMeters: 1.23 + 0.1 + 1.23)),
+      compartmentsPerLevel: 1,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.18, yInMeters: 1.23)),
   meynMaxiLoad(
       //TODO rename to meynMaxiLoadTwin
-      supplier: Supplier.meyn,
+      supplier: Brand.meyn,
       compartmentType: CompartmentType.drawerSlideInOutOnOneSide,
-      shape: ModuleShape.rectangularStacked,
-      moduleGroupSurface: SizeInMeters(xInMeters: 1.35, yInMeters: 2.43)),
+      compartmentsPerLevel: 2,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.35, yInMeters: 2.43)),
   meynOmni(
-      supplier: Supplier.meyn,
+      supplier: Brand.meyn,
       compartmentType: CompartmentType.doorOnOneSide,
-      shape: ModuleShape.rectangularStacked,
-      moduleGroupSurface: SizeInMeters(xInMeters: 1.35, yInMeters: 2.43)),
+      compartmentsPerLevel: 2,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.35, yInMeters: 2.43)),
   angliaAutoFlow(
-      supplier: Supplier.angliaAutoFlow,
+      supplier: Brand.angliaAutoFlow,
       compartmentType: CompartmentType.drawerSlideInOutOnBothSides,
-      shape: ModuleShape.rectangularStacked,
-      moduleGroupSurface: SizeInMeters(xInMeters: 1.165, yInMeters: 2.438)),
+      compartmentsPerLevel: 3,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.165, yInMeters: 2.438)),
   marelGpDoubleColumn(
-      supplier: Supplier.marel,
+      supplier: Brand.marel,
       compartmentType: CompartmentType.doorOnOneSide,
-      shape: ModuleShape.rectangularStacked,
-      moduleGroupSurface: SizeInMeters(xInMeters: 1.2, yInMeters: 2.43)),
+      compartmentsPerLevel: 2,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.2, yInMeters: 2.43)),
   marelGpSingleColumn(
-      supplier: Supplier.marel,
+      supplier: Brand.marel,
       compartmentType: CompartmentType.doorOnOneSide,
-      shape: ModuleShape.squareSideBySide,
-      moduleGroupSurface:
-          SizeInMeters(xInMeters: 1.2, yInMeters: 1.42 + 0.1 + 1.42));
+      compartmentsPerLevel: 1,
+      footprintSingleModule: SizeInMeters(xInMeters: 1.2, yInMeters: 1.42));
 
   const ModuleFamily({
     required this.supplier,
-    required this.shape,
+    required this.compartmentsPerLevel,
     required this.compartmentType,
-    required this.moduleGroupSurface,
+    required this.footprintSingleModule,
   });
 
-  final Supplier supplier;
-  final ModuleShape shape;
+  final Brand supplier;
+  final int compartmentsPerLevel;
   final CompartmentType compartmentType;
-  final SizeInMeters moduleGroupSurface;
+  final SizeInMeters footprintSingleModule;
 }
 
+@Deprecated('Use ModuleVariant instead')
 class ModuleType {
   final ModuleFamily moduleFamily;
   final BirdType birdType;
@@ -518,329 +510,329 @@ class ModuleType {
   });
 }
 
-class MeynEvoChicken4Level extends ModuleType {
-  MeynEvoChicken4Level()
-      : super(
-          moduleFamily: ModuleFamily.meynEvo,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-            lengthLongSide: meters(2.4),
-            widthShortSide: meters(1.2),
-            heightWithoutCam: meters(1.23),
-            camHeight: meters(0.065),
-            headHeight: meters(0.249),
-            levels: 4,
-            compartmentsPerLevel: 2,
-            birdFloorSpacePerCompartment: Area.of(meters(1.311), meters(1)),
-            emptyWeight: kilo.grams(340),
-          ),
-        );
-}
+// class MeynEvoChicken4Level extends ModuleType {
+//   MeynEvoChicken4Level()
+//       : super(
+//           moduleFamily: ModuleFamily.meynEvo,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//             lengthLongSide: meters(2.4),
+//             widthShortSide: meters(1.2),
+//             heightWithoutCam: meters(1.23),
+//             camHeight: meters(0.065),
+//             headHeight: meters(0.249),
+//             levels: 4,
+//             compartmentsPerLevel: 2,
+//             birdFloorSpacePerCompartment: Area.of(meters(1.311), meters(1)),
+//             emptyWeight: kilo.grams(340),
+//           ),
+//         );
+// }
 
-class MeynEvoChicken5Level extends ModuleType {
-  MeynEvoChicken5Level()
-      : super(
-          moduleFamily: ModuleFamily.meynEvo,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-            lengthLongSide: meters(2.4),
-            widthShortSide: meters(1.2),
-            heightWithoutCam: meters(1.483),
-            camHeight: meters(0.065),
-            headHeight: meters(0.249),
-            levels: 5,
-            compartmentsPerLevel: 2,
-            birdFloorSpacePerCompartment: Area.of(meters(1.311), meters(1)),
-            emptyWeight: kilo.grams(395),
-          ),
-        );
-}
+// class MeynEvoChicken5Level extends ModuleType {
+//   MeynEvoChicken5Level()
+//       : super(
+//           moduleFamily: ModuleFamily.meynEvo,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//             lengthLongSide: meters(2.4),
+//             widthShortSide: meters(1.2),
+//             heightWithoutCam: meters(1.483),
+//             camHeight: meters(0.065),
+//             headHeight: meters(0.249),
+//             levels: 5,
+//             compartmentsPerLevel: 2,
+//             birdFloorSpacePerCompartment: Area.of(meters(1.311), meters(1)),
+//             emptyWeight: kilo.grams(395),
+//           ),
+//         );
+// }
 
-class GrandeDrawerModuleType extends ModuleType {
-  static const double drawerOutSideLengthInMeters = 1.160;
+// class GrandeDrawerModuleType extends ModuleType {
+//   static const double drawerOutSideLengthInMeters = 1.160;
 
-  static const SizeInMeters size = SizeInMeters(
-      xInMeters: drawerOutSideLengthInMeters,
-      yInMeters: drawerOutSideLengthInMeters);
+//   static const SizeInMeters size = SizeInMeters(
+//       xInMeters: drawerOutSideLengthInMeters,
+//       yInMeters: drawerOutSideLengthInMeters);
 
-  GrandeDrawerModuleType({
-    required super.moduleFamily,
-    required super.birdType,
-    required super.dimensions,
-  });
-}
+//   GrandeDrawerModuleType({
+//     required super.moduleFamily,
+//     required super.birdType,
+//     required super.dimensions,
+//   });
+// }
 
-class MeynGrandeDrawerChicken4Level extends GrandeDrawerModuleType {
-  MeynGrandeDrawerChicken4Level()
-      : super(
-          moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-            lengthLongSide: meters(2.43),
-            widthShortSide: meters(1.18),
-            heightWithoutCam: meters(1.31),
-            camHeight: meters(0.065),
-            //TODO Unknown! Find out and change!
-            headHeight: meters(0.255),
-            levels: 4,
-            compartmentsPerLevel: 2,
-            birdFloorSpacePerCompartment: Area.of(meters(1.221), meters(1)),
-            emptyWeight: kilo.grams(346),
-          ),
-        );
-}
+// class MeynGrandeDrawerChicken2x4 extends GrandeDrawerModuleType {
+//   MeynGrandeDrawerChicken2x4()
+//       : super(
+//           moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//             lengthLongSide: meters(2.43),
+//             widthShortSide: meters(1.18),
+//             heightWithoutCam: meters(1.31),
+//             camHeight: meters(0.065),
+//             //TODO Unknown! Find out and change!
+//             headHeight: meters(0.255),
+//             levels: 4,
+//             compartmentsPerLevel: 2,
+//             birdFloorSpacePerCompartment: Area.of(meters(1.221), meters(1)),
+//             emptyWeight: kilo.grams(346),
+//           ),
+//         );
+// }
 
-class MeynGrandeDrawerChicken5Level extends GrandeDrawerModuleType {
-  MeynGrandeDrawerChicken5Level()
-      : super(
-          moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-            lengthLongSide: meters(2.43),
-            widthShortSide: meters(1.18),
-            heightWithoutCam: meters(1.59),
-            camHeight: meters(0.065),
-            //TODO Unknown! Find out and change!
-            headHeight: meters(0.255),
-            levels: 5,
-            compartmentsPerLevel: 2,
-            birdFloorSpacePerCompartment: Area.of(meters(1.221), meters(1)),
-            emptyWeight: kilo.grams(404),
-          ),
-        );
-}
+// class MeynGrandeDrawerChicken2x5 extends GrandeDrawerModuleType {
+//   MeynGrandeDrawerChicken2x5()
+//       : super(
+//           moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//             lengthLongSide: meters(2.43),
+//             widthShortSide: meters(1.18),
+//             heightWithoutCam: meters(1.59),
+//             camHeight: meters(0.065),
+//             //TODO Unknown! Find out and change!
+//             headHeight: meters(0.255),
+//             levels: 5,
+//             compartmentsPerLevel: 2,
+//             birdFloorSpacePerCompartment: Area.of(meters(1.221), meters(1)),
+//             emptyWeight: kilo.grams(404),
+//           ),
+//         );
+// }
 
-class MeynOmniTurkey3Level extends ModuleType {
-  /// maxWeight per floor =300kg (=150 per compartment)
-  MeynOmniTurkey3Level()
-      : super(
-          moduleFamily: ModuleFamily.meynOmni,
-          birdType: BirdType.turkey,
-          dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.43),
-              widthShortSide: meters(1.35),
-              heightWithoutCam: meters(1.345),
-              camHeight: meters(0.059),
-              headHeight: meters(0.380),
-              levels: 3,
-              compartmentsPerLevel: 2,
-              birdFloorSpacePerCompartment: Area.of(meters(2.1), meters(1)),
-              //TODO verify. 2.1m2 seems small
-              emptyWeight: kilo.grams(420)),
-        );
-}
+// class MeynOmniTurkey2x3 extends ModuleType {
+//   /// maxWeight per floor =300kg (=150 per compartment)
+//   MeynOmniTurkey2x3()
+//       : super(
+//           moduleFamily: ModuleFamily.meynOmni,
+//           birdType: BirdType.turkey,
+//           dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.43),
+//               widthShortSide: meters(1.35),
+//               heightWithoutCam: meters(1.345),
+//               camHeight: meters(0.059),
+//               headHeight: meters(0.380),
+//               levels: 3,
+//               compartmentsPerLevel: 2,
+//               birdFloorSpacePerCompartment: Area.of(meters(2.1), meters(1)),
+//               //TODO verify. 2.1m2 seems small
+//               emptyWeight: kilo.grams(420)),
+//         );
+// }
 
-class AngliaAutoFlowChickenSmall4Level extends ModuleType {
-  AngliaAutoFlowChickenSmall4Level()
-      : super(
-          moduleFamily: ModuleFamily.angliaAutoFlow,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.438),
-              widthShortSide: meters(1.165),
-              heightWithoutCam: meters(1.152),
-              camHeight: meters(0.1),
-              headHeight: meters(0.22),
-              levels: 4,
-              compartmentsPerLevel: 3,
-              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
-              emptyWeight: kilo.grams(330)),
-        );
-}
+// class AngliaAutoFlowChickenSmall3x4 extends ModuleType {
+//   AngliaAutoFlowChickenSmall3x4()
+//       : super(
+//           moduleFamily: ModuleFamily.angliaAutoFlow,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.438),
+//               widthShortSide: meters(1.165),
+//               heightWithoutCam: meters(1.152),
+//               camHeight: meters(0.1),
+//               headHeight: meters(0.22),
+//               levels: 4,
+//               compartmentsPerLevel: 3,
+//               birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
+//               emptyWeight: kilo.grams(330)),
+//         );
+// }
 
-class AngliaAutoFlowChickenSmall5Level extends ModuleType {
-  AngliaAutoFlowChickenSmall5Level()
-      : super(
-          moduleFamily: ModuleFamily.angliaAutoFlow,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.438),
-              widthShortSide: meters(1.165),
-              heightWithoutCam: meters(1.397),
-              camHeight: meters(0.1),
-              headHeight: meters(0.22),
-              levels: 5,
-              compartmentsPerLevel: 3,
-              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
-              emptyWeight: kilo.grams(390)),
-        );
-}
+// class AngliaAutoFlowChickenSmall3x5 extends ModuleType {
+//   AngliaAutoFlowChickenSmall3x5()
+//       : super(
+//           moduleFamily: ModuleFamily.angliaAutoFlow,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.438),
+//               widthShortSide: meters(1.165),
+//               heightWithoutCam: meters(1.397),
+//               camHeight: meters(0.1),
+//               headHeight: meters(0.22),
+//               levels: 5,
+//               compartmentsPerLevel: 3,
+//               birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
+//               emptyWeight: kilo.grams(390)),
+//         );
+// }
 
-class AngliaAutoFlowChickenLarge4Level extends ModuleType {
-  AngliaAutoFlowChickenLarge4Level()
-      : super(
-          moduleFamily: ModuleFamily.angliaAutoFlow,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.438),
-              widthShortSide: meters(1.165),
-              heightWithoutCam: meters(1.292),
-              camHeight: meters(0.1),
-              headHeight: meters(0.255),
-              levels: 4,
-              compartmentsPerLevel: 3,
-              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
-              emptyWeight: kilo.grams(350)),
-        );
-}
+// class AngliaAutoFlowChickenLarge3x4 extends ModuleType {
+//   AngliaAutoFlowChickenLarge3x4()
+//       : super(
+//           moduleFamily: ModuleFamily.angliaAutoFlow,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.438),
+//               widthShortSide: meters(1.165),
+//               heightWithoutCam: meters(1.292),
+//               camHeight: meters(0.1),
+//               headHeight: meters(0.255),
+//               levels: 4,
+//               compartmentsPerLevel: 3,
+//               birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
+//               emptyWeight: kilo.grams(350)),
+//         );
+// }
 
-class AngliaAutoFlowChickenLarge5Level extends ModuleType {
-  AngliaAutoFlowChickenLarge5Level()
-      : super(
-          moduleFamily: ModuleFamily.angliaAutoFlow,
-          birdType: BirdType.chicken,
-          dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.438),
-              widthShortSide: meters(1.165),
-              heightWithoutCam: meters(1.572),
-              camHeight: meters(0.1),
-              headHeight: meters(0.255),
-              levels: 5,
-              compartmentsPerLevel: 3,
-              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
-              emptyWeight: kilo.grams(410)),
-        );
-}
+// class AngliaAutoFlowChickenLarge3x5 extends ModuleType {
+//   AngliaAutoFlowChickenLarge3x5()
+//       : super(
+//           moduleFamily: ModuleFamily.angliaAutoFlow,
+//           birdType: BirdType.chicken,
+//           dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.438),
+//               widthShortSide: meters(1.165),
+//               heightWithoutCam: meters(1.572),
+//               camHeight: meters(0.1),
+//               headHeight: meters(0.255),
+//               levels: 5,
+//               compartmentsPerLevel: 3,
+//               birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
+//               emptyWeight: kilo.grams(410)),
+//         );
+// }
 
-class AngliaAutoFlowTurkey3Level extends ModuleType {
-  AngliaAutoFlowTurkey3Level()
-      : super(
-          moduleFamily: ModuleFamily.angliaAutoFlow,
-          birdType: BirdType.turkey,
-          dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.438),
-              widthShortSide: meters(1.165),
-              heightWithoutCam: meters(1.292),
-              camHeight: meters(0.1),
-              headHeight: meters(0.355),
-              levels: 3,
-              compartmentsPerLevel: 3,
-              birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
-              emptyWeight: kilo.grams(340)),
-        );
-}
+// class AngliaAutoFlowTurkey3x3 extends ModuleType {
+//   AngliaAutoFlowTurkey3x3()
+//       : super(
+//           moduleFamily: ModuleFamily.angliaAutoFlow,
+//           birdType: BirdType.turkey,
+//           dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.438),
+//               widthShortSide: meters(1.165),
+//               heightWithoutCam: meters(1.292),
+//               camHeight: meters(0.1),
+//               headHeight: meters(0.355),
+//               levels: 3,
+//               compartmentsPerLevel: 3,
+//               birdFloorSpacePerCompartment: Area.of(meters(0.8), meters(1)),
+//               emptyWeight: kilo.grams(340)),
+//         );
+// }
 
-class MarelGpS1x4Chicken extends ModuleType {
-  MarelGpS1x4Chicken()
-      : super(
-            moduleFamily: ModuleFamily.marelGpSingleColumn,
-            birdType: BirdType.chicken,
-            dimensions: ModuleDimensions(
-              lengthLongSide: meters(1.420),
-              widthShortSide: meters(1.20),
-              heightWithoutCam: meters(1.260),
-              camHeight: meters(0.1),
-              levels: 4,
-              compartmentsPerLevel: 1,
-              birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
-              emptyWeight: kilo.grams(204),
-            ));
-}
+// class MarelGpS1x4Chicken extends ModuleType {
+//   MarelGpS1x4Chicken()
+//       : super(
+//             moduleFamily: ModuleFamily.marelGpSingleColumn,
+//             birdType: BirdType.chicken,
+//             dimensions: ModuleDimensions(
+//               lengthLongSide: meters(1.420),
+//               widthShortSide: meters(1.20),
+//               heightWithoutCam: meters(1.260),
+//               camHeight: meters(0.1),
+//               levels: 4,
+//               compartmentsPerLevel: 1,
+//               birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
+//               emptyWeight: kilo.grams(204),
+//             ));
+// }
 
-class MarelGpS1x5Chicken extends ModuleType {
-  MarelGpS1x5Chicken()
-      : super(
-            moduleFamily: ModuleFamily.marelGpSingleColumn,
-            birdType: BirdType.chicken,
-            dimensions: ModuleDimensions(
-              lengthLongSide: meters(1.420),
-              widthShortSide: meters(1.20),
-              heightWithoutCam: meters(1.540),
-              camHeight: meters(0.1),
-              levels: 5,
-              compartmentsPerLevel: 1,
-              birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
-              emptyWeight: kilo.grams(235),
-            ));
-}
+// class MarelGpS1x5Chicken extends ModuleType {
+//   MarelGpS1x5Chicken()
+//       : super(
+//             moduleFamily: ModuleFamily.marelGpSingleColumn,
+//             birdType: BirdType.chicken,
+//             dimensions: ModuleDimensions(
+//               lengthLongSide: meters(1.420),
+//               widthShortSide: meters(1.20),
+//               heightWithoutCam: meters(1.540),
+//               camHeight: meters(0.1),
+//               levels: 5,
+//               compartmentsPerLevel: 1,
+//               birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
+//               emptyWeight: kilo.grams(235),
+//             ));
+// }
 
-class MarelGpS1x6Turkey extends ModuleType {
-  MarelGpS1x6Turkey()
-      : super(
-            moduleFamily: ModuleFamily.marelGpSingleColumn,
-            birdType: BirdType.turkey,
-            dimensions: ModuleDimensions(
-              lengthLongSide: meters(1.420),
-              widthShortSide: meters(1.210),
-              heightWithoutCam: meters(2.560),
-              camHeight: meters(0.1),
-              levels: 6,
-              compartmentsPerLevel: 1,
-              birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
-              emptyWeight: kilo.grams(280), //TODO unknown
-            ));
-}
+// class MarelGpS1x6Turkey extends ModuleType {
+//   MarelGpS1x6Turkey()
+//       : super(
+//             moduleFamily: ModuleFamily.marelGpSingleColumn,
+//             birdType: BirdType.turkey,
+//             dimensions: ModuleDimensions(
+//               lengthLongSide: meters(1.420),
+//               widthShortSide: meters(1.210),
+//               heightWithoutCam: meters(2.560),
+//               camHeight: meters(0.1),
+//               levels: 6,
+//               compartmentsPerLevel: 1,
+//               birdFloorSpacePerCompartment: Area.of(meters(1.530), meters(1)),
+//               emptyWeight: kilo.grams(280), //TODO unknown
+//             ));
+// }
 
-class MarelGpGalvanizedSteelRectangular4LevelChicken extends ModuleType {
-  MarelGpGalvanizedSteelRectangular4LevelChicken()
-      : super(
-            moduleFamily: ModuleFamily.marelGpSingleColumn,
-            birdType: BirdType.chicken,
-            dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.430),
-              widthShortSide: meters(1.20),
-              heightWithoutCam: meters(1.260),
-              camHeight: meters(0.1),
-              levels: 4,
-              compartmentsPerLevel: 2,
-              birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
-              emptyWeight: kilo.grams(399),
-            ));
-}
+// class MarelGpGalvanizedSteel2x4Chicken extends ModuleType {
+//   MarelGpGalvanizedSteel2x4Chicken()
+//       : super(
+//             moduleFamily: ModuleFamily.marelGpSingleColumn,
+//             birdType: BirdType.chicken,
+//             dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.430),
+//               widthShortSide: meters(1.20),
+//               heightWithoutCam: meters(1.260),
+//               camHeight: meters(0.1),
+//               levels: 4,
+//               compartmentsPerLevel: 2,
+//               birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
+//               emptyWeight: kilo.grams(399),
+//             ));
+// }
 
-class MarelGpStainlessSteel2x4Chicken extends ModuleType {
-  MarelGpStainlessSteel2x4Chicken()
-      : super(
-            moduleFamily: ModuleFamily.marelGpSingleColumn,
-            birdType: BirdType.chicken,
-            dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.430),
-              widthShortSide: meters(1.20),
-              heightWithoutCam: meters(1.260),
-              camHeight: meters(0.1),
-              levels: 4,
-              compartmentsPerLevel: 2,
-              birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
-              emptyWeight: kilo.grams(385),
-            ));
-}
+// class MarelGpStainlessSteel2x4Chicken extends ModuleType {
+//   MarelGpStainlessSteel2x4Chicken()
+//       : super(
+//             moduleFamily: ModuleFamily.marelGpSingleColumn,
+//             birdType: BirdType.chicken,
+//             dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.430),
+//               widthShortSide: meters(1.20),
+//               heightWithoutCam: meters(1.260),
+//               camHeight: meters(0.1),
+//               levels: 4,
+//               compartmentsPerLevel: 2,
+//               birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
+//               emptyWeight: kilo.grams(385),
+//             ));
+// }
 
-class MarelGpRectangular5LevelChicken extends ModuleType {
-  MarelGpRectangular5LevelChicken.marelGp2x5Chicken()
-      : super(
-            moduleFamily: ModuleFamily.marelGpSingleColumn,
-            birdType: BirdType.chicken,
-            dimensions: ModuleDimensions(
-              lengthLongSide: meters(2.430),
-              widthShortSide: meters(1.20),
-              heightWithoutCam: meters(1.365),
-              camHeight: meters(0.1),
-              levels: 4,
-              compartmentsPerLevel: 2,
-              birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
-              emptyWeight: kilo.grams(430),
-            ));
-}
+// class MarelGp2x4Chicken extends ModuleType {
+//   MarelGp2x4Chicken.marelGp2x5Chicken()
+//       : super(
+//             moduleFamily: ModuleFamily.marelGpSingleColumn,
+//             birdType: BirdType.chicken,
+//             dimensions: ModuleDimensions(
+//               lengthLongSide: meters(2.430),
+//               widthShortSide: meters(1.20),
+//               heightWithoutCam: meters(1.365),
+//               camHeight: meters(0.1),
+//               levels: 4,
+//               compartmentsPerLevel: 2,
+//               birdFloorSpacePerCompartment: Area.of(meters(1.275), meters(1)),
+//               emptyWeight: kilo.grams(430),
+//             ));
+// }
 
-class ModuleTypes extends DelegatingList<ModuleType> {
-  ModuleTypes()
-      : super([
-          MeynEvoChicken4Level(),
-          MeynEvoChicken5Level(),
-          MeynGrandeDrawerChicken4Level(),
-          MeynGrandeDrawerChicken5Level(),
-          MeynOmniTurkey3Level(),
-          AngliaAutoFlowChickenSmall4Level(),
-          AngliaAutoFlowChickenSmall5Level(),
-          AngliaAutoFlowChickenLarge4Level(),
-          AngliaAutoFlowChickenLarge5Level(),
-          MarelGpS1x4Chicken(),
-          MarelGpS1x5Chicken(),
-          MarelGpStainlessSteel2x4Chicken(),
-          MarelGpGalvanizedSteelRectangular4LevelChicken(),
-          MarelGpRectangular5LevelChicken.marelGp2x5Chicken(),
-        ]);
-}
+// class ModuleTypes extends DelegatingList<ModuleType> {
+//   ModuleTypes()
+//       : super([
+//           MeynEvoChicken4Level(),
+//           MeynEvoChicken5Level(),
+//           MeynGrandeDrawerChicken2x4(),
+//           MeynGrandeDrawerChicken2x5(),
+//           MeynOmniTurkey2x3(),
+//           AngliaAutoFlowChickenSmall3x4(),
+//           AngliaAutoFlowChickenSmall3x5(),
+//           AngliaAutoFlowChickenLarge3x4(),
+//           AngliaAutoFlowChickenLarge3x5(),
+//           MarelGpS1x4Chicken(),
+//           MarelGpS1x5Chicken(),
+//           MarelGpStainlessSteel2x4Chicken(),
+//           MarelGpGalvanizedSteel2x4Chicken(),
+//           MarelGp2x4Chicken.marelGp2x5Chicken(),
+//         ]);
+// }
 
 class LoadDensity extends DerivedMeasurement<Area, Mass> {
   LoadDensity({
@@ -900,8 +892,14 @@ class LoadDensity extends DerivedMeasurement<Area, Mass> {
   }
 }
 
-enum Supplier { meyn, marel, baaderLinco, angliaAutoFlow }
+enum Brand {
+  meyn,
+  marel,
+  baaderLinco,
+  angliaAutoFlow,
+}
 
+@Deprecated('Use ModuleVariant instead')
 class ModuleDimensions {
   final Distance lengthLongSide;
   final Distance widthShortSide;
@@ -985,13 +983,13 @@ class ModuleCapacity {
   }
 }
 
-class ModuleGroupCapacity
+class TruckRow
     extends DelegatingMap<PositionWithinModuleGroup, ModuleCapacity> {
   /// how often this Module Combination is loaded on to the system
   /// 1=100% of the time, 0.25=25% of the time
   final double occurrence;
 
-  ModuleGroupCapacity(
+  TruckRow(
     super.moduleCapacities, {
     this.occurrence = 1,
   });
@@ -1020,8 +1018,7 @@ class ModuleGroupCapacity
   }
 }
 
-enum ModuleShape { squareSideBySide, rectangularStacked }
-
+@Deprecated('Use Compartment instead')
 enum CompartmentType {
   doorOnOneSide(true),
   drawerSlideInOutOnBothSides(false),
@@ -1033,3 +1030,5 @@ enum CompartmentType {
 }
 
 enum BirdType { chicken, turkey }
+
+enum ModuleFrameMaterial { galvanizedSteel, stainlessSteel }

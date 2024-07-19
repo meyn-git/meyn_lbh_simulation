@@ -1,12 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -42,12 +43,13 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowTurkey3Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(8),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .turkey
+                      .build()
+                      .withBirdsPerCompartment(8),
                 })
               ]),
           ProductDefinition(
@@ -58,12 +60,13 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowTurkey3Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(3),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .turkey
+                      .build()
+                      .withBirdsPerCompartment(3),
                 })
               ]),
           ProductDefinition(
@@ -74,12 +77,13 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardTurkeyRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowTurkey3Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(1),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .turkey
+                      .build()
+                      .withBirdsPerCompartment(1),
                 })
               ]),
 
@@ -92,14 +96,20 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
-                  PositionWithinModuleGroup.firstTop: MarelGpS1x4Chicken()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .marel
+                      .gps
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(birdsPerCompartment),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .marel
+                      .gps
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(birdsPerCompartment),
                 })
               ]),
           ProductDefinition(
@@ -110,14 +120,20 @@ class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom: MarelGpS1x4Chicken()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
-                  PositionWithinModuleGroup.firstTop: MarelGpS1x4Chicken()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(birdsPerCompartment),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .marel
+                      .gps
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(birdsPerCompartment),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .marel
+                      .gps
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(birdsPerCompartment),
                 })
               ]),
         ]);

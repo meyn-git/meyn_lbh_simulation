@@ -12,7 +12,7 @@ import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
@@ -51,7 +51,7 @@ class LoadingForkLiftTruck extends StateMachine
     var capacities = _randomModuleGroupCapacity();
 
     var moduleGroup = ModuleGroup(
-        moduleFamily: area.productDefinition.moduleFamily,
+        family: area.productDefinition.moduleFamily,
         direction: moduleGroupDirection,
         destination: _findModuleGroupDestination(),
         position: AtModuleGroupPlace(moduleGroupPlace),
@@ -66,24 +66,22 @@ class LoadingForkLiftTruck extends StateMachine
     return moduleGroup;
   }
 
-  ModuleGroupCapacity _randomModuleGroupCapacity() {
+  TruckRow _randomModuleGroupCapacity() {
     var total = 0.0;
     double totalOccurrence = _totalOccurrence();
     var random = totalOccurrence * Random().nextDouble();
-    for (var moduleCombination
-        in area.productDefinition.moduleGroupCapacities) {
+    for (var moduleCombination in area.productDefinition.truckRows) {
       total += moduleCombination.occurrence;
       if (random <= total) {
         return moduleCombination;
       }
     }
-    return area.productDefinition.moduleGroupCapacities.last;
+    return area.productDefinition.truckRows.last;
   }
 
   double _totalOccurrence() {
     var totalOccurrence = 0.0;
-    for (var moduleCombination
-        in area.productDefinition.moduleGroupCapacities) {
+    for (var moduleCombination in area.productDefinition.truckRows) {
       totalOccurrence += moduleCombination.occurrence;
     }
     return totalOccurrence;
@@ -239,7 +237,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
 
         var newModuleGroup = ModuleGroup(
             modules: {PositionWithinModuleGroup.firstBottom: module},
-            moduleFamily: moduleGroup.moduleFamily,
+            family: moduleGroup.family,
             direction: moduleGroup.direction,
             destination: moduleGroup.destination,
             position: AtModuleGroupPlace(forkLiftTruck.moduleGroupPlace));

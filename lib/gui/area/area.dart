@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/site/scenario.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer.dart';
@@ -154,13 +154,14 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   }
 
   void _layoutAndPositionModuleGroups(double lengthPerMeter) {
-    var moduleType =
-        MeynGrandeDrawerChicken4Level(); //TODO get from modulegroup
-    var moduleDimensions = moduleType.dimensions;
-    var moduleSize = Size(moduleDimensions.widthShortSide.defaultValue,
-            moduleDimensions.lengthLongSide.defaultValue) *
-        lengthPerMeter;
+    // var moduleType =
+    //     MeynGrandeDrawerChicken4Level(); //TODO get from modulegroup
+    // var moduleDimensions = moduleType.dimensions;
+    // var moduleSize = Size(moduleDimensions.widthShortSide.defaultValue,
+    //         moduleDimensions.lengthLongSide.defaultValue) *
+    //     lengthPerMeter;
     for (var moduleGroup in area.moduleGroups) {
+      var moduleSize = moduleGroup.shape.size.toSize() * lengthPerMeter;
       layoutChild(moduleGroup, BoxConstraints.tight(moduleSize));
       var moduleGroupOffSet = _moduleGroupOffset(moduleGroup, lengthPerMeter);
       positionChild(moduleGroup, moduleGroupOffSet);
@@ -179,6 +180,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     Size? size;
     for (var drawer in area.drawers) {
       if (size == null) {
+        //TODO get from drawer.variant.footprint.toSize() * lengthPerMeter;
         var length = drawer.outSideLengthInMeters * lengthPerMeter;
         size = Size(length, length);
       }
@@ -223,15 +225,17 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
           ? size.height / area.layout.size.yInMeters
           : size.width / area.layout.size.xInMeters;
 
-  final OffsetInMeters moduleGroupCenterToTopLeft =
-      const OffsetInMeters(xInMeters: 0.63, yInMeters: -0.6);
+  OffsetInMeters moduleGroupCenterToTopLeft(ModuleGroup moduleGroup) =>
+      moduleGroup.shape.size.toOffsetInMeters() * -0.5;
+  //const OffsetInMeters(xInMeters: 0.63, yInMeters: -0.6);
 
   Offset _moduleGroupOffset(ModuleGroup moduleGroup, double lengthPerMeter) {
-    var offsetInMeters =
-        (moduleGroup.position).center(area.layout) + moduleGroupCenterToTopLeft;
+    var offsetInMeters = moduleGroup.position.center(area.layout) +
+        moduleGroupCenterToTopLeft(moduleGroup);
     return offsetInMeters.toOffset() * lengthPerMeter;
   }
 
+// TODO only when nessasary
   @override
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => true;
 }

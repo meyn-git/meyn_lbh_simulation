@@ -24,7 +24,7 @@ class ModuleDrawerColumnUnloaderShape extends CompoundShape {
   /// Most of this is constructor is a copy from the [ModuleConveyorShape]
   ModuleDrawerColumnUnloaderShape(ModuleDrawerColumnUnloader drawerUnloader) {
     var moduleGroupLength = drawerUnloader
-        .area.productDefinition.moduleFamily.moduleGroupSurface.yInMeters;
+        .area.productDefinition.moduleFamily.footprintSingleModule.yInMeters;
     var frameEast = Box(
         xInMeters: ModuleConveyorShape.frameWidthInMeters,
         yInMeters: lengthInMeters);

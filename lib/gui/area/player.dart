@@ -139,7 +139,7 @@ class _ScenarioTileState extends State<ScenarioTile> {
 
   String _createText() => '${widget.scenario.area.lineName}\n'
       '${widget.scenario.area.productDefinition.birdType}\n'
-      '${widget.scenario.area.productDefinition.lineSpeedInShacklesPerHour}b/h ${widget.scenario.area.productDefinition.moduleGroupCapacities.join(' ')}';
+      '${widget.scenario.area.productDefinition.lineSpeedInShacklesPerHour}b/h ${widget.scenario.area.productDefinition.truckRows.join(' ')}';
 }
 
 class SiteTile extends StatelessWidget {

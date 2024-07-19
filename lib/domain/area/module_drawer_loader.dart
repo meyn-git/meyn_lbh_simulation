@@ -5,6 +5,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
@@ -12,7 +13,7 @@ import 'package:user_command/user_command.dart';
 
 import 'object_details.dart';
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'state_machine.dart';
 
 // final OffsetInMeters mysteryCorrection =
@@ -53,8 +54,8 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
 
   late final DrawerPlace drawerInPlace = DrawerPlace(
       system: this,
-      centerToDrawerCenterWhenSystemFacesNorth: shape.centerToDrawerInLink
-          .addY(GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2));
+      centerToDrawerCenterWhenSystemFacesNorth:
+          shape.centerToDrawerInLink.addY(DrawerVariant.lengthInMeters / 2));
 
   DrawerLoaderLift({
     required this.area,
@@ -368,8 +369,8 @@ class BetweenDrawerConveyorAndDrawerLoader extends BetweenDrawerPlaces
   late DrawerLoaderLift lift;
 
   final double startScale = 1;
-  late final double endScale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late final double endScale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
   BetweenDrawerConveyorAndDrawerLoader._(
       {required this.lift,
@@ -403,8 +404,8 @@ class BetweenLiftAndDrawerLoader extends BetweenDrawerPlaces
     implements TimeProcessor {
   late DrawerLoaderLift lift;
 
-  late double startScale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late double startScale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
   final double endScale = 1;
 
   BetweenLiftAndDrawerLoader._(
@@ -444,8 +445,8 @@ class LiftPosition extends AtDrawerPlace {
   DrawerLoaderLift lift;
   int level;
 
-  late final double _scale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late final double _scale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
   LiftPosition._(super.drawerPlace, {required this.lift, required this.level});
 
@@ -465,8 +466,8 @@ class BetweenLiftPositions extends BetweenDrawerPlaces {
   final DrawerLoaderLift lift;
   // int startLevel;
 
-  late final double _scale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late final double _scale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
   BetweenLiftPositions._(
       {required this.lift,
@@ -742,7 +743,7 @@ class FeedOutAndFeedInToFirstColumnSimultaneously
 
   void _verifyDoorDirection(ModuleDrawerLoader loader) {
     var moduleGroup = loader.moduleGroup!;
-    if (moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide &&
+    if (moduleGroup.family.compartmentType.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(90) != loader.drawerFeedInDirection) {
       throw ('Incorrect drawer in feed direction of the $ModuleGroup '
           'that was fed in to ${loader.name}');

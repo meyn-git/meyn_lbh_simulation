@@ -4,7 +4,7 @@ import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'module_cas.dart';
 
 /// Starts CAS units depending on the line speed, nr of birds per module

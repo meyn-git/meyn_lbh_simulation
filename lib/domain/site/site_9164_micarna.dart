@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -37,40 +38,6 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
 
   MicarnaProductDefinitions()
       : super([
-          // ProductDefinition(
-          //     areaFactory: _areaFactoryV1(),
-          //     birdType: 'Chicken',
-          //     lineSpeedInShacklesPerHour: 13500,
-          //     casRecipe: const CasRecipe.standardChickenRecipe(),
-          //     moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
-          //     moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-          //     moduleGroupCapacities: [
-          //       ModuleGroupCapacity(
-          //         PositionWithinModuleGroup.firstBottom: MeynGrandeDrawerChicken4Level()
-          //             .dimensions
-          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
-          //         PositionWithinModuleGroup.firstTop: MeynGrandeDrawerChicken4Level()
-          //             .dimensions
-          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
-          //       )
-          //     ]),
-          // ProductDefinition(
-          //     areaFactory: _areaFactoryV2(),
-          //     birdType: 'Chicken',
-          //     lineSpeedInShacklesPerHour: 13500,
-          //     casRecipe: const CasRecipe.standardChickenRecipe(),
-          //     moduleSystem: ModuleSystem.meynSingleColumnContainers,
-          //     moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
-          //     moduleGroupCapacities: [
-          //       ModuleGroupCapacity(
-          //         PositionWithinModuleGroup.firstBottom: MeynGrandeDrawerChicken5Level()
-          //             .dimensions
-          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
-          //         PositionWithinModuleGroup.firstTop: MeynGrandeDrawerChicken4Level()
-          //             .dimensions
-          //             .capacityWithDensity(minLoadDensity, maxBirdWeight),
-          //       )
-          //     ]),
           ProductDefinition(
               areaFactory: _areaFactoryV2(),
               birdType: 'Chicken',
@@ -79,16 +46,44 @@ class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken5Level()
-                          .dimensions
-                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(minLoadDensity, maxBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c1
+                      .l5
+                      .gs
+                      .build()
+                      .withLoadDensity(minLoadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c1
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(minLoadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c1
+                      .l5
+                      .gs
+                      .build()
+                      .withLoadDensity(minLoadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.secondTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c1
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(minLoadDensity, maxBirdWeight),
                 })
               ]),
         ]);

@@ -9,7 +9,7 @@ import 'package:user_command/user_command.dart';
 
 import 'object_details.dart';
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'state_machine.dart';
 
 class ModuleTilter extends StateMachine implements PhysicalSystem {
@@ -159,7 +159,7 @@ class FeedIn extends State<ModuleTilter>
 
   void _verifyModule(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
-    if (moduleGroup.moduleFamily.compartmentType.hasDoor &&
+    if (moduleGroup.family.compartmentType.hasDoor &&
         moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${tilter.name}');
     }

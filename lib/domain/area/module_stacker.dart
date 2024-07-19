@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_stacker.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'module_lift_position.dart';
 import 'state_machine.dart';
 

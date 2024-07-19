@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'state_machine.dart';
 
 abstract class ModuleBufferSystem extends StateMachine
@@ -97,10 +97,10 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
   @override
   late final Shape shape = Box(
       xInMeters:
-          area.productDefinition.moduleFamily.moduleGroupSurface.yInMeters +
+          area.productDefinition.moduleFamily.footprintSingleModule.yInMeters +
               0.27,
       yInMeters:
-          area.productDefinition.moduleFamily.moduleGroupSurface.xInMeters +
+          area.productDefinition.moduleFamily.footprintSingleModule.xInMeters +
               0.2);
 }
 
@@ -151,10 +151,10 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
   @override
   late final Shape shape = Box(
       xInMeters:
-          area.productDefinition.moduleFamily.moduleGroupSurface.xInMeters +
+          area.productDefinition.moduleFamily.footprintSingleModule.xInMeters +
               0.2,
       yInMeters:
-          area.productDefinition.moduleFamily.moduleGroupSurface.yInMeters +
+          area.productDefinition.moduleFamily.footprintSingleModule.yInMeters +
               0.27);
 
   ///TODO add frame left or right based on [moduleOutDirection]
@@ -210,10 +210,10 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
   @override
   late final Shape shape = Box(
       xInMeters:
-          area.productDefinition.moduleFamily.moduleGroupSurface.yInMeters +
+          area.productDefinition.moduleFamily.footprintSingleModule.yInMeters +
               0.27,
       yInMeters:
-          area.productDefinition.moduleFamily.moduleGroupSurface.xInMeters +
+          area.productDefinition.moduleFamily.footprintSingleModule.xInMeters +
               0.2);
 
   ///TODO add frame left or right based on [moduleOutDirection]

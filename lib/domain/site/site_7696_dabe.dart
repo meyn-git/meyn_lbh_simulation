@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -51,14 +52,18 @@ class DabeProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: dabeCasRecipe,
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom: MarelGpS1x6Turkey()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(6),
-                  PositionWithinModuleGroup.firstTop: MarelGpS1x6Turkey()
-                      .dimensions
-                      .capacityWithBirdsPerCompartment(6),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .marel
+                      .gpsk
+                      .build()
+                      .withBirdsPerCompartment(6),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .marel
+                      .gpsk
+                      .build()
+                      .withBirdsPerCompartment(6),
                 })
               ]),
         ]);

@@ -17,8 +17,8 @@ class ModuleConveyorShape extends CompoundShape {
   static const double frameWidthInMeters = 0.065;
 
   ModuleConveyorShape(ModuleConveyor moduleConveyor) {
-    var moduleGroupSurface =
-        moduleConveyor.area.productDefinition.moduleFamily.moduleGroupSurface;
+    var moduleGroupSurface = moduleConveyor
+        .area.productDefinition.moduleFamily.footprintSingleModule;
     var frameEast = Box(
         xInMeters:
             frameWidthInMeters, //standard grande drawer conveyor frame width

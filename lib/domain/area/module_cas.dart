@@ -9,7 +9,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_cas.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'state_machine.dart';
 import 'unloading_fork_lift_truck.dart';
 
@@ -216,7 +216,7 @@ class FeedIn extends State<ModuleCas>
 
   void _verifyDoorDirection(ModuleCas cas) {
     var moduleGroup = cas.moduleGroupPosition.moduleGroup!;
-    if (moduleGroup.moduleFamily.compartmentType.hasDoor &&
+    if (moduleGroup.family.compartmentType.hasDoor &&
         moduleGroup.direction.rotate(-90) != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
     }

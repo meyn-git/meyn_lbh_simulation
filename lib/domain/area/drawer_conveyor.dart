@@ -6,8 +6,9 @@ import 'package:flutter/material.dart' as material;
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
@@ -188,12 +189,11 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
   ///
   /// The speed is controlled by the [OnConveyorPosition.conveyorSpeed] and
   /// [metersPerSecondOfEndConveyor].
-  static const lastConveyorInMeters =
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  static const double lastConveyorInMeters = 1.16;
 
   /// the first conveyor of the [DrawerHangingConveyor] runs a continuous speed:
   /// * it runs faster than [lastConveyorInMeters] so that drawers are adjacent.
-  late double firstConveyorInMeters =
+  late final double firstConveyorInMeters =
       drawerPath.totalLengthInMeters - lastConveyorInMeters;
 
   DrawerHangingConveyor({
@@ -228,10 +228,9 @@ class DrawerHangingConveyor extends DrawerConveyorStraight {
 
   late double secondsPerDrawer = 3600 /
       (productDefinition.lineSpeedInShacklesPerHour /
-          productDefinition.moduleGroupCapacities.first.capacities.first
-              .birdsPerCompartment);
-  late double lastConveyorSpeed =
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters / secondsPerDrawer;
+          productDefinition
+              .truckRows.first.capacities.first.birdsPerCompartment);
+  late double lastConveyorSpeed = lastConveyorInMeters / secondsPerDrawer;
 
   Duration? get sinceEndStunAtLastHanger => firstDrawerOnConveyor?.sinceEndStun;
 
@@ -375,14 +374,15 @@ class Outward {
 
 class GrandeDrawer implements TimeProcessor {
   int _nrOfBirds;
-  double outSideLengthInMeters =
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
   BirdContents contents;
   DrawerPosition position;
   Duration? sinceEndStun;
 
   /// Distance traveled in meters from [startPosition]
   material.Offset traveledPath = material.Offset.zero;
+
+  ///TODO GrandeDrawer should be renamed to Drawer and have a [DrawerVariant] variant field. [outSideLengthInMeters] should than be removed and variant.footprint.yInMeters should be used instead
+  double outSideLengthInMeters = DrawerVariant.lengthInMeters;
 
   GrandeDrawer({
     //required this.startPosition,
@@ -553,8 +553,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
   /// the top left of the drawer.
   /// This depends on the start rotation.
   OffsetInMeters drawerStartToTopLeftDrawer(SystemLayout layout) {
-    double halveDrawerLength =
-        GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
+    double halveDrawerLength = DrawerVariant.lengthInMeters / 2;
     var startRotation = rotationInRadians(layout, 0);
     double xInMeters =
         -halveDrawerLength + -sin(startRotation) * halveDrawerLength;
@@ -598,7 +597,7 @@ class OnConveyorPosition extends DrawerPosition implements TimeProcessor {
         .metersTraveledOnDrawerConveyors;
     var inBetween = preceding -
         metersTraveledOnDrawerConveyors -
-        GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+        DrawerVariant.lengthInMeters;
     return inBetween;
   }
 }

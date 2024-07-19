@@ -176,6 +176,11 @@ abstract class CompoundShape extends Shape {
     _calculateSize();
   }
 
+  void add(OffsetInMeters topLeft, Shape shape) {
+    topLefts[shape] = topLeft;
+    _calculateSize();
+  }
+
   _calculateSize() {
     var left = 0.0;
     var top = 0.0;

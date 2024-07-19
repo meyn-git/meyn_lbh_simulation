@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -39,8 +39,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynSingleColumnContainers,
               moduleFamily: ModuleFamily.marelGpSingleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity(
+              truckRows: [
+                TruckRow(
                     // bird weight min: 2,3 avr: 2,8 max 3kg
                     {
                       PositionWithinModuleGroup.firstBottom: ModuleCapacity(

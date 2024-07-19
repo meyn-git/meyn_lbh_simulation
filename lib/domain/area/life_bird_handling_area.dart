@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -127,10 +127,11 @@ class ProductDefinition {
   final String birdType; //TODO should be obtained from moduleGroupCapacities
   final int lineSpeedInShacklesPerHour;
   final int lineShacklePitchInInches;
+  @Deprecated('Use truckRow.moduleVariantBase')
   final ModuleFamily
       moduleFamily; //TODO should be obtained from moduleGroupCapacities
-  final List<ModuleGroupCapacity>
-      moduleGroupCapacities; // verify if module groups are identical (family dimensions, bird type)
+  final List<TruckRow>
+      truckRows; // verify if module groups are identical (family dimensions, bird type)
   final CasRecipe? casRecipe;
   final ModuleSystem
       moduleSystem; //TODO should be obtained from moduleGroupCapacities
@@ -144,7 +145,7 @@ class ProductDefinition {
     required this.lineSpeedInShacklesPerHour,
     required this.lineShacklePitchInInches,
     required this.moduleFamily,
-    required this.moduleGroupCapacities,
+    required this.truckRows,
     required this.casRecipe,
   }) {
     _verifyModuleGroupCapacities();
@@ -155,7 +156,7 @@ class ProductDefinition {
   double get averageProductsPerModuleGroup {
     var totalBirds = 0;
     var totalOccurrence = 0.0;
-    for (var moduleGroupCapacity in moduleGroupCapacities) {
+    for (var moduleGroupCapacity in truckRows) {
       totalBirds += moduleGroupCapacity.numberOfBirds;
       totalOccurrence += moduleGroupCapacity.occurrence;
     }
@@ -164,11 +165,11 @@ class ProductDefinition {
 
   @override
   String toString() {
-    return '$birdType-${lineSpeedInShacklesPerHour}b/h-${moduleGroupCapacities.join(' ')}';
+    return '$birdType-${lineSpeedInShacklesPerHour}b/h-${truckRows.join(' ')}';
   }
 
   void _verifyModuleGroupCapacities() {
-    if (moduleGroupCapacities.isEmpty) {
+    if (truckRows.isEmpty) {
       throw ArgumentError('May not be empty', 'moduleGroupCapacities');
     }
   }

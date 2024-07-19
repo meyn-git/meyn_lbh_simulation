@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'module_lift_position.dart';
 import 'state_machine.dart';
 
@@ -199,7 +199,7 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
 
     var moduleGroupOnSupports = ModuleGroup(
         modules: {PositionWithinModuleGroup.firstBottom: module},
-        moduleFamily: moduleGroupOnConveyor.moduleFamily,
+        family: moduleGroupOnConveyor.family,
         direction: moduleGroupOnConveyor.direction,
         destination: moduleGroupOnConveyor.destination,
         position: AtModuleGroupPlace(deStacker.onSupportsPlace));

@@ -24,7 +24,7 @@ class ModuleDrawerLoaderShape extends CompoundShape {
   /// Most of this is constructor is a copy from the [ModuleConveyorShape]
   ModuleDrawerLoaderShape(ModuleDrawerLoader drawerLoader) {
     var moduleGroupLength = drawerLoader
-        .area.productDefinition.moduleFamily.moduleGroupSurface.yInMeters;
+        .area.productDefinition.moduleFamily.footprintSingleModule.yInMeters;
     var frameEast = Box(
         xInMeters: ModuleConveyorShape.frameWidthInMeters,
         yInMeters: lengthInMeters);

@@ -1,5 +1,5 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
@@ -64,9 +64,7 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
 
     centerToConveyorCenter =
         topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
-    var yDrawers = GrandeDrawerModuleType.drawerOutSideLengthInMeters *
-        unloader.drawersPerRow *
-        1.1;
+    var yDrawers = DrawerVariant.lengthInMeters * unloader.drawersPerRow * 1.1;
     var yFromCenterInMeters = yDrawers /
         unloader.drawersPerRow *
         0.5 *
@@ -115,7 +113,7 @@ class ModuleDrawerRowUnloaderReceiverShape extends CompoundShape {
     var cover2 = Box(xInMeters: widthInMeters, yInMeters: 1.5);
     var drawerConveyor = InvisibleBox(
         xInMeters: feedOutConveyorLengthInMeters,
-        yInMeters: GrandeDrawerModuleType.drawerOutSideLengthInMeters);
+        yInMeters: DrawerVariant.lengthInMeters);
     var platform = Box(xInMeters: widthInMeters, yInMeters: 0.975);
 
     link(cover1.topCenter, cover2.bottomCenter);
@@ -139,8 +137,7 @@ class ModuleDrawerRowUnloaderReceiverShape extends CompoundShape {
     centerToDrawersInLink =
         topLefts[cover1]! + cover1.bottomCenter - centerCenter;
 
-    var drawerOutSideLengthInMeters =
-        GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+    var drawerOutSideLengthInMeters = DrawerVariant.lengthInMeters;
     var drawerSpacingInMeters = drawerOutSideLengthInMeters * 0.1;
     var drawerPitch = drawerSpacingInMeters + drawerOutSideLengthInMeters;
     var xDelta = drawerPitch * (receiver.drawersPerRow - 1);

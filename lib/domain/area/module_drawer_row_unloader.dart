@@ -5,7 +5,8 @@ import 'package:meyn_lbh_simulation/domain/area/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -260,12 +261,11 @@ class FeedOutAndFeedInModulesSimultaneously
   void _verifyModule(ModuleDrawerRowUnloader unloader) {
     var moduleGroup = (unloader.moduleGroupPlace.moduleGroup ??
         unloader.moduleGroupPlace.moduleGroup)!;
-    if (moduleGroup.moduleFamily.compartmentType ==
-        CompartmentType.doorOnOneSide) {
+    if (moduleGroup.family.compartmentType == CompartmentType.doorOnOneSide) {
       throw ('Incorrect container type of the $ModuleGroup '
           'that was fed in to ${unloader.name}');
     }
-    if (moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide &&
+    if (moduleGroup.family.compartmentType.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
       throw ('Incorrect drawer out feed direction of the $ModuleGroup '
           'that was fed in to ${unloader.name}');
@@ -771,13 +771,13 @@ class CrossOverConveyorFeedingOut extends State<CrossOver> {
       var distanceTraveled =
           (conveyorStartToCenter.xInMeters - centerToDrawerPlace.xInMeters)
                   .abs() +
-              GrandeDrawerModuleType.drawerOutSideLengthInMeters / 2;
+              DrawerVariant.lengthInMeters / 2;
       if (crossOverConveyor.receiver.drawerOutDirection ==
           Direction.clockWise) {
-        distanceTraveled += GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+        distanceTraveled += DrawerVariant.lengthInMeters;
       }
       if (i > 0) {
-        distanceTraveled += GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+        distanceTraveled += DrawerVariant.lengthInMeters;
       }
       drawer.position = OnConveyorPosition(conveyor,
           precedingDrawer: crossOverConveyor.lastAddedDrawer,

@@ -5,7 +5,8 @@ import 'package:meyn_lbh_simulation/domain/area/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -267,11 +268,10 @@ class FeedOutAndFeedInModuleSimultaneously
   void _verifyModule(ModuleDrawerColumnUnloader unloader) {
     var moduleGroup = (unloader.moduleGroupPositionFirstColumn.moduleGroup ??
         unloader.moduleGroupPositionSecondColumn.moduleGroup)!;
-    if (moduleGroup.moduleFamily.compartmentType ==
-        CompartmentType.doorOnOneSide) {
+    if (moduleGroup.family.compartmentType == CompartmentType.doorOnOneSide) {
       throw ('In correct container type of the $ModuleGroup that was fed in to ${unloader.name}');
     }
-    if (moduleGroup.moduleFamily.compartmentType.birdsExitOnOneSide &&
+    if (moduleGroup.family.compartmentType.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
       throw ('Incorrect drawer out feed direction of the $ModuleGroup '
           'that was fed in to ${unloader.name}');
@@ -582,7 +582,7 @@ class DrawerUnloaderLift extends StateMachine implements PhysicalSystem {
     }
     return (precedingDrawer!.position as OnConveyorPosition)
             .metersTraveledOnDrawerConveyors >
-        (GrandeDrawerModuleType.drawerOutSideLengthInMeters * 2.05);
+        (DrawerVariant.lengthInMeters * 2.05);
   }
 
   int numberOfDrawersToFeedIn() {
@@ -762,8 +762,8 @@ class UnloaderToLiftPosition extends BetweenDrawerPlaces {
   late final DrawerUnloaderLift lift;
 
   final double startScale = 1;
-  late final double endScale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late final double endScale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
   UnloaderToLiftPosition._(
       {required this.lift,
@@ -794,9 +794,8 @@ class UnloaderToLiftPosition extends BetweenDrawerPlaces {
 class LiftPosition extends AtDrawerPlace {
   DrawerUnloaderLift lift;
   int level;
-
-  late final double _scale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late final double _scale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
   LiftPosition._(super.drawerPlace, {required this.lift, required this.level});
 
@@ -814,10 +813,9 @@ class LiftPosition extends AtDrawerPlace {
 
 class LiftPositionUp extends BetweenDrawerPlaces {
   final DrawerUnloaderLift lift;
-  // int startLevel;
 
-  late final double _scale = lift.shape.minimizedDrawerSize.xInMeters /
-      GrandeDrawerModuleType.drawerOutSideLengthInMeters;
+  late final double _scale =
+      lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
   LiftPositionUp._(
       {required this.lift,

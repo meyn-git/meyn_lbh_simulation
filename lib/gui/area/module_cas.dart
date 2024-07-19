@@ -17,7 +17,7 @@ class ModuleCasShape extends CompoundShape {
 
   ModuleCasShape(ModuleCas cas) {
     var moduleGroupSize =
-        cas.area.productDefinition.moduleFamily.moduleGroupSurface;
+        cas.area.productDefinition.moduleFamily.footprintSingleModule;
     var cabinSize = (moduleGroupSize + cabinPadding * 2);
     var leftPlatform = Box(xInMeters: 0.8, yInMeters: cabinSize.yInMeters);
     cabin = Box(xInMeters: cabinSize.xInMeters, yInMeters: cabinSize.yInMeters);

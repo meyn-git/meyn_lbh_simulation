@@ -1,11 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -53,26 +54,38 @@ class IndrolSite extends Site {
 ///  - max birds: 300/18kg= 16 birds/level x 3 levels= 48 birds per module
 
 class ProductDefinitions extends DelegatingList<ProductDefinition> {
-  static final ModuleCapacity femaleTurkeyMaxWeightCapacity =
-      MeynOmniTurkey3Level().dimensions.capacityWithBirdsPerCompartment(
-          _calculateBirdsPerCompartment(kilo.grams(11.5)));
+  static final ModuleCapacity femaleTurkeyMaxWeightCapacity = BrandBuilder()
+      .meyn
+      .omnia
+      .build()
+      .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(11.5)));
 
-  static final ModuleCapacity femaleTurkeyAverageWeightCapacity =
-      MeynOmniTurkey3Level().dimensions.capacityWithBirdsPerCompartment(
-          _calculateBirdsPerCompartment(kilo.grams(10.0)));
-  static final ModuleCapacity femaleTurkeyMinWeightCapacity =
-      MeynOmniTurkey3Level().dimensions.capacityWithBirdsPerCompartment(
-          _calculateBirdsPerCompartment(kilo.grams(8.5)));
+  static final ModuleCapacity femaleTurkeyAverageWeightCapacity = BrandBuilder()
+      .meyn
+      .omnia
+      .build()
+      .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(10.0)));
+  static final ModuleCapacity femaleTurkeyMinWeightCapacity = BrandBuilder()
+      .meyn
+      .omnia
+      .build()
+      .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(8.5)));
 
-  static final ModuleCapacity maleTurkeyMaxWeightCapacity =
-      MeynOmniTurkey3Level().dimensions.capacityWithBirdsPerCompartment(
-          _calculateBirdsPerCompartment(kilo.grams(23)));
-  static final ModuleCapacity maleTurkeyAverageWeightCapacity =
-      MeynOmniTurkey3Level().dimensions.capacityWithBirdsPerCompartment(
-          _calculateBirdsPerCompartment(kilo.grams(20)));
-  static final ModuleCapacity maleTurkeyMinWeightCapacity =
-      MeynOmniTurkey3Level().dimensions.capacityWithBirdsPerCompartment(
-          _calculateBirdsPerCompartment(kilo.grams(18)));
+  static final ModuleCapacity maleTurkeyMaxWeightCapacity = BrandBuilder()
+      .meyn
+      .omnia
+      .build()
+      .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(23)));
+  static final ModuleCapacity maleTurkeyAverageWeightCapacity = BrandBuilder()
+      .meyn
+      .omnia
+      .build()
+      .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(20)));
+  static final ModuleCapacity maleTurkeyMinWeightCapacity = BrandBuilder()
+      .meyn
+      .omnia
+      .build()
+      .withBirdsPerCompartment(_calculateBirdsPerCompartment(kilo.grams(18)));
 
   ProductDefinitions()
       : super([
@@ -84,8 +97,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
+              truckRows: [
+                TruckRow({
                   PositionWithinModuleGroup.firstBottom:
                       femaleTurkeyMinWeightCapacity,
                   PositionWithinModuleGroup.firstTop:
@@ -100,8 +113,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
+              truckRows: [
+                TruckRow({
                   PositionWithinModuleGroup.firstBottom:
                       femaleTurkeyAverageWeightCapacity,
                   PositionWithinModuleGroup.firstTop:
@@ -116,8 +129,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
+              truckRows: [
+                TruckRow({
                   PositionWithinModuleGroup.firstBottom:
                       femaleTurkeyMaxWeightCapacity,
                   PositionWithinModuleGroup.firstTop:
@@ -132,8 +145,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
+              truckRows: [
+                TruckRow({
                   PositionWithinModuleGroup.firstBottom:
                       maleTurkeyMinWeightCapacity,
                   PositionWithinModuleGroup.firstTop:
@@ -148,8 +161,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
+              truckRows: [
+                TruckRow({
                   PositionWithinModuleGroup.firstBottom:
                       maleTurkeyAverageWeightCapacity,
                   PositionWithinModuleGroup.firstTop:
@@ -164,8 +177,8 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
               moduleSystem: ModuleSystem.meynOmni,
               moduleFamily: ModuleFamily.meynOmni,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
+              truckRows: [
+                TruckRow({
                   PositionWithinModuleGroup.firstBottom:
                       maleTurkeyMaxWeightCapacity,
                   PositionWithinModuleGroup.firstTop:

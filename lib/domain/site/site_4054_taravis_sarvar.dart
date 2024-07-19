@@ -1,13 +1,14 @@
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -44,22 +45,30 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(
-                                  averageNormalBirdWeight, 100),
-                              averageNormalBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(
-                                  averageNormalBirdWeight, 100),
-                              averageNormalBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageNormalBirdWeight, 100),
+                          averageNormalBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageNormalBirdWeight, 100),
+                          averageNormalBirdWeight),
                 })
               ]),
           ProductDefinition(
@@ -70,22 +79,30 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(
-                                  averageNormalBirdWeight, 90),
-                              averageNormalBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(
-                                  averageNormalBirdWeight, 90),
-                              averageNormalBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageNormalBirdWeight, 90),
+                          averageNormalBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageNormalBirdWeight, 90),
+                          averageNormalBirdWeight),
                 })
               ]),
           ProductDefinition(
@@ -96,24 +113,34 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.floorSpaceInCm2(
-                                  minCm2FloorSpacePerKgLiveWeight: 160,
-                                  loadingPercentage: 100),
-                              averageHeavyBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.floorSpaceInCm2(
-                                  minCm2FloorSpacePerKgLiveWeight: 160,
-                                  loadingPercentage: 100),
-                              averageHeavyBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.floorSpaceInCm2(
+                              minCm2FloorSpacePerKgLiveWeight: 160,
+                              loadingPercentage: 100),
+                          averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.floorSpaceInCm2(
+                              minCm2FloorSpacePerKgLiveWeight: 160,
+                              loadingPercentage: 100),
+                          averageHeavyBirdWeight),
                 })
               ]),
           ProductDefinition(
@@ -124,24 +151,34 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.floorSpaceInCm2(
-                                  minCm2FloorSpacePerKgLiveWeight: 160,
-                                  loadingPercentage: 90),
-                              averageHeavyBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.floorSpaceInCm2(
-                                  minCm2FloorSpacePerKgLiveWeight: 160,
-                                  loadingPercentage: 90),
-                              averageHeavyBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.floorSpaceInCm2(
+                              minCm2FloorSpacePerKgLiveWeight: 160,
+                              loadingPercentage: 90),
+                          averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.floorSpaceInCm2(
+                              minCm2FloorSpacePerKgLiveWeight: 160,
+                              loadingPercentage: 90),
+                          averageHeavyBirdWeight),
                 })
               ]),
           ProductDefinition(
@@ -152,22 +189,30 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(
-                                  averageHeavyBirdWeight, 100),
-                              averageHeavyBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(
-                                  averageHeavyBirdWeight, 100),
-                              averageHeavyBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageHeavyBirdWeight, 100),
+                          averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageHeavyBirdWeight, 100),
+                          averageHeavyBirdWeight),
                 })
               ]),
           ProductDefinition(
@@ -178,20 +223,30 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynGrandeDrawerContainers,
               moduleFamily: ModuleFamily.meynGrandeDrawerDoubleColumn,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
-                              averageHeavyBirdWeight),
-                  PositionWithinModuleGroup.firstTop:
-                      MeynGrandeDrawerChicken4Level()
-                          .dimensions
-                          .capacityWithDensity(
-                              LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
-                              averageHeavyBirdWeight),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
+                          averageHeavyBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m4
+                      .c2
+                      .l4
+                      .gs
+                      .build()
+                      .withLoadDensity(
+                          LoadDensity.eec64_432(averageHeavyBirdWeight, 90),
+                          averageHeavyBirdWeight),
                 })
               ]),
         ]);

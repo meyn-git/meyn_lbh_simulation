@@ -6,7 +6,7 @@ import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 
 /// Allocates the destination of a [ModuleGroup] of a given location depending on the
 /// state of the [ModuleCas] units and transport modules between this position

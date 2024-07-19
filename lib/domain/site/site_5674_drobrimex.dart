@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -38,16 +39,22 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
                 })
               ]),
           ProductDefinition(
@@ -61,16 +68,22 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
                 })
               ]),
           ProductDefinition(
@@ -84,16 +97,22 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
                 })
               ]),
           ProductDefinition(
@@ -107,16 +126,22 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
                 })
               ]),
           ProductDefinition(
@@ -130,16 +155,22 @@ class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
               casRecipe: const CasRecipe.standardChickenRecipe(),
               moduleSystem: ModuleSystem.meynVdlRectangularContainers,
               moduleFamily: ModuleFamily.angliaAutoFlow,
-              moduleGroupCapacities: [
-                ModuleGroupCapacity({
-                  PositionWithinModuleGroup.firstBottom:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop:
-                      AngliaAutoFlowChickenSmall4Level()
-                          .dimensions
-                          .capacityWithBirdsPerCompartment(15),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .angliaAutoFlow
+                      .chicken
+                      .smallBirds
+                      .l4
+                      .build()
+                      .withBirdsPerCompartment(15),
                 })
               ]),
         ]);

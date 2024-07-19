@@ -1,7 +1,7 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/domain/area/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 
@@ -44,8 +44,10 @@ class BetweenDrawerPlaces implements DrawerPositionAndSize, TimeProcessor {
 
   bool completed = false;
 
-  final OffsetInMeters drawerCenterToTopLeft =
-      GrandeDrawerModuleType.size.toOffsetInMeters() * -0.5;
+  final OffsetInMeters drawerCenterToTopLeft = const OffsetInMeters(
+          xInMeters: DrawerVariant.lengthInMeters,
+          yInMeters: DrawerVariant.lengthInMeters) *
+      -0.5;
 
   late final GrandeDrawer transportedDrawer;
 
@@ -163,8 +165,10 @@ abstract class DrawerTransportCompletedListener {
 
 class AtDrawerPlace implements DrawerPositionAndSize {
   final DrawerPlace drawerPlace;
-  final OffsetInMeters drawerCenterToTopLeft =
-      GrandeDrawerModuleType.size.toOffsetInMeters() * -0.5;
+  final OffsetInMeters drawerCenterToTopLeft = const OffsetInMeters(
+          xInMeters: DrawerVariant.lengthInMeters,
+          yInMeters: DrawerVariant.lengthInMeters) *
+      -0.5;
 
   OffsetInMeters? _topLeft;
   double? _rotationInFraction;

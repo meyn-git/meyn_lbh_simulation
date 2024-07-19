@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
 import 'package:user_command/user_command.dart';
 
 import 'life_bird_handling_area.dart';
-import 'module.dart';
+import 'module/module.dart';
 import 'state_machine.dart';
 
 class ModuleConveyor extends StateMachine implements PhysicalSystem {
