@@ -7,7 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
-import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -102,14 +102,9 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
-    canFeedIn: canFeedIn,
+    canFeedIn: () =>
+        SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
-
-  bool canFeedIn() {
-    return currentState is FeedOutAndFeedInModulesSimultaneously &&
-        (currentState as FeedOutAndFeedInModulesSimultaneously).inFeedState ==
-            InFeedState.waitingOnNeighbor;
-  }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
     place: moduleGroupPlace,
@@ -117,14 +112,9 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
-        canFeedOut() ? Duration.zero : unknownDuration,
+        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+            currentState),
   );
-
-  bool canFeedOut() {
-    return currentState is FeedOutAndFeedInModulesSimultaneously &&
-        (currentState as FeedOutAndFeedInModulesSimultaneously).outFeedState ==
-            OutFeedState.waitingOnNeighbor;
-  }
 
   @override
   late List<Link> links = [modulesIn, drawersOut, modulesOut];
@@ -163,121 +153,32 @@ class CheckIfEmpty extends DurationState<ModuleDrawerRowUnloader> {
       : super(
             durationFunction: (unloader) => unloader.checkIfEmptyDuration,
             nextStateFunction: (unloader) =>
-                FeedOutAndFeedInModulesSimultaneously());
+                SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerRowUnloader>(
+                    modulesIn: unloader.modulesIn,
+                    modulesOut: unloader.modulesOut,
+                    stateWhenCompleted:
+                        AfterSimultaneousFeedOutFeedInModuleGroup(),
+                    inFeedDelay: Duration.zero));
 }
 
-class FeedOutAndFeedInModulesSimultaneously
+class AfterSimultaneousFeedOutFeedInModuleGroup
     extends State<ModuleDrawerRowUnloader> {
   @override
-  String get name => 'FeedOutAndFeedInModulesSimultaneously';
-
-  ModuleGroup? moduleGroupTransportedOut;
-  InFeedState inFeedState = InFeedState.waitingToFeedOut;
-  OutFeedState outFeedState = OutFeedState.waitingOnNeighbor;
-
-  @override
-  void onStart(ModuleDrawerRowUnloader unloader) {
-    outFeedState = unloader.moduleGroupPlace.moduleGroup == null
-        ? OutFeedState.done
-        : OutFeedState.waitingOnNeighbor;
-  }
-
-  @override
-  void onUpdateToNextPointInTime(
-      ModuleDrawerRowUnloader unloader, Duration jump) {
-    processInFeedState(unloader, jump);
-    processOutFeedState(unloader, jump);
-  }
-
-  void processInFeedState(ModuleDrawerRowUnloader unloader, Duration jump) {
-    switch (inFeedState) {
-      case InFeedState.waitingToFeedOut:
-        if (outFeedState != OutFeedState.waitingOnNeighbor) {
-          inFeedState = InFeedState.waitingOnNeighbor;
-        }
-      case InFeedState.waitingOnNeighbor:
-        if (_inFeedStarted(unloader)) {
-          inFeedState = InFeedState.transporting;
-        }
-        break;
-      case InFeedState.transporting:
-        if (_inFeedCompleted(unloader)) {
-          inFeedState = InFeedState.done;
-        }
-        break;
-      default:
-    }
-  }
-
-  bool _inFeedCompleted(ModuleDrawerRowUnloader unloader) =>
-      unloader.moduleGroupPlace.moduleGroup != null;
-
-  bool _inFeedStarted(ModuleDrawerRowUnloader unloader) =>
-      unloader.area.moduleGroups
-          .any((moduleGroup) => moduleGroup.isBeingTransportedTo(unloader));
-
-  void processOutFeedState(ModuleDrawerRowUnloader unloader, Duration jump) {
-    switch (outFeedState) {
-      case OutFeedState.waitingOnNeighbor:
-        if (_outFeedCanStart(unloader)) {
-          outFeedState = OutFeedState.transporting;
-          transportModuleOut(unloader);
-        }
-        break;
-      case OutFeedState.transporting:
-        if (_outFeedCompleted(unloader)) {
-          outFeedState = OutFeedState.done;
-        }
-        break;
-      default:
-    }
-  }
-
-  void transportModuleOut(ModuleDrawerRowUnloader unloader) {
-    moduleGroupTransportedOut = unloader.moduleGroupPlace.moduleGroup!;
-    moduleGroupTransportedOut!.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(unloader.modulesOut);
-  }
-
-  _outFeedCanStart(ModuleDrawerRowUnloader unloader) =>
-      unloader.modulesOut.linkedTo!.canFeedIn();
+  String get name => 'AfterSimultaneousFeedOutFeedInModuleGroup';
 
   @override
   State<ModuleDrawerRowUnloader>? nextState(ModuleDrawerRowUnloader unloader) {
-    if (inFeedState != InFeedState.done || outFeedState != OutFeedState.done) {
-      return null;
-    }
     if (moduleGroupIsEmpty(unloader) || sendToModuleDrawerUnloader(unloader)) {
-      return FeedOutAndFeedInModulesSimultaneously();
+      return SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerRowUnloader>(
+        modulesIn: unloader.modulesIn,
+        modulesOut: unloader.modulesOut,
+        stateWhenCompleted: AfterSimultaneousFeedOutFeedInModuleGroup(),
+        inFeedDelay: Duration.zero,
+      );
     } else {
       return MoveLift(LiftLevel.top);
     }
   }
-
-  @override
-  void onCompleted(ModuleDrawerRowUnloader unloader) {
-    _verifyModule(unloader);
-  }
-
-  void _verifyModule(ModuleDrawerRowUnloader unloader) {
-    var moduleGroup = (unloader.moduleGroupPlace.moduleGroup ??
-        unloader.moduleGroupPlace.moduleGroup)!;
-    if (moduleGroup.compartment is CompartmentWithDoor) {
-      throw Exception('${unloader.name} can only unload drawer modules '
-          'and not containers with doors');
-    }
-    if (moduleGroup.compartment.birdsExitOnOneSide &&
-        moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
-      throw Exception('${unloader.name}: Incorrect drawer in feed direction of '
-          '$ModuleGroup');
-    }
-  }
-
-  bool _outFeedCompleted(ModuleDrawerRowUnloader unloader) =>
-      moduleGroupTransportedOut != null &&
-      moduleGroupTransportedOut!.position is AtModuleGroupPlace &&
-      (moduleGroupTransportedOut!.position as AtModuleGroupPlace).place ==
-          unloader.modulesOut.linkedTo!.place;
 
   bool moduleGroupIsEmpty(ModuleDrawerRowUnloader unloader) {
     var moduleGroup = unloader.moduleGroupPlace.moduleGroup;
@@ -294,10 +195,6 @@ class FeedOutAndFeedInModulesSimultaneously
   }
 }
 
-enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
-
-enum OutFeedState { waitingOnNeighbor, transporting, done }
-
 class MoveLift extends DurationState<ModuleDrawerRowUnloader> {
   final LiftLevel newLevel;
   MoveLift(this.newLevel)
@@ -312,10 +209,12 @@ class MoveLift extends DurationState<ModuleDrawerRowUnloader> {
   static State<ModuleDrawerRowUnloader> nextStateWhenCompleted(
       ModuleDrawerRowUnloader unloader, LiftLevel newLevel) {
     unloader.liftLevel = newLevel;
-    var liftAtBottom2 = liftAtBottom(unloader);
-    var moduleGroupIsEmpty2 = moduleGroupIsEmpty(unloader);
-    if (liftAtBottom2 && moduleGroupIsEmpty2) {
-      return FeedOutAndFeedInModulesSimultaneously();
+    if (liftAtBottom(unloader) && moduleGroupIsEmpty(unloader)) {
+      return SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerRowUnloader>(
+          modulesIn: unloader.modulesIn,
+          modulesOut: unloader.modulesOut,
+          stateWhenCompleted: AfterSimultaneousFeedOutFeedInModuleGroup(),
+          inFeedDelay: Duration.zero);
     } else {
       return WaitToPushOutRow();
     }
@@ -449,10 +348,15 @@ class PusherBack extends DurationState<ModuleDrawerRowUnloader> {
   PusherBack()
       : super(
             durationFunction: (unloader) => unloader.pusherBackDuration,
-            nextStateFunction: (unloader) =>
-                unloader.liftLevel == LiftLevel.bottom
-                    ? FeedOutAndFeedInModulesSimultaneously()
-                    : MoveLift(unloader.liftLevel.oneLevelDown));
+            nextStateFunction: (unloader) => unloader.liftLevel ==
+                    LiftLevel.bottom
+                ? SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerRowUnloader>(
+                    modulesIn: unloader.modulesIn,
+                    modulesOut: unloader.modulesOut,
+                    stateWhenCompleted:
+                        AfterSimultaneousFeedOutFeedInModuleGroup(),
+                    inFeedDelay: Duration.zero)
+                : MoveLift(unloader.liftLevel.oneLevelDown));
 }
 
 class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
