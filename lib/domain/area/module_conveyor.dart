@@ -44,7 +44,8 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
-    canFeedIn: () => currentState is WaitToFeedIn,
+    canFeedIn: () =>
+        SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
 
   late final ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
@@ -53,7 +54,8 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
-        currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
+        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+            currentState),
   );
 
   @override
@@ -81,101 +83,388 @@ class CheckIfEmpty extends DurationState<ModuleConveyor> {
       : super(
             durationFunction: (moduleConveyor) =>
                 moduleConveyor.checkIfEmptyDuration,
-            nextStateFunction: (moduleConveyor) => WaitToFeedIn());
+            nextStateFunction: (moduleConveyor) =>
+                SimultaneousFeedOutFeedInModuleGroup(
+                    modulesIn: moduleConveyor.modulesIn,
+                    modulesOut: moduleConveyor.modulesOut,
+                    stateWhenCompleted: DoAgain()));
 
   @override
   String get name => 'CheckIfEmpty';
 }
 
-class WaitToFeedIn extends State<ModuleConveyor>
-    implements ModuleTransportStartedListener {
-  var transportStarted = false;
+class DoAgain extends State<ModuleConveyor> {
+  @override
+  String get name => 'DoAgain';
 
   @override
-  String get name => 'WaitToFeedIn';
+  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) =>
+      SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: moduleConveyor.modulesIn,
+          modulesOut: moduleConveyor.modulesOut,
+          stateWhenCompleted: this);
+}
+
+// class WaitToFeedIn extends State<ModuleConveyor>
+//     implements ModuleTransportStartedListener {
+//   var transportStarted = false;
+
+//   @override
+//   String get name => 'WaitToFeedIn';
+
+//   @override
+//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+//     if (transportStarted) {
+//       return FeedIn();
+//     }
+//     return null;
+//   }
+
+//   /// Must be called by FeedOut state of the preceding [PhysicalSystem]
+//   @override
+//   void onModuleTransportStarted(_) {
+//     transportStarted = true;
+//   }
+// }
+
+// class FeedIn extends State<ModuleConveyor>
+//     implements ModuleTransportCompletedListener {
+//   @override
+//   String get name => 'FeedIn';
+//   bool transportCompleted = false;
+
+//   @override
+//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+//     if (transportCompleted) {
+//       return WaitToFeedOut();
+//     }
+//     return null;
+//   }
+
+//   /// called by [BetweenModuleGroupPlaces]
+//   @override
+//   void onModuleTransportCompleted(_) {
+//     transportCompleted = true;
+//   }
+// }
+
+// class WaitToFeedOut extends State<ModuleConveyor> {
+//   @override
+//   String get name => 'WaitToFeedOut';
+
+//   @override
+//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+//     if (neighborCanFeedIn(moduleConveyor) &&
+//         !_moduleGroupAtDestination(moduleConveyor)) {
+//       return FeedOut();
+//     }
+//     return null;
+//   }
+
+//   bool neighborCanFeedIn(ModuleConveyor moduleConveyor) =>
+//       moduleConveyor.modulesOut.linkedTo!.canFeedIn();
+
+//   bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
+//       moduleConveyor.moduleGroupPlace.moduleGroup!.destination ==
+//       moduleConveyor;
+// }
+
+// class FeedOut extends State<ModuleConveyor>
+//     implements ModuleTransportCompletedListener {
+//   bool transportCompleted = false;
+
+//   @override
+//   String get name => 'FeedOut';
+
+//   @override
+//   void onStart(ModuleConveyor moduleConveyor) {
+//     var transportedModuleGroup = moduleConveyor.moduleGroupPlace.moduleGroup!;
+//     transportedModuleGroup.position =
+//         BetweenModuleGroupPlaces.forModuleOutLink(moduleConveyor.modulesOut);
+//   }
+
+//   @override
+//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
+//     if (transportCompleted) {
+//       return WaitToFeedIn();
+//     }
+//     return null;
+//   }
+
+//   /// This method is called by ModuleTransport when completed
+//   @override
+//   void onModuleTransportCompleted(_) {
+//     transportCompleted = true;
+//   }
+// }
+
+class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
+    extends State<STATE_MACHINE>
+    implements
+        ModuleTransportStartedListener,
+        ModuleTransportCompletedListener {
+  late final feedInStateMachine = FeedInStateMachine(this);
+  late final feedOutStateMachine = FeedOutStateMachine(modulesOut);
+  final ModuleGroupInLink modulesIn;
+  final ModuleGroupOutLink modulesOut;
+  final State<STATE_MACHINE> stateWhenCompleted;
+
+  ModuleGroup? moduleGroupTransportedOut;
+
+  final Duration inFeedDelay;
+
+  SimultaneousFeedOutFeedInModuleGroup({
+    required this.modulesIn,
+    required this.modulesOut,
+    required this.stateWhenCompleted,
+    this.inFeedDelay = const Duration(seconds: 3),
+  });
 
   @override
-  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (transportStarted) {
-      return FeedIn();
+  String get name => 'SimultaneousFeedOutFeedInModuleGroup\n'
+      '  in: ${feedInStateMachine.currentState.name}\n'
+      '  out: ${feedOutStateMachine.currentState.name}\n';
+
+  bool get completed =>
+      feedInStateMachine.currentState is FeedInCompleted &&
+      feedOutStateMachine.currentState is FeedOutCompleted;
+
+  static bool canFeedIn(currentState) =>
+      (currentState is SimultaneousFeedOutFeedInModuleGroup) &&
+      currentState.feedInStateMachine.currentState is WaitToFeedIn;
+
+  static Duration durationUntilCanFeedOut(currentState) =>
+      (currentState is SimultaneousFeedOutFeedInModuleGroup) &&
+              currentState.feedOutStateMachine.currentState is WaitToFeedOut
+          ? Duration.zero
+          : unknownDuration;
+
+  @override
+  void onStart(_) {
+    var moduleGroup = modulesOut.place.moduleGroup;
+    if (moduleGroup == null) {
+      feedOutStateMachine.currentState = FeedOutCompleted();
     }
-    return null;
   }
 
-  /// Must be called by FeedOut state of the preceding [PhysicalSystem]
+  @override
+  void onUpdateToNextPointInTime(STATE_MACHINE stateMachine, Duration jump) {
+    feedInStateMachine.onUpdateToNextPointInTime(jump);
+    feedOutStateMachine.onUpdateToNextPointInTime(jump);
+  }
+
+  @override
+  State<STATE_MACHINE>? nextState(_) => completed ? stateWhenCompleted : null;
+
+  @override
+  void onModuleTransportStarted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    feedInStateMachine.onModuleTransportStarted(betweenModuleGroupPlaces);
+    feedOutStateMachine.onModuleTransportStarted(betweenModuleGroupPlaces);
+  }
+
+  @override
+  void onModuleTransportCompleted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    feedInStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
+    feedOutStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
+  }
+}
+
+class FeedInStateMachine extends StateMachine
+    implements
+        ModuleTransportStartedListener,
+        ModuleTransportCompletedListener {
+  final SimultaneousFeedOutFeedInModuleGroup simultaneousFeedOutFeedIn;
+  late final ModuleGroupInLink<PhysicalSystem> modulesIn =
+      simultaneousFeedOutFeedIn.modulesIn;
+
+  FeedInStateMachine(this.simultaneousFeedOutFeedIn)
+      : super(initialState: WaitUntilThereIsSpaceToFeedIn());
+
+  @override
+  final String name = 'FeedInStateMachine';
+
+  @override
+  void onModuleTransportStarted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    if (currentState is ModuleTransportStartedListener &&
+        betweenModuleGroupPlaces.destination == modulesIn.place) {
+      var listener = currentState as ModuleTransportStartedListener;
+      listener.onModuleTransportStarted(betweenModuleGroupPlaces);
+    }
+  }
+
+  @override
+  void onModuleTransportCompleted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    if (currentState is ModuleTransportCompletedListener &&
+        betweenModuleGroupPlaces.destination == modulesIn.place) {
+      var listener = currentState as ModuleTransportCompletedListener;
+      listener.onModuleTransportCompleted(betweenModuleGroupPlaces);
+    }
+  }
+}
+
+class WaitUntilThereIsSpaceToFeedIn extends State<FeedInStateMachine> {
+  @override
+  final String name = "WaitUntilThereIsSpaceToFeedIn";
+
+  Duration inFeedDelay = Duration.zero;
+
+  @override
+  void onStart(FeedInStateMachine feedInStateMachine) {
+    inFeedDelay = feedInStateMachine.simultaneousFeedOutFeedIn.inFeedDelay;
+  }
+
+  @override
+  void onUpdateToNextPointInTime(
+      FeedInStateMachine feedInStateMachine, Duration jump) {
+    var feedOutStateMachine =
+        feedInStateMachine.simultaneousFeedOutFeedIn.feedOutStateMachine;
+    if (feedOutStateMachine.currentState is FeedOut) {
+      inFeedDelay -= jump;
+    }
+    if (inFeedDelay < Duration.zero ||
+        feedOutStateMachine.currentState is FeedOutCompleted) {
+      inFeedDelay = Duration.zero;
+    }
+  }
+
+  @override
+  State<FeedInStateMachine>? nextState(FeedInStateMachine feedInStateMachine) {
+    var feedOutStateMachine =
+        feedInStateMachine.simultaneousFeedOutFeedIn.feedOutStateMachine;
+
+    if (hasSpaceToFeedIn(feedOutStateMachine)) {
+      return WaitToFeedIn();
+    } else {
+      return null;
+    }
+  }
+
+  bool hasSpaceToFeedIn(FeedOutStateMachine feedOutStateMachine) =>
+      feedOutStateMachine.currentState is FeedOutCompleted ||
+      feedOutStateMachine.currentState is FeedOut &&
+          inFeedDelay == Duration.zero;
+}
+
+class WaitToFeedIn extends State<FeedInStateMachine>
+    implements ModuleTransportStartedListener {
+  @override
+  final String name = 'WaitToFeedIn';
+
+  bool transportStarted = false;
+
+  @override
+  State<FeedInStateMachine>? nextState(FeedInStateMachine stateMachine) =>
+      transportStarted ? FeedIn() : null;
+
   @override
   void onModuleTransportStarted(_) {
     transportStarted = true;
   }
 }
 
-class FeedIn extends State<ModuleConveyor>
+class FeedIn extends State<FeedInStateMachine>
     implements ModuleTransportCompletedListener {
   @override
-  String get name => 'FeedIn';
+  final String name = "FeedIn";
+
   bool transportCompleted = false;
 
   @override
-  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (transportCompleted) {
-      return WaitToFeedOut();
-    }
-    return null;
-  }
+  State<FeedInStateMachine>? nextState(FeedInStateMachine stateMachine) =>
+      transportCompleted ? FeedInCompleted() : null;
 
-  /// called by [BetweenModuleGroupPlaces]
   @override
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
 }
 
-class WaitToFeedOut extends State<ModuleConveyor> {
+class FeedInCompleted extends State<FeedInStateMachine> {
   @override
-  String get name => 'WaitToFeedOut';
+  final String name = "FeedInCompleted";
 
+  /// Last state: never will return a next state
   @override
-  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (neighborCanFeedIn(moduleConveyor) &&
-        !_moduleGroupAtDestination(moduleConveyor)) {
-      return FeedOut();
-    }
-    return null;
-  }
-
-  bool neighborCanFeedIn(ModuleConveyor moduleConveyor) =>
-      moduleConveyor.modulesOut.linkedTo!.canFeedIn();
-
-  bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
-      moduleConveyor.moduleGroupPlace.moduleGroup!.destination ==
-      moduleConveyor;
+  State<FeedInStateMachine>? nextState(FeedInStateMachine stateMachine) => null;
 }
 
-class FeedOut extends State<ModuleConveyor>
+class FeedOutStateMachine extends StateMachine
+    implements
+        ModuleTransportStartedListener,
+        ModuleTransportCompletedListener {
+  late final ModuleGroupOutLink<PhysicalSystem> modulesOut;
+
+  FeedOutStateMachine(this.modulesOut) : super(initialState: WaitToFeedOut());
+
+  @override
+  final String name = 'FeedOutStateMachine';
+
+  bool get nextNeighborWaitingToFeedIn => modulesOut.linkedTo!.canFeedIn();
+
+  @override
+  void onModuleTransportStarted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    if (currentState is ModuleTransportStartedListener &&
+        betweenModuleGroupPlaces.destination == modulesOut.place) {
+      var listener = currentState as ModuleTransportStartedListener;
+      listener.onModuleTransportStarted(betweenModuleGroupPlaces);
+    }
+  }
+
+  @override
+  void onModuleTransportCompleted(
+      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    if (currentState is ModuleTransportCompletedListener &&
+        betweenModuleGroupPlaces.destination == modulesOut.place) {
+      var listener = currentState as ModuleTransportCompletedListener;
+      listener.onModuleTransportCompleted(betweenModuleGroupPlaces);
+    }
+  }
+}
+
+class WaitToFeedOut extends State<FeedOutStateMachine> {
+  @override
+  final String name = 'WaitToFeedOut';
+
+  @override
+  State<FeedOutStateMachine>? nextState(FeedOutStateMachine stateMachine) =>
+      stateMachine.nextNeighborWaitingToFeedIn ? FeedOut() : null;
+}
+
+class FeedOut extends State<FeedOutStateMachine>
     implements ModuleTransportCompletedListener {
+  @override
+  final String name = "FeedOut";
+
   bool transportCompleted = false;
 
   @override
-  String get name => 'FeedOut';
-
-  @override
-  void onStart(ModuleConveyor moduleConveyor) {
-    var transportedModuleGroup = moduleConveyor.moduleGroupPlace.moduleGroup!;
-    transportedModuleGroup.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(moduleConveyor.modulesOut);
+  void onStart(FeedOutStateMachine stateMachine) {
+    var moduleGroup = stateMachine.modulesOut.place.moduleGroup!;
+    moduleGroup.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(stateMachine.modulesOut);
   }
 
   @override
-  State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-    if (transportCompleted) {
-      return WaitToFeedIn();
-    }
-    return null;
-  }
+  State<FeedOutStateMachine>? nextState(FeedOutStateMachine stateMachine) =>
+      transportCompleted ? FeedOutCompleted() : null;
 
-  /// This method is called by ModuleTransport when completed
   @override
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
+}
+
+class FeedOutCompleted extends State<FeedOutStateMachine> {
+  @override
+  final String name = "FeedOutCompleted";
+
+  /// Last state: never will return a next state
+  @override
+  State<FeedOutStateMachine>? nextState(FeedOutStateMachine stateMachine) =>
+      null;
 }
