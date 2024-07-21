@@ -7,6 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
@@ -279,6 +280,23 @@ class PushOutRow extends State<ModuleDrawerRowUnloader>
     var drawers = unloader.area.drawers;
     var newDrawers = createDrawers(unloader);
     drawers.addAll(newDrawers);
+    _verifyModuleGroup(unloader);
+  }
+
+  void _verifyModuleGroup(ModuleDrawerRowUnloader unloader) {
+    var moduleGroup = (unloader.moduleGroupPlace.moduleGroup)!;
+    if (moduleGroup.numberOfModules > 2) {
+      throw Exception('${unloader.name}:  can not handle stacked modules');
+    }
+    if (moduleGroup.compartment.birdsExitOnOneSide &&
+        moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
+      if (moduleGroup.compartment is CompartmentWithDoor) {
+        throw ('${unloader.name}: Can not process containers');
+      } else {
+        throw ('${unloader.name}: Incorrect drawer out feed direction '
+            'of: $ModuleGroup');
+      }
+    }
   }
 
   List<GrandeDrawer> createDrawers(ModuleDrawerRowUnloader unloader) {

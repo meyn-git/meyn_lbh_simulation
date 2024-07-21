@@ -207,6 +207,7 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
   late final feedOutStateMachine = FeedOutStateMachine(modulesOut);
   final ModuleGroupInLink modulesIn;
   final ModuleGroupOutLink modulesOut;
+  final NextStateCondition nextStateCondition;
   final State<STATE_MACHINE> stateWhenCompleted;
 
   ModuleGroup? moduleGroupTransportedOut;
@@ -217,17 +218,26 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
     required this.modulesIn,
     required this.modulesOut,
     required this.stateWhenCompleted,
+    this.nextStateCondition =
+        NextStateCondition.whenFeedInIsCompletedAndFeedOutIsCompleted,
     this.inFeedDelay = const Duration(seconds: 3),
   });
 
   @override
   String get name => 'SimultaneousFeedOutFeedInModuleGroup\n'
       '  in: ${feedInStateMachine.currentState.name}\n'
-      '  out: ${feedOutStateMachine.currentState.name}\n';
+      '  out: ${feedOutStateMachine.currentState.name}';
 
   bool get completed =>
       feedInStateMachine.currentState is FeedInCompleted &&
-      feedOutStateMachine.currentState is FeedOutCompleted;
+      (nextStateCondition ==
+                  NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted &&
+              (feedOutStateMachine.currentState is FeedOut ||
+                  feedOutStateMachine.currentState is FeedOutCompleted) ||
+          nextStateCondition ==
+                  NextStateCondition
+                      .whenFeedInIsCompletedAndFeedOutIsCompleted &&
+              feedOutStateMachine.currentState is FeedOutCompleted);
 
   static bool canFeedIn(currentState) =>
       (currentState is SimultaneousFeedOutFeedInModuleGroup) &&
@@ -269,6 +279,11 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
     feedInStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
     feedOutStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
   }
+}
+
+enum NextStateCondition {
+  whenFeedInIsCompletedAndFeedOutIsStarted,
+  whenFeedInIsCompletedAndFeedOutIsCompleted,
 }
 
 class FeedInStateMachine extends StateMachine

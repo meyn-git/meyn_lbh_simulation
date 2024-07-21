@@ -8,6 +8,7 @@ import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -104,14 +105,9 @@ class ModuleDrawerColumnUnloader extends StateMachine
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
-    canFeedIn: canFeedIn,
+    canFeedIn: () =>
+        SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
-
-  bool canFeedIn() {
-    return currentState is FeedOutAndFeedInModuleSimultaneously &&
-        (currentState as FeedOutAndFeedInModuleSimultaneously).inFeedState ==
-            InFeedState.waitingOnNeighbor;
-  }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
     place: moduleGroupPositionSecondColumn,
@@ -119,14 +115,9 @@ class ModuleDrawerColumnUnloader extends StateMachine
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
-        canFeedOut() ? Duration.zero : unknownDuration,
+        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+            currentState),
   );
-
-  bool canFeedOut() {
-    return currentState is FeedOutAndFeedInModuleSimultaneously &&
-        (currentState as FeedOutAndFeedInModuleSimultaneously).outFeedState ==
-            OutFeedState.waitingOnNeighbor;
-  }
 
   @override
   late List<Link> links = [modulesIn, modulesOut, drawersOut];
@@ -166,131 +157,17 @@ class CheckIfEmpty extends DurationState<ModuleDrawerColumnUnloader> {
 
   CheckIfEmpty()
       : super(
-            durationFunction: (unloader) => unloader.checkIfEmptyDuration,
-            nextStateFunction: (unloader) =>
-                FeedOutAndFeedInModuleSimultaneously());
+          durationFunction: (unloader) => unloader.checkIfEmptyDuration,
+          nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
+            modulesIn: unloader.modulesIn,
+            modulesOut: unloader.modulesOut,
+            inFeedDelay: Duration.zero,
+            nextStateCondition:
+                NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
+            stateWhenCompleted: WaitToPushOutFirstColumn(),
+          ),
+        );
 }
-
-class FeedOutAndFeedInModuleSimultaneously
-    extends State<ModuleDrawerColumnUnloader> {
-  @override
-  String get name => 'FeedOutAndFeedInModuleSimultaneously\n'
-      '  $inFeedState\n'
-      '  $outFeedState';
-
-  ModuleGroup? moduleGroupTransportedOut;
-  InFeedState inFeedState = InFeedState.waitingToFeedOut;
-  OutFeedState outFeedState = OutFeedState.waitingOnNeighbor;
-
-  @override
-  void onStart(ModuleDrawerColumnUnloader unloader) {
-    outFeedState = unloader.moduleGroupPositionSecondColumn.moduleGroup == null
-        ? OutFeedState.done
-        : OutFeedState.waitingOnNeighbor;
-  }
-
-  @override
-  void onUpdateToNextPointInTime(
-      ModuleDrawerColumnUnloader unloader, Duration jump) {
-    processInFeedState(unloader, jump);
-    processOutFeedState(unloader, jump);
-  }
-
-  void processInFeedState(ModuleDrawerColumnUnloader unloader, Duration jump) {
-    switch (inFeedState) {
-      case InFeedState.waitingToFeedOut:
-        if (outFeedState != OutFeedState.waitingOnNeighbor) {
-          inFeedState = InFeedState.waitingOnNeighbor;
-        }
-      case InFeedState.waitingOnNeighbor:
-        if (_inFeedStarted(unloader)) {
-          inFeedState = InFeedState.transporting;
-        }
-        break;
-      case InFeedState.transporting:
-        if (_inFeedCompleted(unloader)) {
-          inFeedState = InFeedState.done;
-        }
-        break;
-      default:
-    }
-  }
-
-  bool _inFeedCompleted(ModuleDrawerColumnUnloader unloader) =>
-      unloader.moduleGroupPositionFirstColumn.moduleGroup != null;
-
-  bool _inFeedStarted(ModuleDrawerColumnUnloader unloader) =>
-      unloader.area.moduleGroups
-          .any((moduleGroup) => moduleGroup.isBeingTransportedTo(unloader));
-
-  void processOutFeedState(ModuleDrawerColumnUnloader unloader, Duration jump) {
-    switch (outFeedState) {
-      case OutFeedState.waitingOnNeighbor:
-        if (_outFeedCanStart(unloader)) {
-          outFeedState = OutFeedState.transporting;
-          transportModuleOut(unloader);
-        }
-        break;
-      case OutFeedState.transporting:
-        if (_outFeedCompleted(unloader)) {
-          outFeedState = OutFeedState.done;
-        }
-        break;
-      default:
-    }
-  }
-
-  void transportModuleOut(ModuleDrawerColumnUnloader unloader) {
-    moduleGroupTransportedOut =
-        unloader.moduleGroupPositionSecondColumn.moduleGroup!;
-    moduleGroupTransportedOut!.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(unloader.modulesOut);
-  }
-
-  _outFeedCanStart(ModuleDrawerColumnUnloader unloader) =>
-      unloader.modulesOut.linkedTo!.canFeedIn();
-
-  @override
-  State<ModuleDrawerColumnUnloader>? nextState(
-      ModuleDrawerColumnUnloader unloader) {
-    if (inFeedState == InFeedState.done
-        // We are not going to wait until feed out is completed && outFeedState == OutFeedState.done
-        ) {
-      return WaitToPushOutFirstColumn();
-    }
-    return null;
-  }
-
-  @override
-  void onCompleted(ModuleDrawerColumnUnloader unloader) {
-    _verifyModule(unloader);
-  }
-
-  void _verifyModule(ModuleDrawerColumnUnloader unloader) {
-    var moduleGroup = (unloader.moduleGroupPositionFirstColumn.moduleGroup ??
-        unloader.moduleGroupPositionSecondColumn.moduleGroup)!;
-    if (moduleGroup.compartment.birdsExitOnOneSide &&
-        moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
-      if (moduleGroup.compartment is CompartmentWithDoor) {
-        throw ('In correct container type of the $ModuleGroup '
-            'that was fed in to ${unloader.name}');
-      } else {
-        throw ('Incorrect drawer out feed direction of the $ModuleGroup '
-            'that was fed in to ${unloader.name}');
-      }
-    }
-  }
-
-  bool _outFeedCompleted(ModuleDrawerColumnUnloader unloader) =>
-      moduleGroupTransportedOut != null &&
-      moduleGroupTransportedOut!.position is AtModuleGroupPlace &&
-      (moduleGroupTransportedOut!.position as AtModuleGroupPlace).place ==
-          unloader.modulesOut.linkedTo!.place;
-}
-
-enum InFeedState { waitingToFeedOut, waitingOnNeighbor, transporting, done }
-
-enum OutFeedState { waitingOnNeighbor, transporting, done }
 
 class WaitToPushOutFirstColumn extends State<ModuleDrawerColumnUnloader> {
   @override
@@ -323,6 +200,11 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
   @override
   void onStart(ModuleDrawerColumnUnloader unloader) {
     super.onStart(unloader);
+    _verifyModuleGroup(unloader);
+    _createAndTransportDrawers(unloader);
+  }
+
+  void _createAndTransportDrawers(ModuleDrawerColumnUnloader unloader) {
     var drawers = unloader.area.drawers;
     var moduleGroup = unloader.moduleGroupPositionFirstColumn.moduleGroup!;
     var module = moduleGroup.modules.first;
@@ -343,12 +225,20 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
     }
   }
 
-  @override
-  void onCompleted(ModuleDrawerColumnUnloader unloader) {
-    super.onCompleted(unloader);
-    var moduleGroup = unloader.moduleGroupPositionFirstColumn.moduleGroup!;
+  void _verifyModuleGroup(ModuleDrawerColumnUnloader unloader) {
+    var moduleGroup = (unloader.moduleGroupPositionFirstColumn.moduleGroup ??
+        unloader.moduleGroupPositionSecondColumn.moduleGroup)!;
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
+      throw Exception('${unloader.name}:  can not handle stacked modules');
+    }
+    if (moduleGroup.compartment.birdsExitOnOneSide &&
+        moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
+      if (moduleGroup.compartment is CompartmentWithDoor) {
+        throw ('${unloader.name}: Can not process containers');
+      } else {
+        throw ('${unloader.name}: Incorrect drawer out feed direction '
+            'of: $ModuleGroup');
+      }
     }
   }
 }
@@ -462,9 +352,16 @@ class PusherInSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
 
   PusherInSecondColumn()
       : super(
-            durationFunction: (unloader) => unloader.pusherInDuration,
-            nextStateFunction: (unloader) =>
-                FeedOutAndFeedInModuleSimultaneously());
+          durationFunction: (unloader) => unloader.pusherInDuration,
+          nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
+            modulesIn: unloader.modulesIn,
+            modulesOut: unloader.modulesOut,
+            inFeedDelay: Duration.zero,
+            nextStateCondition:
+                NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
+            stateWhenCompleted: WaitToPushOutFirstColumn(),
+          ),
+        );
 
   @override
   void onCompleted(ModuleDrawerColumnUnloader unloader) {
