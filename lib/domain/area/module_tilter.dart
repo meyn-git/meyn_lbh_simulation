@@ -3,6 +3,7 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
@@ -78,7 +79,8 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
       directionToOtherLink: const CompassDirection.south(),
       inFeedDuration: inFeedDuration,
-      canFeedIn: () => currentState is WaitToFeedIn);
+      canFeedIn: () =>
+          SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState));
 
   late final modulesOut = ModuleGroupOutLink(
       place: moduleGroupPosition,
@@ -86,7 +88,8 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       directionToOtherLink: const CompassDirection.north(),
       outFeedDuration: outFeedDuration,
       durationUntilCanFeedOut: () =>
-          currentState is WaitToFeedOut ? Duration.zero : unknownDuration);
+          SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+              currentState));
 
   late final birdsOut = BirdsOutLink(
     system: this,
@@ -114,70 +117,34 @@ class CheckIfEmpty extends DurationState<ModuleTilter> {
   CheckIfEmpty()
       : super(
             durationFunction: (tilter) => tilter.checkIfEmptyDuration,
-            nextStateFunction: (tilter) => WaitToFeedIn());
+            nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
+                modulesIn: tilter.modulesIn,
+                modulesOut: tilter.modulesOut,
+                stateWhenCompleted: WaitToTilt()));
 }
 
-class WaitToFeedIn extends State<ModuleTilter>
-    implements ModuleTransportStartedListener {
-  bool transportStarted = false;
+class WaitToTilt extends State<ModuleTilter> {
+  @override
+  String get name => 'WaitToTilt';
 
   @override
-  String get name => 'WaitToFeedIn';
-
-  @override
-  State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (transportStarted) {
-      return FeedIn();
-    }
-    return null;
+  void onStart(ModuleTilter tilter) {
+    _verifyModuleGroup(tilter);
   }
 
-  @override
-  void onModuleTransportStarted(_) {
-    transportStarted = true;
-  }
-}
-
-class FeedIn extends State<ModuleTilter>
-    implements ModuleTransportCompletedListener {
-  bool transportCompleted = false;
-
-  @override
-  String get name => 'FeedIn';
-
-  @override
-  State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (transportCompleted) {
-      return WaitToTilt();
-    }
-    return null;
-  }
-
-  @override
-  void onCompleted(ModuleTilter tilter) {
-    _verifyModule(tilter);
-  }
-
-  void _verifyModule(ModuleTilter tilter) {
+  void _verifyModuleGroup(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
+    if (moduleGroup.modules.length > 1) {
+      throw Exception('${tilter.name}: can only process one container');
+    }
     if (moduleGroup.compartment is! CompartmentWithDoor) {
-      throw Exception('${tilter.name} can only unload containers with doors');
+      throw Exception('${tilter.name}: can only unload containers with doors');
     }
     if (moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
       throw Exception('${tilter.name}: In correct door direction of '
           '$ModuleGroup');
     }
   }
-
-  @override
-  void onModuleTransportCompleted(_) {
-    transportCompleted = true;
-  }
-}
-
-class WaitToTilt extends State<ModuleTilter> {
-  @override
-  String get name => 'WaitToTilt';
 
   @override
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
@@ -212,54 +179,9 @@ class TiltBack extends DurationState<ModuleTilter> {
   TiltBack()
       : super(
             durationFunction: (tilter) => tilter.tiltBackDuration,
-            nextStateFunction: (tilter) => WaitToFeedOut());
-}
-
-class WaitToFeedOut extends State<ModuleTilter> {
-  @override
-  String get name => 'WaitToFeedOut';
-
-  @override
-  State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (_neighborCanFeedIn(tilter) && !_moduleGroupAtDestination(tilter)) {
-      return FeedOut();
-    }
-    return null;
-  }
-
-  bool _moduleGroupAtDestination(ModuleTilter tilter) =>
-      tilter.moduleGroupPosition.moduleGroup!.destination == tilter;
-
-  _neighborCanFeedIn(ModuleTilter tilter) =>
-      tilter.modulesOut.linkedTo!.canFeedIn();
-}
-
-class FeedOut extends State<ModuleTilter>
-    implements ModuleTransportCompletedListener {
-  bool transportCompleted = false;
-
-  @override
-  String get name => 'FeedOut';
-
-  ModuleGroup? transportedModuleGroup;
-
-  @override
-  void onStart(ModuleTilter tilter) {
-    transportedModuleGroup = tilter.moduleGroupPosition.moduleGroup!;
-    transportedModuleGroup!.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(tilter.modulesOut);
-  }
-
-  @override
-  State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (transportCompleted) {
-      return WaitToFeedIn();
-    }
-    return null;
-  }
-
-  @override
-  void onModuleTransportCompleted(_) {
-    transportCompleted = true;
-  }
+            nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
+                  modulesIn: tilter.modulesIn,
+                  modulesOut: tilter.modulesOut,
+                  stateWhenCompleted: WaitToTilt(),
+                ));
 }
