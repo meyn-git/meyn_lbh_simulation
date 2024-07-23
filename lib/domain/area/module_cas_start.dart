@@ -81,7 +81,7 @@ class ModuleCasStart implements System, TimeProcessor {
   ///                        3 = _normalStartInterval * 1
   ///                        4 = _normalStartInterval * 1
   ///                        5 = _normalStartInterval * 1.25
-  ///                        6 = _normalStartInterval * 1.5
+  ///                        6 = _normalStartInterval * 1.5þ
   ///                        7 = _normalStartInterval * 1.75
   ///                        8 = _normalStartInterval * 2
   ///                        9 = _normalStartInterval * 2.25

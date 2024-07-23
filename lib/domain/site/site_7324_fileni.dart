@@ -194,47 +194,36 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas5 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, //TODO
-      slideDoorLeft: true, //TODO
+      gasDuctsLeft: true, 
+      slideDoorLeft: true, 
     );
 
     var cas4 = ModuleCas(
       area: this,
-      gasDuctsLeft: false, //TODO
-      slideDoorLeft: false, //TODO
+      gasDuctsLeft: false, 
+      slideDoorLeft: false, 
     );
 
     var cas3 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, //TODO
-      slideDoorLeft: true, //TODO
+      gasDuctsLeft: true, 
+      slideDoorLeft: true, 
     );
 
     var cas2 = ModuleCas(
       area: this,
-      gasDuctsLeft: false, //TODO
-      slideDoorLeft: false, //TODO
+      gasDuctsLeft: false, 
+      slideDoorLeft: false, 
     );
 
     var cas1 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, //TODO
-      slideDoorLeft: true, //TODO
+      gasDuctsLeft: true, 
+      slideDoorLeft: true, 
     );
 
-    /// mimicking a de-merging conveyor: 1 [ModuleGroup] => 2x [ModuleGroup] to tilter
-    /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
-    var mc2 = ModuleDeStacker(
-      area: this,
-      heightsInCentiMeter: const {
-        LiftPosition.inFeed: 0,
-        LiftPosition.outFeed: 0,
-        LiftPosition.pickUpTopModule: 0,
-        LiftPosition.supportTopModule: 0,
-      },
-      supportsCloseDuration: Duration.zero,
-      supportsOpenDuration: Duration.zero,
-    );
+    var mc2=ModuleConveyor(area: this, lengthInMeters: 3.5);
+
 
     var tilter = ModuleTilter(
       area: this,

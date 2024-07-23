@@ -65,25 +65,26 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('moduleGroup', moduleGroupPosition.moduleGroup);
+      .appendProperty('moduleGroup', moduleGroupPlace.moduleGroup);
 
   @override
   late String name = 'ModuleTilter$seqNr';
 
-  late final moduleGroupPosition = ModuleGroupPlace(
+  late final moduleGroupPlace = ModuleGroupPlace(
       system: this,
       offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter);
 
   late final modulesIn = ModuleGroupInLink(
-      place: moduleGroupPosition,
+      place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
       directionToOtherLink: const CompassDirection.south(),
       inFeedDuration: inFeedDuration,
+      feedInSingleStack: true,
       canFeedIn: () =>
           SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState));
 
   late final modulesOut = ModuleGroupOutLink(
-      place: moduleGroupPosition,
+      place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
       directionToOtherLink: const CompassDirection.north(),
       outFeedDuration: outFeedDuration,
@@ -133,7 +134,7 @@ class WaitToTilt extends State<ModuleTilter> {
   }
 
   void _verifyModuleGroup(ModuleTilter tilter) {
-    var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
+    var moduleGroup = tilter.moduleGroupPlace.moduleGroup!;
     if (moduleGroup.modules.length > 1) {
       throw Exception('${tilter.name}: can only process one container');
     }
@@ -166,7 +167,7 @@ class TiltForward extends DurationState<ModuleTilter> {
 
   @override
   void onCompleted(ModuleTilter tilter) {
-    var moduleGroup = tilter.moduleGroupPosition.moduleGroup!;
+    var moduleGroup = tilter.moduleGroupPlace.moduleGroup!;
     tilter.birdsOut.linkedTo!.transferBirds(moduleGroup.numberOfBirds);
     moduleGroup.unloadBirds();
   }

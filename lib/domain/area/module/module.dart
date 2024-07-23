@@ -189,7 +189,21 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
     }
   }
 
-  get stacks => keys.map((position) => position.stack).toSet().length;
+  Iterable<PositionWithinModuleGroup> get positions => keys;
+
+  Iterable<int> get stackNumbers =>
+      keys.map((position) => position.stackNumber).toSet();
+
+  int get numberOfStacks => stackNumbers.length;
+
+  Map<PositionWithinModuleGroup, Module> stack(int stackNumber) => {
+        for (var position in positions
+            .where((position) => position.stackNumber == stackNumber))
+          position: this[position]!
+      };
+
+  List<Map<PositionWithinModuleGroup, Module>> get stacks =>
+      [for (var stackNumber in stackNumbers) stack(stackNumber)];
 
   isBeingTransportedTo(PhysicalSystem system) =>
       position is BetweenModuleGroupPlaces &&
@@ -197,22 +211,23 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
 }
 
 enum PositionWithinModuleGroup {
-  firstBottom(stack: 0, level: 0),
-  firstTop(stack: 0, level: 1),
-  secondBottom(stack: 1, level: 0),
-  secondTop(stack: 1, level: 1),
+  firstBottom(stackNumber: 0, level: 0),
+  firstTop(stackNumber: 0, level: 1),
+  secondBottom(stackNumber: 1, level: 0),
+  secondTop(stackNumber: 1, level: 1),
   ;
 
   /// the stack number of a [Module] within a [ModuleGroup]
   /// * 0= first (leading stack)
   /// * 1= second stack (if any)
-  final int stack;
+  final int stackNumber;
 
   /// the level of a [Module] within a [ModuleGroup]
   /// * 0= bottom level
   /// * 1= stacked on bottom level (if any)
   final int level;
-  const PositionWithinModuleGroup({required this.stack, required this.level});
+  const PositionWithinModuleGroup(
+      {required this.stackNumber, required this.level});
 }
 
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
@@ -307,7 +322,6 @@ class BetweenModuleGroupPlaces
     if (elapsed > duration) {
       elapsed = duration;
       onModuleTransportCompleted();
-      moduleGroup.position = AtModuleGroupPlace(destination);
     }
   }
 
@@ -592,7 +606,7 @@ class TruckRow
   SizeInMeters _calculateFootprint() {
     var positions = keys;
     var numberOfStacks =
-        positions.map((position) => position.stack).toSet().length;
+        positions.map((position) => position.stackNumber).toSet().length;
     var moduleFootprint = templates.first.variant.moduleFootprint;
     var width = moduleFootprint.xInMeters;
     var length = numberOfStacks * moduleFootprint.yInMeters +

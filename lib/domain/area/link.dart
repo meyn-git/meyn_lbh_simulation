@@ -75,6 +75,7 @@ class DrawersOutLink<OWNER extends PhysicalSystem>
 class ModuleGroupInLink<OWNER extends PhysicalSystem>
     extends Link<OWNER, ModuleGroupOutLink> {
   final Duration inFeedDuration;
+  final bool feedInSingleStack;
   final bool Function() canFeedIn;
   final ModuleGroupPlace place;
 
@@ -82,6 +83,7 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
     required this.place,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
+    this.feedInSingleStack = false,
     required this.inFeedDuration,
     required this.canFeedIn,
   }) : super(system: (place.system as OWNER));

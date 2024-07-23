@@ -1,7 +1,9 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
@@ -204,7 +206,7 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
         ModuleTransportStartedListener,
         ModuleTransportCompletedListener {
   late final feedInStateMachine = FeedInStateMachine(this);
-  late final feedOutStateMachine = FeedOutStateMachine(modulesOut);
+  late final feedOutStateMachine = FeedOutStateMachine(this);
   final ModuleGroupInLink modulesIn;
   final ModuleGroupOutLink modulesOut;
   final NextStateCondition nextStateCondition;
@@ -411,14 +413,21 @@ class FeedOutStateMachine extends StateMachine
     implements
         ModuleTransportStartedListener,
         ModuleTransportCompletedListener {
-  late final ModuleGroupOutLink<PhysicalSystem> modulesOut;
+  final SimultaneousFeedOutFeedInModuleGroup simultaneousFeedOutFeedIn;
+  late final ModuleGroupOutLink<PhysicalSystem> modulesOut =
+      simultaneousFeedOutFeedIn.modulesOut;
 
-  FeedOutStateMachine(this.modulesOut) : super(initialState: WaitToFeedOut());
+  FeedOutStateMachine(this.simultaneousFeedOutFeedIn)
+      : super(initialState: WaitToFeedOut());
 
   @override
   final String name = 'FeedOutStateMachine';
 
   bool get nextNeighborWaitingToFeedIn => modulesOut.linkedTo!.canFeedIn();
+
+  bool get feedOutFirstStack =>
+      modulesOut.linkedTo!.feedInSingleStack &&
+      modulesOut.place.moduleGroup!.numberOfStacks > 1;
 
   @override
   void onModuleTransportStarted(
@@ -434,7 +443,7 @@ class FeedOutStateMachine extends StateMachine
   void onModuleTransportCompleted(
       BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
     if (currentState is ModuleTransportCompletedListener &&
-        betweenModuleGroupPlaces.destination == modulesOut.place) {
+        betweenModuleGroupPlaces.source.system == modulesOut.place.system) {
       var listener = currentState as ModuleTransportCompletedListener;
       listener.onModuleTransportCompleted(betweenModuleGroupPlaces);
     }
@@ -446,8 +455,17 @@ class WaitToFeedOut extends State<FeedOutStateMachine> {
   final String name = 'WaitToFeedOut';
 
   @override
-  State<FeedOutStateMachine>? nextState(FeedOutStateMachine stateMachine) =>
-      stateMachine.nextNeighborWaitingToFeedIn ? FeedOut() : null;
+  State<FeedOutStateMachine>? nextState(
+      FeedOutStateMachine feedOutStateMachine) {
+    if (!feedOutStateMachine.nextNeighborWaitingToFeedIn) {
+      return null;
+    }
+    if (feedOutStateMachine.feedOutFirstStack) {
+      return FeedOutFirstStack();
+    } else {
+      return FeedOut();
+    }
+  }
 }
 
 class FeedOut extends State<FeedOutStateMachine>
@@ -471,6 +489,89 @@ class FeedOut extends State<FeedOutStateMachine>
   @override
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
+  }
+}
+
+class FeedOutFirstStack extends State<FeedOutStateMachine>
+    implements ModuleTransportCompletedListener {
+  ModuleGroups get moduleGroups =>
+      GetIt.instance<Player>().scenario!.area.moduleGroups;
+
+  late final BetweenModuleGroupPlaces firstStackPosition;
+  @override
+  final String name = "FeedOutFirstStack";
+
+  bool transportCompleted = false;
+
+  @override
+  void onStart(FeedOutStateMachine stateMachine) {
+    var system = stateMachine.modulesOut.system;
+    var centerPlace = stateMachine.modulesOut.place;
+    var moduleGroup = centerPlace.moduleGroup!;
+    var moduleGroupLengthInMeters = moduleGroup.shape.yInMeters;
+    var moduleLengthInMeters = moduleGroup.moduleFootprint.yInMeters;
+    var outFeedDuration = stateMachine.modulesOut.outFeedDuration;
+    var remainingStacksModuleGroup = centerPlace.moduleGroup!;
+    centerPlace.moduleGroup = null;
+
+    var firstStack = remainingStacksModuleGroup.stacks.first;
+    var firstStackModuleGroup = ModuleGroup(
+      modules: firstStack,
+      direction: remainingStacksModuleGroup.direction,
+      destination: remainingStacksModuleGroup.destination,
+      position: dummyPlace(stateMachine),
+    );
+    moduleGroups.add(firstStackModuleGroup);
+
+    var firstStackPlace = ModuleGroupPlace(
+        system: system,
+        offsetFromCenterWhenSystemFacingNorth:
+            centerPlace.offsetFromCenterWhenSystemFacingNorth.addY(
+                moduleGroupLengthInMeters * -0.5 + moduleLengthInMeters * 0.5));
+    firstStackPlace.moduleGroup = firstStackModuleGroup;
+
+    firstStackPosition = BetweenModuleGroupPlaces(
+        source: firstStackPlace,
+        destination: stateMachine.modulesOut.linkedTo!.place,
+        duration: outFeedDuration);
+    firstStackModuleGroup.position = firstStackPosition;
+
+    for (var position in firstStack.keys) {
+      remainingStacksModuleGroup.remove(position);
+    }
+    var remainingStackPlace = ModuleGroupPlace(
+        system: system,
+        offsetFromCenterWhenSystemFacingNorth:
+            centerPlace.offsetFromCenterWhenSystemFacingNorth.addY(
+                moduleGroupLengthInMeters * 0.5 - moduleLengthInMeters * 0.5));
+    remainingStackPlace.moduleGroup = remainingStacksModuleGroup;
+    remainingStacksModuleGroup.position = BetweenModuleGroupPlaces(
+        source: remainingStackPlace,
+        destination: centerPlace,
+        duration: outFeedDuration * 0.5);
+  }
+
+  AtModuleGroupPlace dummyPlace(FeedOutStateMachine stateMachine) =>
+      AtModuleGroupPlace(stateMachine.modulesOut.place);
+
+  @override
+  State<FeedOutStateMachine>? nextState(FeedOutStateMachine stateMachine) {
+    if (!transportCompleted) {
+      return null;
+    }
+    var moduleGroup = stateMachine.modulesOut.place.moduleGroup;
+    if (moduleGroup == null) {
+      return FeedOutCompleted();
+    } else {
+      return WaitToFeedOut();
+    }
+  }
+
+  @override
+  void onModuleTransportCompleted(BetweenModuleGroupPlaces position) {
+    if (position == firstStackPosition) {
+      transportCompleted = true;
+    }
   }
 }
 

@@ -228,7 +228,7 @@ class PutModuleGroupOnConveyor extends State<LoadingForkLiftTruck>
 
     if (forkLiftTruck.loadsSingleModule) {
       if (moduleGroup.numberOfModules > 1) {
-        if (moduleGroup.stacks > 1) {
+        if (moduleGroup.numberOfStacks > 1) {
           throw (Exception('$name can only de-stack single stacks'));
         }
         Module module = moduleGroup[PositionWithinModuleGroup.firstBottom]!;

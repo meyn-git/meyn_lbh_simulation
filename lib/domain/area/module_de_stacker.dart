@@ -191,7 +191,7 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
   @override
   void onCompleted(ModuleDeStacker deStacker) {
     var moduleGroupOnConveyor = deStacker.onConveyorPlace.moduleGroup!;
-    if (moduleGroupOnConveyor.stacks > 1) {
+    if (moduleGroupOnConveyor.numberOfStacks > 1) {
       throw Exception('$name can only de-stack a single stack at a time!');
     }
     Module module = moduleGroupOnConveyor[PositionWithinModuleGroup.firstTop]!;

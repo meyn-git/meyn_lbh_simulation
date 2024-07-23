@@ -51,7 +51,7 @@ class GiordanoDrawers extends DrawerGroup {
 class AytavDrawers extends DrawerGroup {
   static const l1160w1160h255 = DrawerVariant(
       heightInMeters: 0.255,
-      footprint: const SizeInMeters(
+      footprint: SizeInMeters(
         xInMeters: 1.16,
         yInMeters: 1.16,
       ),
@@ -103,7 +103,7 @@ class AngliaAutoFlowDrawers extends DrawerGroup {
 
   static const l1160w1160h255 = DrawerVariant(
       heightInMeters: 0.255,
-      footprint: const SizeInMeters(
+      footprint: SizeInMeters(
         xInMeters: 1.16,
         yInMeters: 1.16,
       ),

@@ -11,6 +11,12 @@
             "type": "dart",
             "request": "launch",
             "program": "tool\\publish.dart"
+        },
+        {
+            "name": "Flutter (tool\\create_launcher_icons.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "tool\\create_launcher_icons.dart"
         }
     ]
 }
