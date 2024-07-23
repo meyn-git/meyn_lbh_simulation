@@ -194,36 +194,35 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas5 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, 
-      slideDoorLeft: true, 
+      gasDuctsLeft: true,
+      slideDoorLeft: true,
     );
 
     var cas4 = ModuleCas(
       area: this,
-      gasDuctsLeft: false, 
-      slideDoorLeft: false, 
+      gasDuctsLeft: false,
+      slideDoorLeft: false,
     );
 
     var cas3 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, 
-      slideDoorLeft: true, 
+      gasDuctsLeft: true,
+      slideDoorLeft: true,
     );
 
     var cas2 = ModuleCas(
       area: this,
-      gasDuctsLeft: false, 
-      slideDoorLeft: false, 
+      gasDuctsLeft: false,
+      slideDoorLeft: false,
     );
 
     var cas1 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, 
-      slideDoorLeft: true, 
+      gasDuctsLeft: true,
+      slideDoorLeft: true,
     );
 
-    var mc2=ModuleConveyor(area: this, lengthInMeters: 3.5);
-
+    var mc2 = ModuleConveyor(area: this, lengthInMeters: 3.5);
 
     var tilter = ModuleTilter(
       area: this,

@@ -84,20 +84,6 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    /// Hack: mimicking a merging conveyor: 2 x singe [ModuleGroup] from fork lift truck into 1
-    /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
-    // var mc1 = ModuleStacker(
-    //   area: this,
-    //   heightsInCentiMeter: const {
-    //     LiftPosition.inFeed: 0,
-    //     LiftPosition.outFeed: 0,
-    //     LiftPosition.pickUpTopModule: 0,
-    //     LiftPosition.supportTopModule: 0,
-    //   },
-    //   supportsCloseDuration: Duration.zero,
-    //   supportsOpenDuration: Duration.zero,
-    // );
-
     var mc1 = ModuleConveyor(area: this);
 
     var mrc1 = ModuleRotatingConveyor(
@@ -142,19 +128,7 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       slideDoorLeft: false,
     );
 
-    /// Hack: mimicking a de-merging conveyor: 1 [ModuleGroup] => 2x [ModuleGroup] to tilter
-    /// heights are therefore all 0 and no [supportsCloseDuration] or [supportsOpenDuration]
-    var mc2 = ModuleDeStacker(
-      area: this,
-      heightsInCentiMeter: const {
-        LiftPosition.inFeed: 0,
-        LiftPosition.outFeed: 0,
-        LiftPosition.pickUpTopModule: 0,
-        LiftPosition.supportTopModule: 0,
-      },
-      supportsCloseDuration: Duration.zero,
-      supportsOpenDuration: Duration.zero,
-    );
+    var mc2 = ModuleConveyor(area: this, lengthInMeters: 3.5);
 
     var moduleTilter = ModuleTilter(
       area: this,
