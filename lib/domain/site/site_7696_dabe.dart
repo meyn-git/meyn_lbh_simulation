@@ -10,8 +10,6 @@ import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_lift_position.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
