@@ -5,45 +5,49 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_buffer_lane.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/site/site.dart';
 
-class BorgmeierSite extends Site {
-  BorgmeierSite()
+import 'site.dart';
+
+class KeskinogluSite extends Site {
+  KeskinogluSite()
       : super(
-          meynLayoutNumber: 8199,
-          organizationName: 'Borgmeier',
-          city: 'Lohne',
-          country: 'Germany',
-          productDefinitions: BorgmeierProductDefinitions(),
+          meynLayoutNumber:
+              0000, //old plant is 8117 this is a new greenfield and has no layout number yet.
+          organizationName: 'Keskinoglu',
+          city:
+              '?', //old plant is 8117 this is a new greenfield and address is unknown fot now.
+          country: 'Turkey',
+          productDefinitions: KeskinogluProductDefinitions(),
         );
 }
 
-class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
-  static final maxBirdWeight = 2.9.kilo.grams;
+class KeskinogluProductDefinitions extends DelegatingList<ProductDefinition> {
+  static const int shacklesPerHour = 15000;
+  static final maxBirdWeight = 3.kilo.grams;
   static const summerLoadPercentage = 90;
-  static final loadDensityHeaviestFlock =
+  static final loadDensity =
       LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
 
-  BorgmeierProductDefinitions()
+  KeskinogluProductDefinitions()
       : super([
           ProductDefinition(
-              //13500 b/h
-              areaFactory: _areaFactory(),
+              areaFactory: (ProductDefinition productDefinition) =>
+                  [AreaWithColumnUnloader(productDefinition)],
               birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
+              lineSpeedInShacklesPerHour: shacklesPerHour,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               truckRows: [
@@ -51,28 +55,28 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
                       .meyn
                       .grandeDrawer
-                      .m4
+                      .m1
                       .c2
                       .l4
                       .gs
                       .build()
-                      .withLoadDensity(loadDensityHeaviestFlock, maxBirdWeight),
+                      .withLoadDensity(loadDensity, maxBirdWeight),
                   PositionWithinModuleGroup.firstTop: BrandBuilder()
                       .meyn
                       .grandeDrawer
-                      .m4
+                      .m1
                       .c2
-                      .l5
+                      .l4
                       .gs
                       .build()
-                      .withLoadDensity(loadDensityHeaviestFlock, maxBirdWeight),
+                      .withLoadDensity(loadDensity, maxBirdWeight),
                 })
               ]),
           ProductDefinition(
-              //13500 b/h
-              areaFactory: _areaFactory(),
+              areaFactory: (ProductDefinition productDefinition) =>
+                  [AreaWithColumnUnloader(productDefinition)],
               birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 16500,
+              lineSpeedInShacklesPerHour: shacklesPerHour,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
               truckRows: [
@@ -80,251 +84,161 @@ class BorgmeierProductDefinitions extends DelegatingList<ProductDefinition> {
                   PositionWithinModuleGroup.firstBottom: BrandBuilder()
                       .meyn
                       .grandeDrawer
-                      .m4
+                      .m1
                       .c2
                       .l4
                       .gs
                       .build()
-                      .withLoadDensity(loadDensityHeaviestFlock, maxBirdWeight),
+                      .withLoadDensity(loadDensity, maxBirdWeight),
                   PositionWithinModuleGroup.firstTop: BrandBuilder()
                       .meyn
                       .grandeDrawer
-                      .m4
+                      .m1
                       .c2
                       .l5
                       .gs
                       .build()
-                      .withLoadDensity(loadDensityHeaviestFlock, maxBirdWeight),
+                      .withLoadDensity(loadDensity, maxBirdWeight),
+                })
+              ]),
+          ProductDefinition(
+              areaFactory: (ProductDefinition productDefinition) =>
+                  [AreaWithColumnUnloader(productDefinition)],
+              birdType: 'Chicken',
+              lineSpeedInShacklesPerHour: shacklesPerHour,
+              lineShacklePitchInInches: 6,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m1
+                      .c2
+                      .l5
+                      .gs
+                      .build()
+                      .withLoadDensity(loadDensity, maxBirdWeight),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .grandeDrawer
+                      .m1
+                      .c2
+                      .l5
+                      .gs
+                      .build()
+                      .withLoadDensity(loadDensity, maxBirdWeight),
                 })
               ]),
         ]);
-
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [simultaneously(productDefinition)];
 }
 
-/// See "\\meyn.nl\project\acaddrwg\8199 Borgmeier - Germany\2024\02 - Meyn drawings\Sales\8199s123z00g1.dwg"
-class simultaneously extends LiveBirdHandlingArea {
-  /// Module systems
-
+class AreaWithColumnUnloader extends LiveBirdHandlingArea {
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
-  simultaneously(ProductDefinition productDefinition)
+  AreaWithColumnUnloader(ProductDefinition productDefinition)
       : super(
-          lineName: 'Line1',
+          lineName: 'With Column Unloader',
           productDefinition: productDefinition,
         );
-
   @override
   void createSystemsAndLinks() {
-    systems.startDirection = const CompassDirection.east();
+    systems.startDirection = const CompassDirection.west();
 
     var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
-      moduleBirdExitDirection: ModuleBirdExitDirection.right,
+      moduleBirdExitDirection: ModuleBirdExitDirection.left,
     );
 
-    var loadingConveyor = ModuleConveyor(area: this, lengthInMeters: 3.75);
-
-    var mc1 = ModuleConveyor(area: this);
-
-    var mc2 = ModuleConveyor(area: this);
-
-    var mrc1 = ModuleRotatingConveyor(
-      area: this,
-      lengthInMeters: 3.2,
-      turnPositions: [
-        TurnPosition(
-            direction: const CompassDirection.west(), reverseFeedIn: true),
-        TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
-        TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
-        TurnPosition(direction: const CompassDirection.east()),
-      ],
-    );
-
-    var mrc2 = ModuleRotatingConveyor(
-      area: this,
-      lengthInMeters: 3.2,
-      turnPositions: [
-        TurnPosition(direction: const CompassDirection.west()),
-        TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
-        TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
-        TurnPosition(direction: const CompassDirection.east()),
-      ],
-    );
-
-    var mrc3 = ModuleRotatingConveyor(
-      area: this,
-      lengthInMeters: 3.2,
-      turnPositions: [
-        TurnPosition(direction: const CompassDirection.west()),
-        TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
-        TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
-        TurnPosition(direction: const CompassDirection.east()),
-      ],
-    );
-
-    var cas6 = ModuleCas(
-      area: this,
-      gasDuctsLeft: true,
-      slideDoorLeft: false,
-    );
-
-    var cas5 = ModuleCas(
-      area: this,
-      gasDuctsLeft: false,
-      slideDoorLeft: true,
-    );
-
-    var cas4 = ModuleCas(
-      area: this,
-      gasDuctsLeft: true,
-      slideDoorLeft: false,
-    );
-
-    var cas3 = ModuleCas(
-      area: this,
-      gasDuctsLeft: false,
-      slideDoorLeft: true,
-    );
-
-    var cas2 = ModuleCas(
-      area: this,
-      gasDuctsLeft: true,
-      slideDoorLeft: false,
-    );
-
-    var cas1 = ModuleCas(
-      area: this,
-      gasDuctsLeft: false,
-      slideDoorLeft: true,
-    );
-
-    var mc3 = ModuleConveyor(area: this);
-
-    var deStacker = ModuleDeStacker(area: this);
-
-    var drawerUnloader = ModuleDrawerColumnUnloader(
-      area: this,
-      drawerOutDirection: Direction.counterClockWise,
-    );
-
-    var mc4 = ModuleConveyor(area: this);
-
-    var mc5 = ModuleConveyor(area: this);
-
-    var modulePreWasher = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 5.5 / 2,
-    );
-
-    var moduleMainWasher = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 5.5 / 2,
-    );
-
-    var moduleDrawerLoader = ModuleDrawerLoader(
-      area: this,
-      drawersInDirection: Direction.counterClockWise,
-    );
-
-    var stacker = ModuleStacker(area: this);
-
-    var unloadingConveyor = ModuleConveyor(
+    var loadingConveyor = ModuleConveyor(
       area: this,
       lengthInMeters: 3.75,
     );
 
+    var mrc1 = ModuleRotatingConveyor(
+      area: this,
+      lengthInMeters: 2.75,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.north()),
+        TurnPosition(
+            direction: const CompassDirection.south(), reverseFeedOut: true),
+      ],
+    );
+
+    var mc1 = ModuleConveyor(area: this);
+    var mc2 = ModuleConveyor(area: this);
+
+    var deStacker =
+        ModuleDeStacker(area: this, liftSpeedInCentiMeterPerSecond: 40 //TODO!!
+            );
+
+    var mc3 = ModuleConveyor(area: this);
+
+    var drawerUnloader = ModuleDrawerColumnUnloader(
+      area: this,
+      drawerOutDirection: Direction.clockWise,
+    );
+
+    var mc4 = ModuleConveyor(area: this);
+    var mc5 = ModuleConveyor(area: this);
+    var modulePreWasher =
+        ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
+
+    var moduleMainWasher =
+        ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
+    var moduleDrawerLoader = ModuleDrawerLoader(
+      area: this,
+      drawersInDirection: Direction.clockWise,
+    );
+
+    var stacker = ModuleStacker(area: this);
+
+    var mc6 = ModuleConveyor(area: this);
+    var mc7 = ModuleConveyor(area: this);
+
+    var mrc2 = ModuleRotatingConveyor(
+      area: this,
+      lengthInMeters: 2.75,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.north()),
+        TurnPosition(direction: const CompassDirection.east()),
+      ],
+    );
+
+    var unloadingConveyor = ModuleConveyor(area: this, lengthInMeters: 3.75);
+
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: mc2.moduleGroupPlace,
-    ));
-
-    systems.add(ModuleCasStart(
-      area: this,
-      // startIntervalFractions: <double>[
-      //   0.5,
-      //   0.6,
-      //   0.7,
-      //   0.8,
-      //   0.9,
-      //   1,
-      //   1,
-      //   1,
-      //   1.1,
-      //   1.2,
-      //   1.3,
-      // ],
-      startIntervalFractions: <double>[
-        0.7,
-        0.8,
-        0.9,
-        1,
-        1,
-        1.033,
-        1.066,
-        1.1,
-        1.133,
-        1.166,
-        1.2,
-      ],
-      transportTimeCorrections: {cas1: 12, cas2: 12, cas5: -12, cas6: -12},
-    ));
-
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
-    systems.link(loadingConveyor.modulesOut, mc1.modulesIn);
+    systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
+    systems.link(mrc1.modulesOuts[1], mc1.modulesIn);
     systems.link(mc1.modulesOut, mc2.modulesIn);
-    systems.link(mc2.modulesOut, mrc1.modulesIns[0]);
-    systems.link(mrc1.modulesOuts[1], cas6.modulesIn);
-    systems.link(cas6.modulesOut, mrc1.modulesIns[1]);
-    systems.link(mrc1.modulesOuts[2], cas5.modulesIn);
-    systems.link(cas5.modulesOut, mrc1.modulesIns[2]);
-    systems.link(mrc1.modulesOuts[3], mrc2.modulesIns[0]);
-
-    systems.link(mrc2.modulesOuts[1], cas4.modulesIn);
-    systems.link(cas4.modulesOut, mrc2.modulesIns[1]);
-    systems.link(mrc2.modulesOuts[2], cas3.modulesIn);
-    systems.link(cas3.modulesOut, mrc2.modulesIns[2]);
-    systems.link(mrc2.modulesOuts[3], mrc3.modulesIns[0]);
-
-    systems.link(mrc3.modulesOuts[1], cas2.modulesIn);
-    systems.link(cas2.modulesOut, mrc3.modulesIns[1]);
-    systems.link(mrc3.modulesOuts[2], cas1.modulesIn);
-    systems.link(cas1.modulesOut, mrc3.modulesIns[2]);
-    systems.link(mrc3.modulesOuts[3], mc3.modulesIn);
-    systems.link(mc3.modulesOut, deStacker.modulesIn);
-    systems.link(deStacker.modulesOut, mc4.modulesIn);
-    systems.link(mc4.modulesOut, drawerUnloader.modulesIn);
-    systems.link(drawerUnloader.modulesOut, mc5.modulesIn);
+    systems.link(mc2.modulesOut, deStacker.modulesIn);
+    systems.link(deStacker.modulesOut, mc3.modulesIn);
+    systems.link(mc3.modulesOut, drawerUnloader.modulesIn);
+    systems.link(drawerUnloader.modulesOut, mc4.modulesIn);
+    systems.link(mc4.modulesOut, mc5.modulesIn);
     systems.link(mc5.modulesOut, modulePreWasher.modulesIn);
     systems.link(modulePreWasher.modulesOut, moduleMainWasher.modulesIn);
     systems.link(moduleMainWasher.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, stacker.modulesIn);
-    systems.link(stacker.modulesOut, unloadingConveyor.modulesIn);
+    systems.link(stacker.modulesOut, mc6.modulesIn);
+    systems.link(mc6.modulesOut, mc7.modulesIn);
+    systems.link(mc7.modulesOut, mrc2.modulesIns[0]);
+    systems.link(mrc2.modulesOuts[1], unloadingConveyor.modulesIn);
     systems.link(
         unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
 
-    /// drawer systems
+    // drawers
 
-    var drawerUnloaderLift = DrawerUnloaderLift(
-      area: this,
-    );
+    var drawerUnloaderLift = DrawerUnloaderLift(area: this);
 
     var grossDrawerWeigher = DrawerWeighingConveyor(
       metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor2 = DrawerConveyorStraight(
@@ -351,19 +265,19 @@ class simultaneously extends LiveBirdHandlingArea {
 
     var conveyor5 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 7.8);
+        lengthInMeters: 9.5);
 
     var washer = DrawerWashingConveyor(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor6 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 2.5);
+        lengthInMeters: 3.6);
 
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(
@@ -390,10 +304,4 @@ class simultaneously extends LiveBirdHandlingArea {
     systems.link(conveyor9.drawerOut, drawerLoaderLift.drawerIn);
     systems.link(drawerLoaderLift.drawersOut, moduleDrawerLoader.drawersIn);
   }
-
-  ///Capacity can not be reached because unloader can not feed out, because transport trough module washer takes too long
-
-  ///FIXME: ModuleConveyors to feed out and feed in simultaneously
-
-  ///FIXME: Module washer to be 2 module conveyors that feed out and feed in simultaniously with force feed out when modulesIn.linkToOther.canFeedOut
 }

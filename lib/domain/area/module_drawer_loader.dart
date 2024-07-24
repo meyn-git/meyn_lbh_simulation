@@ -505,7 +505,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   final Duration feedInToSecondColumn;
   final Duration inFeedDuration;
   final Duration outFeedDuration;
-  final bool drawersFromLeft;
+  final Direction drawersInDirection;
   Duration? durationPerModule;
 
   Durations durationsPerModule = Durations(maxSize: 8);
@@ -530,7 +530,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
 
   ModuleDrawerLoader({
     required this.area,
-    required this.drawersFromLeft,
+    required this.drawersInDirection,
     this.checkIfEmptyDuration = const Duration(seconds: 18),
     Duration? inFeedDuration =
         const Duration(milliseconds: 9300), // TODO remove default value?
@@ -558,7 +558,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   late final DrawersInLink drawersIn = DrawersInLink(
     system: this,
     offsetFromCenterWhenFacingNorth: shape.centerToDrawersInLink,
-    directionToOtherLink: drawersFromLeft
+    directionToOtherLink: drawersInDirection == Direction.counterClockWise
         ? const CompassDirection.east()
         : const CompassDirection.west(),
     numberOfDrawersToFeedIn: numberOfDrawersToFeedIn,
@@ -667,14 +667,13 @@ class WaitToPushInFirstColumn extends State<ModuleDrawerLoader>
     if (moduleGroup.numberOfModules > 2) {
       throw Exception('${loader.name}:  can not handle stacked modules');
     }
+    if (moduleGroup.compartment is CompartmentWithDoor) {
+      throw ('${loader.name}: Can not process containers');
+    }
     if (moduleGroup.compartment.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(90) != loader.drawerFeedInDirection) {
-      if (moduleGroup.compartment is CompartmentWithDoor) {
-        throw ('${loader.name}: Can not process containers');
-      } else {
-        throw ('${loader.name}: Incorrect drawer out feed direction '
-            'of: $ModuleGroup');
-      }
+      throw ('${loader.name}: Incorrect drawer out feed direction '
+          'of: $ModuleGroup');
     }
   }
 

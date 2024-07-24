@@ -247,7 +247,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
-      drawersFromLeft: false,
+      drawersInDirection: Direction.clockWise,
     );
 
     var stacker = ModuleStacker(area: this);

@@ -115,12 +115,12 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
-      moduleBirdExitDirection: ModuleBirdExitDirection.right,
+      moduleBirdExitDirection: ModuleBirdExitDirection.left,
     );
 
     var bufferIn1 = ModuleBufferAngleTransferInFeed(
       area: this,
-      moduleOutDirection: Direction.counterClockWise,
+      moduleOutDirection: Direction.clockWise,
     );
     var bufferIn2 = ModuleBufferConveyor(area: this);
     var bufferIn3 = ModuleBufferConveyor(area: this);
@@ -128,7 +128,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     var bufferIn5 = ModuleBufferConveyor(area: this);
     var bufferIn6 = ModuleBufferAngleTransferOutFeed(
       area: this,
-      moduleOutDirection: Direction.clockWise,
+      moduleOutDirection: Direction.counterClockWise,
     );
 
     var mrc1 = ModuleRotatingConveyor(
@@ -136,8 +136,8 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
       lengthInMeters: 3,
       turnPositions: [
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedIn: true),
-        TurnPosition(direction: const CompassDirection.east()),
+            direction: const CompassDirection.east(), reverseFeedIn: true),
+        TurnPosition(direction: const CompassDirection.south()),
       ],
     );
 
@@ -149,7 +149,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerRowUnloader(
       area: this,
-      drawerOutDirection: Direction.counterClockWise,
+      drawerOutDirection: Direction.clockWise,
     );
 
     var mc3 = ModuleConveyor(area: this);
@@ -162,14 +162,14 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
         ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
-      drawersFromLeft: true,
+      drawersInDirection: Direction.clockWise,
     );
     var mrc2 = ModuleRotatingConveyor(
       area: this,
       lengthInMeters: 3,
       turnPositions: [
-        TurnPosition(direction: const CompassDirection.west()),
-        TurnPosition(direction: const CompassDirection.south()),
+        TurnPosition(direction: const CompassDirection.north()),
+        TurnPosition(direction: const CompassDirection.east()),
       ],
     );
 
@@ -177,7 +177,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var bufferOut1 = ModuleBufferAngleTransferInFeed(
       area: this,
-      moduleOutDirection: Direction.clockWise,
+      moduleOutDirection: Direction.counterClockWise,
     );
     var bufferOut2 = ModuleBufferConveyor(area: this);
     var bufferOut3 = ModuleBufferConveyor(area: this);
@@ -185,7 +185,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     var bufferOut5 = ModuleBufferConveyor(area: this);
     var bufferOut6 = ModuleBufferAngleTransferOutFeed(
       area: this,
-      moduleOutDirection: Direction.counterClockWise,
+      moduleOutDirection: Direction.clockWise,
     );
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
@@ -222,16 +222,16 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var drawerUnloaderLift = ModuleDrawerRowUnloaderReceiver(
       area: this,
-      drawerOutDirection: Direction.clockWise,
+      drawerOutDirection: Direction.counterClockWise,
       crossOverFeedOutMetersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 
     var conveyor0 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor2 = DrawerConveyorStraight(
@@ -270,7 +270,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(
@@ -313,12 +313,12 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
-      moduleBirdExitDirection: ModuleBirdExitDirection.right,
+      moduleBirdExitDirection: ModuleBirdExitDirection.left,
     );
 
     var bufferIn1 = ModuleBufferAngleTransferInFeed(
       area: this,
-      moduleOutDirection: Direction.counterClockWise,
+      moduleOutDirection: Direction.clockWise,
     );
     var bufferIn2 = ModuleBufferConveyor(area: this);
     var bufferIn3 = ModuleBufferConveyor(area: this);
@@ -326,7 +326,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     var bufferIn5 = ModuleBufferConveyor(area: this);
     var bufferIn6 = ModuleBufferAngleTransferOutFeed(
       area: this,
-      moduleOutDirection: Direction.clockWise,
+      moduleOutDirection: Direction.counterClockWise,
     );
 
     var mrc1 = ModuleRotatingConveyor(
@@ -334,8 +334,8 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       lengthInMeters: 3,
       turnPositions: [
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedIn: true),
-        TurnPosition(direction: const CompassDirection.east()),
+            direction: const CompassDirection.east(), reverseFeedIn: true),
+        TurnPosition(direction: const CompassDirection.south()),
       ],
     );
 
@@ -349,7 +349,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
-      drawerOutDirection: Direction.counterClockWise,
+      drawerOutDirection: Direction.clockWise,
     );
 
     var mc3 = ModuleConveyor(area: this);
@@ -361,14 +361,14 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
         ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
-      drawersFromLeft: true,
+      drawersInDirection: Direction.clockWise,
     );
     var mrc2 = ModuleRotatingConveyor(
       area: this,
       lengthInMeters: 3,
       turnPositions: [
-        TurnPosition(direction: const CompassDirection.west()),
-        TurnPosition(direction: const CompassDirection.south()),
+        TurnPosition(direction: const CompassDirection.north()),
+        TurnPosition(direction: const CompassDirection.east()),
       ],
     );
 
@@ -376,7 +376,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var bufferOut1 = ModuleBufferAngleTransferInFeed(
       area: this,
-      moduleOutDirection: Direction.clockWise,
+      moduleOutDirection: Direction.counterClockWise,
     );
     var bufferOut2 = ModuleBufferConveyor(area: this);
     var bufferOut3 = ModuleBufferConveyor(area: this);
@@ -384,7 +384,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     var bufferOut5 = ModuleBufferConveyor(area: this);
     var bufferOut6 = ModuleBufferAngleTransferOutFeed(
       area: this,
-      moduleOutDirection: Direction.counterClockWise,
+      moduleOutDirection: Direction.clockWise,
     );
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
@@ -424,7 +424,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor2 = DrawerConveyorStraight(
@@ -463,7 +463,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
+        direction: Direction.clockWise,
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
 
     var conveyor9 = DrawerConveyorStraight(

@@ -315,7 +315,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
     var mc5 = ModuleConveyor(area: this);
     var loader = ModuleDrawerLoader(
       area: this,
-      drawersFromLeft: true,
+      drawersInDirection: Direction.counterClockWise,
     );
 
     var stacker = ModuleStacker(area: this);

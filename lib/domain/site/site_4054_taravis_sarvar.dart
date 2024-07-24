@@ -392,7 +392,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var loader = ModuleDrawerLoader(
       area: this,
-      drawersFromLeft: false,
+      drawersInDirection: Direction.clockWise,
     );
 
     var mc4 = ModuleConveyor(area: this);

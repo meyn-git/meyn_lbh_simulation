@@ -236,7 +236,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var drawerLoaderLift = DrawerLoaderLift(area: this);
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
-      drawersFromLeft: true,
+      drawersInDirection: Direction.counterClockWise,
     );
 
     var mc3 = ModuleConveyor(area: this);

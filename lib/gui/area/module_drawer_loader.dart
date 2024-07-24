@@ -51,10 +51,11 @@ class ModuleDrawerLoaderShape extends CompoundShape {
     centerToModuleOutLink = OffsetInMeters(
         xInMeters: centerToConveyorCenter.xInMeters,
         yInMeters: yInMeters * -0.5);
-    centerToDrawersInLink = (drawerLoader.drawersFromLeft
-            ? frameEast.centerLeft
-            : frameWest.centerRight) -
-        centerCenter;
+    centerToDrawersInLink =
+        (drawerLoader.drawersInDirection == Direction.counterClockWise
+                ? frameEast.centerLeft
+                : frameWest.centerRight) -
+            centerCenter;
   }
 }
 
