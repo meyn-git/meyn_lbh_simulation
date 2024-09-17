@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
@@ -89,95 +90,100 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
 
   ProductDefinitions()
       : super([
-          ProductDefinition(
-              areaFactory: _areaFactory(),
-              birdType: 'Female Turkey min weight',
-              lineSpeedInShacklesPerHour: 3600,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      femaleTurkeyMinWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      femaleTurkeyMinWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(),
-              birdType: 'Female Turkey avr weight',
-              lineSpeedInShacklesPerHour: 3600,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      femaleTurkeyAverageWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      femaleTurkeyAverageWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(),
-              birdType: 'Female Turkey max weight',
-              lineSpeedInShacklesPerHour: 3600,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      femaleTurkeyMaxWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      femaleTurkeyMaxWeightCapacity,
-                }),
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(),
-              birdType: 'Male Turkey min weight',
-              lineSpeedInShacklesPerHour: 1800,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      maleTurkeyMinWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      maleTurkeyMinWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(),
-              birdType: 'Male Turkey average weight',
-              lineSpeedInShacklesPerHour: 1800,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      maleTurkeyAverageWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      maleTurkeyAverageWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(),
-              birdType: 'Male Turkey max weight',
-              lineSpeedInShacklesPerHour: 1800,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      maleTurkeyMaxWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      maleTurkeyMaxWeightCapacity,
-                })
-              ]),
+          ...createDefinitions(0),
+          ...createDefinitions(1),
         ]);
 
-  static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() =>
-          (ProductDefinition productDefinition) => [Area(productDefinition)];
+  static List<ProductDefinition> createDefinitions(int version) => [
+        ProductDefinition(
+            areaFactory: (ProductDefinition productDefinition) =>
+                [Area(productDefinition, version)],
+            birdType: 'Female Turkey min weight',
+            lineSpeedInShacklesPerHour: 3600,
+            lineShacklePitchInInches: 12,
+            casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
+            truckRows: [
+              TruckRow({
+                PositionWithinModuleGroup.firstBottom:
+                    femaleTurkeyMinWeightCapacity,
+                PositionWithinModuleGroup.firstTop:
+                    femaleTurkeyMinWeightCapacity,
+              })
+            ]),
+        ProductDefinition(
+            areaFactory: (ProductDefinition productDefinition) =>
+                [Area(productDefinition, version)],
+            birdType: 'Female Turkey avr weight',
+            lineSpeedInShacklesPerHour: 3600,
+            lineShacklePitchInInches: 12,
+            casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
+            truckRows: [
+              TruckRow({
+                PositionWithinModuleGroup.firstBottom:
+                    femaleTurkeyAverageWeightCapacity,
+                PositionWithinModuleGroup.firstTop:
+                    femaleTurkeyAverageWeightCapacity,
+              })
+            ]),
+        ProductDefinition(
+            areaFactory: (ProductDefinition productDefinition) =>
+                [Area(productDefinition, version)],
+            birdType: 'Female Turkey max weight',
+            lineSpeedInShacklesPerHour: 3600,
+            lineShacklePitchInInches: 12,
+            casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
+            truckRows: [
+              TruckRow({
+                PositionWithinModuleGroup.firstBottom:
+                    femaleTurkeyMaxWeightCapacity,
+                PositionWithinModuleGroup.firstTop:
+                    femaleTurkeyMaxWeightCapacity,
+              }),
+            ]),
+        ProductDefinition(
+            areaFactory: (ProductDefinition productDefinition) =>
+                [Area(productDefinition, version)],
+            birdType: 'Male Turkey min weight',
+            lineSpeedInShacklesPerHour: 1800,
+            lineShacklePitchInInches: 12,
+            casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
+            truckRows: [
+              TruckRow({
+                PositionWithinModuleGroup.firstBottom:
+                    maleTurkeyMinWeightCapacity,
+                PositionWithinModuleGroup.firstTop: maleTurkeyMinWeightCapacity,
+              })
+            ]),
+        ProductDefinition(
+            areaFactory: (ProductDefinition productDefinition) =>
+                [Area(productDefinition, version)],
+            birdType: 'Male Turkey average weight',
+            lineSpeedInShacklesPerHour: 1800,
+            lineShacklePitchInInches: 12,
+            casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
+            truckRows: [
+              TruckRow({
+                PositionWithinModuleGroup.firstBottom:
+                    maleTurkeyAverageWeightCapacity,
+                PositionWithinModuleGroup.firstTop:
+                    maleTurkeyAverageWeightCapacity,
+              })
+            ]),
+        ProductDefinition(
+            areaFactory: (ProductDefinition productDefinition) =>
+                [Area(productDefinition, version)],
+            birdType: 'Male Turkey max weight',
+            lineSpeedInShacklesPerHour: 1800,
+            lineShacklePitchInInches: 12,
+            casRecipe: const CasRecipe.turkeyRecipeAtIndrol(),
+            truckRows: [
+              TruckRow({
+                PositionWithinModuleGroup.firstBottom:
+                    maleTurkeyMaxWeightCapacity,
+                PositionWithinModuleGroup.firstTop: maleTurkeyMaxWeightCapacity,
+              })
+            ]),
+      ];
 
   static final Mass maxWeightPerCompartment = kilo.grams(150);
 
@@ -186,9 +192,10 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
 }
 
 class Area extends LiveBirdHandlingArea {
-  Area(ProductDefinition productDefinition)
+  final int version;
+  Area(ProductDefinition productDefinition, this.version)
       : super(
-          lineName: 'Line 1',
+          lineName: version == 0 ? 'As is' : 'Proposal for higher capacity',
           productDefinition: productDefinition,
         );
 
@@ -222,6 +229,9 @@ class Area extends LiveBirdHandlingArea {
         TurnPosition(
             direction: const CompassDirection.north(), reverseFeedIn: true),
         TurnPosition(direction: const CompassDirection.east()),
+        if (version == 1)
+          TurnPosition(
+              direction: const CompassDirection.south(), reverseFeedOut: true),
       ],
     );
 
@@ -234,6 +244,12 @@ class Area extends LiveBirdHandlingArea {
             direction: const CompassDirection.north(), reverseFeedIn: true),
         TurnPosition(direction: const CompassDirection.east()),
       ],
+    );
+
+    var cas3 = ModuleCas(
+      area: this,
+      gasDuctsLeft: true,
+      slideDoorLeft: true,
     );
 
     var cas2 = ModuleCas(
@@ -268,19 +284,26 @@ class Area extends LiveBirdHandlingArea {
 
     var mc1 = ModuleConveyor(area: this);
 
-    var preWasher = ModuleConveyor(
+    var preWasher = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.2,
     );
 
     var mc2 = ModuleConveyor(area: this);
 
-    var mainWasher = ModuleConveyor(
+    var mainWasher1 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.4,
     );
 
-    var desInfection = ModuleConveyor(
+    var mc2b = ModuleConveyor(area: this);
+
+    var mainWasher2 = ModuleWasherConveyor(
+      area: this,
+      lengthInMeters: 3.4,
+    );
+
+    var desInfection = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.4,
     );
@@ -314,6 +337,11 @@ class Area extends LiveBirdHandlingArea {
     systems.link(mrc2.modulesOuts[1], cas2.modulesIn);
     systems.link(cas2.modulesOut, mrc2.modulesIns[1]);
     systems.link(mrc2.modulesOuts[2], mrc3.modulesIns[0]);
+
+    if (version == 1) {
+      systems.link(mrc2.modulesOuts[3], cas3.modulesIn);
+      systems.link(cas3.modulesOut, mrc2.modulesIns[3]);
+    }
     systems.link(mrc3.modulesOuts[1], cas1.modulesIn);
     systems.link(cas1.modulesOut, mrc3.modulesIns[1]);
     systems.link(mrc3.modulesOuts[2], deStacker.modulesIn);
@@ -323,8 +351,14 @@ class Area extends LiveBirdHandlingArea {
     systems.link(tareWeigher.modulesOut, mc1.modulesIn);
     systems.link(mc1.modulesOut, preWasher.modulesIn);
     systems.link(preWasher.modulesOut, mc2.modulesIn);
-    systems.link(mc2.modulesOut, mainWasher.modulesIn);
-    systems.link(mainWasher.modulesOut, desInfection.modulesIn);
+    systems.link(mc2.modulesOut, mainWasher1.modulesIn);
+    if (version == 0) {
+      systems.link(mainWasher1.modulesOut, desInfection.modulesIn);
+    } else {
+      systems.link(mainWasher1.modulesOut, mc2b.modulesIn);
+      systems.link(mc2b.modulesOut, mainWasher2.modulesIn);
+      systems.link(mainWasher2.modulesOut, desInfection.modulesIn);
+    }
     systems.link(desInfection.modulesOut, mc3.modulesIn);
     systems.link(mc3.modulesOut, stacker.modulesIn);
     systems.link(stacker.modulesOut, mrc4.modulesIns[0]);

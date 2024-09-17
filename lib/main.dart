@@ -6,8 +6,7 @@ import 'package:meyn_lbh_simulation/domain/authorization/authorization.dart';
 import 'package:meyn_lbh_simulation/gui/area/player.dart';
 import 'package:meyn_lbh_simulation/gui/login/login.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
-
-import 'domain/site/site.dart';
+import 'package:meyn_lbh_simulation/domain/site/site.dart';
 
 void main() {
   GetIt.instance.registerSingleton<Sites>(Sites());

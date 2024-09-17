@@ -16,7 +16,7 @@ dependencies:
   url_launcher: ^6.3.0
   user_command: ^0.0.8
   fling_units: ^2.2.7
-  process_run: ^0.14.2
+  process_run: ^1.2.0
 
 
 dev_dependencies:
