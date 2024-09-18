@@ -165,12 +165,30 @@ class CasRecipe {
           Duration(seconds: 120) //67%
         ], const Duration(seconds: 30));
 
-  const CasRecipe.turkeyRecipeAtIndrol()
+  const CasRecipe.turkeyRecipeAtIndrolAtInstallation()
       : this(const [
           Duration(seconds: 35), //35%
           Duration(seconds: 35), //43%
           Duration(seconds: 30), //58%
           Duration(seconds: 110) //72%
+        ], const Duration(seconds: 30));
+
+//info from Maurizio on site @ 2024-09-18
+  const CasRecipe.femaleTurkeyRecipeAtIndrol()
+      : this(const [
+          Duration(seconds: 35), //32%
+          Duration(seconds: 35), //38%
+          Duration(seconds: 30), //43%
+          Duration(seconds: 110) //72%
+        ], const Duration(seconds: 30));
+
+//info from Maurizio on site @ 2024-09-18
+  const CasRecipe.maleTurkeyRecipeAtIndrol()
+      : this(const [
+          Duration(seconds: 30), //32%
+          Duration(seconds: 30), //38%
+          Duration(seconds: 70), //72%
+          Duration(seconds: 100) //82%
         ], const Duration(seconds: 30));
 }
 

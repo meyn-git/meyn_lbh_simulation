@@ -18,6 +18,10 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
   final Direction tiltDirection;
 
+  Duration? durationPerModule;
+
+  Durations durationsPerModule = Durations(maxSize: 8);
+
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
   late final shape = ModuleTilterShape(this);
@@ -65,6 +69,8 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
+      .appendProperty('speed',
+          '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour')
       .appendProperty('moduleGroup', moduleGroupPlace.moduleGroup);
 
   @override
@@ -106,6 +112,19 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
     modulesOut,
     birdsOut,
   ];
+
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    super.onUpdateToNextPointInTime(jump);
+    if (durationPerModule != null) {
+      durationPerModule = durationPerModule! + jump;
+    }
+  }
+
+  void onEndOfCycle() {
+    durationsPerModule.add(durationPerModule);
+    durationPerModule = Duration.zero;
+  }
 
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
@@ -185,4 +204,10 @@ class TiltBack extends DurationState<ModuleTilter> {
                   modulesOut: tilter.modulesOut,
                   stateWhenCompleted: WaitToTilt(),
                 ));
+
+  @override
+  void onCompleted(ModuleTilter tilter) {
+    super.onCompleted(tilter);
+    tilter.onEndOfCycle();
+  }
 }
