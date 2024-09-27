@@ -442,7 +442,7 @@ enum ModuleSystem {
 
   ///following durations are based on measurements at: 8052-Indrol Grodzisk
   meynOmnia(
-      conveyorTransportDuration: Duration(seconds: 19),
+      conveyorTransportDuration: Duration(seconds: 14),//Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
       stackerInFeedDuration: Duration(seconds: 19),
       deStackerInFeedDuration: Duration(seconds: 19),
       casTransportDuration: Duration(seconds: 19),
