@@ -509,7 +509,7 @@ class FeedOutFirstStack extends State<FeedOutStateMachine>
     var centerPlace = stateMachine.modulesOut.place;
     var moduleGroup = centerPlace.moduleGroup!;
     var moduleGroupLengthInMeters = moduleGroup.shape.yInMeters;
-    var moduleLengthInMeters = moduleGroup.moduleFootprint.yInMeters;
+    var moduleLengthInMeters = moduleGroup.moduleGroundSurface.yInMeters;
     var outFeedDuration = stateMachine.modulesOut.outFeedDuration;
     var remainingStacksModuleGroup = centerPlace.moduleGroup!;
     centerPlace.moduleGroup = null;

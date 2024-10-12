@@ -99,6 +99,7 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
       .toList();
 
   bool get canFeedOutDrawers =>
+      moduleDrawerLoader.currentState is WaitToPushInColumn &&
       moduleDrawerLoader.moduleGroup != null &&
       moduleDrawerLoader.moduleGroup!.modules.first.variant.levels ==
           drawersToFeedOut.length;
@@ -506,6 +507,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   final Duration inFeedDuration;
   final Duration outFeedDuration;
   final Direction drawersInDirection;
+  final bool singleColumnOfCompartments;
   Duration? durationPerModule;
 
   Durations durationsPerModule = Durations(maxSize: 8);
@@ -525,8 +527,9 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
       .rotate(area.layout.rotationOf(this).degrees);
 
   ModuleGroup? get moduleGroup =>
-      moduleGroupPositionFirstColumn.moduleGroup ??
-      moduleGroupPositionSecondColumn.moduleGroup;
+      moduleGroupFirstColumnPlace.moduleGroup ??
+      moduleGroupSecondColumnPlace.moduleGroup ??
+      moduleGroupSingleColumnPlace.moduleGroup;
 
   ModuleDrawerLoader({
     required this.area,
@@ -543,9 +546,17 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
             area.productDefinition.moduleSystem.conveyorTransportDuration,
         outFeedDuration = outFeedDuration ??
             area.productDefinition.moduleSystem.conveyorTransportDuration,
+        singleColumnOfCompartments =
+            allModulesHaveOneSingleCompartmentColumn(area),
         super(
           initialState: CheckIfEmpty(),
         );
+
+  static bool allModulesHaveOneSingleCompartmentColumn(
+          LiveBirdHandlingArea area) =>
+      area.productDefinition.truckRows.every((truckRow) => truckRow.templates
+          .every((moduleTemplate) =>
+              moduleTemplate.variant.compartmentsPerLevel == 1));
 
   @override
   late List<Command> commands = [
@@ -564,19 +575,25 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
     numberOfDrawersToFeedIn: numberOfDrawersToFeedIn,
   );
 
-  late final ModuleGroupPlace moduleGroupPositionFirstColumn = ModuleGroupPlace(
+  late final ModuleGroupPlace moduleGroupFirstColumnPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToFirstColumn,
   );
 
-  late final ModuleGroupPlace moduleGroupPositionSecondColumn =
-      ModuleGroupPlace(
+  late final ModuleGroupPlace moduleGroupSecondColumnPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToSecondColumn,
   );
 
+  late final ModuleGroupPlace moduleGroupSingleColumnPlace = ModuleGroupPlace(
+    system: this,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
+  );
+
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    place: moduleGroupPositionFirstColumn,
+    place: singleColumnOfCompartments
+        ? moduleGroupSingleColumnPlace
+        : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -585,7 +602,9 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   );
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    place: moduleGroupPositionSecondColumn,
+    place: singleColumnOfCompartments
+        ? moduleGroupSingleColumnPlace
+        : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -600,8 +619,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   late DrawerLoaderLift drawerLift =
       drawersIn.linkedTo!.system as DrawerLoaderLift;
 
-  bool get waitingToFeedInDrawers => (currentState is WaitToPushInFirstColumn ||
-      currentState is WaitToPushInSecondColumn);
+  bool get waitingToFeedInDrawers => currentState is WaitToPushInColumn;
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -646,15 +664,62 @@ class CheckIfEmpty extends DurationState<ModuleDrawerLoader> {
                     inFeedDelay: Duration.zero,
                     nextStateCondition: NextStateCondition
                         .whenFeedInIsCompletedAndFeedOutIsStarted,
-                    stateWhenCompleted: WaitToPushInFirstColumn()));
+                    stateWhenCompleted: WaitToPushInColumn(
+                      loader.singleColumnOfCompartments
+                          ? ColumnToProcess.only
+                          : ColumnToProcess.first,
+                    )));
 }
 
-class WaitToPushInFirstColumn extends State<ModuleDrawerLoader>
+enum ColumnToProcess {
+  first('First'),
+  second('Second'),
+  only('Only');
+
+  final String name;
+
+  const ColumnToProcess(this.name);
+
+  ModuleGroup moduleGroupOf(ModuleDrawerLoader loader) {
+    switch (this) {
+      case first:
+        return loader.moduleGroupFirstColumnPlace.moduleGroup!;
+      case second:
+        return loader.moduleGroupSecondColumnPlace.moduleGroup!;
+      default:
+        return loader.moduleGroupSingleColumnPlace.moduleGroup!;
+    }
+  }
+
+  State<ModuleDrawerLoader> nextStateAfterPusherOut(ModuleDrawerLoader loader) {
+    switch (this) {
+      case first:
+        return FeedInToSecondColumn();
+      default:
+        return SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: loader.modulesIn,
+          modulesOut: loader.modulesOut,
+          inFeedDelay: Duration.zero,
+          nextStateCondition:
+              NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
+          stateWhenCompleted: WaitToPushInColumn(
+              loader.singleColumnOfCompartments
+                  ? ColumnToProcess.only
+                  : ColumnToProcess.first),
+        );
+    }
+  }
+}
+
+class WaitToPushInColumn extends State<ModuleDrawerLoader>
     implements DrawerTransportCompletedListener {
+  final ColumnToProcess columnToProcess;
   bool transportCompleted = false;
 
+  WaitToPushInColumn(this.columnToProcess);
+
   @override
-  String get name => 'WaitToPushInFirstColumn';
+  String get name => 'WaitToPushIn${columnToProcess.name}Column';
 
   @override
   void onStart(ModuleDrawerLoader loader) {
@@ -662,10 +727,9 @@ class WaitToPushInFirstColumn extends State<ModuleDrawerLoader>
   }
 
   void _verifyModuleGroup(ModuleDrawerLoader loader) {
-    var moduleGroup = (loader.moduleGroupPositionFirstColumn.moduleGroup ??
-        loader.moduleGroupPositionSecondColumn.moduleGroup)!;
+    var moduleGroup = columnToProcess.moduleGroupOf(loader);
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('${loader.name}:  can not handle stacked modules');
+      throw Exception('${loader.name}:  can not handle multiple modules');
     }
     if (moduleGroup.compartment is CompartmentWithDoor) {
       throw ('${loader.name}: Can not process containers');
@@ -679,7 +743,9 @@ class WaitToPushInFirstColumn extends State<ModuleDrawerLoader>
 
   @override
   State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
-      transportCompleted ? FeedInToSecondColumn() : null;
+      transportCompleted
+          ? columnToProcess.nextStateAfterPusherOut(loader)
+          : null;
 
   @override
   onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
@@ -698,46 +764,19 @@ class FeedInToSecondColumn extends State<ModuleDrawerLoader>
 
   @override
   void onStart(ModuleDrawerLoader loader) {
-    var moduleGroup = loader.moduleGroupPositionFirstColumn.moduleGroup!;
+    var moduleGroup = loader.moduleGroupFirstColumnPlace.moduleGroup!;
     moduleGroup.position = BetweenModuleGroupPlaces(
-        source: loader.moduleGroupPositionFirstColumn,
-        destination: loader.moduleGroupPositionSecondColumn,
+        source: loader.moduleGroupFirstColumnPlace,
+        destination: loader.moduleGroupSecondColumnPlace,
         duration: loader.feedInToSecondColumn);
   }
 
   @override
   State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
-      transportCompleted ? WaitToPushInSecondColumn() : null;
+      transportCompleted ? WaitToPushInColumn(ColumnToProcess.second) : null;
 
   @override
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
-  }
-}
-
-class WaitToPushInSecondColumn extends State<ModuleDrawerLoader>
-    implements DrawerTransportCompletedListener {
-  bool transportCompleted = false;
-
-  @override
-  String get name => 'WaitToPushInSecondColumn';
-
-  @override
-  State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
-      transportCompleted
-          ? SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerLoader>(
-              modulesIn: loader.modulesIn,
-              modulesOut: loader.modulesOut,
-              inFeedDelay: Duration.zero,
-              nextStateCondition:
-                  NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
-              stateWhenCompleted: WaitToPushInFirstColumn())
-          : null;
-
-  @override
-  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
-    if (betweenDrawerPlaces is BetweenLiftAndDrawerLoader) {
-      transportCompleted = true;
-    }
   }
 }

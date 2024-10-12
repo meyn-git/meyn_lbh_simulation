@@ -66,7 +66,6 @@ class SystemWidget extends StatelessWidget {
       ...relatedObjectsToMonitor(systems, system)
     ];
     player.objectsToMonitor.addAll(objectsToMonitor);
-    print(' monitor(${system.name})');
   }
 
   List<Detailable> relatedObjectsToMonitor(

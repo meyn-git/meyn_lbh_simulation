@@ -69,10 +69,11 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
   static List<Widget> createChildren(Scenario scenario) {
     List<Widget> children = [];
     var area = scenario.area;
-    children.addAll(createModuleGroupWidgets(area));
+    // children.addAll(createModuleGroupWidgets(area));
     children.addAll(createMachineWidgets(area));
     children.addAll(createDrawerWidgets(area));
     children.addAll(createMarkerWidgets(area));
+    children.addAll(createModuleGroupWidgets(area));
     return children;
   }
 

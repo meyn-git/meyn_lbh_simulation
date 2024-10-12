@@ -1,3 +1,4 @@
+import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
@@ -18,11 +19,12 @@ class ModuleDrawerLoaderShape extends CompoundShape {
   late final OffsetInMeters centerToSecondColumn;
   late final OffsetInMeters centerToDrawersInLink;
 
-//TODO assumption
-  static const lengthInMeters = 2.75 * 1.5;
-
   /// Most of this is constructor is a copy from the [ModuleConveyorShape]
   ModuleDrawerLoaderShape(ModuleDrawerLoader drawerLoader) {
+    var lengthInMeters = ModuleConveyor.defaultLengthInMeters *
+        (drawerLoader.singleColumnOfCompartments
+            ? 0.75
+            : 1.5); //TODO assumption
     var moduleGroupLength = drawerLoader
         .area.productDefinition.truckRows.first.footprintOnSystem.yInMeters;
     var frameEast = Box(

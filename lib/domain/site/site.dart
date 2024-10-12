@@ -62,13 +62,13 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
       : super([
+          MicarnaSite(),
           IndrolSite(),
           KeskinogluSite(),
           SenpelicSite(),
           HaKyllingAsSite(),
           BorgmeierSite(),
           GutBergmarkSite(),
-          MicarnaSite(),
           VanDerLindenSite(),
           LopezSite(),
           HaerlandSite(),

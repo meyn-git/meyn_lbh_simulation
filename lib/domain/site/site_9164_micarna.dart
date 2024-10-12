@@ -100,6 +100,9 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
           productDefinition: productDefinition,
         );
 
+  /// TODO change to actual time (8sec is assumed)
+  static const shortModuleConveyorTransportDuration = Duration(seconds: 8);
+
   @override
   void createSystemsAndLinks() {
     var loadingForkLiftTruck = LoadingForkLiftTruck(
@@ -227,30 +230,112 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mc2 = ModuleConveyor(area: this);
 
-    var deStacker = ModuleDeStacker(area: this);
+    var deStacker1 = ModuleDeStacker(
+      area: this,
 
-    var mc3 = ModuleConveyor(area: this);
+      /// asumption that feeding in goes faster because lift is
+      /// shorter than for double column modules
+      /// TODO change to actual time
+      inFeedDuration: shortModuleConveyorTransportDuration,
+
+      /// asumption that feeding out takes a bit longer than feeding in
+      /// because we need to bridge additional space between the de-stacker
+      /// because the supports need to go inbetween
+      /// TODO change to actual time
+      outFeedDuration: shortModuleConveyorTransportDuration * 1.5,
+    );
+
+    var deStacker2 = ModuleDeStacker(
+      area: this,
+
+      /// asumption that feeding in goes faster because lift is
+      /// shorter than for double column modules
+      /// TODO change to actual time
+      inFeedDuration: shortModuleConveyorTransportDuration,
+
+      /// asumption that feeding out goes faster because lift is
+      /// shorter than for double column modules
+      /// TODO change to actual time
+      outFeedDuration: shortModuleConveyorTransportDuration,
+    );
+
+    var mc3 = ModuleConveyor(
+      area: this,
+      inFeedDuration: shortModuleConveyorTransportDuration,
+      outFeedDuration: shortModuleConveyorTransportDuration,
+    );
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
       drawerOutDirection: Direction.clockWise,
+      inFeedDuration: shortModuleConveyorTransportDuration,
+      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
-    var mc4 = ModuleConveyor(area: this);
-
-    var mc5 = ModuleConveyor(area: this);
-
-    var moduleWasher = ModuleConveyor(
+    var mc4 = ModuleConveyor(
       area: this,
-      lengthInMeters: 5.5,
+      inFeedDuration: shortModuleConveyorTransportDuration,
+      outFeedDuration: shortModuleConveyorTransportDuration,
+    );
+
+    var mc5 = ModuleConveyor(
+      area: this,
+      inFeedDuration: shortModuleConveyorTransportDuration,
+      outFeedDuration: shortModuleConveyorTransportDuration,
+    );
+
+    var mc6 = ModuleConveyor(
+      area: this,
+      inFeedDuration: shortModuleConveyorTransportDuration,
+      outFeedDuration: shortModuleConveyorTransportDuration,
+    );
+
+    var moduleWasher1 = ModuleConveyor(
+      area: this,
+      lengthInMeters: 2.25,
+    );
+
+    var moduleWasher2 = ModuleConveyor(
+      area: this,
+      lengthInMeters: 2.25,
     );
 
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
       drawersInDirection: Direction.clockWise,
+      inFeedDuration: shortModuleConveyorTransportDuration,
+      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
-    var stacker = ModuleStacker(area: this);
+    var stacker1 = ModuleStacker(
+      area: this, maxLevelsInTop: 4,
+
+      /// asumption that feeding in goes faster because lift is
+      /// shorter than for double column modules
+      /// TODO change to actual time
+      inFeedDuration: shortModuleConveyorTransportDuration,
+
+      /// asumption that feeding out takes a bit longer than feeding in
+      /// because we need to bridge additional space between the de-stacker
+      /// because the supports need to go inbetween
+      /// TODO change to actual time
+      outFeedDuration: shortModuleConveyorTransportDuration * 1.5,
+    );
+
+    var stacker2 = ModuleStacker(
+      area: this, maxLevelsInTop: 4,
+
+      /// asumption that feeding in goes faster because lift is
+      /// shorter than for double column modules
+      /// TODO change to actual time
+      inFeedDuration: shortModuleConveyorTransportDuration,
+
+      /// asumption that feeding out takes a bit longer than feeding in
+      /// because we need to bridge additional space between the de-stacker
+      /// because the supports need to go inbetween
+      /// TODO change to actual time
+      outFeedDuration: shortModuleConveyorTransportDuration,
+    );
 
     var unloadingConveyor = ModuleConveyor(
       area: this,
@@ -282,15 +367,19 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(cas1.modulesOut, mrc6.modulesIns[1]);
     systems.link(mrc6.modulesOuts[2], mc2.modulesIn);
 
-    systems.link(mc2.modulesOut, deStacker.modulesIn);
-    systems.link(deStacker.modulesOut, mc3.modulesIn);
+    systems.link(mc2.modulesOut, deStacker1.modulesIn);
+    systems.link(deStacker1.modulesOut, deStacker2.modulesIn);
+    systems.link(deStacker2.modulesOut, mc3.modulesIn);
     systems.link(mc3.modulesOut, drawerUnloader.modulesIn);
     systems.link(drawerUnloader.modulesOut, mc4.modulesIn);
     systems.link(mc4.modulesOut, mc5.modulesIn);
-    systems.link(mc5.modulesOut, moduleWasher.modulesIn);
-    systems.link(moduleWasher.modulesOut, moduleDrawerLoader.modulesIn);
-    systems.link(moduleDrawerLoader.modulesOut, stacker.modulesIn);
-    systems.link(stacker.modulesOut, unloadingConveyor.modulesIn);
+    systems.link(mc5.modulesOut, mc6.modulesIn);
+    systems.link(mc6.modulesOut, moduleWasher1.modulesIn);
+    systems.link(moduleWasher1.modulesOut, moduleWasher2.modulesIn);
+    systems.link(moduleWasher2.modulesOut, moduleDrawerLoader.modulesIn);
+    systems.link(moduleDrawerLoader.modulesOut, stacker1.modulesIn);
+    systems.link(stacker1.modulesOut, stacker2.modulesIn);
+    systems.link(stacker2.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
         unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
 
@@ -337,7 +426,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var conveyor6 = DrawerConveyorStraight(
         metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 5.5);
+        lengthInMeters: 5.0);
 
     var conveyor7 = DrawerTurningConveyor();
 
@@ -387,10 +476,16 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       0.9,
       1,
       1,
+      1.10,
+      1.10,
+      1.20,
+      1.20,
+      1.30,
+      1.30,
       1.40,
-      1.80,
-      2.20,
-      2.40,
+      1.40,
+      1.50,
+      1.50,
     ]));
   }
 }

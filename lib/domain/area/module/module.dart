@@ -8,16 +8,18 @@ import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.da
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
+import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module.dart';
+import 'package:user_command/user_command.dart';
 
 import '../life_bird_handling_area.dart';
 import '../state_machine.dart';
 
-/// A [ModuleGroup] can be one or 2 modules that are transported together
-/// E.g. a stack of 2 modules, or 2 modules side by side
+/// A [ModuleGroup] can be one or more modules that are transported together
+/// E.g. a stack of 2 modules, or 2 modules side by side or 2 stacks of modules
 
 class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
-    implements TimeProcessor, Detailable, ModuleVariantBase {
+    implements TimeProcessor, Detailable, ModuleVariantBase, Commandable {
   @override
   late final BirdType birdType = modules.first.variant.birdType;
 
@@ -35,8 +37,13 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   late final String family = modules.first.variant.family;
 
   @override
-  late final SizeInMeters moduleFootprint =
-      modules.first.variant.moduleFootprint;
+  late final SizeInMeters moduleGroundSurface =
+      modules.first.variant.moduleGroundSurface;
+
+  @override
+  late final compartmentGroundSurface = SizeInMeters(
+      xInMeters: moduleGroundSurface.xInMeters,
+      yInMeters: moduleGroundSurface.yInMeters / compartmentsPerLevel);
 
   @override
   late final ModuleVersion? version = modules.first.variant.version;
@@ -57,6 +64,9 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   }) : super(modules) {
     _refresh();
   }
+
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   // this method needs to be called when modules are added or removed
   void _refresh() {
@@ -110,15 +120,11 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   @override
   late String name = 'ModuleGroup';
 
-  late final compartmentSize = SizeInMeters(
-      xInMeters: moduleFootprint.xInMeters,
-      yInMeters: moduleFootprint.yInMeters / compartmentsPerLevel);
-
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('doorDirection', direction)
-      .appendProperty('destination', destination.name);
-
+      //.appendProperty('doorDirection', direction)
+      .appendProperty('destination', destination.name)
+      .appendProperty('modules', modules);
   @override
   String toString() => objectDetails.toString();
 
@@ -204,6 +210,12 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
 
   List<Map<PositionWithinModuleGroup, Module>> get stacks =>
       [for (var stackNumber in stackNumbers) stack(stackNumber)];
+
+  bool get isStacked =>
+      keys.contains(PositionWithinModuleGroup.firstBottom) &&
+          keys.contains(PositionWithinModuleGroup.firstTop) ||
+      keys.contains(PositionWithinModuleGroup.secondBottom) &&
+          keys.contains(PositionWithinModuleGroup.secondTop);
 
   isBeingTransportedTo(PhysicalSystem system) =>
       position is BetweenModuleGroupPlaces &&
@@ -387,7 +399,7 @@ abstract class ModuleTransportStartedListener {
       BetweenModuleGroupPlaces betweenModuleGroupPlaces);
 }
 
-class Module implements Detailable {
+class Module implements Detailable, Commandable {
   final ModuleVariant variant;
   final int sequenceNumber;
   int nrOfBirds;
@@ -395,6 +407,9 @@ class Module implements Detailable {
   Duration? sinceStartStun;
   Duration? sinceEndStun;
   Duration? sinceBirdsUnloaded;
+
+  @override
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   Module({
     required this.variant,
@@ -408,6 +423,7 @@ class Module implements Detailable {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('sequenceNumber', sequenceNumber)
+      .appendProperty('levels', variant.levels)
       .appendProperty('nrOfBirds', nrOfBirds)
       .appendProperty('sinceLoadedOnSystem', sinceLoadedOnSystem)
       .appendProperty('sinceStartStun', sinceStartStun)
@@ -422,14 +438,12 @@ enum ModuleBirdExitDirection { bothSides, left, right }
 
 enum ModuleSystem {
   meynContainersOrModulesWith2OrMoreCompartmentsPerLevel(
-    stackerInFeedDuration: Duration(seconds: 14),
-    deStackerInFeedDuration: Duration(seconds: 14),
-    conveyorTransportDuration: Duration(seconds: 12),
-    casTransportDuration: Duration(seconds: 14),
-    turnTableDegreesPerSecond: 15
-    // 90 degrees in 6 seconds
-    ,
-  ),
+      stackerInFeedDuration: Duration(seconds: 14),
+      deStackerInFeedDuration: Duration(seconds: 14),
+      conveyorTransportDuration: Duration(seconds: 12),
+      casTransportDuration: Duration(seconds: 14),
+      turnTableDegreesPerSecond: 15 // 90 degrees in 6 seconds
+      ),
 
   ///following durations are based on measurements at: 7696-Dabe-Germanyk
   meynContainersOrModulesWith1CompartmentsPerLevel(
@@ -442,7 +456,9 @@ enum ModuleSystem {
 
   ///following durations are based on measurements at: 8052-Indrol Grodzisk
   meynOmnia(
-      conveyorTransportDuration: Duration(seconds: 14),//Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
+      conveyorTransportDuration: Duration(
+          seconds:
+              14), //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
       stackerInFeedDuration: Duration(seconds: 19),
       deStackerInFeedDuration: Duration(seconds: 19),
       casTransportDuration: Duration(seconds: 19),
@@ -607,7 +623,7 @@ class TruckRow
     var positions = keys;
     var numberOfStacks =
         positions.map((position) => position.stackNumber).toSet().length;
-    var moduleFootprint = templates.first.variant.moduleFootprint;
+    var moduleFootprint = templates.first.variant.moduleGroundSurface;
     var width = moduleFootprint.xInMeters;
     var length = numberOfStacks * moduleFootprint.yInMeters +
         (numberOfStacks - 1) * ModuleGroupShape.offsetBetweenStacks;

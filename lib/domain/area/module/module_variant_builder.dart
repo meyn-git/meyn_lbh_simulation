@@ -51,7 +51,7 @@ class ModuleVariantLeafBuilder extends ModuleVariantBuilder {
       family: values.family!,
       version: values.version,
       birdType: values.birdType!,
-      moduleFootprint: values.footprint!,
+      moduleGroundSurface: values.footprint!,
       compartment: values.compartment!,
       levels: values.levels!,
       compartmentsPerLevel: values.compartmentsPerLevel!,
@@ -76,7 +76,8 @@ abstract class ModuleVariantBase {
   Brand get brand;
   String get family;
   ModuleVersion? get version;
-  SizeInMeters get moduleFootprint;
+  SizeInMeters get moduleGroundSurface;
+  SizeInMeters get compartmentGroundSurface;
   Compartment get compartment;
   BirdType get birdType;
   int get compartmentsPerLevel;
@@ -90,7 +91,11 @@ class ModuleVariant implements ModuleVariantBase {
   @override
   final ModuleVersion? version;
   @override
-  final SizeInMeters moduleFootprint;
+  final SizeInMeters moduleGroundSurface;
+  @override
+  late final compartmentGroundSurface = SizeInMeters(
+      xInMeters: moduleGroundSurface.xInMeters,
+      yInMeters: moduleGroundSurface.yInMeters / compartmentsPerLevel);
   @override
   final Compartment compartment;
   final int levels;
@@ -111,7 +116,7 @@ class ModuleVariant implements ModuleVariantBase {
     required this.family,
     this.version,
     required this.birdType,
-    required this.moduleFootprint,
+    required this.moduleGroundSurface,
     required this.compartment,
     required this.levels,
     required this.compartmentsPerLevel,
@@ -149,7 +154,7 @@ class ModuleVariant implements ModuleVariantBase {
       variant.brand == brand &&
       variant.family == family &&
       variant.version == version &&
-      variant.moduleFootprint == moduleFootprint &&
+      variant.moduleGroundSurface == moduleGroundSurface &&
       variant.compartment == compartment &&
       variant.birdType == birdType &&
       variant.compartmentsPerLevel == compartmentsPerLevel;

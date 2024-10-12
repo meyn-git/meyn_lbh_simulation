@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
+import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
@@ -14,12 +16,23 @@ class ModuleGroupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).liveBirdsHandling;
-    return RotationTransition(
-        turns: AlwaysStoppedAnimation(moduleGroup.direction.toFraction()),
-        child: CustomPaint(
-          painter: ModuleGroupPainter(moduleGroup, theme),
-        ));
+    return Listener(
+      onPointerDown: (_) => monitor(moduleGroup),
+      child: RotationTransition(
+          turns: AlwaysStoppedAnimation(moduleGroup.direction.toFraction()),
+          child: CustomPaint(
+            painter: ModuleGroupPainter(moduleGroup, theme),
+          )),
+    );
   }
+}
+
+monitor(ModuleGroup moduleGroup) {
+  var player = GetIt.instance<Player>();
+  List<Object> objectsToMonitor = [
+    moduleGroup,
+  ];
+  player.objectsToMonitor.addAll(objectsToMonitor);
 }
 
 class ModuleGroupPainter extends ShapePainter {
@@ -54,7 +67,7 @@ class ModuleShape extends CompoundShape {
     for (int i = 0; i < moduleGroup.compartmentsPerLevel; i++) {
       var compartment = ModuleCompartmentShape(moduleGroup, showOutDirection);
       add(topLeft, compartment);
-      topLeft = topLeft.addY(moduleGroup.compartmentSize.yInMeters);
+      topLeft = topLeft.addY(moduleGroup.compartmentGroundSurface.yInMeters);
     }
   }
 }
@@ -67,8 +80,8 @@ class ModuleCompartmentShape extends Shape {
   final ModuleGroup moduleGroup;
   final bool showOutDirection;
   ModuleCompartmentShape(this.moduleGroup, this.showOutDirection)
-      : xInMeters = moduleGroup.compartmentSize.xInMeters,
-        yInMeters = moduleGroup.compartmentSize.yInMeters;
+      : xInMeters = moduleGroup.compartmentGroundSurface.xInMeters,
+        yInMeters = moduleGroup.compartmentGroundSurface.yInMeters;
 
   @override
   void paint(Canvas canvas, LiveBirdsHandlingTheme theme, OffsetInMeters offset,
@@ -88,6 +101,7 @@ class ModuleCompartmentShape extends Shape {
       canvas.drawLine(topRight, centerLeft, paint);
       canvas.drawLine(centerLeft, bottomRight, paint);
     }
+    //TODO paintText(canvas, Size(sizePerMeter*0.5, sizePerMeter*0.2), moduleGroup.le)
   }
 
   Color color(theme) {
@@ -102,6 +116,29 @@ class ModuleCompartmentShape extends Shape {
         return theme.withAwakeBirdsColor;
     }
   }
+}
+
+void paintText(Canvas canvas, Size size, String text) {
+  const textStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 30,
+  );
+  const textSpan = TextSpan(
+    text: 'Hello, world.',
+    style: textStyle,
+  );
+  final textPainter = TextPainter(
+    text: textSpan,
+    textDirection: TextDirection.ltr,
+  );
+  textPainter.layout(
+    minWidth: 0,
+    maxWidth: size.width,
+  );
+  final xCenter = (size.width - textPainter.width) / 2;
+  final yCenter = (size.height - textPainter.height) / 2;
+  final offset = Offset(xCenter, yCenter);
+  textPainter.paint(canvas, offset);
 }
 
 // class ModuleGroupPainter extends CustomPainter {

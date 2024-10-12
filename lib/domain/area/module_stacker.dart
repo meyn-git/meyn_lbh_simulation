@@ -22,6 +22,10 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
   final Duration supportsOpenDuration;
   final Duration inFeedDuration;
   final Duration outFeedDuration;
+
+  /// e.g. when [maxLevelsInTop] = 4 then it will feed out
+  /// a 5 level module when there is no 4 level module in top
+  int? maxLevelsInTop;
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
@@ -33,6 +37,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     this.supportsOpenDuration = const Duration(seconds: 3),
     Duration? inFeedDuration,
     Duration? outFeedDuration,
+    this.maxLevelsInTop,
     this.currentHeightInCentiMeter = 150,
     this.liftSpeedInCentiMeterPerSecond = 30,
     this.heightsInCentiMeter = const {
@@ -89,6 +94,10 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
 
   @override
   late final SizeInMeters sizeWhenFacingNorth = shape.size;
+
+  late System nextSystem = modulesOut.linkedTo!.system;
+
+  late System previousSystem = modulesIn.linkedTo!.system;
 }
 
 class MoveLift extends DurationState<ModuleStacker> {
@@ -161,7 +170,10 @@ class FeedIn extends State<ModuleStacker>
   @override
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
     if (transportCompleted) {
-      if (stacker.onSupportsPlace.moduleGroup == null) {
+      if (mustFeedOut(stacker)) {
+        return WaitToFeedOut();
+      }
+      if (hasNoModuleOnSupports(stacker)) {
         return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
       } else {
         return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());
@@ -171,8 +183,41 @@ class FeedIn extends State<ModuleStacker>
   }
 
   @override
-  void onModuleTransportCompleted(_) {
+  void onModuleTransportCompleted(s) {
     transportCompleted = true;
+  }
+
+  bool hasNoModuleOnSupports(ModuleStacker stacker) =>
+      stacker.onSupportsPlace.moduleGroup == null;
+
+  bool mustFeedOut(ModuleStacker stacker) {
+    var modulesAreAlreadyStacked2 = modulesAreAlreadyStacked(stacker);
+    var skipModuleBecauseItHasTooManyLevelsToBePlacedInTop2 =
+        skipModuleBecauseItHasTooManyLevelsToBePlacedInTop(stacker);
+    var moduleToBeStackedInNextStacker2 =
+        moduleToBeStackedInNextStacker(stacker);
+
+    return modulesAreAlreadyStacked2 ||
+        skipModuleBecauseItHasTooManyLevelsToBePlacedInTop2 ||
+        moduleToBeStackedInNextStacker2;
+  }
+
+  bool moduleToBeStackedInNextStacker(ModuleStacker stacker) {
+    var moduleSequenceNumberModulo4 =
+        stacker.onConveyorPlace.moduleGroup!.modules.first.sequenceNumber % 4;
+    return stacker.nextSystem is ModuleStacker &&
+        (moduleSequenceNumberModulo4 == 1 || moduleSequenceNumberModulo4 == 2);
+  }
+
+  modulesAreAlreadyStacked(ModuleStacker stacker) =>
+      stacker.onConveyorPlace.moduleGroup!.isStacked;
+
+  bool skipModuleBecauseItHasTooManyLevelsToBePlacedInTop(
+      ModuleStacker stacker) {
+    return (stacker.maxLevelsInTop != null &&
+        stacker.onConveyorPlace.moduleGroup!.modules.first.variant.levels >
+            stacker.maxLevelsInTop! &&
+        hasNoModuleOnSupports(stacker));
   }
 }
 

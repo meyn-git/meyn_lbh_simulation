@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
+import 'dart:math';
+
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
@@ -50,9 +52,25 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
           initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
         );
 
+  /// normaly used for rectangular containers (2 or more columns of compartments)
   late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
+  );
+
+  /// only used for the first (stacked) square container with 1 column of compartments
+  late ModuleGroupPlace onConveyorFirstSingleColumnModulePlace =
+      ModuleGroupPlace(
+    system: this,
+    offsetFromCenterWhenSystemFacingNorth:
+        shape.centerToConveyorCenter.addY(-1),
+  );
+
+  /// only used for the second (stacked) square container with 1 column of compartments
+  late ModuleGroupPlace onConveyorSecondSingleColumnModulePlace =
+      ModuleGroupPlace(
+    system: this,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter.addY(1),
   );
 
   late ModuleGroupPlace onSupportsPlace = ModuleGroupPlace(
@@ -90,6 +108,10 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
 
   @override
   SizeInMeters get sizeWhenFacingNorth => shape.size;
+
+  late System nextSystem = modulesOut.linkedTo!.system;
+
+  late System previousSystem = modulesIn.linkedTo!.system;
 }
 
 class MoveLift extends DurationState<ModuleDeStacker> {
@@ -162,6 +184,9 @@ class FeedIn extends State<ModuleDeStacker>
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (transportCompleted) {
+      if (transportFirstStackToNextDestacker(deStacker)) {
+        return WaitToFeedOutFirstStackAndTransportSecondStackToCenter();
+      }
       if (deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1) {
         return MoveLift(LiftPosition.outFeed, WaitToFeedOut());
       } else {
@@ -175,6 +200,10 @@ class FeedIn extends State<ModuleDeStacker>
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
+
+  bool transportFirstStackToNextDestacker(deStacker) =>
+      deStacker.nextSystem is ModuleDeStacker &&
+      deStacker.onConveyorPlace.moduleGroup!.stackNumbers.length > 1;
 }
 
 class CloseModuleSupports extends DurationState<ModuleDeStacker> {
@@ -246,6 +275,89 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
       deStacker.modulesOut.linkedTo!.canFeedIn();
 }
 
+class WaitToFeedOutFirstStackAndTransportSecondStackToCenter
+    extends State<ModuleDeStacker> {
+  @override
+  String get name => 'WaitToFeedOutFirstStackAndTransportSecondStackToCenter';
+
+  @override
+  State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
+    if ((deStacker.nextSystem as StateMachine).currentState is WaitToFeedIn) {
+      return FeedOutFirstStackAndTransportSecondStackToCenter();
+    }
+    return null;
+  }
+}
+
+class FeedOutFirstStackAndTransportSecondStackToCenter
+    extends State<ModuleDeStacker> implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
+  @override
+  String get name => 'FeedOutFirstStackAndTransportSecondStackToCenter';
+
+  @override
+  void onStart(ModuleDeStacker deStacker) {
+    var duration = Duration(
+        milliseconds: max(deStacker.modulesOut.outFeedDuration.inMilliseconds,
+            deStacker.modulesOut.linkedTo!.inFeedDuration.inMilliseconds));
+
+    var secondStack = createSecondStack(deStacker);
+    deStacker.onConveyorSecondSingleColumnModulePlace.moduleGroup = secondStack;
+    deStacker.area.moduleGroups.add(secondStack);
+    secondStack.position = BetweenModuleGroupPlaces(
+        source: deStacker.onConveyorSecondSingleColumnModulePlace,
+        destination: deStacker.onConveyorPlace,
+        duration: duration);
+
+    var firstStack = createFirstStack(deStacker);
+    deStacker.onConveyorFirstSingleColumnModulePlace.moduleGroup = firstStack;
+    firstStack.position = BetweenModuleGroupPlaces(
+        source: deStacker.onConveyorFirstSingleColumnModulePlace,
+        destination: deStacker.modulesOut.linkedTo!.place,
+        duration: duration);
+  }
+
+  ModuleGroup createFirstStack(ModuleDeStacker deStacker) {
+    //reusing the module group, so [createSecondStack] needs to be created first!
+    var moduleGroup = deStacker.onConveyorPlace.moduleGroup!;
+    moduleGroup.remove(PositionWithinModuleGroup.secondBottom);
+    moduleGroup.remove(PositionWithinModuleGroup.secondTop);
+    moduleGroup.position =
+        AtModuleGroupPlace(deStacker.onConveyorFirstSingleColumnModulePlace);
+    return moduleGroup;
+  }
+
+  ModuleGroup createSecondStack(ModuleDeStacker deStacker) {
+    var moduleGroup = deStacker.onConveyorPlace.moduleGroup!;
+    var modulesOfSecondStack = <PositionWithinModuleGroup, Module>{
+      PositionWithinModuleGroup.firstBottom:
+          moduleGroup[PositionWithinModuleGroup.secondBottom]!,
+      PositionWithinModuleGroup.firstTop:
+          moduleGroup[PositionWithinModuleGroup.secondTop]!,
+    };
+    return ModuleGroup(
+        destination: moduleGroup.destination,
+        direction: moduleGroup.direction,
+        modules: modulesOfSecondStack,
+        position: AtModuleGroupPlace(
+            deStacker.onConveyorSecondSingleColumnModulePlace));
+  }
+
+  @override
+  State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
+    if (transportCompleted) {
+      return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
+    }
+    return null;
+  }
+
+  @override
+  void onModuleTransportCompleted(_) {
+    transportCompleted = true;
+  }
+}
+
 class FeedOut extends State<ModuleDeStacker>
     implements ModuleTransportCompletedListener {
   bool transportCompleted = false;
@@ -263,7 +375,7 @@ class FeedOut extends State<ModuleDeStacker>
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (transportCompleted) {
-      if (deStacker.onSupportsPlace.moduleGroup == null) {
+      if (mustFeedIn(deStacker)) {
         return MoveLift(LiftPosition.inFeed, WaitToFeedIn());
       } else {
         return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());
@@ -271,6 +383,32 @@ class FeedOut extends State<ModuleDeStacker>
     }
     return null;
   }
+
+  bool mustFeedIn(ModuleDeStacker deStacker) =>
+      noModuleOnSupports(deStacker) ||
+      transferModuleFormPreceedingDeStacker(deStacker);
+
+  bool noModuleOnSupports(ModuleDeStacker deStacker) =>
+      deStacker.onSupportsPlace.moduleGroup == null;
+
+  bool transferModuleFormPreceedingDeStacker(ModuleDeStacker deStacker) {
+    var previousSystem = deStacker.previousSystem;
+    if (previousSystem is! ModuleDeStacker) {
+      return false;
+    }
+    var previousDeStacker = previousSystem;
+    var moduleGroupOnPreviousDestacker =
+        previousDeStacker.onConveyorPlace.moduleGroup;
+    return isOnlyOneModule(moduleGroupOnPreviousDestacker) &&
+        isFirstModuleOfStack(moduleGroupOnPreviousDestacker);
+  }
+
+  bool isFirstModuleOfStack(ModuleGroup? moduleGroupOnPreviousDestacker) =>
+      (moduleGroupOnPreviousDestacker!.modules.first.sequenceNumber - 1) % 2 ==
+      0;
+
+  bool isOnlyOneModule(ModuleGroup? moduleGroupOnPreviousDestacker) =>
+      moduleGroupOnPreviousDestacker!.modules.length == 1;
 
   @override
   void onModuleTransportCompleted(_) {

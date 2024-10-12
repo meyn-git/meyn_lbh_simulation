@@ -98,6 +98,7 @@ class ModuleCasStart implements System, TimeProcessor {
     2,
     2.25,
   ];
+  //TODO make a class CasStartInterval which is a List<double> (e.g. a delegating list) that calculates values (rule of thumb to be developed) based on the number of modules in a CAS (=cionstrctor parameter)
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)

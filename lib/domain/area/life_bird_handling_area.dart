@@ -112,8 +112,7 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
   /// the given [system] and [positionIndex] or null
   /// Note that the [systemPositionsWithModules] are cached.
   /// See: [updateSystemPositionsWithModuleGroups]
-  ModuleGroup? at(ModuleGroupPlace position) =>
-      systemPositionsWithModules[position];
+  ModuleGroup? at(ModuleGroupPlace place) => systemPositionsWithModules[place];
 
   bool anyAt(ModuleGroupPlace position) =>
       systemPositionsWithModules.containsKey(position);

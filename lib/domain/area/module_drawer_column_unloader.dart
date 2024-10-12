@@ -30,6 +30,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   final Duration pusherInDuration;
   final Duration feedInToSecondColumn;
   final Direction drawerOutDirection;
+  final bool singleColumnOfCompartments;
 
   @override
   late List<Command> commands = [
@@ -73,9 +74,17 @@ class ModuleDrawerColumnUnloader extends StateMachine
             area.productDefinition.moduleSystem.conveyorTransportDuration,
         outFeedDuration = outFeedDuration ??
             area.productDefinition.moduleSystem.conveyorTransportDuration,
+        singleColumnOfCompartments =
+            allModulesHaveOneSingleCompartmentColumn(area),
         super(
           initialState: CheckIfEmpty(),
         );
+
+  static bool allModulesHaveOneSingleCompartmentColumn(
+          LiveBirdHandlingArea area) =>
+      area.productDefinition.truckRows.every((truckRow) => truckRow.templates
+          .every((moduleTemplate) =>
+              moduleTemplate.variant.compartmentsPerLevel == 1));
 
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
@@ -90,18 +99,25 @@ class ModuleDrawerColumnUnloader extends StateMachine
   late final ModuleDrawerColumnUnloaderShape shape =
       ModuleDrawerColumnUnloaderShape(this);
 
-  late ModuleGroupPlace moduleGroupPositionFirstColumn = ModuleGroupPlace(
+  late ModuleGroupPlace moduleGroupFirstColumnPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToFirstColumn,
   );
 
-  late ModuleGroupPlace moduleGroupPositionSecondColumn = ModuleGroupPlace(
+  late ModuleGroupPlace moduleGroupSecondColumnPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToSecondColumn,
   );
 
+  late ModuleGroupPlace moduleGroupSingleColumnPlace = ModuleGroupPlace(
+    system: this,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
+  );
+
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
-    place: moduleGroupPositionFirstColumn,
+    place: singleColumnOfCompartments
+        ? moduleGroupSingleColumnPlace
+        : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
@@ -110,7 +126,9 @@ class ModuleDrawerColumnUnloader extends StateMachine
   );
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-    place: moduleGroupPositionSecondColumn,
+    place: singleColumnOfCompartments
+        ? moduleGroupSingleColumnPlace
+        : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
@@ -137,8 +155,8 @@ class ModuleDrawerColumnUnloader extends StateMachine
           '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour')
       .appendProperty(
           'moduleGroup',
-          moduleGroupPositionFirstColumn.moduleGroup ??
-              moduleGroupPositionSecondColumn.moduleGroup);
+          moduleGroupFirstColumnPlace.moduleGroup ??
+              moduleGroupSecondColumnPlace.moduleGroup);
 
   void onEndOfCycle() {
     durationsPerModule.add(durationPerModule);
@@ -164,39 +182,88 @@ class CheckIfEmpty extends DurationState<ModuleDrawerColumnUnloader> {
             inFeedDelay: Duration.zero,
             nextStateCondition:
                 NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
-            stateWhenCompleted: WaitToPushOutFirstColumn(),
+            stateWhenCompleted: WaitToPushOutColumn(
+                unloader.singleColumnOfCompartments
+                    ? ColumnToProcess.only
+                    : ColumnToProcess.first),
           ),
         );
 }
 
-class WaitToPushOutFirstColumn extends State<ModuleDrawerColumnUnloader> {
+enum ColumnToProcess {
+  first('First'),
+  second('Second'),
+  only('Only');
+
+  final String name;
+
+  const ColumnToProcess(this.name);
+
+  ModuleGroup moduleGroupOf(ModuleDrawerColumnUnloader unloader) {
+    switch (this) {
+      case first:
+        return unloader.moduleGroupFirstColumnPlace.moduleGroup!;
+      case second:
+        return unloader.moduleGroupSecondColumnPlace.moduleGroup!;
+      default:
+        return unloader.moduleGroupSingleColumnPlace.moduleGroup!;
+    }
+  }
+
+  State<ModuleDrawerColumnUnloader> nextStateAfterPusherIn(
+      ModuleDrawerColumnUnloader unloader) {
+    switch (this) {
+      case first:
+        return FeedInToSecondColumn();
+      default:
+        return SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: unloader.modulesIn,
+          modulesOut: unloader.modulesOut,
+          inFeedDelay: Duration.zero,
+          nextStateCondition:
+              NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
+          stateWhenCompleted: WaitToPushOutColumn(
+              unloader.singleColumnOfCompartments
+                  ? ColumnToProcess.only
+                  : ColumnToProcess.first),
+        );
+    }
+  }
+}
+
+class WaitToPushOutColumn extends State<ModuleDrawerColumnUnloader> {
+  final ColumnToProcess columnToProcess;
+
+  WaitToPushOutColumn(this.columnToProcess);
+
   @override
-  String get name => 'WaitToPushOutFirstColumn';
+  String get name => 'WaitToPushOut${columnToProcess.name}Column';
 
   @override
   State<ModuleDrawerColumnUnloader>? nextState(
       ModuleDrawerColumnUnloader unloader) {
-    var moduleGroup = (unloader.moduleGroupPositionFirstColumn.moduleGroup ??
-        unloader.moduleGroupPositionSecondColumn.moduleGroup)!;
+    var moduleGroup = columnToProcess.moduleGroupOf(unloader);
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
+      throw Exception('Unloader can not handle multiple modules');
     }
     int levels = moduleGroup.modules.first.variant.levels;
     if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
-      return PushOutFirstColumn();
+      return PushOutColumn(columnToProcess);
     }
     return null;
   }
 }
 
-class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
-  @override
-  String get name => 'PushOutFirstColumn';
+class PushOutColumn extends DurationState<ModuleDrawerColumnUnloader> {
+  final ColumnToProcess columnToProcess;
 
-  PushOutFirstColumn()
+  @override
+  String get name => 'PushOut${columnToProcess.name}Column';
+
+  PushOutColumn(this.columnToProcess)
       : super(
             durationFunction: (unloader) => unloader.pusherOutDuration,
-            nextStateFunction: (unloader) => PusherInFirstColumn());
+            nextStateFunction: (unloader) => PusherIn(columnToProcess));
   @override
   void onStart(ModuleDrawerColumnUnloader unloader) {
     super.onStart(unloader);
@@ -206,7 +273,7 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
 
   void _createAndTransportDrawers(ModuleDrawerColumnUnloader unloader) {
     var drawers = unloader.area.drawers;
-    var moduleGroup = unloader.moduleGroupPositionFirstColumn.moduleGroup!;
+    var moduleGroup = columnToProcess.moduleGroupOf(unloader);
     var module = moduleGroup.modules.first;
     var levels = module.variant.levels;
     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
@@ -226,10 +293,9 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
   }
 
   void _verifyModuleGroup(ModuleDrawerColumnUnloader unloader) {
-    var moduleGroup = (unloader.moduleGroupPositionFirstColumn.moduleGroup ??
-        unloader.moduleGroupPositionSecondColumn.moduleGroup)!;
+    var moduleGroup = columnToProcess.moduleGroupOf(unloader);
     if (moduleGroup.numberOfModules > 2) {
-      throw Exception('${unloader.name}:  can not handle stacked modules');
+      throw Exception('${unloader.name}:  can not handle multiple modules');
     }
     if (moduleGroup.compartment.birdsExitOnOneSide &&
         moduleGroup.direction.rotate(-90) != unloader.drawerFeedOutDirection) {
@@ -243,14 +309,26 @@ class PushOutFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
   }
 }
 
-class PusherInFirstColumn extends DurationState<ModuleDrawerColumnUnloader> {
+class PusherIn extends DurationState<ModuleDrawerColumnUnloader> {
+  final ColumnToProcess columnToProcess;
+
   @override
   String get name => 'PusherInFirstColumn';
 
-  PusherInFirstColumn()
+  PusherIn(this.columnToProcess)
       : super(
             durationFunction: (unloader) => unloader.pusherInDuration,
-            nextStateFunction: (unloader) => FeedInToSecondColumn());
+            nextStateFunction: (unloader) =>
+                columnToProcess.nextStateAfterPusherIn(unloader));
+
+  @override
+  void onCompleted(ModuleDrawerColumnUnloader unloader) {
+    if (columnToProcess != ColumnToProcess.first) {
+      super.onCompleted(unloader);
+      unloader.onEndOfCycle();
+      columnToProcess.moduleGroupOf(unloader).unloadBirds();
+    }
+  }
 }
 
 class FeedInToSecondColumn extends State<ModuleDrawerColumnUnloader>
@@ -262,10 +340,10 @@ class FeedInToSecondColumn extends State<ModuleDrawerColumnUnloader>
 
   @override
   void onStart(ModuleDrawerColumnUnloader unloader) {
-    var moduleGroup = unloader.moduleGroupPositionFirstColumn.moduleGroup!;
+    var moduleGroup = unloader.moduleGroupFirstColumnPlace.moduleGroup!;
     moduleGroup.position = BetweenModuleGroupPlaces(
-        source: unloader.moduleGroupPositionFirstColumn,
-        destination: unloader.moduleGroupPositionSecondColumn,
+        source: unloader.moduleGroupFirstColumnPlace,
+        destination: unloader.moduleGroupSecondColumnPlace,
         duration: unloader.feedInToSecondColumn);
   }
 
@@ -273,7 +351,7 @@ class FeedInToSecondColumn extends State<ModuleDrawerColumnUnloader>
   State<ModuleDrawerColumnUnloader>? nextState(
       ModuleDrawerColumnUnloader stateMachine) {
     if (transportCompleted) {
-      return WaitToPushOutSecondColumn();
+      return WaitToPushOutColumn(ColumnToProcess.second);
     }
     return null;
   }
@@ -283,92 +361,92 @@ class FeedInToSecondColumn extends State<ModuleDrawerColumnUnloader>
     transportCompleted = true;
   }
 }
+// TODO remove?
+// class WaitToPushOutSecondColumn extends State<ModuleDrawerColumnUnloader> {
+//   @override
+//   String get name => 'WaitToPushOutSecondColumn';
 
-class WaitToPushOutSecondColumn extends State<ModuleDrawerColumnUnloader> {
-  @override
-  String get name => 'WaitToPushOutSecondColumn';
+//   @override
+//   State<ModuleDrawerColumnUnloader>? nextState(
+//       ModuleDrawerColumnUnloader unloader) {
+//     var moduleGroup = unloader.moduleGroupSecondColumnPlace.moduleGroup!;
+//     if (moduleGroup.numberOfModules > 2) {
+//       throw Exception('Unloader can not handle stacked containers');
+//     }
+//     int levels = moduleGroup.modules.first.variant.levels;
+//     if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
+//       return PusherOutSecondColumn();
+//     }
+//     return null;
+//   }
+// }
 
-  @override
-  State<ModuleDrawerColumnUnloader>? nextState(
-      ModuleDrawerColumnUnloader unloader) {
-    var moduleGroup = unloader.moduleGroupPositionSecondColumn.moduleGroup!;
-    if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
-    }
-    int levels = moduleGroup.modules.first.variant.levels;
-    if (unloader.drawersOut.linkedTo!.numberOfDrawersToFeedIn() >= levels) {
-      return PusherOutSecondColumn();
-    }
-    return null;
-  }
-}
+// class PusherOutSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
+//   @override
+//   String get name => 'PusherOutSecondColumn';
 
-class PusherOutSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
-  @override
-  String get name => 'PusherOutSecondColumn';
+//   PusherOutSecondColumn()
+//       : super(
+//             durationFunction: (unloader) => unloader.pusherOutDuration,
+//             nextStateFunction: (unloader) => PusherInSecondColumn());
 
-  PusherOutSecondColumn()
-      : super(
-            durationFunction: (unloader) => unloader.pusherOutDuration,
-            nextStateFunction: (unloader) => PusherInSecondColumn());
+//   @override
+//   void onStart(ModuleDrawerColumnUnloader unloader) {
+//     super.onStart(unloader);
+//     var drawers = unloader.area.drawers;
+//     var moduleGroup = unloader.moduleGroupSecondColumnPlace.moduleGroup!;
+//     var module = moduleGroup.modules.first;
+//     var levels = module.variant.levels;
+//     var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
+//     var contents = moduleGroup.contents;
+//     for (int level = levels - 1; level >= 0; level--) {
+//       var drawer = GrandeDrawer(
+//         nrOfBirds: nrOfBirdsPerDrawer,
+//         contents: contents,
+//         position: AtDrawerPlace(unloader.drawerPlaces[level]),
+//         sinceEndStun: moduleGroup.sinceEndStun,
+//       );
+//       drawers.add(drawer);
+//       unloader.drawerPlaces[level].drawer = drawer;
+//       drawer.position =
+//           UnloaderToLiftPosition(unloader: unloader, level: level);
+//     }
+//   }
 
-  @override
-  void onStart(ModuleDrawerColumnUnloader unloader) {
-    super.onStart(unloader);
-    var drawers = unloader.area.drawers;
-    var moduleGroup = unloader.moduleGroupPositionSecondColumn.moduleGroup!;
-    var module = moduleGroup.modules.first;
-    var levels = module.variant.levels;
-    var nrOfBirdsPerDrawer = module.nrOfBirds / 2 ~/ levels;
-    var contents = moduleGroup.contents;
-    for (int level = levels - 1; level >= 0; level--) {
-      var drawer = GrandeDrawer(
-        nrOfBirds: nrOfBirdsPerDrawer,
-        contents: contents,
-        position: AtDrawerPlace(unloader.drawerPlaces[level]),
-        sinceEndStun: moduleGroup.sinceEndStun,
-      );
-      drawers.add(drawer);
-      unloader.drawerPlaces[level].drawer = drawer;
-      drawer.position =
-          UnloaderToLiftPosition(unloader: unloader, level: level);
-    }
-  }
+//   @override
+//   void onCompleted(ModuleDrawerColumnUnloader unloader) {
+//     super.onCompleted(unloader);
+//     var moduleGroup = unloader.moduleGroupSecondColumnPlace.moduleGroup!;
+//     if (moduleGroup.numberOfModules > 2) {
+//       throw Exception('Unloader can not handle stacked containers');
+//     }
+//     moduleGroup.unloadBirds();
+//   }
+// }
 
-  @override
-  void onCompleted(ModuleDrawerColumnUnloader unloader) {
-    super.onCompleted(unloader);
-    var moduleGroup = unloader.moduleGroupPositionSecondColumn.moduleGroup!;
-    if (moduleGroup.numberOfModules > 2) {
-      throw Exception('Unloader can not handle stacked containers');
-    }
-    moduleGroup.unloadBirds();
-  }
-}
+// class PusherInSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
+//   @override
+//   String get name => 'PusherInSecondColumn';
 
-class PusherInSecondColumn extends DurationState<ModuleDrawerColumnUnloader> {
-  @override
-  String get name => 'PusherInSecondColumn';
+//   PusherInSecondColumn()
+//       : super(
+//           durationFunction: (unloader) => unloader.pusherInDuration,
+//           nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
+//             modulesIn: unloader.modulesIn,
+//             modulesOut: unloader.modulesOut,
+//             inFeedDelay: Duration.zero,
+//             nextStateCondition:
+//                 NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
+//             stateWhenCompleted: WaitToPushOutColumn(),
+//           ),
+//         );
 
-  PusherInSecondColumn()
-      : super(
-          durationFunction: (unloader) => unloader.pusherInDuration,
-          nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
-            modulesIn: unloader.modulesIn,
-            modulesOut: unloader.modulesOut,
-            inFeedDelay: Duration.zero,
-            nextStateCondition:
-                NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
-            stateWhenCompleted: WaitToPushOutFirstColumn(),
-          ),
-        );
-
-  @override
-  void onCompleted(ModuleDrawerColumnUnloader unloader) {
-    super.onCompleted(unloader);
-    unloader.onEndOfCycle();
-  }
-}
+//   @override
+//   void onCompleted(ModuleDrawerColumnUnloader unloader) {
+//     super.onCompleted(unloader);
+//     unloader.onEndOfCycle();
+//   }
+// }
 
 class DrawerUnloaderLift extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
@@ -408,10 +486,10 @@ class DrawerUnloaderLift extends StateMachine implements PhysicalSystem {
       .toList();
 
   bool get feedingInDrawers =>
-      currentState is PushOutFirstColumn ||
-      currentState is PusherInFirstColumn ||
-      currentState is PusherOutSecondColumn ||
-      currentState is PusherInSecondColumn;
+      currentState is PushOutColumn || currentState is PusherIn;
+  // TODO remove? ||
+  // currentState is PusherOutSecondColumn ||
+  // currentState is PusherInSecondColumn;
 
   DrawerUnloaderLift({
     required this.area,
