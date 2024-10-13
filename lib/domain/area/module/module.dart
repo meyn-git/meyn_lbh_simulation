@@ -7,6 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module.dart';
@@ -438,47 +439,53 @@ enum ModuleBirdExitDirection { bothSides, left, right }
 
 enum ModuleSystem {
   meynContainersOrModulesWith2OrMoreCompartmentsPerLevel(
-      stackerInFeedDuration: Duration(seconds: 14),
-      deStackerInFeedDuration: Duration(seconds: 14),
-      conveyorTransportDuration: Duration(seconds: 12),
-      casTransportDuration: Duration(seconds: 14),
-      turnTableDegreesPerSecond: 15 // 90 degrees in 6 seconds
-      ),
+    stackerInFeedDuration: Duration(seconds: 14),
+    deStackerInFeedDuration: Duration(seconds: 14),
+    conveyorTransportDuration: Duration(seconds: 12),
+    casTransportDuration: Duration(seconds: 14),
+    turnTableDegreesPerSecond: 15, // 90 degrees in 6 seconds
+    liftSpeed: ElectricModuleLiftSpeed(),
+  ),
 
   ///following durations are based on measurements at: 7696-Dabe-Germanyk
   meynContainersOrModulesWith1CompartmentsPerLevel(
-      conveyorTransportDuration: Duration(milliseconds: 13400),
-      stackerInFeedDuration: Duration(milliseconds: 18700),
-      deStackerInFeedDuration: Duration(milliseconds: 18700),
-      casTransportDuration: Duration(milliseconds: 18700),
-      turnTableDegreesPerSecond: 10 // 90 degrees in 9 seconds,
-      ),
+    conveyorTransportDuration: Duration(milliseconds: 13400),
+    stackerInFeedDuration: Duration(milliseconds: 18700),
+    deStackerInFeedDuration: Duration(milliseconds: 18700),
+    casTransportDuration: Duration(milliseconds: 18700),
+    turnTableDegreesPerSecond: 10, // 90 degrees in 9 seconds,
+    liftSpeed: ElectricModuleLiftSpeed(),
+  ),
 
   ///following durations are based on measurements at: 8052-Indrol Grodzisk
   meynOmnia(
-      conveyorTransportDuration: Duration(
-          seconds:
-              14), //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
-      stackerInFeedDuration: Duration(seconds: 19),
-      deStackerInFeedDuration: Duration(seconds: 19),
-      casTransportDuration: Duration(seconds: 19),
-      turnTableDegreesPerSecond: 8
-      // 90 degrees in 11.5 seconds
-      ),
+    conveyorTransportDuration: Duration(
+        seconds:
+            14), //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
+    stackerInFeedDuration: Duration(seconds: 19),
+    deStackerInFeedDuration: Duration(seconds: 19),
+    casTransportDuration: Duration(seconds: 19),
+    turnTableDegreesPerSecond: 8,
+    // 90 degrees in 11.5 seconds
+    liftSpeed: ElectricModuleLiftSpeed(),
+  ),
   ;
 
-  const ModuleSystem(
-      {required this.stackerInFeedDuration,
-      required this.deStackerInFeedDuration,
-      required this.conveyorTransportDuration,
-      required this.casTransportDuration,
-      required this.turnTableDegreesPerSecond});
+  const ModuleSystem({
+    required this.stackerInFeedDuration,
+    required this.deStackerInFeedDuration,
+    required this.conveyorTransportDuration,
+    required this.casTransportDuration,
+    required this.turnTableDegreesPerSecond,
+    required this.liftSpeed,
+  });
 
   final Duration stackerInFeedDuration;
   final Duration deStackerInFeedDuration;
   final Duration conveyorTransportDuration;
   final Duration casTransportDuration;
   final int turnTableDegreesPerSecond;
+  final TravelSpeed liftSpeed;
 
   static ModuleSystem ofVariantBase(ModuleVariantBase base) {
     if (base.family == 'Omnia') {

@@ -41,8 +41,8 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     this.heightsInCentiMeter = const {
       LiftPosition.inFeed: 150,
       LiftPosition.outFeed: 150,
-      LiftPosition.supportTopModule: 150 + 150 + 30,
-      LiftPosition.pickUpTopModule: 150 + 30
+      LiftPosition.topModuleAtSupport: 150 + 150 + 30,
+      LiftPosition.singleModuleAtSupports: 150 + 30
     },
   })  : inFeedDuration = inFeedDuration ??
             area.productDefinition.moduleSystem.stackerInFeedDuration,
@@ -190,7 +190,7 @@ class FeedIn extends State<ModuleDeStacker>
       if (deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1) {
         return MoveLift(LiftPosition.outFeed, WaitToFeedOut());
       } else {
-        return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
+        return MoveLift(LiftPosition.topModuleAtSupport, CloseModuleSupports());
       }
     }
     return null;
@@ -347,7 +347,7 @@ class FeedOutFirstStackAndTransportSecondStackToCenter
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (transportCompleted) {
-      return MoveLift(LiftPosition.supportTopModule, CloseModuleSupports());
+      return MoveLift(LiftPosition.topModuleAtSupport, CloseModuleSupports());
     }
     return null;
   }
@@ -378,7 +378,8 @@ class FeedOut extends State<ModuleDeStacker>
       if (mustFeedIn(deStacker)) {
         return MoveLift(LiftPosition.inFeed, WaitToFeedIn());
       } else {
-        return MoveLift(LiftPosition.pickUpTopModule, OpenModuleSupports());
+        return MoveLift(
+            LiftPosition.singleModuleAtSupports, OpenModuleSupports());
       }
     }
     return null;
