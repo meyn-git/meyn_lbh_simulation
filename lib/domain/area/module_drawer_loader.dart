@@ -43,7 +43,7 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
   final Duration pusherBackDuration;
 
   Duration drawerPushOutCycle = Duration.zero;
-  Durations drawerPushOutCycles = Durations(maxSize: 8);
+  Durations drawerPushOutCycles = Durations(maxSize: 20);
 
   late final List<DrawerLiftPlace> drawerLiftPlaces =
       shape.centerLiftToDrawerCenterInLift
@@ -153,6 +153,13 @@ class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
   late final String name = 'DrawerLoaderLift$seqNr';
 
   late final seqNr = area.systems.seqNrOf(this);
+
+  /// called when a drawer is fed into the lift
+  /// so we can calculate the drawer speed
+  void onDrawerFedInToLift() {
+    drawerPushOutCycles.add(drawerPushOutCycle);
+    drawerPushOutCycle = Duration.zero;
+  }
 }
 
 typedef DrawerFeedInState = State<DrawerLoaderLift>;
@@ -207,6 +214,11 @@ class CompletedFeedInDrawer extends DrawerFeedInState {
   final GrandeDrawer drawerToFeedIn;
 
   CompletedFeedInDrawer(this.drawerToFeedIn);
+
+  @override
+  void onStart(DrawerLoaderLift drawerLoaderLift) {
+    drawerLoaderLift.onDrawerFedInToLift();
+  }
 
   @override
   String get name => 'CompletedFeedInDrawer';
@@ -508,8 +520,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   final Duration outFeedDuration;
   final Direction drawersInDirection;
   final bool singleColumnOfCompartments;
-  Duration? durationPerModule;
-
+  Duration durationPerModule = Duration.zero;
   Durations durationsPerModule = Durations(maxSize: 8);
 
   late final ModuleDrawerLoaderShape shape = ModuleDrawerLoaderShape(this);
@@ -624,9 +635,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   @override
   void onUpdateToNextPointInTime(Duration jump) {
     super.onUpdateToNextPointInTime(jump);
-    if (durationPerModule != null) {
-      durationPerModule = durationPerModule! + jump;
-    }
+    durationPerModule = durationPerModule + jump;
   }
 
   @override
@@ -752,6 +761,11 @@ class WaitToPushInColumn extends State<ModuleDrawerLoader>
     if (betweenDrawerPlaces is BetweenLiftAndDrawerLoader) {
       transportCompleted = true;
     }
+  }
+
+  @override
+  void onCompleted(ModuleDrawerLoader drawerLoader) {
+    drawerLoader.onEndOfCycle();
   }
 }
 

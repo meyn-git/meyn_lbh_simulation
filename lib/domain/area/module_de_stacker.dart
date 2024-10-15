@@ -92,8 +92,9 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
-    durationUntilCanFeedOut: () =>
-        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+    durationUntilCanFeedOut: () => (currentState is WaitToFeedOut)
+        ? Duration.zero
+        : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
   );
 
@@ -180,6 +181,9 @@ class DecideAfterSimultaneousFeedOutFeedIn extends State<ModuleDeStacker> {
       return WaitToFeedOutFirstStackAndTransportSecondStackToCenter();
     }
     if (feedOutBottomModule(deStacker)) {
+      if (deStacker.modulesOut.place.moduleGroup == null) {
+        print('Something went wrong!');
+      }
       return WaitToFeedOut();
     }
     if (simultaneousFeedOutFeedIn(deStacker)) {

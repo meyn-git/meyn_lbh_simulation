@@ -77,8 +77,9 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
-    durationUntilCanFeedOut: () =>
-        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+    durationUntilCanFeedOut: () => currentState is WaitToFeedOut
+        ? Duration.zero
+        : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
   );
 

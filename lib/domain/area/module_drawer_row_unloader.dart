@@ -37,9 +37,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
   ];
 
   Duration? durationPerModule;
-
   Durations durationsPerModule = Durations(maxSize: 8);
-
   LiftLevel liftLevel = LiftLevel.bottom;
 
   late final List<DrawerPlace> drawerPlaces = shape
@@ -395,6 +393,9 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
 
   final double crossOverFeedOutMetersPerSecond;
 
+  Duration drawerFeedOutCycle = Duration.zero;
+  Durations drawerFeedOutCycles = Durations(maxSize: 20);
+
   ModuleDrawerRowUnloaderReceiver({
     required this.area,
     required this.drawerOutDirection,
@@ -444,7 +445,9 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty(
           'receivingConveyors', receivingConveyors.currentState.name)
-      .appendProperty('crossOverConveyor', crossOver.currentState.name);
+      .appendProperty('crossOverConveyor', crossOver.currentState.name)
+      .appendProperty('speed',
+          '${drawerFeedOutCycles.averagePerHour.toStringAsFixed(1)} drawers/hour');
 
   @override
   late final SizeInMeters sizeWhenFacingNorth = shape.size;
@@ -453,6 +456,17 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
   void onUpdateToNextPointInTime(Duration jump) {
     receivingConveyors.onUpdateToNextPointInTime(jump);
     crossOver.onUpdateToNextPointInTime(jump);
+    drawerFeedOutCycle += jump;
+  }
+
+  //Called when drawers ar fed out of cross over so we can calculate the average speed
+  void onFeedOutDrawers() {
+    var durationPerDrawer = Duration(
+        microseconds: (drawerFeedOutCycle.inMicroseconds ~/ drawersPerRow));
+    for (int i = 0; i < drawersPerRow; i++) {
+      drawerFeedOutCycles.add(durationPerDrawer);
+    }
+    drawerFeedOutCycle = Duration.zero;
   }
 }
 
@@ -726,6 +740,12 @@ class CrossOverConveyorFeedingOut extends State<CrossOver> {
     }
     return (lastAddedDrawer.position as OnConveyorPosition).conveyor !=
         crossOver.feedOutConveyor;
+  }
+
+  @override
+  void onCompleted(CrossOver crossOver) {
+    crossOver.receiver.onFeedOutDrawers();
+    super.onCompleted(crossOver);
   }
 }
 

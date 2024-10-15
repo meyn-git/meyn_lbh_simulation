@@ -436,7 +436,6 @@ class Module implements Detailable, Commandable {
 
 enum ModuleBirdExitDirection { bothSides, left, right }
 
-
 class LoadDensity extends DerivedMeasurement<Area, Mass> {
   LoadDensity({
     required Area minFloorSpacePerKgLiveWeight,

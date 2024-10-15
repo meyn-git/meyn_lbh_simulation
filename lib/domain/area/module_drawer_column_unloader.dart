@@ -38,7 +38,6 @@ class ModuleDrawerColumnUnloader extends StateMachine
   ];
 
   Duration? durationPerModule;
-
   Durations durationsPerModule = Durations(maxSize: 8);
 
   late final List<DrawerPlace> drawerPlaces = [
@@ -151,7 +150,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('speed',
+      .appendProperty(' speed',
           '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour')
       .appendProperty(
           'moduleGroup',
@@ -467,7 +466,7 @@ class DrawerUnloaderLift extends StateMachine implements PhysicalSystem {
   final Duration pushOutDuration;
 
   Duration drawerPushOutCycle = Duration.zero;
-  Durations drawerPushOutCycles = Durations(maxSize: 8);
+  Durations drawerPushOutCycles = Durations(maxSize: 20);
 
   GrandeDrawer? precedingDrawer;
 

@@ -178,8 +178,8 @@ class ModuleRotatingConveyor extends StateMachine
     }
   }
 
-  /// The higher the score, whe more priority the neighbor
-  /// should get priority to feed in to the [ModuleRotatingConveyor]
+  /// The higher the score, the more priority the neighbor
+  /// should get to feed in to the [ModuleRotatingConveyor]
   /// A score 0= do not feed in from this position
   double _neighborFeedInScore(TurnPosition turnPosition) {
     var neighborModuleOutLink =
