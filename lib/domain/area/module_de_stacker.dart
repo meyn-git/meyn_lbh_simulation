@@ -4,7 +4,10 @@ import 'dart:math';
 
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
+import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
+import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:user_command/user_command.dart';
@@ -18,9 +21,9 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
 
   int nrOfModulesFeedingIn = 0;
-  int currentHeightInCentiMeter;
-  final Map<LiftPosition, int> heightsInCentiMeter;
-  final int liftSpeedInCentiMeterPerSecond;
+  double currentHeightInMeter;
+  final Map<LiftPosition, double> heightsInMeters;
+  final TravelSpeed liftSpeed;
   final Duration inFeedDuration;
   final Duration outFeedDuration;
   final Duration supportsCloseDuration;
@@ -36,20 +39,16 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     this.supportsOpenDuration = const Duration(seconds: 3),
     Duration? inFeedDuration,
     Duration? outFeedDuration,
-    this.currentHeightInCentiMeter = 150,
-    this.liftSpeedInCentiMeterPerSecond = 30,
-    this.heightsInCentiMeter = const {
-      LiftPosition.inFeed: 150,
-      LiftPosition.outFeed: 150,
-      LiftPosition.topModuleAtSupport: 150 + 150 + 30,
-      LiftPosition.singleModuleAtSupports: 150 + 30
-    },
+    this.currentHeightInMeter =
+        DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
+    this.liftSpeed = const ElectricModuleLiftSpeed(),
+    this.heightsInMeters = const DefaultLiftPositionHeights(),
   })  : inFeedDuration = inFeedDuration ??
             area.productDefinition.moduleSystem.stackerInFeedDuration,
         outFeedDuration = outFeedDuration ??
             area.productDefinition.moduleSystem.conveyorTransportDuration,
         super(
-          initialState: MoveLift(LiftPosition.inFeed, WaitToFeedIn()),
+          initialState: CheckIfEmpty(),
         );
 
   /// normaly used for rectangular containers (2 or more columns of compartments)
@@ -62,15 +61,16 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   late ModuleGroupPlace onConveyorFirstSingleColumnModulePlace =
       ModuleGroupPlace(
     system: this,
-    offsetFromCenterWhenSystemFacingNorth:
-        shape.centerToConveyorCenter.addY(-1),
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter
+        .addY(-(DrawerVariant.lengthInMeters + 0.1) / 2),
   );
 
   /// only used for the second (stacked) square container with 1 column of compartments
   late ModuleGroupPlace onConveyorSecondSingleColumnModulePlace =
       ModuleGroupPlace(
     system: this,
-    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter.addY(1),
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter
+        .addY((DrawerVariant.lengthInMeters + 0.1) / 2),
   );
 
   late ModuleGroupPlace onSupportsPlace = ModuleGroupPlace(
@@ -83,7 +83,8 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
     inFeedDuration: inFeedDuration,
-    canFeedIn: () => currentState is WaitToFeedIn,
+    canFeedIn: () =>
+        SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
@@ -92,7 +93,8 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     directionToOtherLink: const CompassDirection.north(),
     outFeedDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
-        currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
+        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+            currentState),
   );
 
   @override
@@ -112,6 +114,27 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   late System nextSystem = modulesOut.linkedTo!.system;
 
   late System previousSystem = modulesIn.linkedTo!.system;
+
+  State<ModuleDeStacker> createSimultaneousFeedOutFeedInModuleGroup() =>
+      SimultaneousFeedOutFeedInModuleGroup<ModuleDeStacker>(
+          modulesIn: modulesIn,
+          modulesOut: modulesOut,
+          stateWhenCompleted: DecideAfterSimultaneousFeedOutFeedIn(),
+          inFeedDelay: timeBetweenStacksForStopperToGoUpInBetween);
+
+  final Duration timeBetweenStacksForStopperToGoUpInBetween =
+      const Duration(seconds: 6);
+}
+
+class CheckIfEmpty extends DurationState<ModuleDeStacker> {
+  CheckIfEmpty()
+      : super(
+            durationFunction: (deStacker) => deStacker.inFeedDuration * 1.5,
+            nextStateFunction: (deStacker) => MoveLift(LiftPosition.inFeed,
+                deStacker.createSimultaneousFeedOutFeedInModuleGroup()));
+
+  @override
+  String get name => 'CheckIfEmpty';
 }
 
 class MoveLift extends DurationState<ModuleDeStacker> {
@@ -125,15 +148,10 @@ class MoveLift extends DurationState<ModuleDeStacker> {
   static Duration Function(ModuleDeStacker) createDurationFunction(
       LiftPosition goToPosition) {
     return (deStacker) {
-      var currentHeightInCentiMeter = deStacker.currentHeightInCentiMeter;
-      var goToHeightInCentiMeter = deStacker.heightsInCentiMeter[goToPosition]!;
-      var distanceInCentiMeter =
-          (currentHeightInCentiMeter - goToHeightInCentiMeter).abs();
-      Duration duration = Duration(
-          milliseconds: (distanceInCentiMeter /
-                  deStacker.liftSpeedInCentiMeterPerSecond *
-                  1000)
-              .round());
+      var currentHeightInMeter = deStacker.currentHeightInMeter;
+      var goToHeightInMeter = deStacker.heightsInMeters[goToPosition]!;
+      var distanceInMeter = (currentHeightInMeter - goToHeightInMeter).abs();
+      var duration = deStacker.liftSpeed.durationOfDistance(distanceInMeter);
       return duration;
     };
   }
@@ -145,65 +163,57 @@ class MoveLift extends DurationState<ModuleDeStacker> {
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
-    deStacker.currentHeightInCentiMeter =
-        deStacker.heightsInCentiMeter[goToPosition]!;
+    deStacker.currentHeightInMeter = deStacker.heightsInMeters[goToPosition]!;
   }
 
   @override
   String get name => 'MoveLift';
 }
 
-class WaitToFeedIn extends State<ModuleDeStacker>
-    implements ModuleTransportStartedListener {
-  bool transportStarted = false;
-
+class DecideAfterSimultaneousFeedOutFeedIn extends State<ModuleDeStacker> {
   @override
-  String get name => 'WaitToFeedIn';
+  String get name => 'DecideAfterSimultaneousFeedOutFeedIn';
 
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (transportStarted) {
-      return FeedIn();
+    if (feedFirstStackToNextDestackerAndSecondStackToCenter(deStacker)) {
+      return WaitToFeedOutFirstStackAndTransportSecondStackToCenter();
     }
+    if (feedOutBottomModule(deStacker)) {
+      return WaitToFeedOut();
+    }
+    if (simultaneousFeedOutFeedIn(deStacker)) {
+      return deStacker.createSimultaneousFeedOutFeedInModuleGroup();
+    }
+
+    if (putTopModuleOnSupports(deStacker)) {
+      return MoveLift(
+        LiftPosition.topModuleAtSupport,
+        CloseModuleSupports(),
+      );
+    }
+
     return null;
   }
 
-  @override
-  void onModuleTransportStarted(_) {
-    transportStarted = true;
-  }
-}
+  bool putTopModuleOnSupports(ModuleDeStacker deStacker) =>
+      deStacker.onSupportsPlace.moduleGroup == null;
 
-class FeedIn extends State<ModuleDeStacker>
-    implements ModuleTransportCompletedListener {
-  bool transportCompleted = false;
+  bool feedOutBottomModule(ModuleDeStacker deStacker) =>
+      ((deStacker.previousSystem is ModuleDeStacker &&
+              deStacker.onSupportsPlace.moduleGroup != null) ||
+          deStacker.previousSystem is! ModuleDeStacker) &&
+      deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1;
 
-  @override
-  String get name => 'FeedIn';
+  bool simultaneousFeedOutFeedIn(ModuleDeStacker deStacker) =>
+      deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1;
 
-  @override
-  State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (transportCompleted) {
-      if (transportFirstStackToNextDestacker(deStacker)) {
-        return WaitToFeedOutFirstStackAndTransportSecondStackToCenter();
-      }
-      if (deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1) {
-        return MoveLift(LiftPosition.outFeed, WaitToFeedOut());
-      } else {
-        return MoveLift(LiftPosition.topModuleAtSupport, CloseModuleSupports());
-      }
-    }
-    return null;
-  }
-
-  @override
-  void onModuleTransportCompleted(_) {
-    transportCompleted = true;
-  }
-
-  bool transportFirstStackToNextDestacker(deStacker) =>
+  bool feedFirstStackToNextDestackerAndSecondStackToCenter(deStacker) =>
       deStacker.nextSystem is ModuleDeStacker &&
       deStacker.onConveyorPlace.moduleGroup!.stackNumbers.length > 1;
+
+  bool getModuleFromSupports(ModuleDeStacker deStacker) =>
+      deStacker.onSupportsPlace.moduleGroup != null;
 }
 
 class CloseModuleSupports extends DurationState<ModuleDeStacker> {
@@ -213,8 +223,13 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
   CloseModuleSupports()
       : super(
           durationFunction: (deStacker) => deStacker.supportsCloseDuration,
-          nextStateFunction: (deStacker) =>
-              MoveLift(LiftPosition.outFeed, WaitToFeedOut()),
+          nextStateFunction: (deStacker) => MoveLift(
+            LiftPosition.outFeed,
+            deStacker.previousSystem is! ModuleDeStacker ||
+                    deStacker.nextSystem is ModuleDeStacker
+                ? WaitToFeedOut()
+                : deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
+          ),
         );
 
   @override
@@ -243,8 +258,10 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
   OpenModuleSupports()
       : super(
           durationFunction: (deStacker) => deStacker.supportsOpenDuration,
-          nextStateFunction: (deStacker) =>
-              MoveLift(LiftPosition.outFeed, WaitToFeedOut()),
+          nextStateFunction: (deStacker) => MoveLift(
+            LiftPosition.outFeed,
+            deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
+          ),
         );
 
   @override
@@ -275,6 +292,35 @@ class WaitToFeedOut extends State<ModuleDeStacker> {
       deStacker.modulesOut.linkedTo!.canFeedIn();
 }
 
+class FeedOut extends State<ModuleDeStacker>
+    implements ModuleTransportCompletedListener {
+  bool transportCompleted = false;
+
+  @override
+  String get name => 'FeedOut';
+
+  @override
+  void onStart(ModuleDeStacker deStacker) {
+    var transportedModuleGroup = deStacker.onConveyorPlace.moduleGroup!;
+    transportedModuleGroup.position =
+        BetweenModuleGroupPlaces.forModuleOutLink(deStacker.modulesOut);
+  }
+
+  @override
+  State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
+    if (transportCompleted) {
+      return MoveLift(
+          LiftPosition.singleModuleAtSupports, OpenModuleSupports());
+    }
+    return null;
+  }
+
+  @override
+  void onModuleTransportCompleted(_) {
+    transportCompleted = true;
+  }
+}
+
 class WaitToFeedOutFirstStackAndTransportSecondStackToCenter
     extends State<ModuleDeStacker> {
   @override
@@ -282,7 +328,8 @@ class WaitToFeedOutFirstStackAndTransportSecondStackToCenter
 
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if ((deStacker.nextSystem as StateMachine).currentState is WaitToFeedIn) {
+    if (SimultaneousFeedOutFeedInModuleGroup.canFeedIn(
+        (deStacker.nextSystem as StateMachine).currentState)) {
       return FeedOutFirstStackAndTransportSecondStackToCenter();
     }
     return null;
@@ -351,65 +398,6 @@ class FeedOutFirstStackAndTransportSecondStackToCenter
     }
     return null;
   }
-
-  @override
-  void onModuleTransportCompleted(_) {
-    transportCompleted = true;
-  }
-}
-
-class FeedOut extends State<ModuleDeStacker>
-    implements ModuleTransportCompletedListener {
-  bool transportCompleted = false;
-
-  @override
-  String get name => 'FeedOut';
-
-  @override
-  void onStart(ModuleDeStacker deStacker) {
-    var transportedModuleGroup = deStacker.onConveyorPlace.moduleGroup!;
-    transportedModuleGroup.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(deStacker.modulesOut);
-  }
-
-  @override
-  State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (transportCompleted) {
-      if (mustFeedIn(deStacker)) {
-        return MoveLift(LiftPosition.inFeed, WaitToFeedIn());
-      } else {
-        return MoveLift(
-            LiftPosition.singleModuleAtSupports, OpenModuleSupports());
-      }
-    }
-    return null;
-  }
-
-  bool mustFeedIn(ModuleDeStacker deStacker) =>
-      noModuleOnSupports(deStacker) ||
-      transferModuleFormPreceedingDeStacker(deStacker);
-
-  bool noModuleOnSupports(ModuleDeStacker deStacker) =>
-      deStacker.onSupportsPlace.moduleGroup == null;
-
-  bool transferModuleFormPreceedingDeStacker(ModuleDeStacker deStacker) {
-    var previousSystem = deStacker.previousSystem;
-    if (previousSystem is! ModuleDeStacker) {
-      return false;
-    }
-    var previousDeStacker = previousSystem;
-    var moduleGroupOnPreviousDestacker =
-        previousDeStacker.onConveyorPlace.moduleGroup;
-    return isOnlyOneModule(moduleGroupOnPreviousDestacker) &&
-        isFirstModuleOfStack(moduleGroupOnPreviousDestacker);
-  }
-
-  bool isFirstModuleOfStack(ModuleGroup? moduleGroupOnPreviousDestacker) =>
-      (moduleGroupOnPreviousDestacker!.modules.first.sequenceNumber - 1) % 2 ==
-      0;
-
-  bool isOnlyOneModule(ModuleGroup? moduleGroupOnPreviousDestacker) =>
-      moduleGroupOnPreviousDestacker!.modules.length == 1;
 
   @override
   void onModuleTransportCompleted(_) {

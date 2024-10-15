@@ -128,7 +128,7 @@ class MeynDrawers extends DrawerGroup {
 
 /// See also [DrawerGroup] implementations
 class DrawerVariant implements Compartment {
-  static const double lengthInMeters = 1.16;
+  static const double lengthInMeters = 1.16; //TODO remove?
   final double heightInMeters;
   final double weightInKiloGrams;
   final SizeInMeters footprint;

@@ -40,7 +40,7 @@ class Player {
       }
       objectsToMonitor.clear();
       objectsToMonitor.addAll(shackleConveyors);
-      objectsToMonitor.add(DrawerBalance(scenario.area));
+      //objectsToMonitor.add(DrawerBalance(scenario.area));
     }
   }
 

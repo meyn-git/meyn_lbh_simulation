@@ -87,24 +87,24 @@ void main() {
     test(
         '$ElectricModuleLiftSpeed maxSpeed should be 2m / (0.5*3s + (10s-3s-3s) + 0.5*3s) = 0.2857 m/s',
         () {
-      var travelSpeed = ElectricModuleLiftSpeed();
+      var travelSpeed = const ElectricModuleLiftSpeed();
       travelSpeed.maxSpeed.should.beCloseTo(0.2857, delta: 0.0001);
     });
     test(
         '$ElectricModuleLiftSpeed acceleration should be 0.2857 m/s / 3s = 0.0952m/s/s',
         () {
-      var travelSpeed = ElectricModuleLiftSpeed();
+      var travelSpeed = const ElectricModuleLiftSpeed();
       travelSpeed.acceleration.should.beCloseTo(0.0952, delta: 0.0001);
     });
     test(
         '$ElectricModuleLiftSpeed deceleration should be 0.2857 m/s / 3s = 0.0952m/s/s',
         () {
-      var travelSpeed = ElectricModuleLiftSpeed();
+      var travelSpeed = const ElectricModuleLiftSpeed();
       travelSpeed.deceleration.should.beCloseTo(0.0952, delta: 0.0001);
     });
 
     test('$ElectricModuleLiftSpeed should travel 2 meters in 10seconds', () {
-      var travelSpeed = ElectricModuleLiftSpeed();
+      var travelSpeed = const ElectricModuleLiftSpeed();
       travelSpeed
           .durationOfDistance(ElectricModuleLiftSpeed.totalDistanceInMeters)
           .should
@@ -114,7 +114,7 @@ void main() {
 
     test('$ElectricModuleLiftSpeed should travel 0.5 meters in 5.292seconds',
         () {
-      var travelSpeed = ElectricModuleLiftSpeed();
+      var travelSpeed = const ElectricModuleLiftSpeed();
       travelSpeed
           .durationOfDistance(0.5)
           .should

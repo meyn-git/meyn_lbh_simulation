@@ -6,6 +6,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart'
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 
+/// Debug tool to be added to monitor pane if needed
 class DrawerBalance implements Detailable {
   final LiveBirdHandlingArea area;
 
@@ -17,26 +18,8 @@ class DrawerBalance implements Detailable {
   @override
   final String name = 'DrawerBalance';
 
-  final Map<int, String> drawersContainers = {
-    4: '1: 1x4L 0x5L',
-    5: '1: 0x4L 1x5L',
-    8: '2: 2x4L 0x5L',
-    9: '2: 1x4L 1x5L',
-    10: '2: 0x4L 2x5L',
-    13: '3: 2x4L 1x5L',
-    14: '3: 1x4L 2x5L',
-    18: '4: 2x4L 2x5L',
-    22: '5: 3x4L 2x5L',
-    23: '5: 2x4L 3x5L',
-    26: '6: 4x4L 2x5L',
-    27: '6: 3x4L 3x5L',
-    28: '6: 2x4L 4x5L',
-  };
   @override
   ObjectDetails get objectDetails {
-    // var modulesWithoutDrawers = area.moduleGroups
-    //     .map((group) => group.modules.where((module) => module.nrOfBirds == 0))
-    //     .expand((m) => m);
     var objectDetails = ObjectDetails(name);
     var numberOfDrawers = area.drawers.length;
     objectDetails.appendProperty('drawers', numberOfDrawers);
@@ -60,10 +43,6 @@ class DrawerBalance implements Detailable {
               '${modules.length} '
                   '${modules.where((m) => m.variant.levels == 4).length}x4L '
                   '${modules.where((m) => m.variant.levels == 5).length}x5L ');
-        // ..appendProperty('empty 4L modules',
-        //     modules.where((m) => m.variant.levels == 4).length)
-        // ..appendProperty('empty 5L modules',
-        //     modules.where((m) => m.variant.levels == 5).length);
       }
     }
     return objectDetails;

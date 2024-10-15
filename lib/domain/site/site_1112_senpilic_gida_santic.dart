@@ -339,9 +339,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       ],
     );
 
-    var deStacker =
-        ModuleDeStacker(area: this, liftSpeedInCentiMeterPerSecond: 40 //TODO!!
-            );
+    var deStacker = ModuleDeStacker(area: this);
 
     var mc1 = ModuleConveyor(area: this);
 

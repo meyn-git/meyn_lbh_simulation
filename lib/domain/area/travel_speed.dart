@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:meyn_lbh_simulation/domain/area/module_lift_position.dart';
+
 // class TravelSpeed {
 //   /// in meters per seconds or
 //   /// in degrees per second
@@ -148,10 +150,9 @@ class TravelSpeed {
 }
 
 class ElectricModuleLiftSpeed extends TravelSpeed {
-  static const containerHeightInMeters = 1.5;
-  static const clearanceHeightInMeters = 0.5;
   static const totalDistanceInMeters =
-      containerHeightInMeters + clearanceHeightInMeters;
+      DefaultLiftPositionHeights.containerHeightInMeters +
+          DefaultLiftPositionHeights.clearanceHeightInMeters;
   static const totalDurationInSeconds = 10;
   static const accelerationInSeconds = 3;
   static const decelerationInSeconds = 3;

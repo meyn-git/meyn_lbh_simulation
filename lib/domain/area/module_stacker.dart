@@ -40,17 +40,10 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     Duration? inFeedDuration,
     Duration? outFeedDuration,
     this.maxLevelsInTop,
-    this.currentHeightInMeter = defaultInAndOutFeedHeightInMeters,
+    this.currentHeightInMeter =
+        DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
     TravelSpeed? liftSpeed,
-    this.heightsInMeters = const {
-      LiftPosition.inFeed: defaultInAndOutFeedHeightInMeters,
-      LiftPosition.outFeed: defaultInAndOutFeedHeightInMeters,
-      LiftPosition.topModuleAtSupport:
-          defaultInAndOutFeedHeightInMeters + defaultClearanceHeightInMeters,
-      LiftPosition.singleModuleAtSupports: defaultInAndOutFeedHeightInMeters +
-          defaultClearanceHeightInMeters +
-          defaultModuleHeightInMeters,
-    },
+    this.heightsInMeters = const DefaultLiftPositionHeights(),
   })  : inFeedDuration = inFeedDuration ??
             area.productDefinition.moduleSystem.stackerInFeedDuration,
         outFeedDuration = outFeedDuration ??
@@ -59,10 +52,6 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
         super(
           initialState: CheckIfEmpty(),
         );
-
-  static const double defaultInAndOutFeedHeightInMeters = 1;
-  static const double defaultModuleHeightInMeters = 1.5;
-  static const double defaultClearanceHeightInMeters = 0.5;
 
   late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
     system: this,
@@ -115,7 +104,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
       SimultaneousFeedOutFeedInModuleGroup<ModuleStacker>(
           modulesIn: modulesIn,
           modulesOut: modulesOut,
-          stateWhenCompleted: AfterSimultaneousFeedOutFeedInModuleGroup(),
+          stateWhenCompleted: DecideAfterModuleGroupFeedIn(),
           inFeedDelay: timeBetweenStacksForStopperToGoUpInBetween);
 
   final Duration timeBetweenStacksForStopperToGoUpInBetween =
@@ -170,9 +159,9 @@ class MoveLift extends DurationState<ModuleStacker> {
   }
 }
 
-class AfterSimultaneousFeedOutFeedInModuleGroup extends State<ModuleStacker> {
+class DecideAfterModuleGroupFeedIn extends State<ModuleStacker> {
   @override
-  final String name = "AfterSimultaneousFeedOutFeedInModuleGroup";
+  final String name = "DecideAfterModuleGroupFeedIn";
 
   @override
   State<ModuleStacker>? nextState(ModuleStacker stacker) {
