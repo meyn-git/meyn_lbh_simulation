@@ -10,6 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
+import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
 
 abstract class LiveBirdHandlingArea implements TimeProcessor {
   final String lineName;

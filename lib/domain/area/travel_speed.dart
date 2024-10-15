@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_lift_position.dart';
 
 // class TravelSpeed {
@@ -168,4 +169,68 @@ class ElectricModuleLiftSpeed extends TravelSpeed {
             maxSpeed: maxConstSpeed,
             acceleration: maxConstSpeed / accelerationInSeconds,
             deceleration: maxConstSpeed / decelerationInSeconds);
+}
+
+
+
+enum ModuleSystem {
+  meynContainersOrModulesWith2OrMoreCompartmentsPerLevel(
+    stackerInFeedDuration: Duration(seconds: 14),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    deStackerInFeedDuration: Duration(seconds: 14),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    conveyorTransportDuration: Duration(seconds: 12),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 
+    casTransportDuration: Duration(seconds: 14),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    turnTableDegreesPerSecond: 15, // 90 degrees in 6 seconds //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 
+    liftSpeed: ElectricModuleLiftSpeed(),
+  ),
+
+  ///following durations are based on measurements at: 7696-Dabe-Germanyk
+  meynContainersOrModulesWith1CompartmentsPerLevel(
+    conveyorTransportDuration: Duration(milliseconds: 13400),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 
+    stackerInFeedDuration: Duration(milliseconds: 18700),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    deStackerInFeedDuration: Duration(milliseconds: 18700),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    casTransportDuration: Duration(milliseconds: 18700),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    turnTableDegreesPerSecond: 10, // 90 degrees in 9 seconds, //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
+    liftSpeed: ElectricModuleLiftSpeed(),
+  ),
+
+  ///following durations are based on measurements at: 8052-Indrol Grodzisk
+  meynOmnia(
+    conveyorTransportDuration: Duration(
+        seconds:
+            14), //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
+            //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 
+    stackerInFeedDuration: Duration(seconds: 19),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    deStackerInFeedDuration: Duration(seconds: 19),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    casTransportDuration: Duration(seconds: 19),//TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    turnTableDegreesPerSecond: 8,
+    // 90 degrees in 11.5 seconds //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
+    liftSpeed: ElectricModuleLiftSpeed(),
+  ),
+  ;
+
+  const ModuleSystem({
+    required this.stackerInFeedDuration,
+    required this.deStackerInFeedDuration,
+    required this.conveyorTransportDuration,
+    required this.casTransportDuration,
+    required this.turnTableDegreesPerSecond,
+    required this.liftSpeed,
+  });
+
+  final Duration stackerInFeedDuration;
+  final Duration deStackerInFeedDuration;
+  final Duration conveyorTransportDuration;
+  final Duration casTransportDuration;
+  final int turnTableDegreesPerSecond;
+  final TravelSpeed liftSpeed;
+
+  static ModuleSystem ofVariantBase(ModuleVariantBase base) {
+    if (base.family == 'Omnia') {
+      return ModuleSystem.meynOmnia;
+    }
+    if (base.compartmentsPerLevel == 1) {
+      return ModuleSystem.meynContainersOrModulesWith1CompartmentsPerLevel;
+    }
+    return ModuleSystem.meynContainersOrModulesWith2OrMoreCompartmentsPerLevel;
+  }
 }
