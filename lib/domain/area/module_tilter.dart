@@ -47,9 +47,9 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
     this.tiltBackDuration = const Duration(seconds: 5),
     Duration? outFeedDuration,
   })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         super(
           initialState: CheckIfEmpty(),
         ) {

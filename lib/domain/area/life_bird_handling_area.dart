@@ -10,7 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
-import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 
 abstract class LiveBirdHandlingArea implements TimeProcessor {
   final String lineName;
@@ -131,7 +131,7 @@ class ProductDefinition {
   final List<TruckRow> truckRows;
   final CasRecipe? casRecipe;
 
-  late final ModuleSystem moduleSystem = ModuleSystem.ofVariantBase(
+  late final SpeedProfiles speedProfiles = SpeedProfiles.ofVariantBase(
       truckRows.first.templates.first.variant as ModuleVariantBase);
 
   final List<LiveBirdHandlingArea> Function(ProductDefinition)

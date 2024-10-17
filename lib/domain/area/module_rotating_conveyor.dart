@@ -4,6 +4,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_rotating_conveyor.dart';
 import 'package:user_command/user_command.dart';
@@ -17,7 +18,7 @@ class ModuleRotatingConveyor extends StateMachine
     implements PhysicalSystem, AdditionalRotation {
   final LiveBirdHandlingArea area;
   CompassDirection currentDirection = const CompassDirection.unknown();
-  final int degreesPerSecond;
+  final SpeedProfile turnSpeedProfile;
   final TurnPosition? defaultFeedInTurnPosition;
   final Duration inFeedDuration;
   final Duration outFeedDuration;
@@ -45,19 +46,19 @@ class ModuleRotatingConveyor extends StateMachine
 
   ModuleRotatingConveyor({
     required this.area,
-    int? degreesPerSecond,
+    SpeedProfile? turnSpeedProfile,
     this.defaultFeedInTurnPosition,
     required this.turnPositions,
     required this.lengthInMeters,
     State<ModuleRotatingConveyor>? initialState,
     Duration? inFeedDuration,
     Duration? outFeedDuration,
-  })  : degreesPerSecond = degreesPerSecond ??
-            area.productDefinition.moduleSystem.turnTableDegreesPerSecond,
+  })  : turnSpeedProfile = turnSpeedProfile ??
+            area.productDefinition.speedProfiles.turnTableTurn,
         inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         super(
           initialState: initialState ?? TurnToFeedIn(),
         ) {
@@ -207,8 +208,9 @@ class ModuleRotatingConveyor extends StateMachine
         modulesIns[index].linkedTo!.durationUntilCanFeedOut();
     if (durationUntilCanFeedOut != Duration.zero) {
       var feedInDirection = turnPosition.feedInDirection;
-      var rotation = degreesToRotate(feedInDirection);
-      var durationToRotate = rotateDuration(rotation);
+      var rotationDistance = degreesToRotate(feedInDirection);
+      var durationToRotate =
+          turnSpeedProfile.durationOfDistance(rotationDistance.toDouble());
       if (durationToRotate < durationUntilCanFeedOut) {
         return 0;
       } else {
@@ -418,15 +420,10 @@ class ModuleRotatingConveyor extends StateMachine
     return clockWise ? clockWiseDistance : -counterClockWiseDistance;
   }
 
-  Duration rotateDuration(int degreesToRotate) => Duration(
-      microseconds:
-          (degreesToRotate.abs() / degreesPerSecond * 1000000).round());
-
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('currentState', currentState.name)
-      .appendProperty('currentDirection', currentDirection)
-      .appendProperty('moduleGroup', area.moduleGroups.at(moduleGroupPlace));
+      .appendProperty('currentState', currentState)
+      .appendProperty('currentDirection', currentDirection);
 
   bool _neighborModuleGroupAtDestination(
           ModuleGroupOutLink<PhysicalSystem> neighborModuleOutLink,
@@ -462,7 +459,7 @@ abstract class TurnState extends State<ModuleRotatingConveyor> {
   CompassDirection? conveyorEndDirection;
   Duration duration = Duration.zero;
   Duration elapsed = Duration.zero;
-  int degreesToRotate = 0;
+  int rotationDistance = 0;
 
   double get completionFactor => duration == Duration.zero
       ? 0
@@ -483,7 +480,7 @@ abstract class TurnState extends State<ModuleRotatingConveyor> {
         elapsed = duration;
       }
       rotatingConveyor.currentDirection = conveyorStartDirection
-          .rotate((degreesToRotate * completionFactor).round());
+          .rotate((rotationDistance * completionFactor).round());
     }
   }
 
@@ -491,8 +488,9 @@ abstract class TurnState extends State<ModuleRotatingConveyor> {
       ModuleRotatingConveyor rotatingConveyor, CompassDirection goToDirection) {
     conveyorStartDirection = rotatingConveyor.currentDirection;
     conveyorEndDirection = goToDirection;
-    degreesToRotate = rotatingConveyor.degreesToRotate(goToDirection);
-    duration = rotatingConveyor.rotateDuration(degreesToRotate);
+    rotationDistance = rotatingConveyor.degreesToRotate(goToDirection);
+    duration = rotatingConveyor.turnSpeedProfile
+        .durationOfDistance(rotationDistance.toDouble());
     elapsed = Duration.zero;
   }
 }
@@ -626,7 +624,7 @@ class TurnToFeedOut extends TurnState {
 
   void turnModuleGroup() {
     moduleGroup.direction = moduleGroupStartDirection
-        .rotate((degreesToRotate * completionFactor).round());
+        .rotate((rotationDistance * completionFactor).round());
   }
 }
 

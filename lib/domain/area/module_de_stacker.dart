@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_de_stacker.dart';
 import 'package:user_command/user_command.dart';
@@ -24,7 +24,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   int nrOfModulesFeedingIn = 0;
   double currentHeightInMeter;
   final Map<LiftPosition, double> heightsInMeters;
-  final TravelSpeed liftSpeed;
+  final SpeedProfile liftSpeed;
   final Duration inFeedDuration;
   final Duration outFeedDuration;
   final Duration supportsCloseDuration;
@@ -42,12 +42,12 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     Duration? outFeedDuration,
     this.currentHeightInMeter =
         DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
-    this.liftSpeed = const ElectricModuleLiftSpeed(),
+    this.liftSpeed = const ElectricModuleLiftSpeedProfile(),
     this.heightsInMeters = const DefaultLiftPositionHeights(),
   })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.stackerInFeedDuration,
+            area.productDefinition.speedProfiles.stackerInFeedDuration,
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         super(
           initialState: CheckIfEmpty(),
         );

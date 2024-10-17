@@ -39,9 +39,9 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
     Duration? inFeedDuration,
     Duration? outFeedDuration,
   })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.casTransportDuration,
+            area.productDefinition.speedProfiles.casTransportDuration,
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.casTransportDuration,
+            area.productDefinition.speedProfiles.casTransportDuration,
         super(
           initialState: WaitToFeedIn(),
         ) {

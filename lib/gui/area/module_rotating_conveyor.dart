@@ -7,63 +7,6 @@ import 'package:meyn_lbh_simulation/gui/theme.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 
-// class ModuleRotatingConveyorPainter extends CustomPainter {
-//   final LiveBirdsHandlingTheme theme;
-//   final ModuleRotatingConveyor rotatingConveyor;
-//   ModuleRotatingConveyorPainter(this.rotatingConveyor, this.theme);
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     drawRectangle(canvas, size);
-//     drawDirectionTriangle(size, canvas);
-//     drawCircle(canvas, size);
-//   }
-
-//   void drawDirectionTriangle(Size size, Canvas canvas) {
-//     var paint = Paint();
-//     paint.color = theme.machineColor;
-//     paint.style = PaintingStyle.fill;
-//     var path = Path();
-//     path.moveTo(size.width * 0.45, size.height * 0.45);
-//     path.lineTo(size.width * 0.55, size.height * 0.45);
-//     path.lineTo(size.width * 0.50, size.height * 0.4);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   Paint drawRectangle(Canvas canvas, Size size) {
-//     var paint = Paint();
-//     paint.color = theme.machineColor;
-//     paint.style = PaintingStyle.stroke;
-//     var sizePerMeter =
-//         size.width / rotatingConveyor.sizeWhenFacingNorth.xInMeters;
-//     var width = ModuleConveyorShape.conveyorWidthInMeters * sizePerMeter;
-//     var height = sqrt(pow(size.height, 2) - pow(width, 2));
-//     canvas.drawRect(
-//         Rect.fromCenter(
-//             center: Offset(size.width / 2, size.height / 2),
-//             width: width,
-//             height: height),
-//         paint);
-//     return paint;
-//   }
-
-//   Paint drawCircle(Canvas canvas, Size size) {
-//     var paint = Paint();
-//     paint.color = theme.machineColor;
-//     paint.style = PaintingStyle.stroke;
-//     canvas.drawCircle(
-//       Offset(size.width / 2, size.height / 2),
-//       size.height * 0.5,
-//       paint,
-//     );
-//     return paint;
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
 class ModuleRotatingConveyorPainter extends ShapePainter {
   ModuleRotatingConveyorPainter(ModuleRotatingConveyor moduleRotatingConveyor,
       LiveBirdsHandlingTheme theme)

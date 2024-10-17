@@ -27,9 +27,9 @@ abstract class ModuleBufferSystem extends StateMachine
     Duration? feedInDuration,
     Duration? feedOutDuration,
   })  : inFeedDuration = feedInDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         outFeedDuration = feedOutDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         super(
           initialState: WaitToFeedIn(),
         );

@@ -3,68 +3,7 @@ import 'dart:math';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_lift_position.dart';
 
-// class TravelSpeed {
-//   /// in meters per seconds or
-//   /// in degrees per second
-//   final double maxSpeed;
-//   /// in meters per seconds per second or
-//   /// in degrees per seconds per second
-//   final double acceleration;
-//   /// in meters per seconds per second
-//   /// in degrees per seconds per second
-//   final double deceleration;
-
-//   const TravelSpeed({
-//     required this.maxSpeed,
-//     required this.acceleration,
-//     required this.deceleration,
-//   });
-
-//   factory TravelSpeed.total({ required int totalDistance, required int totalDurationInSeconds, required int accelerationInSeconds, required int decelerationInSeconds}):
-//    // totalDistance = 0.5 * a * t_a^2 + v * t_const + 0.5 * a_d * t_d^2
-//   maxSpeed = totalDistance/(totalDurationInSeconds-accelerationInSeconds-decelerationInSeconds),
-
-//   // Calculate acceleration (a = v_max / t_a)
-//    acceleration = totalDistance/totalDurationInSeconds / accelerationInSeconds,
-
-//   // Calculate deceleration (a_d = v_max / t_d)
-//    deceleration = totalDistance/totalDurationInSeconds / decelerationInSeconds;
-
-//   /// [distance] in meters or in degrees
-//   double duration(double distance) {
-//     double distanceAccel = (maxSpeed * maxSpeed) / (2 * acceleration);
-//     double distanceDecel = (maxSpeed * maxSpeed) / (2 * deceleration);
-
-//     if (maxSpeedIsReached(distance, distanceAccel, distanceDecel)) {
-//       // Calculate time to reach max speed during acceleration and deceleration
-//       double timeAccel = maxSpeed / acceleration;
-//       double timeDecel = maxSpeed / deceleration;
-
-//       // Calculate the remaining distance to travel at max speed
-//       double distanceConst = distance - (distanceAccel + distanceDecel);
-//       double timeConst = distanceConst / maxSpeed;
-
-//       // Calculate total travel time
-//       return timeAccel + timeConst + timeDecel;
-//     } else {
-//       // If the distance is too short to reach max speed, solve with only acceleration and deceleration
-//       // Solve for time using kinematic equations (quadratic solution)
-//       double timeAccel = sqrt(2 *
-//           distance /
-//           (acceleration +
-//               (acceleration * deceleration / (acceleration + deceleration))));
-//       double timeDecel = timeAccel * (acceleration / deceleration);
-//       return timeAccel + timeDecel;
-//     }
-//   }
-
-//   bool maxSpeedIsReached(
-//           double distance, double distanceAccel, double distanceDecel) =>
-//       distance > (distanceAccel + distanceDecel);
-
-// }
-
-class TravelSpeed {
+class SpeedProfile {
   /// e.g. distance (meters or degrees) per second
   final double maxSpeed;
 
@@ -74,14 +13,14 @@ class TravelSpeed {
   /// e.g. distance (meters or degrees) per second per second
   final double deceleration;
 
-  const TravelSpeed({
+  const SpeedProfile({
     required this.maxSpeed,
     required this.acceleration,
     required this.deceleration,
   });
 
   // Factory constructor to calculate and return a new instance of TravelSpeed
-  factory TravelSpeed.total({
+  factory SpeedProfile.total({
     required double totalDistance,
     required double totalDurationInSeconds,
     required double accelerationInSeconds,
@@ -102,7 +41,7 @@ class TravelSpeed {
     double deceleration = maxSpeed / decelerationInSeconds;
 
     // Return an instance of TravelSpeed with calculated values
-    return TravelSpeed(
+    return SpeedProfile(
       maxSpeed: maxSpeed,
       acceleration: acceleration,
       deceleration: deceleration,
@@ -111,6 +50,7 @@ class TravelSpeed {
 
   /// [distance] in meters or in degrees
   Duration durationOfDistance(double distance) {
+    distance = distance.abs();
     double distanceAccel = (maxSpeed * maxSpeed) / (2 * acceleration);
     double distanceDecel = (maxSpeed * maxSpeed) / (2 * deceleration);
 
@@ -150,7 +90,7 @@ class TravelSpeed {
   }
 }
 
-class ElectricModuleLiftSpeed extends TravelSpeed {
+class ElectricModuleLiftSpeedProfile extends SpeedProfile {
   static const totalDistanceInMeters =
       DefaultLiftPositionHeights.containerHeightInMeters +
           DefaultLiftPositionHeights.clearanceHeightInMeters;
@@ -164,15 +104,74 @@ class ElectricModuleLiftSpeed extends TravelSpeed {
               decelerationInSeconds) +
           0.5 * decelerationInSeconds);
 
-  const ElectricModuleLiftSpeed()
+  const ElectricModuleLiftSpeedProfile()
       : super(
             maxSpeed: maxConstSpeed,
             acceleration: maxConstSpeed / accelerationInSeconds,
             deceleration: maxConstSpeed / decelerationInSeconds);
 }
 
-enum ModuleSystem {
-  meynContainersOrModulesWith2OrMoreCompartmentsPerLevel(
+class TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel
+    extends SpeedProfile {
+  static const _totalDistanceInDegrees = 90;
+  static const _totalDurationInSeconds = 6;
+  static const _accelerationInSeconds = 2;
+  static const _decelerationInSeconds = 2;
+  static const _maxSpeed = _totalDistanceInDegrees /
+      (0.5 * _accelerationInSeconds +
+          (_totalDurationInSeconds -
+              _accelerationInSeconds -
+              _decelerationInSeconds) +
+          0.5 * _decelerationInSeconds);
+
+  const TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel()
+      : super(
+            maxSpeed: _maxSpeed,
+            acceleration: _maxSpeed / _accelerationInSeconds,
+            deceleration: _maxSpeed / _decelerationInSeconds);
+}
+
+class TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel
+    extends SpeedProfile {
+  static const _totalDistanceInDegrees = 90;
+  static const _totalDurationInSeconds = 9;
+  static const _accelerationInSeconds = 2;
+  static const _decelerationInSeconds = 2;
+  static const _maxSpeed = _totalDistanceInDegrees /
+      (0.5 * _accelerationInSeconds +
+          (_totalDurationInSeconds -
+              _accelerationInSeconds -
+              _decelerationInSeconds) +
+          0.5 * _decelerationInSeconds);
+
+  const TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel()
+      : super(
+            maxSpeed: _maxSpeed,
+            acceleration: _maxSpeed / _accelerationInSeconds,
+            deceleration: _maxSpeed / _decelerationInSeconds);
+}
+
+class TurnTableSpeedProfileForOmniaContainers extends SpeedProfile {
+  static const _totalDistanceInDegrees = 90;
+  static const _totalDurationInSeconds = 11.5;
+  static const _accelerationInSeconds = 4;
+  static const _decelerationInSeconds = 4;
+  static const _maxSpeed = _totalDistanceInDegrees /
+      (0.5 * _accelerationInSeconds +
+          (_totalDurationInSeconds -
+              _accelerationInSeconds -
+              _decelerationInSeconds) +
+          0.5 * _decelerationInSeconds);
+
+  const TurnTableSpeedProfileForOmniaContainers()
+      : super(
+            maxSpeed: _maxSpeed,
+            acceleration: _maxSpeed / _accelerationInSeconds,
+            deceleration: _maxSpeed / _decelerationInSeconds);
+}
+
+enum SpeedProfiles {
+  containersOrModulesWith2OrMoreCompartmentsPerLevel(
     stackerInFeedDuration: Duration(
         seconds:
             14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
@@ -185,13 +184,13 @@ enum ModuleSystem {
     casTransportDuration: Duration(
         seconds:
             14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    turnTableDegreesPerSecond:
-        15, // 90 degrees in 6 seconds //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
-    liftSpeed: ElectricModuleLiftSpeed(),
+    turnTableTurn:
+        TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel(),
+    lift: ElectricModuleLiftSpeedProfile(),
   ),
 
   ///following durations are based on measurements at: 7696-Dabe-Germanyk
-  meynContainersOrModulesWith1CompartmentsPerLevel(
+  containersOrModulesWith1CompartmentsPerLevel(
     conveyorTransportDuration: Duration(
         milliseconds:
             13400), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
@@ -204,9 +203,9 @@ enum ModuleSystem {
     casTransportDuration: Duration(
         milliseconds:
             18700), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    turnTableDegreesPerSecond:
-        10, // 90 degrees in 9 seconds, //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
-    liftSpeed: ElectricModuleLiftSpeed(),
+    turnTableTurn:
+        TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel(),
+    lift: ElectricModuleLiftSpeedProfile(),
   ),
 
   ///following durations are based on measurements at: 8052-Indrol Grodzisk
@@ -224,35 +223,34 @@ enum ModuleSystem {
     casTransportDuration: Duration(
         seconds:
             19), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    turnTableDegreesPerSecond: 8,
-    // 90 degrees in 11.5 seconds //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
-    liftSpeed: ElectricModuleLiftSpeed(),
+    turnTableTurn: TurnTableSpeedProfileForOmniaContainers(),
+    lift: ElectricModuleLiftSpeedProfile(),
   ),
   ;
 
-  const ModuleSystem({
+  const SpeedProfiles({
     required this.stackerInFeedDuration,
     required this.deStackerInFeedDuration,
     required this.conveyorTransportDuration,
     required this.casTransportDuration,
-    required this.turnTableDegreesPerSecond,
-    required this.liftSpeed,
+    required this.turnTableTurn,
+    required this.lift,
   });
 
   final Duration stackerInFeedDuration;
   final Duration deStackerInFeedDuration;
   final Duration conveyorTransportDuration;
   final Duration casTransportDuration;
-  final int turnTableDegreesPerSecond;
-  final TravelSpeed liftSpeed;
+  final SpeedProfile turnTableTurn;
+  final SpeedProfile lift;
 
-  static ModuleSystem ofVariantBase(ModuleVariantBase base) {
+  static SpeedProfiles ofVariantBase(ModuleVariantBase base) {
     if (base.family == 'Omnia') {
-      return ModuleSystem.meynOmnia;
+      return SpeedProfiles.meynOmnia;
     }
     if (base.compartmentsPerLevel == 1) {
-      return ModuleSystem.meynContainersOrModulesWith1CompartmentsPerLevel;
+      return SpeedProfiles.containersOrModulesWith1CompartmentsPerLevel;
     }
-    return ModuleSystem.meynContainersOrModulesWith2OrMoreCompartmentsPerLevel;
+    return SpeedProfiles.containersOrModulesWith2OrMoreCompartmentsPerLevel;
   }
 }

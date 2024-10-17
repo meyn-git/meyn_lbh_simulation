@@ -25,10 +25,10 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     Duration? outFeedDuration,
     this.lengthInMeters = defaultLengthInMeters,
   })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration *
+            area.productDefinition.speedProfiles.conveyorTransportDuration *
                 (lengthInMeters / defaultLengthInMeters),
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         super(initialState: CheckIfEmpty());
 
   @override

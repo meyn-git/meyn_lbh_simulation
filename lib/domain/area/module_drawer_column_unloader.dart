@@ -70,9 +70,9 @@ class ModuleDrawerColumnUnloader extends StateMachine
         milliseconds:
             6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
   })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         singleColumnOfCompartments =
             allModulesHaveOneSingleCompartmentColumn(area),
         super(

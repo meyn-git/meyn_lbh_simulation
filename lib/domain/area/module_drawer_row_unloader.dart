@@ -76,9 +76,9 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     this.liftOneLevelDownDuration = const Duration(
         milliseconds: 1600), // Based on "4339-Vinnitsa-tack-timesv3.xlsx"
   })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         outFeedDuration = outFeedDuration ??
-            area.productDefinition.moduleSystem.conveyorTransportDuration,
+            area.productDefinition.speedProfiles.conveyorTransportDuration,
         super(
           initialState: CheckIfEmpty(),
         );
