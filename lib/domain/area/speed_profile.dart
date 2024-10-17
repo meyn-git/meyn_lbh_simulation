@@ -111,6 +111,8 @@ class ElectricModuleLiftSpeedProfile extends SpeedProfile {
             deceleration: maxConstSpeed / decelerationInSeconds);
 }
 
+/// values are based on 7113 Tyson Union City VDL system
+/// and are validated at several VDL and Grande drawer systems
 class TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel
     extends SpeedProfile {
   static const _totalDistanceInDegrees = 90;
@@ -130,7 +132,7 @@ class TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel
             acceleration: _maxSpeed / _accelerationInSeconds,
             deceleration: _maxSpeed / _decelerationInSeconds);
 }
-
+/// values are based on measurements at: 7696-Dabe-Germanyk
 class TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel
     extends SpeedProfile {
   static const _totalDistanceInDegrees = 90;
@@ -151,6 +153,7 @@ class TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel
             deceleration: _maxSpeed / _decelerationInSeconds);
 }
 
+/// values are based on measurements at: 8052-Indrol Grodzisk
 class TurnTableSpeedProfileForOmniaContainers extends SpeedProfile {
   static const _totalDistanceInDegrees = 90;
   static const _totalDurationInSeconds = 11.5;
@@ -171,6 +174,8 @@ class TurnTableSpeedProfileForOmniaContainers extends SpeedProfile {
 }
 
 enum SpeedProfiles {
+  /// values are based on 7113 Tyson Union City VDL system
+  /// and are validated at several VDL and Grande drawer systems
   containersOrModulesWith2OrMoreCompartmentsPerLevel(
     stackerInFeedDuration: Duration(
         seconds:
@@ -189,7 +194,7 @@ enum SpeedProfiles {
     lift: ElectricModuleLiftSpeedProfile(),
   ),
 
-  ///following durations are based on measurements at: 7696-Dabe-Germanyk
+  /// values are based on measurements at: 7696-Dabe-Germanyk
   containersOrModulesWith1CompartmentsPerLevel(
     conveyorTransportDuration: Duration(
         milliseconds:
@@ -208,7 +213,7 @@ enum SpeedProfiles {
     lift: ElectricModuleLiftSpeedProfile(),
   ),
 
-  ///following durations are based on measurements at: 8052-Indrol Grodzisk
+  ///values are based on measurements at: 8052-Indrol Grodzisk
   meynOmnia(
     conveyorTransportDuration: Duration(
         seconds:
@@ -224,6 +229,7 @@ enum SpeedProfiles {
         seconds:
             19), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
     turnTableTurn: TurnTableSpeedProfileForOmniaContainers(),
+    /// lift speed profile is assumed to be identical to other systems (not verified)
     lift: ElectricModuleLiftSpeedProfile(),
   ),
   ;
