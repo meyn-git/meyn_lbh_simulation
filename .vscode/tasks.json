@@ -10,7 +10,19 @@
 				"."
 			],
 			"problemMatcher": [],
-			"label": "dart: dart format .",
+			"label": "dart format .",
+			"detail": ""
+		},
+		{
+			"type": "dart",
+			"command": "dart",
+			"cwd": "",
+			"args": [
+				"fix",
+				"--apply"
+			],
+			"problemMatcher": [],
+			"label": "dart fix --apply",
 			"detail": ""
 		}
 	]

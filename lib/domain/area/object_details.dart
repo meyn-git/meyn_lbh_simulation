@@ -60,27 +60,31 @@ class ObjectDetails {
     dynamic propertyValue,
     int indentations,
   ) {
-    String string = '';
     var lines = _formattedPropertyValue(propertyValue).split('\n');
-    for (String line in lines) {
-      if (line == lines.first) {
-        string += lines.first;
-      } else {
+    if (lines.length == 1) {
+      return lines.first;
+    } else {
+      String string = '';
+      for (String line in lines) {
         string += '\n${indentation * indentations}$line';
       }
+      return string;
     }
-    // }
-    return string;
   }
 
   String _formattedPropertyValue(dynamic propertyValue) {
+    if (propertyValue is Iterable) {
+      return propertyValue
+          .map((element) => _formattedPropertyValue(element))
+          .join('\n');
+    }
     if (propertyValue is Duration) {
       return _formattedDuration(propertyValue);
-    } else if (propertyValue is Detailable) {
-      return propertyValue.objectDetails.toString();
-    } else {
-      return propertyValue.toString();
     }
+    if (propertyValue is Detailable) {
+      return propertyValue.objectDetails.toString();
+    }
+    return propertyValue.toString();
   }
 
   String _formattedDuration(Duration duration) {

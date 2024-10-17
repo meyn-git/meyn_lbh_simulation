@@ -195,15 +195,15 @@ class AfterSimultaneousFeedOutFeedInModuleGroup
 }
 
 class MoveLift extends DurationState<ModuleDrawerRowUnloader> {
-  final LiftLevel newLevel;
-  MoveLift(this.newLevel)
+  final LiftLevel goToPosition;
+  MoveLift(this.goToPosition)
       : super(
             durationFunction: (ModuleDrawerRowUnloader unloader) =>
-                newLevel == LiftLevel.top
+                goToPosition == LiftLevel.top
                     ? unloader.liftUpToTopDuration
                     : unloader.liftOneLevelDownDuration,
             nextStateFunction: (ModuleDrawerRowUnloader unloader) =>
-                nextStateWhenCompleted(unloader, newLevel));
+                nextStateWhenCompleted(unloader, goToPosition));
 
   static State<ModuleDrawerRowUnloader> nextStateWhenCompleted(
       ModuleDrawerRowUnloader unloader, LiftLevel newLevel) {
@@ -226,7 +226,13 @@ class MoveLift extends DurationState<ModuleDrawerRowUnloader> {
       unloader.liftLevel == LiftLevel.bottom;
 
   @override
-  String get name => 'MoveLift';
+  final String name = 'MoveLift';
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('goToPosition',
+          goToPosition.toString().replaceFirst('$LiftLevel.', ''))
+      .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 }
 
 enum LiftLevel {

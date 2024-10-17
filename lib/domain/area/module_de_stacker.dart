@@ -6,6 +6,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
@@ -138,7 +139,7 @@ class CheckIfEmpty extends DurationState<ModuleDeStacker> {
   String get name => 'CheckIfEmpty';
 }
 
-class MoveLift extends DurationState<ModuleDeStacker> {
+class MoveLift extends DurationState<ModuleDeStacker> implements Detailable {
   final LiftPosition goToPosition;
 
   MoveLift(this.goToPosition, State<ModuleDeStacker> nextState)
@@ -158,9 +159,10 @@ class MoveLift extends DurationState<ModuleDeStacker> {
   }
 
   @override
-  String toString() {
-    return '$name to:${goToPosition.toString().replaceFirst('$LiftPosition.', '')} remaining:${remainingDuration.inSeconds}sec';
-  }
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('goToPosition',
+          goToPosition.toString().replaceFirst('$LiftPosition.', ''))
+      .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
@@ -182,7 +184,7 @@ class DecideAfterSimultaneousFeedOutFeedIn extends State<ModuleDeStacker> {
     }
     if (feedOutBottomModule(deStacker)) {
       if (deStacker.modulesOut.place.moduleGroup == null) {
-        print('Something went wrong!');
+        print('Something went wrong!???');
       }
       return WaitToFeedOut();
     }

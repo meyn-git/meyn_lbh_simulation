@@ -3,6 +3,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
@@ -204,7 +205,8 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
     extends State<STATE_MACHINE>
     implements
         ModuleTransportStartedListener,
-        ModuleTransportCompletedListener {
+        ModuleTransportCompletedListener,
+        Detailable {
   late final feedInStateMachine = FeedInStateMachine(this);
   late final feedOutStateMachine = FeedOutStateMachine(this);
   final ModuleGroupInLink modulesIn;
@@ -226,9 +228,7 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
   });
 
   @override
-  String get name => 'SimultaneousFeedOutFeedInModuleGroup\n'
-      '  in: ${feedInStateMachine.currentState.name}\n'
-      '  out: ${feedOutStateMachine.currentState.name}';
+  String get name => 'SimultaneousFeedOutFeedInModuleGroup';
 
   bool get completed =>
       feedInStateMachine.currentState is FeedInCompleted &&
@@ -281,6 +281,11 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
     feedInStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
     feedOutStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
   }
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('in', feedInStateMachine.currentState.name)
+      .appendProperty('out', feedOutStateMachine.currentState.name);
 }
 
 enum NextStateCondition {

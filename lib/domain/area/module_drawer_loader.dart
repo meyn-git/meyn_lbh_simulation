@@ -294,15 +294,13 @@ class CompletedFeedOutDrawers extends DrawersFeedOutState {
 }
 
 class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift>
-    implements DrawerTransportCompletedListener {
+    implements DrawerTransportCompletedListener, Detailable {
   DrawerFeedInState drawerFeedInState = WaitingToFeedInDrawer();
   DrawersFeedOutState drawersFeedOutState = WaitingToFeedOutDrawers();
   GrandeDrawer? drawerToFeedIn;
   List<GrandeDrawer> drawersToFeedOut = [];
   @override
-  String get name => 'SimultaneouslyFeedInAndFeedOutDrawers\n'
-      '  ${drawerFeedInState.name}\n'
-      '  ${drawersFeedOutState.name}';
+  String get name => 'SimultaneouslyFeedInAndFeedOutDrawers';
 
   /// this method acts like a state system for parallel states:
   /// * [drawerFeedInState]
@@ -351,6 +349,11 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift>
           .onDrawerTransportCompleted(betweenDrawerPlaces);
     }
   }
+
+  @override
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('in', drawerFeedInState.name)
+      .appendProperty('out', drawersFeedOutState.name);
 }
 
 class RaiseLift extends DurationState<DrawerLoaderLift> {
@@ -642,8 +645,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
       .appendProperty('speed',
-          '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour')
-      .appendProperty('moduleGroup', moduleGroup);
+          '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour');
 
   void onEndOfCycle() {
     durationsPerModule.add(durationPerModule);

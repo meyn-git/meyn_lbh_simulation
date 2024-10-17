@@ -62,7 +62,8 @@ abstract class State<T extends StateMachine> {
   String toString() => name;
 }
 
-abstract class DurationState<T extends StateMachine> extends State<T> {
+abstract class DurationState<T extends StateMachine> extends State<T>
+    implements Detailable {
   final Duration Function(T) durationFunction;
   final State<T> Function(T) nextStateFunction;
   Duration? _remainingDuration;
@@ -101,7 +102,6 @@ abstract class DurationState<T extends StateMachine> extends State<T> {
   }
 
   @override
-  String toString() {
-    return '$name remaining:${remainingDuration.inSeconds}sec';
-  }
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 }

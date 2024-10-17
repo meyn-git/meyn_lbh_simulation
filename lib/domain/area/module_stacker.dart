@@ -3,6 +3,7 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/travel_speed.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
@@ -150,9 +151,10 @@ class MoveLift extends DurationState<ModuleStacker> {
   }
 
   @override
-  String toString() {
-    return '$name to:${goToPosition.toString().replaceFirst('$LiftPosition.', '')} remaining:${remainingDuration.inSeconds}sec';
-  }
+  ObjectDetails get objectDetails => ObjectDetails(name)
+      .appendProperty('goToPosition',
+          goToPosition.toString().replaceFirst('$LiftPosition.', ''))
+      .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 
   @override
   void onCompleted(ModuleStacker stacker) {
