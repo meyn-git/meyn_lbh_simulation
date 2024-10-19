@@ -43,7 +43,7 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -52,7 +52,7 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),

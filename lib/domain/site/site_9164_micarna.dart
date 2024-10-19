@@ -100,8 +100,8 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
           productDefinition: productDefinition,
         );
 
-  /// TODO change to actual time (8sec is assumed)
-  static const shortModuleConveyorTransportDuration = Duration(seconds: 8);
+  /// TODO verify if it is close to 8 sec now we use speedProfile
+  /// static const shortModuleConveyorTransportDuration = Duration(seconds: 8);
 
   @override
   void createSystemsAndLinks() {
@@ -232,62 +232,31 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var deStacker1 = ModuleDeStacker(
       area: this,
-
-      /// asumption that feeding in goes faster because lift is
-      /// shorter than for double column modules
-      /// TODO change to actual time
-      inFeedDuration: shortModuleConveyorTransportDuration,
-
-      /// asumption that feeding out takes a bit longer than feeding in
-      /// because we need to bridge additional space between the de-stacker
-      /// because the supports need to go inbetween
-      /// TODO change to actual time
-      outFeedDuration: shortModuleConveyorTransportDuration * 1.5,
     );
 
     var deStacker2 = ModuleDeStacker(
       area: this,
-
-      /// asumption that feeding in goes faster because lift is
-      /// shorter than for double column modules
-      /// TODO change to actual time
-      inFeedDuration: shortModuleConveyorTransportDuration,
-
-      /// asumption that feeding out goes faster because lift is
-      /// shorter than for double column modules
-      /// TODO change to actual time
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var mc3 = ModuleConveyor(
       area: this,
-      inFeedDuration: shortModuleConveyorTransportDuration,
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
       drawerOutDirection: Direction.clockWise,
-      inFeedDuration: shortModuleConveyorTransportDuration,
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var mc4 = ModuleConveyor(
       area: this,
-      inFeedDuration: shortModuleConveyorTransportDuration,
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var mc5 = ModuleConveyor(
       area: this,
-      inFeedDuration: shortModuleConveyorTransportDuration,
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var mc6 = ModuleConveyor(
       area: this,
-      inFeedDuration: shortModuleConveyorTransportDuration,
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var moduleWasher1 = ModuleConveyor(
@@ -303,38 +272,16 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
       drawersInDirection: Direction.clockWise,
-      inFeedDuration: shortModuleConveyorTransportDuration,
-      outFeedDuration: shortModuleConveyorTransportDuration,
     );
 
     var stacker1 = ModuleStacker(
-      area: this, maxLevelsInTop: 4,
-
-      /// asumption that feeding in goes faster because lift is
-      /// shorter than for double column modules
-      /// TODO change to actual time
-      inFeedDuration: shortModuleConveyorTransportDuration,
-
-      /// asumption that feeding out takes a bit longer than feeding in
-      /// because we need to bridge additional space between the de-stacker
-      /// because the supports need to go inbetween
-      /// TODO change to actual time
-      outFeedDuration: shortModuleConveyorTransportDuration * 1.5,
+      area: this,
+      maxLevelsInTop: 4,
     );
 
     var stacker2 = ModuleStacker(
-      area: this, maxLevelsInTop: 4,
-
-      /// asumption that feeding in goes faster because lift is
-      /// shorter than for double column modules
-      /// TODO change to actual time
-      inFeedDuration: shortModuleConveyorTransportDuration,
-
-      /// asumption that feeding out takes a bit longer than feeding in
-      /// because we need to bridge additional space between the de-stacker
-      /// because the supports need to go inbetween
-      /// TODO change to actual time
-      outFeedDuration: shortModuleConveyorTransportDuration,
+      area: this,
+      maxLevelsInTop: 4,
     );
 
     var unloadingConveyor = ModuleConveyor(

@@ -63,7 +63,7 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.bottomCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () => currentState is WaitToFeedIn,
   );
 
@@ -72,7 +72,7 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.topCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
   );
@@ -125,7 +125,7 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.bottomCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () => currentState is WaitToFeedIn,
   );
 
@@ -140,7 +140,7 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
     directionToOtherLink: moduleOutDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
   );
@@ -184,7 +184,7 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.bottomCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () => currentState is WaitToFeedIn,
   );
 
@@ -199,7 +199,7 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
     directionToOtherLink: moduleOutDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
   );

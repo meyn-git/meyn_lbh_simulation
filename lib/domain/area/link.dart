@@ -1,4 +1,5 @@
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 
 abstract class Link<OWNER extends PhysicalSystem,
@@ -74,17 +75,31 @@ class DrawersOutLink<OWNER extends PhysicalSystem>
 
 class ModuleGroupInLink<OWNER extends PhysicalSystem>
     extends Link<OWNER, ModuleGroupOutLink> {
-  final Duration inFeedDuration;
+  final Duration feedInDuration;
   final bool feedInSingleStack;
   final bool Function() canFeedIn;
   final ModuleGroupPlace place;
+  final SpeedProfile? speedProfile;//make required and then remove feedInDuration
+
+  late double distanceToFeedInInMeters = _distanceToFeedInInMeters();
+
+  
+
+  double _distanceToFeedInInMeters() {
+    var linkOffset = offsetFromCenterWhenFacingNorth;
+    var modulePlaceOffset = place.offsetFromCenterWhenSystemFacingNorth;
+    var lengthInMeters = (modulePlaceOffset - linkOffset).lengthInMeters.abs();
+    return lengthInMeters;
+  }
 
   ModuleGroupInLink({
     required this.place,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
     this.feedInSingleStack = false,
-    required this.inFeedDuration,
+    required this.feedInDuration //TODO replace with speed profile
+    ,
+     this.speedProfile,
     required this.canFeedIn,
   }) : super(system: (place.system as OWNER));
 
@@ -95,7 +110,7 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
 
 class ModuleGroupOutLink<OWNER extends PhysicalSystem>
     extends Link<OWNER, ModuleGroupInLink> {
-  final Duration outFeedDuration;
+  final Duration feedOutDuration;
 
   /// * [Duration.zero] = The [PhysicalSystem] can feed out now
   /// * [Duration] = Time until the [PhysicalSystem] can feed out a module
@@ -103,11 +118,21 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
   final Duration Function() durationUntilCanFeedOut;
   final ModuleGroupPlace place;
 
+  late double distanceToFeedOutInMeters = _distanceToFeedOutInMeters();
+
+  double _distanceToFeedOutInMeters() {
+    var linkOffset = offsetFromCenterWhenFacingNorth;
+    var modulePlaceOffset = place.offsetFromCenterWhenSystemFacingNorth;
+    var lengthInMeters = (modulePlaceOffset - linkOffset).lengthInMeters.abs();
+    return lengthInMeters;
+  }
+
   ModuleGroupOutLink({
     required this.place,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
-    required this.outFeedDuration,
+    //TODO rename to transportDuration and calculate using linkedTo!.speedProfile (see ModuleConveryor.feedOutDuration())
+    required this.feedOutDuration,
     required this.durationUntilCanFeedOut,
   }) : super(system: (place.system as OWNER));
 

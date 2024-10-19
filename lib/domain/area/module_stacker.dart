@@ -18,7 +18,7 @@ import 'state_machine.dart';
 class ModuleStacker extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
   int nrOfModulesFeedingIn = 0;
-  double currentHeightInMeter;
+  double liftHeightInMeters;
   final Map<LiftPosition, double> heightsInMeters;
   final SpeedProfile liftSpeed;
   final Duration supportsCloseDuration;
@@ -41,7 +41,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     Duration? inFeedDuration,
     Duration? outFeedDuration,
     this.maxLevelsInTop,
-    this.currentHeightInMeter =
+    this.liftHeightInMeters =
         DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
     SpeedProfile? liftSpeed,
     this.heightsInMeters = const DefaultLiftPositionHeights(),
@@ -68,7 +68,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -77,7 +77,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () => currentState is WaitToFeedOut
         ? Duration.zero
         : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
@@ -142,7 +142,7 @@ class MoveLift extends DurationState<ModuleStacker> {
   static Duration Function(ModuleStacker) createDurationFunction(
       LiftPosition goToPosition) {
     return (stacker) {
-      var currentHeightInMeters = stacker.currentHeightInMeter;
+      var currentHeightInMeters = stacker.liftHeightInMeters;
       var goToHeightInMeters = stacker.heightsInMeters[goToPosition]!;
       var distanceInMeters = (currentHeightInMeters - goToHeightInMeters).abs();
       var duration = stacker.liftSpeed.durationOfDistance(distanceInMeters);
@@ -158,7 +158,7 @@ class MoveLift extends DurationState<ModuleStacker> {
 
   @override
   void onCompleted(ModuleStacker stacker) {
-    stacker.currentHeightInMeter = stacker.heightsInMeters[goToPosition]!;
+    stacker.liftHeightInMeters = stacker.heightsInMeters[goToPosition]!;
   }
 }
 

@@ -119,7 +119,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
         : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -130,7 +130,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
         : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),

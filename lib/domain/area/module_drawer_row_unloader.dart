@@ -100,7 +100,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -109,7 +109,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),

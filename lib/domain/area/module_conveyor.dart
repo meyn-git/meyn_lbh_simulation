@@ -5,6 +5,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/domain/area/player.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
@@ -15,11 +16,10 @@ import 'module/module.dart';
 import 'state_machine.dart';
 
 class ModuleConveyor extends StateMachine implements PhysicalSystem {
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
-  final Duration checkIfEmptyDuration;
   final double lengthInMeters;
+  final SpeedProfile speedProfile;
   final LiveBirdHandlingArea area;
+
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
@@ -29,15 +29,10 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
 
   ModuleConveyor({
     required this.area,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration? inFeedDuration,
-    Duration? outFeedDuration,
+    SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration *
-                (lengthInMeters / defaultLengthInMeters),
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+  })  : speedProfile = speedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyorWithoutStopper,
         super(
           initialState: CheckIfEmpty(),
         );
@@ -46,7 +41,10 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: Duration.zero
+    //TODO See BetweenModuleGroupPlaces.calculateDuration
+    ,
+    speedProfile: speedProfile,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -55,7 +53,9 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: Duration.zero
+    //See BetweenModuleGroupPlaces.calculateDuration
+    ,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -84,8 +84,8 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
   CheckIfEmpty()
       : super(
-            durationFunction: (moduleConveyor) =>
-                moduleConveyor.checkIfEmptyDuration,
+            durationFunction: (moduleConveyor) => moduleConveyor.speedProfile
+                .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
             nextStateFunction: (moduleConveyor) =>
                 SimultaneousFeedOutFeedInModuleGroup(
                     modulesIn: moduleConveyor.modulesIn,
@@ -107,100 +107,6 @@ class DoAgain extends State<ModuleConveyor> {
           modulesOut: moduleConveyor.modulesOut,
           stateWhenCompleted: this);
 }
-
-// class WaitToFeedIn extends State<ModuleConveyor>
-//     implements ModuleTransportStartedListener {
-//   var transportStarted = false;
-
-//   @override
-//   String get name => 'WaitToFeedIn';
-
-//   @override
-//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-//     if (transportStarted) {
-//       return FeedIn();
-//     }
-//     return null;
-//   }
-
-//   /// Must be called by FeedOut state of the preceding [PhysicalSystem]
-//   @override
-//   void onModuleTransportStarted(_) {
-//     transportStarted = true;
-//   }
-// }
-
-// class FeedIn extends State<ModuleConveyor>
-//     implements ModuleTransportCompletedListener {
-//   @override
-//   String get name => 'FeedIn';
-//   bool transportCompleted = false;
-
-//   @override
-//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-//     if (transportCompleted) {
-//       return WaitToFeedOut();
-//     }
-//     return null;
-//   }
-
-//   /// called by [BetweenModuleGroupPlaces]
-//   @override
-//   void onModuleTransportCompleted(_) {
-//     transportCompleted = true;
-//   }
-// }
-
-// class WaitToFeedOut extends State<ModuleConveyor> {
-//   @override
-//   String get name => 'WaitToFeedOut';
-
-//   @override
-//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-//     if (neighborCanFeedIn(moduleConveyor) &&
-//         !_moduleGroupAtDestination(moduleConveyor)) {
-//       return FeedOut();
-//     }
-//     return null;
-//   }
-
-//   bool neighborCanFeedIn(ModuleConveyor moduleConveyor) =>
-//       moduleConveyor.modulesOut.linkedTo!.canFeedIn();
-
-//   bool _moduleGroupAtDestination(ModuleConveyor moduleConveyor) =>
-//       moduleConveyor.moduleGroupPlace.moduleGroup!.destination ==
-//       moduleConveyor;
-// }
-
-// class FeedOut extends State<ModuleConveyor>
-//     implements ModuleTransportCompletedListener {
-//   bool transportCompleted = false;
-
-//   @override
-//   String get name => 'FeedOut';
-
-//   @override
-//   void onStart(ModuleConveyor moduleConveyor) {
-//     var transportedModuleGroup = moduleConveyor.moduleGroupPlace.moduleGroup!;
-//     transportedModuleGroup.position =
-//         BetweenModuleGroupPlaces.forModuleOutLink(moduleConveyor.modulesOut);
-//   }
-
-//   @override
-//   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) {
-//     if (transportCompleted) {
-//       return WaitToFeedIn();
-//     }
-//     return null;
-//   }
-
-//   /// This method is called by ModuleTransport when completed
-//   @override
-//   void onModuleTransportCompleted(_) {
-//     transportCompleted = true;
-//   }
-// }
-
 class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
     extends State<STATE_MACHINE>
     implements
@@ -515,7 +421,7 @@ class FeedOutFirstStack extends State<FeedOutStateMachine>
     var moduleGroup = centerPlace.moduleGroup!;
     var moduleGroupLengthInMeters = moduleGroup.shape.yInMeters;
     var moduleLengthInMeters = moduleGroup.moduleGroundSurface.yInMeters;
-    var outFeedDuration = stateMachine.modulesOut.outFeedDuration;
+    var outFeedDuration = stateMachine.modulesOut.feedOutDuration;
     var remainingStacksModuleGroup = centerPlace.moduleGroup!;
     centerPlace.moduleGroup = null;
 

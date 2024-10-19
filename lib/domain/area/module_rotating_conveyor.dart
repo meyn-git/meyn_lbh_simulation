@@ -306,7 +306,7 @@ class ModuleRotatingConveyor extends StateMachine
           offsetFromCenterWhenFacingNorth:
               shape.centerToModuleGroupLink(turnPosition.direction),
           directionToOtherLink: turnPosition.direction,
-          inFeedDuration: inFeedDuration,
+          feedInDuration: inFeedDuration,
           canFeedIn: () => canFeedIn(turnPosition)));
     }
     return inLinks;
@@ -320,7 +320,7 @@ class ModuleRotatingConveyor extends StateMachine
           offsetFromCenterWhenFacingNorth:
               shape.centerToModuleGroupLink(turnPosition.direction),
           directionToOtherLink: turnPosition.direction,
-          outFeedDuration: outFeedDuration,
+          feedOutDuration: outFeedDuration,
           durationUntilCanFeedOut: () =>
               canFeedOut(turnPosition) ? Duration.zero : unknownDuration));
     }

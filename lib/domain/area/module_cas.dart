@@ -100,14 +100,14 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
       place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
-      inFeedDuration: inFeedDuration,
+      feedInDuration: inFeedDuration,
       canFeedIn: () => canFeedIn);
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
       place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
-      outFeedDuration: outFeedDuration,
+      feedOutDuration: outFeedDuration,
       durationUntilCanFeedOut: () => durationUntilCanFeedOut);
 
   get durationUntilCanFeedOut {

@@ -610,7 +610,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
         : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    inFeedDuration: inFeedDuration,
+    feedInDuration: inFeedDuration,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -621,7 +621,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
         : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    outFeedDuration: outFeedDuration,
+    feedOutDuration: outFeedDuration,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),

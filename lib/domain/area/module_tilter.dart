@@ -84,7 +84,7 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
       directionToOtherLink: const CompassDirection.south(),
-      inFeedDuration: inFeedDuration,
+      feedInDuration: inFeedDuration,
       feedInSingleStack: true,
       canFeedIn: () =>
           SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState));
@@ -93,7 +93,7 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
       directionToOtherLink: const CompassDirection.north(),
-      outFeedDuration: outFeedDuration,
+      feedOutDuration: outFeedDuration,
       durationUntilCanFeedOut: () =>
           SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
               currentState));
