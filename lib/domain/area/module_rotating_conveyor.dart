@@ -60,7 +60,7 @@ class ModuleRotatingConveyor extends StateMachine
   })  : turnSpeedProfile = turnSpeedProfile ??
             area.productDefinition.speedProfiles.turnTableTurn,
         conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyorWithoutStopper
+            area.productDefinition.speedProfiles.moduleConveyor
 
         ///TODO should be different for single stack or multiple stacks
         ,

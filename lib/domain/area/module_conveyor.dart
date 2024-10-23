@@ -31,8 +31,8 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     required this.area,
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : speedProfile = speedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyorWithoutStopper,
+  })  : speedProfile =
+            speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: CheckIfEmpty(),
         );

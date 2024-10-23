@@ -8,6 +8,7 @@ import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_drawer_loader.dart';
@@ -17,9 +18,6 @@ import 'object_details.dart';
 import 'life_bird_handling_area.dart';
 import 'module/module.dart';
 import 'state_machine.dart';
-
-// final OffsetInMeters mysteryCorrection =
-//     GrandeDrawerModuleType.size.toOffset() * -0.4;
 
 class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
@@ -513,16 +511,9 @@ class BetweenLiftPositions extends BetweenDrawerPlaces {
 
 class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
-
-  ///Number of birds on dumping belt between module and hanger (a buffer).
-  ///The loader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
-  ///Normally this number is between the number of birds in 1 or 2 modules
-  final Duration checkIfEmptyDuration;
-  final Duration feedInToSecondColumn;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
   final Direction drawersInDirection;
   final bool singleColumnOfCompartments;
+  final SpeedProfile conveyorSpeedProfile;
   Duration durationPerModule = Duration.zero;
   Durations durationsPerModule = Durations(maxSize: 8);
 
@@ -548,18 +539,9 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
   ModuleDrawerLoader({
     required this.area,
     required this.drawersInDirection,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration? inFeedDuration =
-        const Duration(milliseconds: 9300), // TODO remove default value?
-    Duration? outFeedDuration =
-        const Duration(milliseconds: 9300), // TODO remove default value?
-    this.feedInToSecondColumn = const Duration(
-        milliseconds:
-            6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+    SpeedProfile? conveyorSpeedProfile,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
         singleColumnOfCompartments =
             allModulesHaveOneSingleCompartmentColumn(area),
         super(
@@ -610,7 +592,8 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
         : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -621,7 +604,7 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
         : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -667,7 +650,8 @@ class CheckIfEmpty extends DurationState<ModuleDrawerLoader> {
 
   CheckIfEmpty()
       : super(
-            durationFunction: (loader) => loader.checkIfEmptyDuration,
+            durationFunction: (loader) => loader.conveyorSpeedProfile
+                .durationOfDistance(loader.shape.yInMeters * 1.5),
             nextStateFunction: (loader) =>
                 SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerLoader>(
                     modulesIn: loader.modulesIn,
@@ -784,8 +768,16 @@ class FeedInToSecondColumn extends State<ModuleDrawerLoader>
     moduleGroup.position = BetweenModuleGroupPlaces(
         source: loader.moduleGroupFirstColumnPlace,
         destination: loader.moduleGroupSecondColumnPlace,
-        duration: loader.feedInToSecondColumn);
+        duration: duration(loader));
   }
+
+  Duration duration(ModuleDrawerLoader loader) =>
+      loader.conveyorSpeedProfile.durationOfDistance(distanceInMeters(loader));
+
+  double distanceInMeters(ModuleDrawerLoader loader) =>
+      (loader.shape.centerToFirstColumn - loader.shape.centerToSecondColumn)
+          .lengthInMeters
+          .abs();
 
   @override
   State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>

@@ -45,7 +45,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     this.liftSpeed = const ElectricModuleLiftSpeedProfile(),
     this.heightsInMeters = const DefaultLiftPositionHeights(),
   })  : conveyorSpeed = conveyorSpeed ??
-            area.productDefinition.speedProfiles.moduleConveyorWithoutStopper,
+            area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: CheckIfEmpty(),
         );
