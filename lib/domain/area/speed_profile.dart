@@ -248,8 +248,6 @@ enum SpeedProfiles {
     conveyorTransportDuration: Duration(seconds: 12),
     moduleConveyor:
         ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel(),
-    // moduleConveyorWithStopper:
-    //     ConveyorWithStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel(),
     stackerInFeedDuration: Duration(
         seconds:
             14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
@@ -267,8 +265,6 @@ enum SpeedProfiles {
     conveyorTransportDuration: Duration(microseconds: 13400),
     moduleConveyor:
         ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel(),
-    // moduleConveyorWithStopper:
-    //     ConveyorWithStopperSpeedProfileForModulesWith1CompartmentPerLevel(),
 
     stackerInFeedDuration: Duration(
         milliseconds:
@@ -289,8 +285,6 @@ enum SpeedProfiles {
     conveyorTransportDuration: Duration(seconds: 14),
     //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
     moduleConveyor: ConveyorWithoutStopperSpeedProfileForOmniaContainers(),
-    // moduleConveyorWithStopper:
-    //     ConveyorWithStopperSpeedProfileForOmniaContainers(),
     //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
     stackerInFeedDuration: Duration(
         seconds:

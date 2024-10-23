@@ -4,6 +4,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
@@ -11,24 +12,17 @@ import 'package:meyn_lbh_simulation/gui/area/module_washer.dart';
 import 'package:user_command/user_command.dart';
 
 class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
-  final Duration checkIfEmptyDuration;
   final double lengthInMeters;
   final LiveBirdHandlingArea area;
+  final SpeedProfile conveyorSpeedProfile;
   static const double defaultLengthInMeters = 2.75;
 
   ModuleWasherConveyor({
     required this.area,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration? inFeedDuration,
-    Duration? outFeedDuration,
+    SpeedProfile? conveyorSpeedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration *
-                (lengthInMeters / defaultLengthInMeters),
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
         super(initialState: CheckIfEmpty());
 
   @override
@@ -43,7 +37,8 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -52,7 +47,7 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -89,8 +84,9 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
 class CheckIfEmpty extends DurationState<ModuleWasherConveyor> {
   CheckIfEmpty()
       : super(
-            durationFunction: (moduleWasher) =>
-                moduleWasher.checkIfEmptyDuration,
+            durationFunction: (moduleWasher) => moduleWasher
+                .conveyorSpeedProfile
+                .durationOfDistance(moduleWasher.lengthInMeters),
             nextStateFunction: (moduleWasher) =>
                 SimultaneousFeedOutFeedInModuleGroup<ModuleWasherConveyor>(
                     modulesIn: moduleWasher.modulesIn,
