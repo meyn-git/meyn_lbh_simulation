@@ -5,8 +5,6 @@ import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
@@ -289,7 +287,7 @@ class BetweenModuleGroupPlaces
   Duration elapsed = Duration.zero;
 
   @override
-  late String name = 'Module Transport';
+  late String name = 'BetweenModuleGroupPlaces';
 
   late final ModuleGroup transportedModuleGroup;
 

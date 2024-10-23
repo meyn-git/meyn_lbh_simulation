@@ -10,6 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
@@ -23,14 +24,15 @@ class ModuleDrawerColumnUnloader extends StateMachine
   ///Number of birds on dumping belt between module and hanger (a buffer).
   ///The unloader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
   ///Normally this number is between the number of birds in 1 or 2 modules
-  final Duration checkIfEmptyDuration;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
+  // final Duration checkIfEmptyDuration;
+  // final Duration inFeedDuration;
+  // final Duration outFeedDuration;
   final Duration pusherOutDuration;
   final Duration pusherInDuration;
   final Duration feedInToSecondColumn;
   final Direction drawerOutDirection;
   final bool singleColumnOfCompartments;
+  final SpeedProfile conveyorSpeed;
 
   @override
   late List<Command> commands = [
@@ -55,11 +57,8 @@ class ModuleDrawerColumnUnloader extends StateMachine
   ModuleDrawerColumnUnloader({
     required this.area,
     required this.drawerOutDirection,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration? inFeedDuration =
-        const Duration(milliseconds: 9300), // TODO remove default value?
-    Duration? outFeedDuration =
-        const Duration(milliseconds: 9300), // TODO remove default value?
+    SpeedProfile? conveyorSpeed,
+    
     this.pusherOutDuration = const Duration(
         milliseconds:
             3400), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
@@ -69,10 +68,8 @@ class ModuleDrawerColumnUnloader extends StateMachine
     this.feedInToSecondColumn = const Duration(
         milliseconds:
             6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+  })  : 
+  conveyorSpeed=conveyorSpeed??area.productDefinition.speedProfiles.moduleConveyorWithStopper,
         singleColumnOfCompartments =
             allModulesHaveOneSingleCompartmentColumn(area),
         super(
@@ -119,7 +116,8 @@ class ModuleDrawerColumnUnloader extends StateMachine
         : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeed,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -130,7 +128,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
         : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -163,7 +161,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   }
 
   @override
-  late final String name = 'ModuleDrawerUnloader$seqNr';
+  late final String name = 'ModuleDrawerColumnUnloader$seqNr';
 
   late final int seqNr = area.systems.seqNrOf(this);
 }
@@ -174,7 +172,7 @@ class CheckIfEmpty extends DurationState<ModuleDrawerColumnUnloader> {
 
   CheckIfEmpty()
       : super(
-          durationFunction: (unloader) => unloader.checkIfEmptyDuration,
+          durationFunction: (unloader) => unloader.conveyorSpeed.durationOfDistance(unloader.shape.xInMeters *1.5),
           nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
             modulesIn: unloader.modulesIn,
             modulesOut: unloader.modulesOut,
