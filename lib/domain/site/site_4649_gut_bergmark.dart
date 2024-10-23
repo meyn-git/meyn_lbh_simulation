@@ -94,7 +94,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -113,7 +113,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -142,7 +142,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(

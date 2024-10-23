@@ -14,20 +14,25 @@ import 'module/module.dart';
 import 'module_cas.dart';
 import 'state_machine.dart';
 
+enum ModuleRotatingConveyorDiameter {
+  short(2.75),
+  beforeModuleCas(3.2),
+  omnia(3.5),
+  twoSingleColumnModules(3.6);
+
+  final double inMeters;
+  const ModuleRotatingConveyorDiameter(this.inMeters);
+}
+
 class ModuleRotatingConveyor extends StateMachine
     implements PhysicalSystem, AdditionalRotation {
   final LiveBirdHandlingArea area;
   CompassDirection currentDirection = const CompassDirection.unknown();
   final SpeedProfile turnSpeedProfile;
+  final SpeedProfile conveyorSpeedProfile;
   final TurnPosition? defaultFeedInTurnPosition;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
 
-  /// [diameter]:
-  /// * 2.75 meter = normally
-  /// * 3.2 meter = in front of CAS units (because of CAS unit width)   OR IS IT 3m conveyor frame, 3.2 meter diameter???
-  /// * 3.2 meter = for double 1/2 modules?
-  final double lengthInMeters;
+  final ModuleRotatingConveyorDiameter diameter;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -47,18 +52,18 @@ class ModuleRotatingConveyor extends StateMachine
   ModuleRotatingConveyor({
     required this.area,
     SpeedProfile? turnSpeedProfile,
+    SpeedProfile? conveyorSpeedProfile,
     this.defaultFeedInTurnPosition,
     required this.turnPositions,
-    required this.lengthInMeters,
+    required this.diameter,
     State<ModuleRotatingConveyor>? initialState,
-    Duration? inFeedDuration,
-    Duration? outFeedDuration,
   })  : turnSpeedProfile = turnSpeedProfile ??
             area.productDefinition.speedProfiles.turnTableTurn,
-        inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+        conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyorWithoutStopper
+
+        ///TODO should be different for single stack or multiple stacks
+        ,
         super(
           initialState: initialState ?? TurnToFeedIn(),
         ) {
@@ -306,7 +311,8 @@ class ModuleRotatingConveyor extends StateMachine
           offsetFromCenterWhenFacingNorth:
               shape.centerToModuleGroupLink(turnPosition.direction),
           directionToOtherLink: turnPosition.direction,
-          feedInDuration: inFeedDuration,
+          feedInDuration: Duration.zero,
+          speedProfile: conveyorSpeedProfile,
           canFeedIn: () => canFeedIn(turnPosition)));
     }
     return inLinks;
@@ -320,7 +326,7 @@ class ModuleRotatingConveyor extends StateMachine
           offsetFromCenterWhenFacingNorth:
               shape.centerToModuleGroupLink(turnPosition.direction),
           directionToOtherLink: turnPosition.direction,
-          feedOutDuration: outFeedDuration,
+          feedOutDuration: Duration.zero,
           durationUntilCanFeedOut: () =>
               canFeedOut(turnPosition) ? Duration.zero : unknownDuration));
     }

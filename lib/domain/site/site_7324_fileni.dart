@@ -155,7 +155,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(direction: const CompassDirection.west()),
@@ -166,7 +166,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
@@ -179,7 +179,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(

@@ -100,9 +100,6 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
           productDefinition: productDefinition,
         );
 
-  /// TODO verify if it is close to 8 sec now we use speedProfile
-  /// static const shortModuleConveyorTransportDuration = Duration(seconds: 8);
-
   @override
   void createSystemsAndLinks() {
     var loadingForkLiftTruck = LoadingForkLiftTruck(
@@ -117,7 +114,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(
             direction: const CompassDirection.south(), reverseFeedIn: true),
@@ -127,7 +124,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(direction: const CompassDirection.north()),
@@ -141,7 +138,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(direction: const CompassDirection.west()),
@@ -150,7 +147,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc4 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
@@ -179,7 +176,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc5 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
@@ -208,7 +205,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc6 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(

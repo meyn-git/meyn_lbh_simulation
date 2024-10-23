@@ -197,7 +197,6 @@ class ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLeve
             deceleration: _maxSpeed / _decelerationInSeconds);
 }
 
-
 /// values are based on 7113 Tyson Union City VDL system
 /// and are validated at several VDL and Grande drawer systems
 class ConveyorWithStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel
@@ -205,7 +204,8 @@ class ConveyorWithStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel
   static const _totalDistanceInMeters = ModuleConveyor.defaultLengthInMeters;
   static const _totalDurationInSeconds = 14;
   static const _accelerationInSeconds = 1.5;
-  static const _decelerationInSeconds = 4.7;//effectively 2 seconds longer due to break sensor
+  static const _decelerationInSeconds =
+      4.7; //effectively 2 seconds longer due to break sensor
   static const _maxSpeed = _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
@@ -247,7 +247,8 @@ class ConveyorWithStopperSpeedProfileForModulesWith1CompartmentPerLevel
   static const _totalDistanceInMeters = ModuleConveyor.defaultLengthInMeters;
   static const _totalDurationInSeconds = 18.7;
   static const _accelerationInSeconds = 1.5;
-  static const _decelerationInSeconds = 11.3;//effectively 18.7-13.4=5.3 seconds longer due to break sensor = 2*5.3+0.7=11.3s
+  static const _decelerationInSeconds =
+      11.3; //effectively 18.7-13.4=5.3 seconds longer due to break sensor = 2*5.3+0.7=11.3s
   static const _maxSpeed = _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
@@ -284,10 +285,8 @@ class ConveyorWithoutStopperSpeedProfileForOmniaContainers
             deceleration: _maxSpeed / _decelerationInSeconds);
 }
 
-
 /// values are based on measurements at: 8052-Indrol Grodzisk
-class ConveyorWithStopperSpeedProfileForOmniaContainers
-    extends SpeedProfile {
+class ConveyorWithStopperSpeedProfileForOmniaContainers extends SpeedProfile {
   static const _totalDistanceInMeters = ModuleConveyor.defaultLengthInMeters;
   static const _totalDurationInSeconds = 19;
   static const _accelerationInSeconds = 2;
@@ -310,17 +309,16 @@ enum SpeedProfiles {
   /// values are based on 7113 Tyson Union City VDL system
   /// and are validated at several VDL and Grande drawer systems
   containersOrModulesWith2OrMoreCompartmentsPerLevel(
-     //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+    //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
     conveyorTransportDuration: Duration(seconds: 12),
     moduleConveyorWithoutStopper:
         ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel(),
-moduleConveyorWithStopper: ConveyorWithStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel(),
-stackerInFeedDuration: Duration(
+    moduleConveyorWithStopper:
+        ConveyorWithStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel(),
+    stackerInFeedDuration: Duration(
         seconds:
             14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    deStackerInFeedDuration: Duration(
-        seconds:
-            14),
+    deStackerInFeedDuration: Duration(seconds: 14),
     casTransportDuration: Duration(
         seconds:
             14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
@@ -334,9 +332,9 @@ stackerInFeedDuration: Duration(
     conveyorTransportDuration: Duration(microseconds: 13400),
     moduleConveyorWithoutStopper:
         ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel(),
-moduleConveyorWithStopper:
+    moduleConveyorWithStopper:
         ConveyorWithStopperSpeedProfileForModulesWith1CompartmentPerLevel(),
-    
+
     stackerInFeedDuration: Duration(
         milliseconds:
             18700), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
@@ -357,7 +355,8 @@ moduleConveyorWithStopper:
     //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
     moduleConveyorWithoutStopper:
         ConveyorWithoutStopperSpeedProfileForOmniaContainers(),
-    moduleConveyorWithStopper: ConveyorWithStopperSpeedProfileForOmniaContainers(),
+    moduleConveyorWithStopper:
+        ConveyorWithStopperSpeedProfileForOmniaContainers(),
     //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
     stackerInFeedDuration: Duration(
         seconds:

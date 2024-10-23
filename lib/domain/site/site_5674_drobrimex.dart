@@ -200,7 +200,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -215,7 +215,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
@@ -232,7 +232,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
@@ -292,7 +292,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc4 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 2.75,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(direction: const CompassDirection.south()),

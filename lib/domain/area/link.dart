@@ -79,11 +79,10 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
   final bool feedInSingleStack;
   final bool Function() canFeedIn;
   final ModuleGroupPlace place;
-  final SpeedProfile? speedProfile;//make required and then remove feedInDuration
+  final SpeedProfile?
+      speedProfile; //make required and then remove feedInDuration
 
   late double distanceToFeedInInMeters = _distanceToFeedInInMeters();
-
-  
 
   double _distanceToFeedInInMeters() {
     var linkOffset = offsetFromCenterWhenFacingNorth;
@@ -99,7 +98,7 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
     this.feedInSingleStack = false,
     required this.feedInDuration //TODO replace with speed profile
     ,
-     this.speedProfile,
+    this.speedProfile,
     required this.canFeedIn,
   }) : super(system: (place.system as OWNER));
 

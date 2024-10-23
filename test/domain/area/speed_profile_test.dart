@@ -162,8 +162,6 @@ void main() {
     });
   });
 
-  
-
   group(
       '$TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel class',
       () {
@@ -286,7 +284,7 @@ void main() {
     });
   });
 
-   group(
+  group(
       '$ConveyorWithStopperSpeedProfileForModulesWith1CompartmentPerLevel class',
       () {
     var speedProfile =
@@ -318,10 +316,7 @@ void main() {
     });
   });
 
-  
-   group(
-      '$ConveyorWithStopperSpeedProfileForOmniaContainers class',
-      () {
+  group('$ConveyorWithStopperSpeedProfileForOmniaContainers class', () {
     var speedProfile =
         const ConveyorWithStopperSpeedProfileForOmniaContainers();
     test(

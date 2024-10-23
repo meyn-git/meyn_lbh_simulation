@@ -133,7 +133,7 @@ class simultaneously extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(
             direction: const CompassDirection.west(), reverseFeedIn: true),
@@ -147,7 +147,7 @@ class simultaneously extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
@@ -160,7 +160,7 @@ class simultaneously extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(

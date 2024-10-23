@@ -26,26 +26,24 @@ class ModuleRotatingConveyorShape extends CompoundShape {
       centerToModuleGroupLinkNorth.rotate(direction);
 
   ModuleRotatingConveyorShape(ModuleRotatingConveyor moduleRotatingConveyor) {
+    var frameLength = _frameLength(moduleRotatingConveyor);
     var rotationFrame = Circle(diameterInMeters: 2);
     var frameEast = Box(
-        xInMeters: ModuleConveyorShape
-            .frameWidthInMeters, //standard grande drawer conveyor frame width
-        yInMeters: moduleRotatingConveyor.lengthInMeters);
+        xInMeters: ModuleConveyorShape.frameWidthInMeters,
+        yInMeters: frameLength);
     var conveyor = Box(
-        xInMeters: ModuleConveyorShape
-            .conveyorWidthInMeters, //standard grande drawer conveyor width
-        yInMeters: moduleRotatingConveyor.lengthInMeters);
+        xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
+        yInMeters: frameLength);
     var frameWest = Box(
-        xInMeters: ModuleConveyorShape
-            .frameWidthInMeters, //standard grande drawer conveyor frame width
-        yInMeters: moduleRotatingConveyor.lengthInMeters);
+        xInMeters: ModuleConveyorShape.frameWidthInMeters,
+        yInMeters: frameLength);
     var motor = Box(xInMeters: 0.3, yInMeters: 0.4);
 
-    diameterInMeters = _calculateDiameter(moduleRotatingConveyor);
-    var padding =
+    diameterInMeters = moduleRotatingConveyor.diameter.inMeters;
+    var fullSize =
         InvisibleBox(xInMeters: diameterInMeters, yInMeters: diameterInMeters);
 
-    link(padding.centerCenter, conveyor.centerCenter);
+    link(fullSize.centerCenter, conveyor.centerCenter);
     link(conveyor.centerLeft, frameWest.centerRight);
     link(conveyor.centerRight, frameEast.centerLeft);
     link(frameWest.topLeft.addY(0.15), motor.topRight);
@@ -55,10 +53,11 @@ class ModuleRotatingConveyorShape extends CompoundShape {
         topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
   }
 
-  double _calculateDiameter(ModuleRotatingConveyor moduleRotatingConveyor) {
+  double _frameLength(ModuleRotatingConveyor moduleRotatingConveyor) {
     var width = ModuleConveyorShape.conveyorWidthInMeters +
         ModuleConveyorShape.frameWidthInMeters * 2;
-    var height = moduleRotatingConveyor.lengthInMeters;
-    return sqrt(pow(width, 2) + pow(height, 2)) + 0.1;
+    const gap = 0.1;
+    var diameter = moduleRotatingConveyor.diameter.inMeters;
+    return sqrt(pow((diameter - gap), 2) - pow(width, 2));
   }
 }

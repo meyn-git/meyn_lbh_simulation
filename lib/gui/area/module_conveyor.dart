@@ -14,22 +14,20 @@ class ModuleConveyorShape extends CompoundShape {
   late final OffsetInMeters centerToModuleOutLink;
 
   static const double conveyorWidthInMeters = 1.2;
+  //standard grande drawer conveyor frame width (VDL and Maxiload-twin or Omnia might be different)
   static const double frameWidthInMeters = 0.065;
 
   ModuleConveyorShape(ModuleConveyor moduleConveyor) {
     var moduleGroupSurface =
         moduleConveyor.area.productDefinition.truckRows.first.footprintOnSystem;
     var frameEast = Box(
-        xInMeters:
-            frameWidthInMeters, //standard grande drawer conveyor frame width
+        xInMeters: frameWidthInMeters,
         yInMeters: moduleConveyor.lengthInMeters);
     var conveyor = Box(
-        xInMeters:
-            conveyorWidthInMeters, //standard grande drawer conveyor width
+        xInMeters: conveyorWidthInMeters,
         yInMeters: moduleConveyor.lengthInMeters);
     var frameWest = Box(
-        xInMeters:
-            frameWidthInMeters, //standard grande drawer conveyor frame width
+        xInMeters: frameWidthInMeters,
         yInMeters: moduleConveyor.lengthInMeters);
 
     var motor = Box(xInMeters: 0.3, yInMeters: 0.63);

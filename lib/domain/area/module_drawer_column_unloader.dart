@@ -58,7 +58,6 @@ class ModuleDrawerColumnUnloader extends StateMachine
     required this.area,
     required this.drawerOutDirection,
     SpeedProfile? conveyorSpeed,
-    
     this.pusherOutDuration = const Duration(
         milliseconds:
             3400), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
@@ -68,8 +67,8 @@ class ModuleDrawerColumnUnloader extends StateMachine
     this.feedInToSecondColumn = const Duration(
         milliseconds:
             6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-  })  : 
-  conveyorSpeed=conveyorSpeed??area.productDefinition.speedProfiles.moduleConveyorWithStopper,
+  })  : conveyorSpeed = conveyorSpeed ??
+            area.productDefinition.speedProfiles.moduleConveyorWithStopper,
         singleColumnOfCompartments =
             allModulesHaveOneSingleCompartmentColumn(area),
         super(
@@ -172,7 +171,8 @@ class CheckIfEmpty extends DurationState<ModuleDrawerColumnUnloader> {
 
   CheckIfEmpty()
       : super(
-          durationFunction: (unloader) => unloader.conveyorSpeed.durationOfDistance(unloader.shape.xInMeters *1.5),
+          durationFunction: (unloader) => unloader.conveyorSpeed
+              .durationOfDistance(unloader.shape.xInMeters * 1.5),
           nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
             modulesIn: unloader.modulesIn,
             modulesOut: unloader.modulesOut,

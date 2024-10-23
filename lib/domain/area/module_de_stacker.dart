@@ -42,10 +42,10 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     Duration? outFeedDuration,
     this.currentHeightInMeter =
         DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
-
     this.liftSpeed = const ElectricModuleLiftSpeedProfile(),
     this.heightsInMeters = const DefaultLiftPositionHeights(),
-  })  : conveyorSpeed=conveyorSpeed?? area.productDefinition.speedProfiles.moduleConveyorWithoutStopper,    
+  })  : conveyorSpeed = conveyorSpeed ??
+            area.productDefinition.speedProfiles.moduleConveyorWithoutStopper,
         super(
           initialState: CheckIfEmpty(),
         );
@@ -130,7 +130,8 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
 class CheckIfEmpty extends DurationState<ModuleDeStacker> {
   CheckIfEmpty()
       : super(
-            durationFunction: (deStacker) => deStacker.conveyorSpeed.durationOfDistance(deStacker.shape.yInMeters * 1.5),
+            durationFunction: (deStacker) => deStacker.conveyorSpeed
+                .durationOfDistance(deStacker.shape.yInMeters * 1.5),
             nextStateFunction: (deStacker) => MoveLift(LiftPosition.inFeed,
                 deStacker.createSimultaneousFeedOutFeedInModuleGroup()));
 

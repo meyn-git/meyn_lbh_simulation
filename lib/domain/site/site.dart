@@ -76,5 +76,6 @@ class Sites extends DelegatingList<Site> {
           FileniSite(),
           DobrimexSite(),
           DabeSite(),
+          HaerlandSite(),
         ]);
 }

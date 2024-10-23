@@ -267,7 +267,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south().rotate(30)),
         TurnPosition(
@@ -284,7 +284,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -301,7 +301,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -401,7 +401,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc4 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 2.75,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(direction: const CompassDirection.west())

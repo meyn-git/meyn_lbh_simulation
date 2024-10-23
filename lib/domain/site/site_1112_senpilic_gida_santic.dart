@@ -133,7 +133,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(
             direction: const CompassDirection.east(), reverseFeedIn: true),
@@ -166,7 +166,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     );
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.north()),
         TurnPosition(direction: const CompassDirection.east()),
@@ -331,7 +331,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(
             direction: const CompassDirection.east(), reverseFeedIn: true),
@@ -363,7 +363,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     );
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.north()),
         TurnPosition(direction: const CompassDirection.east()),

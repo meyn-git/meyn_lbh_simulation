@@ -130,20 +130,21 @@ class AreaWithGp extends LiveBirdHandlingArea {
     var mc1 = ModuleConveyor(area: this);
 
     var mrc1 = ModuleRotatingConveyor(
-        area: this,
-        turnPositions: [
-          TurnPosition(direction: const CompassDirection.south()),
-          TurnPosition(
-            direction: const CompassDirection.west(),
-            reverseFeedIn: true,
-          ),
-          TurnPosition(direction: const CompassDirection.north()),
-          TurnPosition(
-            direction: const CompassDirection.east(),
-            reverseFeedOut: true,
-          ),
-        ],
-        lengthInMeters: 3.2);
+      area: this,
+      turnPositions: [
+        TurnPosition(direction: const CompassDirection.south()),
+        TurnPosition(
+          direction: const CompassDirection.west(),
+          reverseFeedIn: true,
+        ),
+        TurnPosition(direction: const CompassDirection.north()),
+        TurnPosition(
+          direction: const CompassDirection.east(),
+          reverseFeedOut: true,
+        ),
+      ],
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
+    );
 
     var cas1 = ModuleCas(
       area: this,
@@ -241,7 +242,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
           ),
           TurnPosition(direction: const CompassDirection.north()),
         ],
-        lengthInMeters: 3.2);
+        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
 
     var mrc2 = ModuleRotatingConveyor(
         area: this,
@@ -257,7 +258,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
             reverseFeedOut: true,
           ),
         ],
-        lengthInMeters: 3.2);
+        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
 
     var cas3 = ModuleCas(
       area: this,
@@ -288,7 +289,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 2.75,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(direction: const CompassDirection.west())
@@ -297,7 +298,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
 
     var mrc4 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 2.75,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(direction: const CompassDirection.north())
@@ -322,7 +323,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
 
     var mrc5 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 2.75,
+      diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(direction: const CompassDirection.east())

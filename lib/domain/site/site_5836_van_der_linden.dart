@@ -82,11 +82,11 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    var mc1 = ModuleConveyor(area: this);
+    var mc1 = ModuleConveyor(area: this, lengthInMeters: 3.75);
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -99,7 +99,7 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mrc2 = ModuleRotatingConveyor(
       area: this,
-      lengthInMeters: 3.2,
+      diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
@@ -140,7 +140,7 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       direction: Direction.clockWise,
     );
 
-    var mc3 = ModuleConveyor(area: this, lengthInMeters: 3);
+    var mc3 = ModuleConveyor(area: this, lengthInMeters: 3.75);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
