@@ -20,11 +20,10 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
   int nrOfModulesFeedingIn = 0;
   double liftHeightInMeters;
   final Map<LiftPosition, double> heightsInMeters;
-  final SpeedProfile liftSpeed;
+  final SpeedProfile liftSpeedProfile;
+  final SpeedProfile conveyorSpeedProfile;
   final Duration supportsCloseDuration;
   final Duration supportsOpenDuration;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
 
   /// e.g. when [maxLevelsInTop] = 4 then it will feed out
   /// a 5 level module when there is no 4 level module in top
@@ -43,13 +42,13 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     this.maxLevelsInTop,
     this.liftHeightInMeters =
         DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
-    SpeedProfile? liftSpeed,
+    SpeedProfile? liftSpeedProfile,
+    SpeedProfile? conveyorSpeedProfile,
     this.heightsInMeters = const DefaultLiftPositionHeights(),
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.stackerInFeedDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        liftSpeed = liftSpeed ?? area.productDefinition.speedProfiles.lift,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
+        liftSpeedProfile =
+            liftSpeedProfile ?? area.productDefinition.speedProfiles.lift,
         super(
           initialState: CheckIfEmpty(),
         );
@@ -68,7 +67,8 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -77,7 +77,7 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () => currentState is WaitToFeedOut
         ? Duration.zero
         : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
@@ -116,7 +116,10 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
 class CheckIfEmpty extends DurationState<ModuleStacker> {
   CheckIfEmpty()
       : super(
-            durationFunction: (stacker) => stacker.inFeedDuration * 1.5,
+            durationFunction: (stacker) =>
+                stacker.conveyorSpeedProfile
+                    .durationOfDistance(stacker.shape.yInMeters) *
+                1.5,
             nextStateFunction: (stacker) =>
                 SimultaneousFeedOutFeedInModuleGroup(
                     modulesIn: stacker.modulesIn,
@@ -145,7 +148,8 @@ class MoveLift extends DurationState<ModuleStacker> {
       var currentHeightInMeters = stacker.liftHeightInMeters;
       var goToHeightInMeters = stacker.heightsInMeters[goToPosition]!;
       var distanceInMeters = (currentHeightInMeters - goToHeightInMeters).abs();
-      var duration = stacker.liftSpeed.durationOfDistance(distanceInMeters);
+      var duration =
+          stacker.liftSpeedProfile.durationOfDistance(distanceInMeters);
       return duration;
     };
   }
