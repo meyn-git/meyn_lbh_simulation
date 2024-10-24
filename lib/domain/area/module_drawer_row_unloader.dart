@@ -10,6 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
@@ -18,18 +19,12 @@ import 'package:user_command/user_command.dart';
 
 class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
-
-  ///Number of birds on dumping belt between module and hanger (a buffer).
-  ///The unloader starts tilting when birdsOnDumpBelt<dumpBeltBufferSize
-  ///Normally this number is between the number of birds in 1 or 2 modules
-  final Duration checkIfEmptyDuration;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
   final Duration pusherPushDuration;
   final Duration pusherBackDuration;
   final Duration liftUpToTopDuration;
   final Duration liftOneLevelDownDuration;
   final Direction drawerOutDirection;
+  final SpeedProfile conveyorSpeedProfile;
 
   @override
   late final List<Command> commands = [
@@ -62,11 +57,6 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
   ModuleDrawerRowUnloader({
     required this.area,
     required this.drawerOutDirection,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration? inFeedDuration =
-        const Duration(milliseconds: 9300), // TODO remove default value?
-    Duration? outFeedDuration =
-        const Duration(milliseconds: 9300), // TODO remove default value?
     this.pusherPushDuration = const Duration(
         milliseconds: 3400), // Based on "4339-Vinnitsa-tack-timesv3.xlsx"
     this.pusherBackDuration = const Duration(
@@ -75,10 +65,9 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
         milliseconds: 7400), // Based on "4339-Vinnitsa-tack-timesv3.xlsx"
     this.liftOneLevelDownDuration = const Duration(
         milliseconds: 1600), // Based on "4339-Vinnitsa-tack-timesv3.xlsx"
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+    SpeedProfile? conveyorSpeedProfile,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: CheckIfEmpty(),
         );
@@ -100,7 +89,8 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -109,7 +99,7 @@ class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -150,7 +140,8 @@ class CheckIfEmpty extends DurationState<ModuleDrawerRowUnloader> {
 
   CheckIfEmpty()
       : super(
-            durationFunction: (unloader) => unloader.checkIfEmptyDuration,
+            durationFunction: (unloader) => unloader.conveyorSpeedProfile
+                .durationOfDistance(unloader.shape.yInMeters),
             nextStateFunction: (unloader) =>
                 SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerRowUnloader>(
                     modulesIn: unloader.modulesIn,

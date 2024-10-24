@@ -25,5 +25,24 @@
 			"label": "dart fix --apply",
 			"detail": ""
 		},
+		{ 
+		"type": "flutter",
+		"command": "flutter",
+		"args": [
+		  "test",
+		],
+		"problemMatcher":[],
+		"label": "flutter test"
+	  },
+
+	  {
+		"label": "prepare commit",
+		"dependsOn": [
+		"dart fix --apply",
+		"dart format .",
+		"flutter test",
+		],
+		"problemMatcher": []
+	   }
 	]
 }
