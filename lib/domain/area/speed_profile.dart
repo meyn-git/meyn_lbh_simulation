@@ -114,7 +114,7 @@ class ElectricModuleLiftSpeedProfile extends SpeedProfile {
 
 /// values are based on 7113 Tyson Union City VDL system
 /// and are validated at several VDL and Grande drawer systems
-class TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel
+class TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel
     extends SpeedProfile {
   static const _totalDistanceInDegrees = 90;
   static const _totalDurationInSeconds = 6;
@@ -127,7 +127,7 @@ class TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel
               _decelerationInSeconds) +
           0.5 * _decelerationInSeconds);
 
-  const TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel()
+  const TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel()
       : super(
             maxSpeed: _maxSpeed,
             acceleration: _maxSpeed / _accelerationInSeconds,
@@ -135,7 +135,7 @@ class TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel
 }
 
 /// values are based on measurements at: 7696-Dabe-Germanyk
-class TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel
+class TurnTableSpeedProfileForModulesWith1CompartmentPerLevel
     extends SpeedProfile {
   static const _totalDistanceInDegrees = 90;
   static const _totalDurationInSeconds = 9;
@@ -148,7 +148,7 @@ class TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel
               _decelerationInSeconds) +
           0.5 * _decelerationInSeconds);
 
-  const TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel()
+  const TurnTableSpeedProfileForModulesWith1CompartmentPerLevel()
       : super(
             maxSpeed: _maxSpeed,
             acceleration: _maxSpeed / _accelerationInSeconds,
@@ -177,7 +177,7 @@ class TurnTableSpeedProfileForOmniaContainers extends SpeedProfile {
 
 /// values are based on 7113 Tyson Union City VDL system
 /// and are validated at several VDL and Grande drawer systems
-class ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel
+class ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel
     extends SpeedProfile {
   static const _totalDistanceInMeters = ModuleConveyor.defaultLengthInMeters;
   static const _totalDurationInSeconds = 12;
@@ -190,7 +190,7 @@ class ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLeve
               _decelerationInSeconds) +
           0.5 * _decelerationInSeconds);
 
-  const ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel()
+  const ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel()
       : super(
             maxSpeed: _maxSpeed,
             acceleration: _maxSpeed / _accelerationInSeconds,
@@ -198,7 +198,7 @@ class ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLeve
 }
 
 /// values are based on measurements at: 7696-Dabe-Germanyk
-class ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel
+class ConveyorSpeedProfileForModulesWith1CompartmentPerLevel
     extends SpeedProfile {
   static const _totalDistanceInMeters = ModuleConveyor.defaultLengthInMeters;
   static const _totalDurationInSeconds = 13.4;
@@ -211,7 +211,7 @@ class ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel
               _decelerationInSeconds) +
           0.5 * _decelerationInSeconds);
 
-  const ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel()
+  const ConveyorSpeedProfileForModulesWith1CompartmentPerLevel()
       : super(
             maxSpeed: _maxSpeed,
             acceleration: _maxSpeed / _accelerationInSeconds,
@@ -223,6 +223,7 @@ class ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel
 class ConveyorWithoutStopperSpeedProfileForOmniaContainers
     extends SpeedProfile {
   static const _totalDistanceInMeters = ModuleConveyor.defaultLengthInMeters;
+  //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
   static const _totalDurationInSeconds = 14;
   static const _accelerationInSeconds = 2;
   static const _decelerationInSeconds = 2;
@@ -244,85 +245,47 @@ enum SpeedProfiles {
   /// values are based on 7113 Tyson Union City VDL system
   /// and are validated at several VDL and Grande drawer systems
   containersOrModulesWith2OrMoreCompartmentsPerLevel(
-    //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    conveyorTransportDuration: Duration(seconds: 12),
+    // conveyorTransportDuration: Duration(seconds: 12),
+    // stackerInFeedDuration: Duration(seconds: 14),
+    // deStackerInFeedDuration: Duration(seconds: 14),
+    // casTransportDuration: Duration(seconds: 14),
     moduleConveyor:
-        ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel(),
-    stackerInFeedDuration: Duration(
-        seconds:
-            14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    deStackerInFeedDuration: Duration(seconds: 14),
-    casTransportDuration: Duration(
-        seconds:
-            14), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
+        ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel(),
     turnTableTurn:
-        TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel(),
+        TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel(),
     lift: ElectricModuleLiftSpeedProfile(),
   ),
 
   /// values are based on measurements at: 7696-Dabe-Germanyk
   containersOrModulesWith1CompartmentsPerLevel(
-    conveyorTransportDuration: Duration(microseconds: 13400),
-    moduleConveyor:
-        ConveyorWithoutStopperSpeedProfileForModulesWith1CompartmentPerLevel(),
-
-    stackerInFeedDuration: Duration(
-        milliseconds:
-            18700), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    deStackerInFeedDuration: Duration(
-        milliseconds:
-            18700), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    casTransportDuration: Duration(
-        milliseconds:
-            18700), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    turnTableTurn:
-        TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel(),
+    // conveyorTransportDuration: Duration(microseconds: 13400),
+    // stackerInFeedDuration: Duration(milliseconds: 18700),
+    // deStackerInFeedDuration: Duration(milliseconds: 18700),
+    // casTransportDuration: Duration(milliseconds: 18700),
+    moduleConveyor: ConveyorSpeedProfileForModulesWith1CompartmentPerLevel(),
+    turnTableTurn: TurnTableSpeedProfileForModulesWith1CompartmentPerLevel(),
     lift: ElectricModuleLiftSpeedProfile(),
   ),
 
   ///values are based on measurements at: 8052-Indrol Grodzisk
   meynOmnia(
-    conveyorTransportDuration: Duration(seconds: 14),
     //Was 19, but can be improved to 14 acording to Maurizio test at Indrol; on 2024-09-18
+    // conveyorTransportDuration: Duration(seconds: 14),
+    // stackerInFeedDuration: Duration(seconds: 19),
+    // deStackerInFeedDuration: Duration(seconds: 19),
+    // casTransportDuration: Duration(seconds: 19),
     moduleConveyor: ConveyorWithoutStopperSpeedProfileForOmniaContainers(),
-    //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7
-    stackerInFeedDuration: Duration(
-        seconds:
-            19), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    deStackerInFeedDuration: Duration(
-        seconds:
-            19), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
-    casTransportDuration: Duration(
-        seconds:
-            19), //TODO change to TravelSpeed, typical rampup=1.5s, typical ramp down=0,7 (additional 2 seconds to stop on stopper?)
     turnTableTurn: TurnTableSpeedProfileForOmniaContainers(),
-
     /// lift speed profile is assumed to be identical to other systems (not verified)
     lift: ElectricModuleLiftSpeedProfile(),
   ),
   ;
 
   const SpeedProfiles({
-    required this.stackerInFeedDuration,
-    required this.deStackerInFeedDuration,
-    required this.conveyorTransportDuration,
-    required this.casTransportDuration,
     required this.moduleConveyor,
     required this.turnTableTurn,
     required this.lift,
   });
-
-  /// TODO remove
-  final Duration stackerInFeedDuration;
-
-  /// TODO remove
-  final Duration deStackerInFeedDuration;
-
-  /// TODO remove
-  final Duration conveyorTransportDuration;
-
-  /// TODO remove
-  final Duration casTransportDuration;
   final SpeedProfile moduleConveyor;
   final SpeedProfile turnTableTurn;
   final SpeedProfile lift;

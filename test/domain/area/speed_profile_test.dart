@@ -134,10 +134,10 @@ void main() {
   });
 
   group(
-      '$TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel class',
+      '$TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel class',
       () {
     var speedProfile =
-        const TurnTableSpeedProfileForContainersOrModulesWith2OrMoreCompartmentsPerLevel();
+        const TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel();
     test(
         'MaxSpeed should be 90 degrees / (0.5*2s + (6s-2s-2s) + 0.5*2s) = 22,5 degrees/s',
         () {
@@ -163,10 +163,10 @@ void main() {
   });
 
   group(
-      '$TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel class',
+      '$TurnTableSpeedProfileForModulesWith1CompartmentPerLevel class',
       () {
     var speedProfile =
-        const TurnTableSpeedProfileForContainersOrModulesWith1CompartmentPerLevel();
+        const TurnTableSpeedProfileForModulesWith1CompartmentPerLevel();
     test(
         'MaxSpeed should be 90 degrees / (0.5*2s + (9s-2s-2s) + 0.5*2s) = 12.857 degrees/s',
         () {
@@ -221,10 +221,10 @@ void main() {
   });
 
   group(
-      '$ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel class',
+      '$ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel class',
       () {
     var speedProfile =
-        const ConveyorWithoutStopperSpeedProfileForModulesWith2CompartmentsOrMorePerLevel();
+        const ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel();
     test(
         'MaxSpeed should be 2.75m / (0.5*1.5s + (12s-1.5s-0.7s) + 0.5*0.7s) = 0.2525m/s',
         () {
