@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_cas.dart';
@@ -16,8 +17,7 @@ import 'unloading_fork_lift_truck.dart';
 
 class ModuleCas extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
+  final SpeedProfile conveyorSpeedProfile;
   late CasRecipe recipe;
   final bool gasDuctsLeft;
   final bool slideDoorLeft;
@@ -36,14 +36,11 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
     required this.gasDuctsLeft,
     this.closeSlideDoorDuration = const Duration(seconds: 6),
     this.openSlideDoorDuration = const Duration(seconds: 6),
-    Duration? inFeedDuration,
-    Duration? outFeedDuration,
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.casTransportDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.casTransportDuration,
+    SpeedProfile? conveyorSpeedProfile,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
         super(
-          initialState: WaitToFeedIn(),
+          initialState: CheckIfEmpty(),
         ) {
     _verifyCasRecipeIsDefined();
     recipe = area.productDefinition.casRecipe!;
@@ -100,14 +97,15 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
       place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
-      feedInDuration: inFeedDuration,
+      feedInDuration: Duration.zero,
+      speedProfile: conveyorSpeedProfile,
       canFeedIn: () => canFeedIn);
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
       place: moduleGroupPosition,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
-      feedOutDuration: outFeedDuration,
+      feedOutDuration: Duration.zero,
       durationUntilCanFeedOut: () => durationUntilCanFeedOut);
 
   get durationUntilCanFeedOut {
@@ -190,6 +188,19 @@ class CasRecipe {
           Duration(seconds: 70), //72%
           Duration(seconds: 100) //82%
         ], const Duration(seconds: 30));
+}
+
+class CheckIfEmpty extends DurationState<ModuleCas> {
+  CheckIfEmpty()
+      : super(
+            durationFunction: (cas) =>
+                cas.conveyorSpeedProfile
+                    .durationOfDistance(cas.shape.yInMeters) *
+                1.5,
+            nextStateFunction: (cas) => WaitToFeedIn());
+
+  @override
+  String get name => 'CheckIfEmpty';
 }
 
 class WaitToFeedIn extends State<ModuleCas>
