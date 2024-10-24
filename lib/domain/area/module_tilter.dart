@@ -4,6 +4,7 @@ import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
@@ -26,11 +27,9 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
   late final shape = ModuleTilterShape(this);
 
-  final Duration checkIfEmptyDuration;
   final Duration tiltForwardDuration;
   final Duration tiltBackDuration;
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
+  final SpeedProfile conveyorSpeedProfile;
 
   late final CompassDirection doorDirection =
       (tiltDirection == Direction.counterClockWise
@@ -41,15 +40,12 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   ModuleTilter({
     required this.area,
     required this.tiltDirection,
-    this.checkIfEmptyDuration = const Duration(seconds: 18),
-    Duration? inFeedDuration,
+    SpeedProfile? conveyorSpeedProfile,
     this.tiltForwardDuration = const Duration(seconds: 9),
     this.tiltBackDuration = const Duration(seconds: 5),
     Duration? outFeedDuration,
-  })  : inFeedDuration = inFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        outFeedDuration = outFeedDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: CheckIfEmpty(),
         ) {
@@ -84,7 +80,8 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
       directionToOtherLink: const CompassDirection.south(),
-      feedInDuration: inFeedDuration,
+      feedInDuration: Duration.zero,
+      speedProfile: conveyorSpeedProfile,
       feedInSingleStack: true,
       canFeedIn: () =>
           SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState));
@@ -93,7 +90,7 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
       directionToOtherLink: const CompassDirection.north(),
-      feedOutDuration: outFeedDuration,
+      feedOutDuration: Duration.zero,
       durationUntilCanFeedOut: () =>
           SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
               currentState));
@@ -136,7 +133,10 @@ class CheckIfEmpty extends DurationState<ModuleTilter> {
 
   CheckIfEmpty()
       : super(
-            durationFunction: (tilter) => tilter.checkIfEmptyDuration,
+            durationFunction: (tilter) =>
+                tilter.conveyorSpeedProfile
+                    .durationOfDistance(tilter.shape.yInMeters) *
+                1.5,
             nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
                 modulesIn: tilter.modulesIn,
                 modulesOut: tilter.modulesOut,
