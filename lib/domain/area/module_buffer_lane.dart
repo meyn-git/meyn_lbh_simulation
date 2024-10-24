@@ -2,6 +2,7 @@
 
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
+import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/shape.dart';
@@ -13,9 +14,8 @@ import 'state_machine.dart';
 
 abstract class ModuleBufferSystem extends StateMachine
     implements PhysicalSystem {
-  final Duration inFeedDuration;
-  final Duration outFeedDuration;
   final LiveBirdHandlingArea area;
+  final SpeedProfile conveyorSpeedProfile;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -24,12 +24,9 @@ abstract class ModuleBufferSystem extends StateMachine
 
   ModuleBufferSystem({
     required this.area,
-    Duration? feedInDuration,
-    Duration? feedOutDuration,
-  })  : inFeedDuration = feedInDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
-        outFeedDuration = feedOutDuration ??
-            area.productDefinition.speedProfiles.conveyorTransportDuration,
+    SpeedProfile? conveyorSpeedProfile,
+  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
+            area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: WaitToFeedIn(),
         );
@@ -63,7 +60,8 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.bottomCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () => currentState is WaitToFeedIn,
   );
 
@@ -72,7 +70,7 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.topCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
   );
@@ -90,8 +88,7 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
 
   ModuleBufferConveyor({
     required super.area,
-    super.feedInDuration,
-    super.feedOutDuration,
+    super.conveyorSpeedProfile,
   });
 
   @override
@@ -111,8 +108,7 @@ abstract class ModuleBufferAngleTransferSystem extends ModuleBufferSystem {
 
   ModuleBufferAngleTransferSystem({
     required super.area,
-    super.feedInDuration,
-    super.feedOutDuration,
+    super.conveyorSpeedProfile,
     this.upDuration = const Duration(seconds: 4),
     this.downDuration = const Duration(seconds: 4),
     required this.moduleOutDirection,
@@ -125,7 +121,8 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.bottomCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () => currentState is WaitToFeedIn,
   );
 
@@ -140,7 +137,7 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
     directionToOtherLink: moduleOutDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
   );
@@ -171,8 +168,7 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
 
   ModuleBufferAngleTransferInFeed(
       {required super.area,
-      super.feedInDuration,
-      super.feedOutDuration,
+      super.conveyorSpeedProfile,
       super.upDuration,
       super.downDuration,
       required super.moduleOutDirection});
@@ -184,7 +180,8 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.bottomCenter - shape.centerCenter,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: inFeedDuration,
+    feedInDuration: Duration.zero,
+    speedProfile: conveyorSpeedProfile,
     canFeedIn: () => currentState is WaitToFeedIn,
   );
 
@@ -199,7 +196,7 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
     directionToOtherLink: moduleOutDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
-    feedOutDuration: outFeedDuration,
+    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         currentState is WaitToFeedOut ? Duration.zero : unknownDuration,
   );
@@ -230,8 +227,7 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
 
   ModuleBufferAngleTransferOutFeed(
       {required super.area,
-      super.feedInDuration,
-      super.feedOutDuration,
+      super.conveyorSpeedProfile,
       super.upDuration,
       super.downDuration,
       required super.moduleOutDirection});
