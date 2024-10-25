@@ -131,7 +131,7 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
     //TODO rename to transportDuration and calculate using linkedTo!.speedProfile (see ModuleConveryor.feedOutDuration())
-    required this.feedOutDuration,
+     required this.feedOutDuration,
     required this.durationUntilCanFeedOut,
   }) : super(system: (place.system as OWNER));
 
