@@ -32,7 +32,7 @@ class UnLoadingForkLiftTruck extends StateMachine
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
           xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
       directionToOtherLink: const CompassDirection.north(),
-      feedInDuration: getModuleGroupFromConveyorDuration,
+      transportDuration: (_) => getModuleGroupFromConveyorDuration,
       canFeedIn: () => currentState is WaitingForFullConveyor);
 
   @override

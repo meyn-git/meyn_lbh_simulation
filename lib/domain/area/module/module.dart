@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
@@ -302,46 +300,10 @@ class BetweenModuleGroupPlaces
   BetweenModuleGroupPlaces.forModuleOutLink(ModuleGroupOutLink moduleOutLink)
       : source = moduleOutLink.place,
         destination = moduleOutLink.linkedTo!.place,
-        duration = hasSpeedProfile(moduleOutLink)
-            ? calculateDuration(moduleOutLink)
-            : Duration(
-                milliseconds: max(moduleOutLink.feedOutDuration.inMilliseconds,
-                    moduleOutLink.linkedTo!.feedInDuration.inMilliseconds)),
+        duration =
+            moduleOutLink.linkedTo!.transportDuration(moduleOutLink.linkedTo!),
         moduleGroup = moduleOutLink.place.moduleGroup! {
     onModuleTransportStarted();
-  }
-
-  static Duration calculateDuration(
-      ModuleGroupOutLink<PhysicalSystem> moduleOutLink) {
-    var source = moduleOutLink;
-    var destination = moduleOutLink.linkedTo!;
-    var lengthInMeters =
-        source.distanceToFeedOutInMeters + destination.distanceToFeedInInMeters;
-    var duration = destination.speedProfile!.durationOfDistance(lengthInMeters);
-    print('${source.system.name}-${destination.system.name}: '
-        '${feedOutDistanceInMeters(moduleOutLink)} + '
-        '${nextConveyorFeedInDistanceInMeters(moduleOutLink)} ='
-        ' $lengthInMeters m = ${(duration.inMilliseconds / 1000)} s');
-
-    return duration;
-  }
-
-  static double feedOutDistanceInMeters(
-      ModuleGroupOutLink<PhysicalSystem> moduleOutLink) {
-    var linkOffset = moduleOutLink.offsetFromCenterWhenFacingNorth;
-    var modulePlaceOffset =
-        moduleOutLink.place.offsetFromCenterWhenSystemFacingNorth;
-    var lengthInMeters = (modulePlaceOffset - linkOffset).lengthInMeters.abs();
-    return lengthInMeters;
-  }
-
-  static double nextConveyorFeedInDistanceInMeters(
-      ModuleGroupOutLink<PhysicalSystem> moduleOutLink) {
-    var linkOffset = moduleOutLink.linkedTo!.offsetFromCenterWhenFacingNorth;
-    var modulePlaceOffset =
-        moduleOutLink.linkedTo!.place.offsetFromCenterWhenSystemFacingNorth;
-    var lengthInMeters = (modulePlaceOffset - linkOffset).lengthInMeters.abs();
-    return lengthInMeters;
   }
 
   void onModuleTransportStarted() {
@@ -420,9 +382,6 @@ class BetweenModuleGroupPlaces
       }
     }
   }
-
-  static hasSpeedProfile(ModuleGroupOutLink<PhysicalSystem> moduleOutLink) =>
-      moduleOutLink.linkedTo!.speedProfile != null;
 }
 
 abstract class ModuleTransportCompletedListener {

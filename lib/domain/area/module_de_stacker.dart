@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
-import 'dart:math';
-
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/drawer.dart';
@@ -25,7 +23,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   double currentHeightInMeter;
   final Map<LiftPosition, double> heightsInMeters;
   final SpeedProfile liftSpeed;
-  final SpeedProfile conveyorSpeed;
+  final SpeedProfile conveyorSpeedProfile;
   final Duration supportsCloseDuration;
   final Duration supportsOpenDuration;
   late final ModuleDeStackerShape shape = ModuleDeStackerShape();
@@ -44,7 +42,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
         DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
     this.liftSpeed = const ElectricModuleLiftSpeedProfile(),
     this.heightsInMeters = const DefaultLiftPositionHeights(),
-  })  : conveyorSpeed = conveyorSpeed ??
+  })  : conveyorSpeedProfile = conveyorSpeed ??
             area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: CheckIfEmpty(),
@@ -81,8 +79,8 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: Duration.zero,
-    speedProfile: conveyorSpeed,
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -91,7 +89,6 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () => (currentState is WaitToFeedOut)
         ? Duration.zero
         : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
@@ -130,7 +127,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
 class CheckIfEmpty extends DurationState<ModuleDeStacker> {
   CheckIfEmpty()
       : super(
-            durationFunction: (deStacker) => deStacker.conveyorSpeed
+            durationFunction: (deStacker) => deStacker.conveyorSpeedProfile
                 .durationOfDistance(deStacker.shape.yInMeters * 1.5),
             nextStateFunction: (deStacker) => MoveLift(LiftPosition.inFeed,
                 deStacker.createSimultaneousFeedOutFeedInModuleGroup()));
@@ -351,9 +348,9 @@ class FeedOutFirstStackAndTransportSecondStackToCenter
 
   @override
   void onStart(ModuleDeStacker deStacker) {
-    var duration = Duration(
-        milliseconds: max(deStacker.modulesOut.feedOutDuration.inMilliseconds,
-            deStacker.modulesOut.linkedTo!.feedInDuration.inMilliseconds));
+    var destinationFirstStack = deStacker.modulesOut.linkedTo!;
+    var duration =
+        destinationFirstStack.transportDuration(destinationFirstStack);
 
     var secondStack = createSecondStack(deStacker);
     deStacker.onConveyorSecondSingleColumnModulePlace.moduleGroup = secondStack;

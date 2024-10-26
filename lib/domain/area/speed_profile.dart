@@ -276,6 +276,7 @@ enum SpeedProfiles {
     // casTransportDuration: Duration(seconds: 19),
     moduleConveyor: ConveyorWithoutStopperSpeedProfileForOmniaContainers(),
     turnTableTurn: TurnTableSpeedProfileForOmniaContainers(),
+
     /// lift speed profile is assumed to be identical to other systems (not verified)
     lift: ElectricModuleLiftSpeedProfile(),
   ),

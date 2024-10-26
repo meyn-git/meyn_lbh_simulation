@@ -50,7 +50,7 @@ class ModuleRotatingConveyorShape extends CompoundShape {
     link(conveyor.centerCenter, rotationFrame.centerCenter);
 
     centerToConveyorCenter = OffsetInMeters.zero;
-        //topLefts[conveyor]! + conveyor.centerCenter - centerCenter; 
+    //topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
   }
 
   double _frameLength(ModuleRotatingConveyor moduleRotatingConveyor) {

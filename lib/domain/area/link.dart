@@ -73,14 +73,29 @@ class DrawersOutLink<OWNER extends PhysicalSystem>
       required super.directionToOtherLink});
 }
 
+Duration moduleTransportDuration(ModuleGroupInLink<PhysicalSystem> inLink,
+    SpeedProfile conveyorSpeedProfile) {
+  var source = inLink.linkedTo!;
+  var destination = inLink;
+  var distanceInMeters =
+      source.distanceToFeedOutInMeters + destination.distanceToFeedInInMeters;
+  var duration = conveyorSpeedProfile.durationOfDistance(distanceInMeters);
+  print('${source.system.name}-${destination.system.name}: '
+      '${source.distanceToFeedOutInMeters} + '
+      '${destination.distanceToFeedInInMeters} ='
+      ' $distanceInMeters m = ${(duration.inMilliseconds / 1000)} s');
+
+  return duration;
+}
+
 class ModuleGroupInLink<OWNER extends PhysicalSystem>
     extends Link<OWNER, ModuleGroupOutLink> {
-  final Duration feedInDuration;
+  /// A function that calculates the ModuleGroup transport time
+  /// between [ModuleGroupOutLink] and [ModuleGroupInLink]
+  final Duration Function(ModuleGroupInLink<OWNER>) transportDuration;
   final bool feedInSingleStack;
   final bool Function() canFeedIn;
   final ModuleGroupPlace place;
-  final SpeedProfile?
-      speedProfile; //make required and then remove feedInDuration
 
   late double distanceToFeedInInMeters = _distanceToFeedInInMeters();
 
@@ -96,9 +111,7 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
     this.feedInSingleStack = false,
-    required this.feedInDuration //TODO replace with speed profile
-    ,
-    this.speedProfile,
+    required this.transportDuration,
     required this.canFeedIn,
   }) : super(system: (place.system as OWNER));
 
@@ -109,8 +122,6 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
 
 class ModuleGroupOutLink<OWNER extends PhysicalSystem>
     extends Link<OWNER, ModuleGroupInLink> {
-  final Duration feedOutDuration;
-
   /// * [Duration.zero] = The [PhysicalSystem] can feed out now
   /// * [Duration] = Time until the [PhysicalSystem] can feed out a module
   /// * [unknownDuration] = Unknown when the [PhysicalSystem] can feed out a module
@@ -130,8 +141,6 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
     required this.place,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
-    //TODO rename to transportDuration and calculate using linkedTo!.speedProfile (see ModuleConveryor.feedOutDuration())
-     required this.feedOutDuration,
     required this.durationUntilCanFeedOut,
   }) : super(system: (place.system as OWNER));
 

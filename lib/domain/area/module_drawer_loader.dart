@@ -592,8 +592,8 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
         : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: Duration.zero,
-    speedProfile: conveyorSpeedProfile,
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -604,7 +604,6 @@ class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
         : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),

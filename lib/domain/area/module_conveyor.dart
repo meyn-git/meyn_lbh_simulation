@@ -41,10 +41,8 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: Duration.zero
-    //TODO See BetweenModuleGroupPlaces.calculateDuration
-    ,
-    speedProfile: speedProfile,
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, speedProfile),
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -53,9 +51,6 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: Duration.zero
-    //See BetweenModuleGroupPlaces.calculateDuration
-    ,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -422,7 +417,8 @@ class FeedOutFirstStack extends State<FeedOutStateMachine>
     var moduleGroup = centerPlace.moduleGroup!;
     var moduleGroupLengthInMeters = moduleGroup.shape.yInMeters;
     var moduleLengthInMeters = moduleGroup.moduleGroundSurface.yInMeters;
-    var outFeedDuration = stateMachine.modulesOut.feedOutDuration;
+    var destination = stateMachine.modulesOut.linkedTo!;
+    var outFeedDuration = destination.transportDuration(destination);
     var remainingStacksModuleGroup = centerPlace.moduleGroup!;
     centerPlace.moduleGroup = null;
 

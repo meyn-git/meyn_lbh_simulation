@@ -67,8 +67,8 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: Duration.zero,
-    speedProfile: conveyorSpeedProfile,
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -77,7 +77,6 @@ class ModuleStacker extends StateMachine implements PhysicalSystem {
     place: onConveyorPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () => currentState is WaitToFeedOut
         ? Duration.zero
         : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(

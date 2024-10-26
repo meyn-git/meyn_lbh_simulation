@@ -162,9 +162,7 @@ void main() {
     });
   });
 
-  group(
-      '$TurnTableSpeedProfileForModulesWith1CompartmentPerLevel class',
-      () {
+  group('$TurnTableSpeedProfileForModulesWith1CompartmentPerLevel class', () {
     var speedProfile =
         const TurnTableSpeedProfileForModulesWith1CompartmentPerLevel();
     test(
@@ -220,8 +218,7 @@ void main() {
     });
   });
 
-  group(
-      '$ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel class',
+  group('$ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel class',
       () {
     var speedProfile =
         const ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel();

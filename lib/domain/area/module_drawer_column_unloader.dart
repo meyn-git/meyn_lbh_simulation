@@ -32,7 +32,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
   final Duration feedInToSecondColumn;
   final Direction drawerOutDirection;
   final bool singleColumnOfCompartments;
-  final SpeedProfile conveyorSpeed;
+  final SpeedProfile conveyorSpeedProfile;
 
   @override
   late List<Command> commands = [
@@ -67,7 +67,7 @@ class ModuleDrawerColumnUnloader extends StateMachine
     this.feedInToSecondColumn = const Duration(
         milliseconds:
             6000), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
-  })  : conveyorSpeed = conveyorSpeed ??
+  })  : conveyorSpeedProfile = conveyorSpeed ??
             area.productDefinition.speedProfiles.moduleConveyor,
         singleColumnOfCompartments =
             allModulesHaveOneSingleCompartmentColumn(area),
@@ -115,8 +115,8 @@ class ModuleDrawerColumnUnloader extends StateMachine
         : moduleGroupFirstColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
-    feedInDuration: Duration.zero,
-    speedProfile: conveyorSpeed,
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -127,7 +127,6 @@ class ModuleDrawerColumnUnloader extends StateMachine
         : moduleGroupSecondColumnPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleOutLink,
     directionToOtherLink: const CompassDirection.north(),
-    feedOutDuration: Duration.zero,
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
             currentState),
@@ -171,7 +170,7 @@ class CheckIfEmpty extends DurationState<ModuleDrawerColumnUnloader> {
 
   CheckIfEmpty()
       : super(
-          durationFunction: (unloader) => unloader.conveyorSpeed
+          durationFunction: (unloader) => unloader.conveyorSpeedProfile
               .durationOfDistance(unloader.shape.xInMeters * 1.5),
           nextStateFunction: (unloader) => SimultaneousFeedOutFeedInModuleGroup(
             modulesIn: unloader.modulesIn,

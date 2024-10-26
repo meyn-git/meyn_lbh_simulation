@@ -76,12 +76,12 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       system: this,
       offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter);
 
-  late final modulesIn = ModuleGroupInLink(
+  late final modulesIn = ModuleGroupInLink<PhysicalSystem>(
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
       directionToOtherLink: const CompassDirection.south(),
-      feedInDuration: Duration.zero,
-      speedProfile: conveyorSpeedProfile,
+      transportDuration: (inLink) =>
+          moduleTransportDuration(inLink, conveyorSpeedProfile),
       feedInSingleStack: true,
       canFeedIn: () =>
           SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState));
@@ -90,7 +90,6 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
       directionToOtherLink: const CompassDirection.north(),
-      feedOutDuration: Duration.zero,
       durationUntilCanFeedOut: () =>
           SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
               currentState));
