@@ -4,7 +4,8 @@ import 'package:meyn_lbh_simulation/domain/area/module_tilter_dump_conveyor.dart
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
@@ -13,7 +14,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/unloading_fork_lift_truck.domain.dart';
 
 import 'site.dart';
 
@@ -82,7 +83,7 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    var mc1 = ModuleConveyor(area: this, lengthInMeters: 3.75);
+    var loadingConveyor = ModuleLoadingConveyor(area: this);
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
@@ -145,8 +146,8 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
     /// module transport
-    systems.link(loadingForkLiftTruck.modulesOut, mc1.modulesIn);
-    systems.link(mc1.modulesOut, mrc1.modulesIns[0]);
+    systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
+    systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], cas1.modulesIn);
     systems.link(cas1.modulesOut, mrc1.modulesIns[1]);
     systems.link(mrc1.modulesOuts[2], cas2.modulesIn);
@@ -163,8 +164,8 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(moduleTilter.birdsOut, dumpConveyor.birdsIn);
     systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
 
-    systems.add(
-        ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace));
+    systems.add(ModuleCasAllocation(
+        area: this, allocationPlace: loadingConveyor.moduleGroupPlace));
 
     systems.add(ModuleCasStart(area: this));
   }

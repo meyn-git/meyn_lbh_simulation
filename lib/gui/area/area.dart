@@ -10,6 +10,9 @@ import 'package:meyn_lbh_simulation/gui/area/drawer.dart';
 import 'package:meyn_lbh_simulation/gui/area/module.dart';
 import 'package:meyn_lbh_simulation/gui/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/route/route.presentation.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/vehicle.domain.dart';
 
 class AreaPanel extends StatefulWidget {
   const AreaPanel({required Key key}) : super(key: key);
@@ -70,10 +73,11 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     List<Widget> children = [];
     var area = scenario.area;
     // children.addAll(createModuleGroupWidgets(area));
-    children.addAll(createMachineWidgets(area));
+    children.addAll(createSystemWidgets(area));
     children.addAll(createDrawerWidgets(area));
     children.addAll(createMarkerWidgets(area));
     children.addAll(createModuleGroupWidgets(area));
+    children.addAll(createRouteWidgets(area));
     return children;
   }
 
@@ -96,7 +100,7 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     return markerWidgets;
   }
 
-  static List<Widget> createMachineWidgets(LiveBirdHandlingArea area) {
+  static List<Widget> createSystemWidgets(LiveBirdHandlingArea area) {
     List<Widget> widgets = [];
     for (var system in area.systems.physicalSystems) {
       widgets
@@ -111,6 +115,17 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     for (var drawer in drawers) {
       widgets.add(
           LayoutId(id: drawer, child: GrandeDrawerWidget(area.layout, drawer)));
+    }
+    return widgets;
+  }
+
+  static Iterable<Widget> createRouteWidgets(LiveBirdHandlingArea area) {
+    List<Widget> widgets = [];
+    var forkLiftTrucks = area.systems.whereType<LoadingForkLiftTruck>();
+    for (var forkLiftTruck in forkLiftTrucks) {
+      for (var route in forkLiftTruck.routes.all) {
+        widgets.add(LayoutId(id: route, child: RouteWidget(route)));
+      }
     }
     return widgets;
   }
@@ -142,15 +157,27 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     _layoutAndPositionSystems(lengthPerMeter);
     _layoutAndPositionDrawers(lengthPerMeter);
     _layoutAndPositionMarkers(lengthPerMeter);
+    _layoutAndPositionRoutes(lengthPerMeter);
   }
 
   void _layoutAndPositionSystems(double lengthPerMeter) {
     for (var system in area.systems.physicalSystems) {
       var size = system.sizeWhenFacingNorth.toSize() * lengthPerMeter;
       layoutChild(system, BoxConstraints.tight(size));
-      var topLeft = area.layout.topLeftWhenFacingNorthOf(system).toOffset() *
-          lengthPerMeter;
+
+      var topLeft = topLeftOfSystem(system, lengthPerMeter);
       positionChild(system, topLeft);
+    }
+  }
+
+  Offset topLeftOfSystem(PhysicalSystem system, double lengthPerMeter) {
+    if (system is Vehicle) {
+      return (system.position.center(area.layout) - system.shape.centerCenter)
+              .toOffset() *
+          lengthPerMeter;
+    } else {
+      return area.layout.topLeftWhenFacingNorthOf(system).toOffset() *
+          lengthPerMeter;
     }
   }
 
@@ -164,18 +191,21 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     for (var moduleGroup in area.moduleGroups) {
       var moduleSize = moduleGroup.shape.size.toSize() * lengthPerMeter;
       layoutChild(moduleGroup, BoxConstraints.tight(moduleSize));
-      var moduleGroupOffSet = _moduleGroupOffset(moduleGroup, lengthPerMeter);
-      positionChild(moduleGroup, moduleGroupOffSet);
+      var topLeft = _moduleGroupTopLeft(moduleGroup, lengthPerMeter);
+      positionChild(moduleGroup, topLeft);
     }
   }
 
-  // void _layoutAndPositionCells(Size childSize, Offset childOffset) {
-  //   for (var cell in area.cells) {
-  //     layoutChild(cell, BoxConstraints.tight(childSize));
-  //     var cellOffset = _createCellOffset(cell.position, childSize, childOffset);
-  //     positionChild(cell, cellOffset);
-  //   }
-  // }
+  void _layoutAndPositionRoutes(double lengthPerMeter) {
+    var forkLiftTrucks = area.systems.whereType<LoadingForkLiftTruck>();
+    for (var forkLiftTruck in forkLiftTrucks) {
+      for (var route in forkLiftTruck.routes.all) {
+        var routeSize = route.size.toSize() * lengthPerMeter;
+        layoutChild(route, BoxConstraints.tight(routeSize));
+        positionChild(route, Offset.zero);
+      }
+    }
+  }
 
   void _layoutAndPositionDrawers(double lengthPerMeter) {
     Size? size;
@@ -230,10 +260,10 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
       moduleGroup.shape.size.toOffsetInMeters() * -0.5;
   //const OffsetInMeters(xInMeters: 0.63, yInMeters: -0.6);
 
-  Offset _moduleGroupOffset(ModuleGroup moduleGroup, double lengthPerMeter) {
-    var offsetInMeters = moduleGroup.position.center(area.layout) +
+  Offset _moduleGroupTopLeft(ModuleGroup moduleGroup, double lengthPerMeter) {
+    var topLeft = moduleGroup.position.center(area.layout) +
         moduleGroupCenterToTopLeft(moduleGroup);
-    return offsetInMeters.toOffset() * lengthPerMeter;
+    return topLeft.toOffset() * lengthPerMeter;
   }
 
 // TODO only when nessasary

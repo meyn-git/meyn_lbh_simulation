@@ -13,7 +13,7 @@ import 'package:user_command/user_command.dart';
 import 'life_bird_handling_area.dart';
 import 'module/module.dart';
 import 'state_machine.dart';
-import 'unloading_fork_lift_truck.dart';
+import '../../system/vehicle/unloading_fork_lift_truck.domain.dart';
 
 class ModuleCas extends StateMachine implements PhysicalSystem {
   final LiveBirdHandlingArea area;

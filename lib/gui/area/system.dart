@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.presentation.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_buffer_lane.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
@@ -21,9 +23,9 @@ import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_loader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_drawer_column_unloader.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
-import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/unloading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/gui/area/drawer_conveyor.dart';
-import 'package:meyn_lbh_simulation/gui/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/fork_lift_truck.presentation.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_buffer_lane.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_conveyor.dart';
@@ -37,7 +39,6 @@ import 'package:meyn_lbh_simulation/gui/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_tilter_dump_conveyor.dart';
 import 'package:meyn_lbh_simulation/gui/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/gui/area/shackle_conveyor.dart';
-import 'package:meyn_lbh_simulation/gui/area/unloading_fork_lift_truck.dart';
 import 'package:meyn_lbh_simulation/gui/theme.dart';
 
 class SystemWidget extends StatelessWidget {
@@ -86,13 +87,16 @@ class SystemWidget extends StatelessWidget {
 CustomPainter createSystemPainter(
     PhysicalSystem system, LiveBirdsHandlingTheme theme) {
   if (system is LoadingForkLiftTruck) {
-    return LoadingForkLiftTruckPainter(theme);
+    return LoadingForkLiftTruckPainter(system, theme);
   }
   if (system is UnLoadingForkLiftTruck) {
-    return UnLoadingForkLiftTruckPainter(theme);
+    return UnLoadingForkLiftTruckPainter(system, theme);
   }
   if (system is ModuleConveyor) {
     return ModuleConveyorPainter(system, theme);
+  }
+  if (system is ModuleLoadingConveyor) {
+    return ModuleLoadingConveyorPainter(system, theme);
   }
   if (system is ModuleRotatingConveyor) {
     return ModuleRotatingConveyorPainter(system, theme);

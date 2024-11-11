@@ -117,6 +117,112 @@ class Box extends Shape {
   }
 }
 
+class BoxWithCurvedSouthSide extends Shape {
+  @override
+  final double xInMeters;
+  @override
+  final double yInMeters;
+  final double yCurveInMeters;
+  BoxWithCurvedSouthSide(
+      {required this.xInMeters,
+      required this.yInMeters,
+      required this.yCurveInMeters});
+
+  @override
+  void paint(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
+    var paint = Paint();
+    paint.color = theme.machineColor;
+    paint.style = PaintingStyle.stroke;
+
+    final path = Path();
+    // top left
+    path.moveTo(
+      offset.xInMeters * sizePerMeter,
+      offset.yInMeters * sizePerMeter,
+    );
+    // top right
+    path.lineTo(
+      (offset.xInMeters + xInMeters) * sizePerMeter,
+      offset.yInMeters * sizePerMeter,
+    );
+    // bottom -curve right
+    path.lineTo(
+      (offset.xInMeters + xInMeters) * sizePerMeter,
+      (offset.yInMeters + yInMeters - yCurveInMeters) * sizePerMeter,
+    );
+    // bottom curve
+    path.quadraticBezierTo(
+      (offset.xInMeters + xInMeters / 2) * sizePerMeter,
+      (offset.yInMeters + yInMeters + yCurveInMeters) *
+          sizePerMeter, // Control point for the curve
+      offset.xInMeters * sizePerMeter,
+      (offset.yInMeters + yInMeters - yCurveInMeters) *
+          sizePerMeter, // Endpoint of the curve
+    );
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+}
+
+class BoxWithCurvedNorthSide extends Shape {
+  @override
+  final double xInMeters;
+  @override
+  final double yInMeters;
+  final double yCurveInMeters;
+  BoxWithCurvedNorthSide(
+      {required this.xInMeters,
+      required this.yInMeters,
+      required this.yCurveInMeters});
+
+  @override
+  void paint(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
+    var paint = Paint();
+    paint.color = theme.machineColor;
+    paint.style = PaintingStyle.stroke;
+
+    final path = Path();
+    // left, bottom of curve
+    path.moveTo(
+      offset.xInMeters * sizePerMeter,
+      (offset.yInMeters + yCurveInMeters) * sizePerMeter,
+    );
+
+    // curve from left to right
+    path.quadraticBezierTo(
+      (offset.xInMeters + xInMeters / 2) * sizePerMeter,
+      (offset.yInMeters - yCurveInMeters) *
+          sizePerMeter, // Control point for the curve
+      (offset.xInMeters + xInMeters) * sizePerMeter,
+      (offset.yInMeters + yCurveInMeters) *
+          sizePerMeter, // Endpoint of the curve
+    );
+    //  to bottom right
+    path.lineTo(
+      (offset.xInMeters + xInMeters) * sizePerMeter,
+      (offset.yInMeters + yInMeters) * sizePerMeter,
+    );
+    // to bottom left
+    path.lineTo(
+      (offset.xInMeters) * sizePerMeter,
+      (offset.yInMeters + yInMeters) * sizePerMeter,
+    );
+
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+}
+
 /// [InvisibleBox] e.g. for padding
 class InvisibleBox extends Box {
   InvisibleBox({required super.xInMeters, required super.yInMeters});

@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_buffer_lane.dart';
@@ -16,7 +16,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/unloading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 
 import 'site.dart';
@@ -119,6 +119,7 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     );
 
     var bufferIn1 = ModuleBufferAngleTransferInFeed(
+      // FIXME LoadingForkLiftTruck expects a ModuleLoadingConveyor
       area: this,
       moduleOutDirection: Direction.clockWise,
     );

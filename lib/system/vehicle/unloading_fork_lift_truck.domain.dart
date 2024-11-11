@@ -6,9 +6,11 @@ import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
+import 'package:meyn_lbh_simulation/gui/area/shape.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/fork_lift_truck.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-import 'state_machine.dart';
+import '../../domain/area/state_machine.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
 class UnLoadingForkLiftTruck extends StateMachine
@@ -16,6 +18,8 @@ class UnLoadingForkLiftTruck extends StateMachine
   final LiveBirdHandlingArea area;
   final Duration putModuleGroupOnTruckDuration;
   final Duration getModuleGroupFromConveyorDuration;
+
+  final Shape shape = ForkLiftTruckShape();
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -44,8 +48,7 @@ class UnLoadingForkLiftTruck extends StateMachine
   String name = 'UnLoadingForkLiftTruck';
 
   @override
-  late SizeInMeters sizeWhenFacingNorth =
-      const SizeInMeters(xInMeters: 1.5, yInMeters: 5);
+  late SizeInMeters sizeWhenFacingNorth = shape.size;
 
   @override
   CompassDirection get additionalRotation =>

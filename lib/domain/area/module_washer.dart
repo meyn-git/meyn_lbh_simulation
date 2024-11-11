@@ -58,7 +58,8 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     modulesOut
   ];
 
-  late final shape = ModuleWasherConveyorShape(this);
+  @override
+  late final ModuleWasherConveyorShape shape = ModuleWasherConveyorShape(this);
 
   bool get forceFeedOut => precedingNeighborWaitingToFeedOut(modulesIn);
 

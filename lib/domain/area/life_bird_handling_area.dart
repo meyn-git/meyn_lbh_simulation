@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/drawer_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
@@ -11,6 +10,7 @@ import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_start.dart';
 import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/vehicle.domain.dart';
 
 abstract class LiveBirdHandlingArea implements TimeProcessor {
   final String lineName;
@@ -89,36 +89,6 @@ class Marker {
   Marker(this.system, this.offsetFromSystemCenterWhenFacingNorth);
 }
 
-class ModuleGroups extends DelegatingList<ModuleGroup> {
-  Map<ModuleGroupPlace, ModuleGroup> systemPositionsWithModules = {};
-
-  ModuleGroups() : super(<ModuleGroup>[]) {
-    updateSystemPositionsWithModuleGroups();
-  }
-
-  /// Creates a new [systemPositionsWithModules] map for all [ModuleGroup]s
-  /// that are at a [PhysicalSystem] position.
-  /// We only do this once per update cycle for performance.
-  updateSystemPositionsWithModuleGroups() {
-    systemPositionsWithModules.clear();
-    for (var moduleGroup in this) {
-      if (moduleGroup.position is AtModuleGroupPlace) {
-        var position = (moduleGroup.position as AtModuleGroupPlace).place;
-        systemPositionsWithModules[position] = moduleGroup;
-      }
-    }
-  }
-
-  /// returns the [ModuleGroup] that is at
-  /// the given [system] and [positionIndex] or null
-  /// Note that the [systemPositionsWithModules] are cached.
-  /// See: [updateSystemPositionsWithModuleGroups]
-  ModuleGroup? at(ModuleGroupPlace place) => systemPositionsWithModules[place];
-
-  bool anyAt(ModuleGroupPlace position) =>
-      systemPositionsWithModules.containsKey(position);
-}
-
 abstract class TimeProcessor {
   /// method to change the state of the object to the next point in time
   void onUpdateToNextPointInTime(Duration jump);
@@ -191,7 +161,7 @@ class ProductDefinition {
 enum LoadFactor { minimum, average, max }
 
 /// Calculates the [_topLefts], [_centers], [_rotations] and [_drawerPaths] of
-/// all machines and caches the values for performance, because we only need
+/// all systems and caches the values for performance, because we only need
 /// to calculate this once per [Scenario]
 class SystemLayout {
   final Map<PhysicalSystem, OffsetInMeters> _topLefts = {};
@@ -320,14 +290,17 @@ class SystemLayout {
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
   /// to the center of the [PhysicalSystem]
-  OffsetInMeters centerOf(PhysicalSystem system) => _centers[system]!;
+  OffsetInMeters centerOf(PhysicalSystem system) =>
+      system is Vehicle ? system.position.center(this) : _centers[system]!;
 
   /// Returns the cached rotation off a [PhysicalSystem] and
   /// adds an additional rotation if the [PhysicalSystem] can rotate it self
-  CompassDirection rotationOf(PhysicalSystem system) => system
-          is AdditionalRotation
-      ? _rotations[system]! + (system as AdditionalRotation).additionalRotation
-      : _rotations[system]!;
+  CompassDirection rotationOf(PhysicalSystem system) => system is Vehicle
+      ? system.direction
+      : system is AdditionalRotation
+          ? _rotations[system]! +
+              (system as AdditionalRotation).additionalRotation
+          : _rotations[system]!;
 
   /// Returns the cached [DrawerPath] of a [PhysicalSystem]
   DrawerPath drawerPathOf(DrawerConveyor drawerConveyor) =>

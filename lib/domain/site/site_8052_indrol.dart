@@ -6,7 +6,8 @@ import 'package:meyn_lbh_simulation/domain/area/module_washer.dart';
 import 'package:meyn_lbh_simulation/domain/area/shackle_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
-import 'package:meyn_lbh_simulation/domain/area/loading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
@@ -17,7 +18,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_rotating_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_tilter.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
-import 'package:meyn_lbh_simulation/domain/area/unloading_fork_lift_truck.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/unloading_fork_lift_truck.domain.dart';
 
 import 'site.dart';
 
@@ -305,9 +306,8 @@ class Area extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    var loadingConveyor = ModuleConveyor(
+    var loadingConveyor = ModuleLoadingConveyor(
       area: this,
-      lengthInMeters: 3,
     );
 
     var mrc1 = ModuleRotatingConveyor(

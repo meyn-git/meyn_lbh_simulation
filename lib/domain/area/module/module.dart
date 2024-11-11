@@ -1,17 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
+import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/domain/area/link.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
+import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/object_details.dart';
 import 'package:meyn_lbh_simulation/gui/area/area.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/module.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/vehicle.domain.dart';
 import 'package:user_command/user_command.dart';
-
-import '../life_bird_handling_area.dart';
-import '../state_machine.dart';
 
 /// A [ModuleGroup] can be one or more modules that are transported together
 /// E.g. a stack of 2 modules, or 2 modules side by side or 2 stacks of modules
@@ -50,7 +50,7 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   /// that the doors would be pointing towards (if it has any)
   CompassDirection direction;
   PhysicalSystem destination;
-  PositionOnSystem position;
+  AreaPosition position;
 
   late ModuleGroupShape shape;
 
@@ -242,12 +242,20 @@ enum PositionWithinModuleGroup {
 
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
 
-abstract class PositionOnSystem {
+abstract class AreaPosition {
   /// topLeft of [AreaPanel] to the center of a thing on a [PhysicalSystem]
   OffsetInMeters center(SystemLayout layout);
 }
 
-class AtModuleGroupPlace implements PositionOnSystem, Detailable {
+class FixedAreaPosition implements AreaPosition {
+  final OffsetInMeters _center;
+  FixedAreaPosition(this._center);
+
+  @override
+  OffsetInMeters center(_) => _center;
+}
+
+class AtModuleGroupPlace implements AreaPosition, Detailable {
   final ModuleGroupPlace place;
   OffsetInMeters? _center;
 
@@ -262,7 +270,9 @@ class AtModuleGroupPlace implements PositionOnSystem, Detailable {
 
   @override
   OffsetInMeters center(SystemLayout layout) {
-    _center = _center ?? _calculateCenter(layout);
+    if (_center == null || place.system is Vehicle) {
+      _center = _calculateCenter(layout);
+    }
     return _center!;
   }
 
@@ -275,7 +285,7 @@ class AtModuleGroupPlace implements PositionOnSystem, Detailable {
 }
 
 class BetweenModuleGroupPlaces
-    implements PositionOnSystem, TimeProcessor, Detailable {
+    implements AreaPosition, TimeProcessor, Detailable {
   late ModuleGroup moduleGroup;
   final ModuleGroupPlace source;
   final ModuleGroupPlace destination;
@@ -582,3 +592,33 @@ class TruckRow
 enum BirdType { chicken, turkey }
 
 enum ModuleFrameMaterial { galvanizedSteel, stainlessSteel }
+
+class ModuleGroups extends DelegatingList<ModuleGroup> {
+  Map<ModuleGroupPlace, ModuleGroup> systemPositionsWithModules = {};
+
+  ModuleGroups() : super(<ModuleGroup>[]) {
+    updateSystemPositionsWithModuleGroups();
+  }
+
+  /// Creates a new [systemPositionsWithModules] map for all [ModuleGroup]s
+  /// that are at a [PhysicalSystem] position.
+  /// We only do this once per update cycle for performance.
+  updateSystemPositionsWithModuleGroups() {
+    systemPositionsWithModules.clear();
+    for (var moduleGroup in this) {
+      if (moduleGroup.position is AtModuleGroupPlace) {
+        var position = (moduleGroup.position as AtModuleGroupPlace).place;
+        systemPositionsWithModules[position] = moduleGroup;
+      }
+    }
+  }
+
+  /// returns the [ModuleGroup] that is at
+  /// the given [system] and [positionIndex] or null
+  /// Note that the [systemPositionsWithModules] are cached.
+  /// See: [updateSystemPositionsWithModuleGroups]
+  ModuleGroup? at(ModuleGroupPlace place) => systemPositionsWithModules[place];
+
+  bool anyAt(ModuleGroupPlace position) =>
+      systemPositionsWithModules.containsKey(position);
+}
