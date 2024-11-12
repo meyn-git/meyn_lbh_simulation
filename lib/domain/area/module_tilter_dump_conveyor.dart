@@ -12,7 +12,6 @@ import 'package:user_command/user_command.dart';
 class ModuleTilterDumpConveyor implements PhysicalSystem, TimeProcessor {
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
-  @override
   late final ModuleTilterDumpConveyorShape shape =
       ModuleTilterDumpConveyorShape(this);
   final LiveBirdHandlingArea area;

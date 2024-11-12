@@ -25,7 +25,6 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
-  @override
   late final ModuleTilterShape shape = ModuleTilterShape(this);
 
   final Duration tiltForwardDuration;

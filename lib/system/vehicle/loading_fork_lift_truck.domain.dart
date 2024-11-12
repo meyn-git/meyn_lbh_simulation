@@ -11,7 +11,6 @@ import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas_allocation.dart';
-import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/fork_lift_truck.presentation.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/route/fork_lift_truck_route.domain.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/route/route.domain.dart';

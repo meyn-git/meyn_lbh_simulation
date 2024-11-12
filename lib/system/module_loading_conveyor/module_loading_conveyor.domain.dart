@@ -16,6 +16,7 @@ class ModuleLoadingConveyor extends StateMachine
     implements ModuleLoadingConveyorInterface {
   final double lengthInMeters;
   final SpeedProfile speedProfile;
+  @override
   final LiveBirdHandlingArea area;
 
   @override
@@ -35,6 +36,7 @@ class ModuleLoadingConveyor extends StateMachine
           initialState: CheckIfEmpty(),
         );
 
+  @override
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
@@ -66,11 +68,13 @@ class ModuleLoadingConveyor extends StateMachine
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
 
+  @override
   late final ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToModuleGroupPlace,
   );
 
+  @override
   void moduleGroupFreeFromForkLiftTruck() {
     if (currentState is WaitingUntilFreeFromForkLiftTruck) {
       (currentState as WaitingUntilFreeFromForkLiftTruck)

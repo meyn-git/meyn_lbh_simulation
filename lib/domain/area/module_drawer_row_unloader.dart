@@ -376,7 +376,6 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
   late final DrawerReceivingConveyors receivingConveyors =
       DrawerReceivingConveyors(this);
   late final CrossOver crossOver = CrossOver(this);
-  @override
   late final ModuleDrawerRowUnloaderReceiverShape shape =
       ModuleDrawerRowUnloaderReceiverShape(this);
   final Direction drawerOutDirection;
