@@ -33,8 +33,8 @@ class ForkLiftTruckRoutes {
       {required LoadingForkLiftTruck forkLiftTruck,
       required Direction turnAtConveyor,
       required Direction turnAtTruck}) {
-    var moduleLoadingConveyor =
-        forkLiftTruck.modulesOut.linkedTo!.system as ModuleLoadingConveyor;
+    var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system
+        as ModuleLoadingConveyorInterface;
 
     var area = moduleLoadingConveyor.area;
     var layout = area.layout;

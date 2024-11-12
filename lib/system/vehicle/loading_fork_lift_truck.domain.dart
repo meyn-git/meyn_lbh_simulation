@@ -392,16 +392,28 @@ class LowerModuleGroupOnConveyor extends DurationState<LoadingForkLiftTruck> {
     // TODO if (moduleGroup.numberOfStacks > 1) {
     //   throw Exception('$name can only feed in a single stack at a time!');
     // }
-    if (forkLiftTruck.modulesOut.linkedTo!.system is! ModuleLoadingConveyor) {
-      throw Exception('$name must be linked to a ModuleLoadingConveyor!');
+    if (forkLiftTruck.modulesOut.linkedTo!.system
+        is! ModuleLoadingConveyorInterface) {
+      throw Exception(
+          '$name must be linked to a ModuleLoadingConveyorInterface!');
     }
     forkLiftTruck.moduleGroupPlaceOnForks.moduleGroup = null;
-    var moduleLoadingConveyor =
-        forkLiftTruck.modulesOut.linkedTo!.system as ModuleLoadingConveyor;
+    var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system
+        as ModuleLoadingConveyorInterface;
     moduleLoadingConveyor.moduleGroupPlace.moduleGroup = moduleGroup;
     moduleGroup.position =
         AtModuleGroupPlace(moduleLoadingConveyor.moduleGroupPlace);
   }
+}
+
+abstract class ModuleLoadingConveyorInterface implements PhysicalSystem {
+  ModuleGroupPlace get moduleGroupPlace;
+
+  LiveBirdHandlingArea get area;
+
+  ModuleGroupInLink get modulesIn;
+
+  void moduleGroupFreeFromForkLiftTruck();
 }
 
 class DriveOutOfModuleGroupOnConveyor extends Drive {
@@ -514,9 +526,10 @@ class WaitToFeedOut extends State<LoadingForkLiftTruck> {
   bool moduleLoadingConveyorCanFeedIn(LoadingForkLiftTruck forkLiftTruck) =>
       forkLiftTruck.modulesOut.linkedTo!.canFeedIn();
 
-  ModuleLoadingConveyor moduleLoadingConveyor(
+  ModuleLoadingConveyorInterface moduleLoadingConveyor(
           LoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.modulesOut.linkedTo!.system as ModuleLoadingConveyor;
+      forkLiftTruck.modulesOut.linkedTo!.system
+          as ModuleLoadingConveyorInterface;
 }
 
 class DriveFromBeforeConveyorAndTurn extends Drive {

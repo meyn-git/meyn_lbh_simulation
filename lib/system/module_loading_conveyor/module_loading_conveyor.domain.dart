@@ -9,9 +9,11 @@ import 'package:meyn_lbh_simulation/domain/area/state_machine.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.presentation.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:user_command/user_command.dart';
 
-class ModuleLoadingConveyor extends StateMachine implements PhysicalSystem {
+class ModuleLoadingConveyor extends StateMachine
+    implements ModuleLoadingConveyorInterface {
   final double lengthInMeters;
   final SpeedProfile speedProfile;
   final LiveBirdHandlingArea area;

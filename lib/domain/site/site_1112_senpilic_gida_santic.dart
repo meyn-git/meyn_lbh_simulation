@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
-import 'package:meyn_lbh_simulation/domain/area/module_buffer_lane.dart';
+import 'package:meyn_lbh_simulation/system/module_buffer_lane/module_buffer_lane.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_conveyor.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_de_stacker.dart';

@@ -6,11 +6,12 @@ import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/shape.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:user_command/user_command.dart';
 
-import 'life_bird_handling_area.dart';
-import 'module/module.dart';
-import 'state_machine.dart';
+import '../../domain/area/life_bird_handling_area.dart';
+import '../../domain/area/module/module.dart';
+import '../../domain/area/state_machine.dart';
 
 abstract class ModuleBufferSystem extends StateMachine
     implements PhysicalSystem {
@@ -114,7 +115,8 @@ abstract class ModuleBufferAngleTransferSystem extends ModuleBufferSystem {
   });
 }
 
-class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
+class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem
+    implements ModuleLoadingConveyorInterface {
   @override
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
     place: moduleGroupPlace,
@@ -170,6 +172,12 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem {
       super.upDuration,
       super.downDuration,
       required super.moduleOutDirection});
+
+  @override
+  void moduleGroupFreeFromForkLiftTruck() {
+    currentState = nextState[FeedIn]!() as Down;
+    currentState.onStart(this);
+  }
 }
 
 class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
