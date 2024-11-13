@@ -357,7 +357,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
       metersPerSecond: drawerSpeedInMetersPerSecond,
     );
 
-    var unloadConveyor = ModuleConveyor(area: this);
+    var unloadConveyor = ModuleLoadingConveyor(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 

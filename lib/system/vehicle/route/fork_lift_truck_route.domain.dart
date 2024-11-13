@@ -3,6 +3,7 @@ import 'package:meyn_lbh_simulation/domain/area/speed_profile.dart';
 import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/route/route.domain.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/unloading_fork_lift_truck.domain.dart';
 
 class ForkLiftTruckRoutes {
   late VehicleRoute beforeConveyorToAboveConveyor;
@@ -31,15 +32,20 @@ class ForkLiftTruckRoutes {
       {required LoadingForkLiftTruck forkLiftTruck,
       required Direction turnAtConveyor,
       required Direction turnAtTruck}) {
-    var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system
-        as ModuleLoadingConveyorInterface;
+    var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system;
+
+    if (moduleLoadingConveyor is! ModuleLoadingConveyorInterface) {
+      throw Exception(
+          '${forkLiftTruck.name} should be linked to a ModuleLoadingConveyorInterface');
+    }
 
     var area = moduleLoadingConveyor.area;
     var layout = area.layout;
 
-//TODO infeedModuleConveyor.modulesIn.directionToOtherLink should be different when loading single column modules from the side
-    var infeedDirection = layout.rotationOf(moduleLoadingConveyor);
-    //TODO infeedModuleConveyor.modulesIn.offsetFromCenterWhenFacingNorth should be different when loading single column modules from the side
+    var infeedDirection = layout
+        .rotationOf(moduleLoadingConveyor)
+        .rotate(moduleLoadingConveyor.modulesIn.directionToOtherLink.degrees)
+        .opposite;
     var conveyorLinkPosition = layout.positionOnSystem(moduleLoadingConveyor,
         moduleLoadingConveyor.modulesIn.offsetFromCenterWhenFacingNorth);
     var forkLiftTruckAboveConveyorPosition = conveyorLinkPosition +
@@ -56,6 +62,72 @@ class ForkLiftTruckRoutes {
     );
     beforeConveyorToAboveConveyor = _beforeConveyorToAboveConveyor(
       infeedDirection,
+      aboveConveyorToBeforeConveyor,
+    );
+    beforeConveyorToTurnPoint = _beforeConveyorToTurnPoint(
+      turnAtConveyor,
+      moduleGroupFootPrint,
+      aboveConveyorToBeforeConveyor,
+    );
+
+    turnPointToInToTruck = _turnPointToInToTruck(
+      turnAtConveyor,
+      beforeConveyorToTurnPoint,
+    );
+    inTruckToTurnPoint = _inTruckToTurnPoint(
+      turnAtTruck,
+      moduleGroupFootPrint,
+      turnPointToInToTruck,
+    );
+    turnPointToBeforeConveyor = _turnPointToBeforeConveyor(
+      turnAtTruck,
+      inTruckToTurnPoint: inTruckToTurnPoint,
+      beforeConveyorToAboveConveyor: beforeConveyorToAboveConveyor,
+    );
+    all = [
+      beforeConveyorToAboveConveyor,
+      aboveConveyorToBeforeConveyor,
+      beforeConveyorToTurnPoint,
+      turnPointToInToTruck,
+      inTruckToTurnPoint,
+      turnPointToBeforeConveyor,
+    ];
+  }
+
+  ForkLiftTruckRoutes.forUnLoadingForkLiftTruck(
+      {required UnLoadingForkLiftTruck forkLiftTruck,
+      required Direction turnAtConveyor,
+      required Direction turnAtTruck}) {
+    var moduleUnLoadingConveyor = forkLiftTruck.modulesIn.linkedTo!.system;
+    if (moduleUnLoadingConveyor is! ModuleUnLoadingConveyorInterface) {
+      throw Exception(
+          '${forkLiftTruck.name} should be linked to a ModuleUnLoadingConveyorInterface');
+    }
+
+    var area = moduleUnLoadingConveyor.area;
+    var layout = area.layout;
+
+    var outfeedDirection = layout
+        .rotationOf(moduleUnLoadingConveyor)
+        .rotate(moduleUnLoadingConveyor.modulesOut.directionToOtherLink.degrees)
+        .opposite;
+
+    var conveyorLinkPosition = layout.positionOnSystem(moduleUnLoadingConveyor,
+        moduleUnLoadingConveyor.modulesOut.offsetFromCenterWhenFacingNorth);
+    var forkLiftTruckAboveConveyorPosition = conveyorLinkPosition +
+        forkLiftTruck.shape.centerToFrontForkCariage
+            .rotate(outfeedDirection.opposite);
+
+    var moduleGroupFootPrint =
+        area.productDefinition.truckRows.first.footprintOnSystem;
+
+    aboveConveyorToBeforeConveyor = _aboveConveyorToBeforeConveyor(
+      outfeedDirection,
+      forkLiftTruckAboveConveyorPosition,
+      moduleGroupFootPrint,
+    );
+    beforeConveyorToAboveConveyor = _beforeConveyorToAboveConveyor(
+      outfeedDirection,
       aboveConveyorToBeforeConveyor,
     );
     beforeConveyorToTurnPoint = _beforeConveyorToTurnPoint(

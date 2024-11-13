@@ -5,6 +5,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_drawer_row_unloader.dart'
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
@@ -245,7 +246,7 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
       ],
     );
 
-    var unloadingConveyor = ModuleConveyor(area: this);
+    var unloadingConveyor = ModuleUnLoadingConveyor(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 

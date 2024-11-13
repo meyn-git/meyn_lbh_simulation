@@ -7,6 +7,7 @@ import 'package:meyn_lbh_simulation/domain/area/system.dart';
 import 'package:meyn_lbh_simulation/gui/area/command.dart';
 import 'package:meyn_lbh_simulation/gui/area/shape.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
+import 'package:meyn_lbh_simulation/system/vehicle/unloading_fork_lift_truck.domain.dart';
 import 'package:user_command/user_command.dart';
 
 import '../../domain/area/life_bird_handling_area.dart';
@@ -175,12 +176,13 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem
 
   @override
   void moduleGroupFreeFromForkLiftTruck() {
-    currentState = nextState[FeedIn]!() as Down;
+    currentState = nextState[FeedIn]!();
     currentState.onStart(this);
   }
 }
 
-class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
+class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem
+    implements ModuleUnLoadingConveyorInterface {
   @override
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
     place: moduleGroupPlace,
@@ -236,6 +238,12 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem {
       super.upDuration,
       super.downDuration,
       required super.moduleOutDirection});
+
+  @override
+  void moduleGroupFreeFromForkLiftTruck() {
+    currentState = nextState[FeedOut]!();
+    currentState.onStart(this);
+  }
 }
 
 class WaitToFeedIn extends State<ModuleBufferSystem>

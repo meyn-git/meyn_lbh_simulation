@@ -8,6 +8,7 @@ import 'package:meyn_lbh_simulation/domain/area/module_stacker.dart';
 import 'package:meyn_lbh_simulation/domain/area/direction.dart';
 import 'package:meyn_lbh_simulation/domain/area/life_bird_handling_area.dart';
 import 'package:meyn_lbh_simulation/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/system/vehicle/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/domain/area/module/module.dart';
 import 'package:meyn_lbh_simulation/domain/area/module_cas.dart';
@@ -408,10 +409,7 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var stacker = ModuleStacker(area: this);
 
-    var mc6 = ModuleConveyor(
-      area: this,
-      lengthInMeters: 3.75,
-    );
+    var moduleUnLoadingConveyor = ModuleUnLoadingConveyor(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
@@ -436,8 +434,9 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(moduleWasher.modulesOut, loader.modulesIn);
     systems.link(loader.modulesOut, mrc4.modulesIns[0]);
     systems.link(mrc4.modulesOuts[1], stacker.modulesIn);
-    systems.link(stacker.modulesOut, mc6.modulesIn);
-    systems.link(mc6.modulesOut, unLoadingForkLiftTruck.modulesIn);
+    systems.link(stacker.modulesOut, moduleUnLoadingConveyor.modulesIn);
+    systems.link(
+        moduleUnLoadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
 
     /// Drawers
     systems.link(unloader.drawersOut, receiver.drawersIn);
