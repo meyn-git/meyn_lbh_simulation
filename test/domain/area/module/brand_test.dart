@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:meyn_lbh_simulation/domain/area/module/brand.dart';
-import 'package:meyn_lbh_simulation/domain/area/module/module_variant_builder.dart';
+import 'package:meyn_lbh_simulation/area/module/brand.domain.dart';
+import 'package:meyn_lbh_simulation/area/module/module_variant_builder.domain.dart';
 import 'package:shouldly/shouldly.dart';
 
 void main() {
