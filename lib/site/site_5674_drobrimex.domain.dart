@@ -5,6 +5,7 @@ import 'package:meyn_lbh_simulation/area/system/module_drawer_row_unloader/modul
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/module.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas.domain.dart';
@@ -357,7 +358,7 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
       metersPerSecond: drawerSpeedInMetersPerSecond,
     );
 
-    var unloadConveyor = ModuleLoadingConveyor(area: this);
+    var unloadConveyor = ModuleUnLoadingConveyor(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 

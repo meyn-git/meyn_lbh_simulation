@@ -15,7 +15,7 @@ import '../../area.domain.dart';
 import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 
-class ModuleConveyor extends StateMachine implements PhysicalSystem {
+class ModuleConveyor extends StateMachine implements LinkedSystem {
   final double lengthInMeters;
   final SpeedProfile speedProfile;
   final LiveBirdHandlingArea area;
@@ -57,7 +57,7 @@ class ModuleConveyor extends StateMachine implements PhysicalSystem {
   );
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut
   ];
@@ -200,7 +200,7 @@ class FeedInStateMachine extends StateMachine
         ModuleTransportStartedListener,
         ModuleTransportCompletedListener {
   final SimultaneousFeedOutFeedInModuleGroup simultaneousFeedOutFeedIn;
-  late final ModuleGroupInLink<PhysicalSystem> modulesIn =
+  late final ModuleGroupInLink<LinkedSystem> modulesIn =
       simultaneousFeedOutFeedIn.modulesIn;
 
   FeedInStateMachine(this.simultaneousFeedOutFeedIn)
@@ -321,7 +321,7 @@ class FeedOutStateMachine extends StateMachine
         ModuleTransportStartedListener,
         ModuleTransportCompletedListener {
   final SimultaneousFeedOutFeedInModuleGroup simultaneousFeedOutFeedIn;
-  late final ModuleGroupOutLink<PhysicalSystem> modulesOut =
+  late final ModuleGroupOutLink<LinkedSystem> modulesOut =
       simultaneousFeedOutFeedIn.modulesOut;
 
   FeedOutStateMachine(this.simultaneousFeedOutFeedIn)

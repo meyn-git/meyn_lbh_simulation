@@ -41,11 +41,15 @@ import 'package:meyn_lbh_simulation/area/system/module_tilter/module_tilter.pres
 import 'package:meyn_lbh_simulation/area/system/module_tilter/module_tilter_dump_conveyor.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/shackle_conveyor/shackle_conveyor.presentation.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/truck/truck.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/truck/truck.presentation.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/truck/truck_route.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/truck/truck_route.presentation.dart';
 import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class SystemWidget extends StatelessWidget {
   final SystemLayout layout;
-  final PhysicalSystem system;
+  final VisibleSystem system;
 
   SystemWidget(this.layout, this.system) : super(key: UniqueKey());
 
@@ -61,7 +65,7 @@ class SystemWidget extends StatelessWidget {
     );
   }
 
-  monitor(PhysicalSystem system) {
+  monitor(VisibleSystem system) {
     var player = GetIt.instance<Player>();
     var systems = player.scenario!.area.systems;
     List<Object> objectsToMonitor = [
@@ -72,7 +76,7 @@ class SystemWidget extends StatelessWidget {
   }
 
   List<Detailable> relatedObjectsToMonitor(
-      List<System> systems, PhysicalSystem selectedSystem) {
+      List<System> systems, VisibleSystem selectedSystem) {
     var relatedObjects = <Detailable>[];
     if (selectedSystem is ModuleCas) {
       relatedObjects.addAll(systems.whereType<ModuleCasStart>());
@@ -87,7 +91,15 @@ class SystemWidget extends StatelessWidget {
 }
 
 CustomPainter createSystemPainter(
-    PhysicalSystem system, LiveBirdsHandlingTheme theme) {
+  VisibleSystem system,
+  LiveBirdsHandlingTheme theme,
+) {
+  if (system is TruckRoutes) {
+    return TruckRoutesPainter(system, theme);
+  }
+  if (system is BoxTruck) {
+    return TruckPainter(system, theme);
+  }
   if (system is LoadingForkLiftTruck) {
     return LoadingForkLiftTruckPainter(system, theme);
   }

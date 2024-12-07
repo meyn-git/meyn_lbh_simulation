@@ -14,8 +14,7 @@ import '../../area.domain.dart';
 import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 
-abstract class ModuleBufferSystem extends StateMachine
-    implements PhysicalSystem {
+abstract class ModuleBufferSystem extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final SpeedProfile conveyorSpeedProfile;
 
@@ -38,7 +37,7 @@ abstract class ModuleBufferSystem extends StateMachine
   ModuleGroupOutLink get modulesOut;
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut
   ];

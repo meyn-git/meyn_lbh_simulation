@@ -2,9 +2,9 @@ import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 
-abstract class Link<OWNER extends PhysicalSystem,
-    LINKED_TO extends Link<PhysicalSystem, dynamic>> {
-  /// the [PhysicalSystem] that owns the [Link]
+abstract class Link<OWNER extends LinkedSystem,
+    LINKED_TO extends Link<LinkedSystem, dynamic>> {
+  /// the [LinkedSystem] that owns the [Link]
   final OWNER system;
   final OffsetInMeters offsetFromCenterWhenFacingNorth;
 
@@ -20,7 +20,7 @@ abstract class Link<OWNER extends PhysicalSystem,
   });
 }
 
-class DrawerInLink<OWNER extends PhysicalSystem>
+class DrawerInLink<OWNER extends LinkedSystem>
     extends Link<OWNER, DrawerOutLink> {
   DrawerInLink({
     required super.system,
@@ -29,7 +29,7 @@ class DrawerInLink<OWNER extends PhysicalSystem>
   });
 }
 
-class DrawerOutLink<OWNER extends PhysicalSystem>
+class DrawerOutLink<OWNER extends LinkedSystem>
     extends Link<OWNER, DrawerInLink> {
   final bool visibleAndMutable;
   DrawerOutLink({
@@ -40,7 +40,7 @@ class DrawerOutLink<OWNER extends PhysicalSystem>
   });
 }
 
-class DrawersInLink<OWNER extends PhysicalSystem>
+class DrawersInLink<OWNER extends LinkedSystem>
     extends Link<OWNER, DrawersOutLink> {
   /// returns 0 if it can not receive drawers
   /// or returns the number of drawers that can be received in one go.
@@ -65,7 +65,7 @@ class DrawersInLink<OWNER extends PhysicalSystem>
   });
 }
 
-class DrawersOutLink<OWNER extends PhysicalSystem>
+class DrawersOutLink<OWNER extends LinkedSystem>
     extends Link<OWNER, DrawersInLink> {
   DrawersOutLink(
       {required super.system,
@@ -73,8 +73,8 @@ class DrawersOutLink<OWNER extends PhysicalSystem>
       required super.directionToOtherLink});
 }
 
-Duration moduleTransportDuration(ModuleGroupInLink<PhysicalSystem> inLink,
-    SpeedProfile conveyorSpeedProfile) {
+Duration moduleTransportDuration(
+    ModuleGroupInLink<LinkedSystem> inLink, SpeedProfile conveyorSpeedProfile) {
   var source = inLink.linkedTo!;
   var destination = inLink;
   var distanceInMeters =
@@ -88,7 +88,7 @@ Duration moduleTransportDuration(ModuleGroupInLink<PhysicalSystem> inLink,
   return duration;
 }
 
-class ModuleGroupInLink<OWNER extends PhysicalSystem>
+class ModuleGroupInLink<OWNER extends LinkedSystem>
     extends Link<OWNER, ModuleGroupOutLink> {
   /// A function that calculates the ModuleGroup transport time
   /// between [ModuleGroupOutLink] and [ModuleGroupInLink]
@@ -120,11 +120,11 @@ class ModuleGroupInLink<OWNER extends PhysicalSystem>
       "ModuleGroupInLink from: ${system.name} ${linkedTo?.system.name ?? ''}'}";
 }
 
-class ModuleGroupOutLink<OWNER extends PhysicalSystem>
+class ModuleGroupOutLink<OWNER extends LinkedSystem>
     extends Link<OWNER, ModuleGroupInLink> {
-  /// * [Duration.zero] = The [PhysicalSystem] can feed out now
-  /// * [Duration] = Time until the [PhysicalSystem] can feed out a module
-  /// * [unknownDuration] = Unknown when the [PhysicalSystem] can feed out a module
+  /// * [Duration.zero] = The [LinkedSystem] can feed out now
+  /// * [Duration] = Time until the [LinkedSystem] can feed out a module
+  /// * [unknownDuration] = Unknown when the [LinkedSystem] can feed out a module
   final Duration Function() durationUntilCanFeedOut;
   final ModuleGroupPlace place;
 
@@ -145,7 +145,7 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
   }) : super(system: (place.system as OWNER));
 
   ModuleGroupRoute? findRoute(
-      {required PhysicalSystem destination, ModuleGroupRoute? routeSoFar}) {
+      {required LinkedSystem destination, ModuleGroupRoute? routeSoFar}) {
     routeSoFar ??= ModuleGroupRoute([]);
     routeSoFar.add(this);
 
@@ -178,8 +178,8 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
     return null;
   }
 
-  bool hasNoRoundTrips(ModuleGroupRoute route,
-          ModuleGroupOutLink<PhysicalSystem> linkToAdd) =>
+  bool hasNoRoundTrips(
+          ModuleGroupRoute route, ModuleGroupOutLink<LinkedSystem> linkToAdd) =>
       //    !route.systems.contains(linkToAdd.system) &&
       !route.systems.contains(linkToAdd.linkedTo!.system);
 
@@ -192,7 +192,7 @@ class ModuleGroupOutLink<OWNER extends PhysicalSystem>
 /// Arbitrary duration to indicate an unknown duration
 const Duration unknownDuration = Duration(days: 999);
 
-class BirdsInLink<OWNER extends PhysicalSystem>
+class BirdsInLink<OWNER extends LinkedSystem>
     extends Link<OWNER, BirdsOutLink> {
   final bool Function() canReceiveBirds;
   final void Function(int numberOfBirds) transferBirds;
@@ -210,7 +210,7 @@ class BirdsInLink<OWNER extends PhysicalSystem>
       "BirdsInLink from: ${system.name} ${linkedTo?.system.name ?? ''}";
 }
 
-class BirdsOutLink<OWNER extends PhysicalSystem>
+class BirdsOutLink<OWNER extends LinkedSystem>
     extends Link<OWNER, BirdsInLink> {
   BirdsOutLink({
     required super.system,
@@ -223,8 +223,7 @@ class BirdsOutLink<OWNER extends PhysicalSystem>
       "BirdsOutLink from: ${system.name} ${linkedTo?.system.name ?? ''}'}";
 }
 
-class BirdInLink<OWNER extends PhysicalSystem>
-    extends Link<OWNER, BirdOutLink> {
+class BirdInLink<OWNER extends LinkedSystem> extends Link<OWNER, BirdOutLink> {
   final bool Function() canReceiveBird;
   final void Function() transferBird;
 
@@ -241,8 +240,7 @@ class BirdInLink<OWNER extends PhysicalSystem>
       "BirdInLink from: ${system.name} ${linkedTo?.system.name ?? ''}";
 }
 
-class BirdOutLink<OWNER extends PhysicalSystem>
-    extends Link<OWNER, BirdInLink> {
+class BirdOutLink<OWNER extends LinkedSystem> extends Link<OWNER, BirdInLink> {
   BirdOutLink({
     required super.system,
     required super.offsetFromCenterWhenFacingNorth,

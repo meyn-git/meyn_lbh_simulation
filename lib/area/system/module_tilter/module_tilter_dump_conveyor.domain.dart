@@ -9,7 +9,7 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_tilter/module_tilter_dump_conveyor.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-class ModuleTilterDumpConveyor implements PhysicalSystem, TimeProcessor {
+class ModuleTilterDumpConveyor implements LinkedSystem, TimeProcessor {
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
   late final ModuleTilterDumpConveyorShape shape =
@@ -82,7 +82,7 @@ class ModuleTilterDumpConveyor implements PhysicalSystem, TimeProcessor {
   );
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     birdsIn,
     birdOut,
   ];

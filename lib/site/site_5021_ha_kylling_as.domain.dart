@@ -326,10 +326,7 @@ class AreaWithGrande extends LiveBirdHandlingArea {
       ],
     );
 
-    var unloadConveyor = ModuleConveyor(
-      area: this,
-      lengthInMeters: 3.75,
-    );
+    var unloadConveyor = ModuleUnLoadingConveyor(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 

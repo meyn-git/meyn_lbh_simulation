@@ -15,7 +15,7 @@ import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 import '../vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
 
-class ModuleCas extends StateMachine implements PhysicalSystem {
+class ModuleCas extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final SpeedProfile conveyorSpeedProfile;
   late CasRecipe recipe;
@@ -54,8 +54,8 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
 
   bool get waitingToFeedOut => currentState is WaitToFeedOut;
 
-  PhysicalSystem get moduleGroupDestinationAfterStunning {
-    var unLoadingForkLiftTruck = area.systems.physicalSystems
+  LinkedSystem get moduleGroupDestinationAfterStunning {
+    var unLoadingForkLiftTruck = area.systems.linkedSystems
         .firstWhereOrNull((system) => system is UnLoadingForkLiftTruck);
     if (unLoadingForkLiftTruck == null) {
       throw Exception(
@@ -122,7 +122,7 @@ class ModuleCas extends StateMachine implements PhysicalSystem {
   }
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut
   ];

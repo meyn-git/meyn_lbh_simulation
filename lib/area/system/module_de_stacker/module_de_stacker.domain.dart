@@ -16,7 +16,7 @@ import '../../module/module.domain.dart';
 import '../lift_position.domain.dart';
 import '../state_machine.domain.dart';
 
-class ModuleDeStacker extends StateMachine implements PhysicalSystem {
+class ModuleDeStacker extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
 
   int nrOfModulesFeedingIn = 0;
@@ -96,7 +96,7 @@ class ModuleDeStacker extends StateMachine implements PhysicalSystem {
   );
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut
   ];

@@ -14,7 +14,8 @@ import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.domain.dart';
 import 'package:user_command/user_command.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
-class UnLoadingForkLiftTruck extends StateMachine implements Vehicle {
+class UnLoadingForkLiftTruck extends VehicleStateMachine
+    implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final Duration pickUpOrLowerModuleGroupDuration;
   final Duration liftUpOrDown1ModuleDuration;
@@ -55,7 +56,7 @@ class UnLoadingForkLiftTruck extends StateMachine implements Vehicle {
   }) : super(initialState: Initialize());
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-      place: moduleGroupPlace,
+      place: moduleGroupPlaces.first,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
           xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
       directionToOtherLink: const CompassDirection.north(),
@@ -63,7 +64,7 @@ class UnLoadingForkLiftTruck extends StateMachine implements Vehicle {
       canFeedIn: () => currentState is WaitUntilConveyorCanFeedOut);
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn
   ];
 
@@ -74,13 +75,15 @@ class UnLoadingForkLiftTruck extends StateMachine implements Vehicle {
   late SizeInMeters sizeWhenFacingNorth = shape.size;
 
   @override
-  late ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
-    system: this,
-    offsetFromCenterWhenSystemFacingNorth: shape.centerToModuleGroupCenter,
-  );
+  late List<ModuleGroupPlace> moduleGroupPlaces = [
+    ModuleGroupPlace(
+      system: this,
+      offsetFromCenterWhenSystemFacingNorth: shape.centerToModuleGroupCenter,
+    )
+  ];
 }
 
-abstract class ModuleUnLoadingConveyorInterface implements PhysicalSystem {
+abstract class ModuleUnLoadingConveyorInterface implements LinkedSystem {
   ModuleGroupPlace get moduleGroupPlace;
 
   LiveBirdHandlingArea get area;
@@ -147,9 +150,12 @@ class DriveInToModuleGroupOnConveyor extends Drive<UnLoadingForkLiftTruck> {
                     ? LiftModuleGroupFromConveyorToStackModules()
                     : LiftModuleGroupFromConveyorToDriveToTruck());
 
-  static bool needToStackModules(UnLoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.stackModules &&
-      !forkLiftTruck.moduleGroupPlace.moduleGroup!.isStacked;
+  static bool needToStackModules(UnLoadingForkLiftTruck forkLiftTruck) {
+    var moduleGroupOnUnloadingConveyor =
+        forkLiftTruck.modulesIn.linkedTo!.place.moduleGroup;
+    return forkLiftTruck.stackModules &&
+        !moduleGroupOnUnloadingConveyor!.isStacked;
+  }
 
   @override
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
@@ -194,9 +200,10 @@ class LiftModuleGroupFromConveyorToDriveToTruck
     }
     moduleUnLoadingConveyor.moduleGroupPlace.moduleGroup = null;
 
-    forkLiftTruck.moduleGroupPlace.moduleGroup = moduleGroup;
+    forkLiftTruck.moduleGroupPlaces.first.moduleGroup = moduleGroup;
 
-    moduleGroup.position = AtModuleGroupPlace(forkLiftTruck.moduleGroupPlace);
+    moduleGroup.position =
+        AtModuleGroupPlace(forkLiftTruck.moduleGroupPlaces.first);
   }
 }
 
@@ -279,8 +286,8 @@ class LowerModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
 
   void removeModuleGroup(UnLoadingForkLiftTruck forkLiftTruck) {
     var moduleGroups = forkLiftTruck.area.moduleGroups;
-    var moduleGroup = forkLiftTruck.moduleGroupPlace.moduleGroup!;
-    forkLiftTruck.moduleGroupPlace.moduleGroup = null;
+    var moduleGroup = forkLiftTruck.moduleGroupPlaces.first.moduleGroup!;
+    forkLiftTruck.moduleGroupPlaces.first.moduleGroup = null;
     moduleGroups.remove(moduleGroup);
   }
 }
@@ -357,14 +364,15 @@ class LowerModuleOnModuleGroupOnConveyor
   }
 
   void mergeModuleGroups(UnLoadingForkLiftTruck forkLiftTruck) {
-    var moduleGroupOnConveyor = forkLiftTruck.moduleGroupPlace.moduleGroup!;
+    var moduleGroupOnConveyor =
+        forkLiftTruck.moduleGroupPlaces.first.moduleGroup!;
     if (moduleGroupOnConveyor.numberOfStacks > 1) {
       throw Exception('$name can only stack a single stack at a time!');
     }
 
     var moduleGroups = forkLiftTruck.area.moduleGroups;
 
-    var moduleGroupOnForks = forkLiftTruck.moduleGroupPlace.moduleGroup!;
+    var moduleGroupOnForks = forkLiftTruck.moduleGroupPlaces.first.moduleGroup!;
 
     moduleGroupOnConveyor[PositionWithinModuleGroup.firstTop] =
         moduleGroupOnForks[PositionWithinModuleGroup.firstBottom]!;

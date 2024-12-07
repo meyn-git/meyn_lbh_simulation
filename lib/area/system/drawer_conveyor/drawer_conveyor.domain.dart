@@ -13,7 +13,7 @@ import 'package:meyn_lbh_simulation/area/object_details.domain.dart';
 import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-abstract class DrawerConveyor implements PhysicalSystem {
+abstract class DrawerConveyor implements LinkedSystem {
   /// * y: number of meters in north/south direction, e.g.:
   ///   * -3 = 3 meters north
   ///   * +2 = 2 meters south

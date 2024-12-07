@@ -19,7 +19,7 @@ import '../../area.domain.dart';
 import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 
-class DrawerLoaderLift extends StateMachine implements PhysicalSystem {
+class DrawerLoaderLift extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
 
   @override
@@ -509,7 +509,7 @@ class BetweenLiftPositions extends BetweenDrawerPlaces {
   double get scale => _scale;
 }
 
-class ModuleDrawerLoader extends StateMachine implements PhysicalSystem {
+class ModuleDrawerLoader extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final Direction drawersInDirection;
   final bool singleColumnOfCompartments;

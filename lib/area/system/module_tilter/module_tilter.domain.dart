@@ -15,7 +15,7 @@ import '../../area.domain.dart';
 import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 
-class ModuleTilter extends StateMachine implements PhysicalSystem {
+class ModuleTilter extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final Direction tiltDirection;
 
@@ -76,7 +76,7 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
       system: this,
       offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter);
 
-  late final modulesIn = ModuleGroupInLink<PhysicalSystem>(
+  late final modulesIn = ModuleGroupInLink<LinkedSystem>(
       place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
       directionToOtherLink: const CompassDirection.south(),
@@ -103,7 +103,7 @@ class ModuleTilter extends StateMachine implements PhysicalSystem {
   );
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut,
     birdsOut,

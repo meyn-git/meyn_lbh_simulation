@@ -17,7 +17,7 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_drawer_row_unloader/module_drawer_row_unloader.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-class ModuleDrawerRowUnloader extends StateMachine implements PhysicalSystem {
+class ModuleDrawerRowUnloader extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final Duration pusherPushDuration;
   final Duration pusherBackDuration;
@@ -371,7 +371,7 @@ class PusherBack extends DurationState<ModuleDrawerRowUnloader> {
                 : MoveLift(unloader.liftLevel.oneLevelDown));
 }
 
-class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
+class ModuleDrawerRowUnloaderReceiver implements LinkedSystem, TimeProcessor {
   final LiveBirdHandlingArea area;
   late final DrawerReceivingConveyors receivingConveyors =
       DrawerReceivingConveyors(this);
@@ -425,7 +425,7 @@ class ModuleDrawerRowUnloaderReceiver implements PhysicalSystem, TimeProcessor {
   late final drawerOut = crossOver.feedOutConveyor.drawerOut;
 
   @override
-  late final List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late final List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     drawersIn,
     //[crossOver.drawerOutLink] for positioning of [crossOver.feedOutConveyor]:
     crossOver.drawerOutLink,

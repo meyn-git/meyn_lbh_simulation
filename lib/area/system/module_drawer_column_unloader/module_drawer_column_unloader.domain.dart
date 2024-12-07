@@ -17,8 +17,7 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_drawer_column_unloader/module_drawer_column_unloader.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-class ModuleDrawerColumnUnloader extends StateMachine
-    implements PhysicalSystem {
+class ModuleDrawerColumnUnloader extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
 
   ///Number of birds on dumping belt between module and hanger (a buffer).
@@ -444,7 +443,7 @@ class FeedInToSecondColumn extends State<ModuleDrawerColumnUnloader>
 //   }
 // }
 
-class DrawerUnloaderLift extends StateMachine implements PhysicalSystem {
+class DrawerUnloaderLift extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   @override
   late final String name = 'DrawerUnloaderLift$seqNr';

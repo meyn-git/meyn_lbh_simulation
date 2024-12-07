@@ -19,6 +19,7 @@ import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_drawer_loader/module_drawer_loader.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/drawer_conveyor/drawer_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/truck/truck_route.domain.dart';
 import 'package:meyn_lbh_simulation/site/site.dart';
 
 class MicarnaSite extends Site {
@@ -104,6 +105,8 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
   @override
   void createSystemsAndLinks() {
+    var truckRoutes = TruckRoutes.forTrailerPuller(area: this);
+
     var loadingForkLiftTruck = LoadingForkLiftTruck(
       area: this,
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
@@ -284,6 +287,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
+    systems.link(truckRoutes.modulesOut, loadingForkLiftTruck.modulesIn);
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], mrc2.modulesIns[0]);

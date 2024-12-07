@@ -14,26 +14,32 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 
 abstract class System implements Namable, Commandable, Detailable {}
 
-abstract class PhysicalSystem extends System {
+abstract class VisibleSystem extends System {
+//TODO AreaPosition position
+
+//TODO CompasDirection direction
+}
+
+abstract class LinkedSystem extends VisibleSystem {
   /// See [DefaultOrientation]
   /// TODO replace with Shape get shape;
   SizeInMeters get sizeWhenFacingNorth;
 
-  /// all links to other [PhysicalSystem]s
+  /// all links to other [LinkedSystem]s
   List<Link> get links;
 
   @override
   String toString() => objectDetails.toString();
 }
 
-/// an optional [PhysicalSystem] capability
+/// an optional [LinkedSystem] capability
 abstract class AdditionalRotation {
   CompassDirection get additionalRotation;
 }
 
 /// A Physical place on a [System] that can contain a [ModuleGroup]
 class ModuleGroupPlace {
-  final PhysicalSystem system;
+  final VisibleSystem system;
   ModuleGroup?
       moduleGroup; // TODO change to ModuleGroup? moduleGroup, to be updated by BetweenModuleGroup Places See DrawerPlace
   final OffsetInMeters offsetFromCenterWhenSystemFacingNorth;
@@ -50,7 +56,9 @@ class Systems extends DelegatingList<System> {
 
   Systems() : super([]);
 
-  late Iterable<PhysicalSystem> physicalSystems = whereType<PhysicalSystem>();
+  late Iterable<VisibleSystem> visibleSystems = whereType<VisibleSystem>();
+
+  late Iterable<LinkedSystem> linkedSystems = whereType<LinkedSystem>();
 
   late Iterable<TimeProcessor> timeProcessingSystems =
       whereType<TimeProcessor>();
@@ -158,7 +166,7 @@ class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
     }
   }
 
-  List<PhysicalSystem> get systems => [
+  List<LinkedSystem> get systems => [
         ...map((outLink) => outLink.system),
         if (last.linkedTo?.system != null) last.linkedTo!.system
       ];
@@ -180,11 +188,11 @@ class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
   }
 }
 
-/// By convention: The [DefaultOrientation] of a [PhysicalSystem] is,
+/// By convention: The [DefaultOrientation] of a [LinkedSystem] is,
 /// when looking from the top, the product carrier starts to travel
 /// North bound (starting in the south)
 ///
-/// [PhysicalSystem]s can have a rotation (see [MachineLayout])
+/// [LinkedSystem]s can have a rotation (see [MachineLayout])
 /// This means that a rotation of
 /// * 0 degrees: product carrier starts traveling North bound
 ///   (= starts in the South of the system)
@@ -230,7 +238,7 @@ class SizeInMeters {
 }
 
 /// The relative position from the top left
-/// when looking from to top of the [PhysicalSystem] in [DefaultOrientation]
+/// when looking from to top of the [LinkedSystem] in [DefaultOrientation]
 /// The relative position from the top left
 /// when looking from to top of the [Machine] in [DefaultOrientation]
 class OffsetInMeters {

@@ -19,7 +19,7 @@ import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.domain.dart';
 import 'package:user_command/user_command.dart';
 
 /// Unloads module stacks from a truck and puts them onto a in feed conveyor
-class LoadingForkLiftTruck extends StateMachine implements Vehicle {
+class LoadingForkLiftTruck extends VehicleStateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final bool unStackModules;
 
@@ -125,16 +125,16 @@ class LoadingForkLiftTruck extends StateMachine implements Vehicle {
     return totalOccurrence;
   }
 
-  PhysicalSystem _findModuleGroupDestination() {
+  LinkedSystem _findModuleGroupDestination() {
     var casUnits = area.systems.whereType<ModuleCas>();
-    var found = findSingleSystemOnRoute(casUnits as Iterable<PhysicalSystem>);
+    var found = findSingleSystemOnRoute(casUnits as Iterable<LinkedSystem>);
     if (found != null) {
       return found;
     }
 
     var systemsThatAllocateToCasUnits = area.systems
         .whereType<ModuleCasAllocation>()
-        .map((e) => e.allocationPlace.system);
+        .map((e) => e.allocationPlace.system as LinkedSystem);
     found = findSingleSystemOnRoute(systemsThatAllocateToCasUnits);
     if (found != null) {
       return found;
@@ -149,8 +149,8 @@ class LoadingForkLiftTruck extends StateMachine implements Vehicle {
     throw Exception('Could not find an destination');
   }
 
-  PhysicalSystem? findSingleSystemOnRoute(Iterable<PhysicalSystem> candidates) {
-    PhysicalSystem? found;
+  LinkedSystem? findSingleSystemOnRoute(Iterable<LinkedSystem> candidates) {
+    LinkedSystem? found;
     for (var candidate in candidates) {
       var route = modulesOut.findRoute(destination: candidate);
       if (route != null) {
@@ -166,15 +166,25 @@ class LoadingForkLiftTruck extends StateMachine implements Vehicle {
   }
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-      place: moduleGroupPlace,
+      place: moduleGroupPlaces.first,
       offsetFromCenterWhenFacingNorth: OffsetInMeters(
           xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
       directionToOtherLink: const CompassDirection.north(),
       durationUntilCanFeedOut: () => unknownDuration);
 
+  /// used to link to [TruckRoutes]
+  late ModuleGroupInLink modulesIn = ModuleGroupInLink(
+      place: moduleGroupPlaces.first,
+      offsetFromCenterWhenFacingNorth: OffsetInMeters(
+          xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
+      directionToOtherLink: const CompassDirection.south(),
+      canFeedIn: () => true,
+      transportDuration: (_) => Duration.zero);
+
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
-    modulesOut
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
+    modulesOut,
+    modulesIn
   ];
 
   @override
@@ -184,13 +194,15 @@ class LoadingForkLiftTruck extends StateMachine implements Vehicle {
   late SizeInMeters sizeWhenFacingNorth = shape.size;
 
   @override
-  late ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
-    system: this,
-    offsetFromCenterWhenSystemFacingNorth: shape.centerToModuleGroupCenter,
-  );
+  late List<ModuleGroupPlace> moduleGroupPlaces = [
+    ModuleGroupPlace(
+      system: this,
+      offsetFromCenterWhenSystemFacingNorth: shape.centerToModuleGroupCenter,
+    )
+  ];
 }
 
-abstract class ModuleLoadingConveyorInterface implements PhysicalSystem {
+abstract class ModuleLoadingConveyorInterface implements LinkedSystem {
   ModuleGroupPlace get moduleGroupPlace;
 
   LiveBirdHandlingArea get area;
@@ -238,7 +250,7 @@ class DriveIntoTruck extends Drive<LoadingForkLiftTruck> {
 
   @override
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
-    var place = forkLiftTruck.moduleGroupPlace;
+    var place = forkLiftTruck.moduleGroupPlaces.first;
     moduleGroup.position = AtModuleGroupPlace(place);
     place.moduleGroup = moduleGroup;
   }
@@ -327,7 +339,7 @@ class LowerModuleGroupOnConveyor extends DurationState<LoadingForkLiftTruck> {
 
   void moveModuleGroupFromForksToModuleLoadingConveyor(
       LoadingForkLiftTruck forkLiftTruck) {
-    var moduleGroup = forkLiftTruck.moduleGroupPlace.moduleGroup!;
+    var moduleGroup = forkLiftTruck.moduleGroupPlaces.first.moduleGroup!;
     // TODO if (moduleGroup.numberOfStacks > 1) {
     //   throw Exception('$name can only feed in a single stack at a time!');
     // }
@@ -336,7 +348,7 @@ class LowerModuleGroupOnConveyor extends DurationState<LoadingForkLiftTruck> {
       throw Exception(
           '$name must be linked to a ModuleLoadingConveyorInterface!');
     }
-    forkLiftTruck.moduleGroupPlace.moduleGroup = null;
+    forkLiftTruck.moduleGroupPlaces.first.moduleGroup = null;
     var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system
         as ModuleLoadingConveyorInterface;
     moduleLoadingConveyor.moduleGroupPlace.moduleGroup = moduleGroup;
@@ -356,13 +368,19 @@ class DriveOutOfModuleGroupOnConveyor extends Drive<LoadingForkLiftTruck> {
             routeFunction: (forkLiftTruck) =>
                 forkLiftTruck.routes.aboveConveyorToBeforeConveyor,
             nextStateFunction: (forkLiftTruck) =>
-                needToUnstackModulesModules(forkLiftTruck)
+                needToUnstackModules(forkLiftTruck)
                     ? LiftToTopModuleBeforeModuleConveyor()
                     : WaitToFeedOut());
 
-  static bool needToUnstackModulesModules(LoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.unStackModules &&
-      forkLiftTruck.moduleGroupPlace.moduleGroup!.isStacked;
+  static bool needToUnstackModules(LoadingForkLiftTruck forkLiftTruck) {
+    var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system
+        as ModuleLoadingConveyorInterface;
+    var moduleGroupOnLoadingConveyor =
+        moduleLoadingConveyor.moduleGroupPlace.moduleGroup;
+    return forkLiftTruck.unStackModules &&
+        moduleGroupOnLoadingConveyor != null &&
+        moduleGroupOnLoadingConveyor.isStacked;
+  }
 }
 
 class LiftToTopModuleBeforeModuleConveyor
@@ -402,7 +420,8 @@ class LiftUpTopModuleOnModuleConveyor
             nextStateFunction: (_) => WaitToFeedOut());
   @override
   void onCompleted(LoadingForkLiftTruck forkLiftTruck) {
-    var moduleGroupOnConveyor = forkLiftTruck.moduleGroupPlace.moduleGroup!;
+    var moduleGroupOnConveyor =
+        forkLiftTruck.moduleGroupPlaces.first.moduleGroup!;
     if (moduleGroupOnConveyor.numberOfStacks > 1) {
       throw Exception('$name can only de-stack a single stack at a time!');
     }
@@ -416,10 +435,10 @@ class LiftUpTopModuleOnModuleConveyor
         },
         direction: moduleGroupOnConveyor.direction,
         destination: moduleGroupOnConveyor.destination,
-        position: AtModuleGroupPlace(forkLiftTruck.moduleGroupPlace));
+        position: AtModuleGroupPlace(forkLiftTruck.moduleGroupPlaces.first));
 
     moduleGroups.add(moduleGroupOnForks);
-    forkLiftTruck.moduleGroupPlace.moduleGroup = moduleGroupOnForks;
+    forkLiftTruck.moduleGroupPlaces.first.moduleGroup = moduleGroupOnForks;
 
     moduleGroupOnConveyor.remove(PositionWithinModuleGroup.firstTop);
     moduleGroupOnConveyor.position =
@@ -449,7 +468,7 @@ class WaitToFeedOut extends State<LoadingForkLiftTruck> {
   }
 
   bool topModuleOnForkLiftForks(LoadingForkLiftTruck forkLiftTruck) =>
-      forkLiftTruck.moduleGroupPlace.moduleGroup != null;
+      forkLiftTruck.moduleGroupPlaces.first.moduleGroup != null;
 
   bool moduleLoadingConveyorCanFeedIn(LoadingForkLiftTruck forkLiftTruck) =>
       forkLiftTruck.modulesOut.linkedTo!.canFeedIn();

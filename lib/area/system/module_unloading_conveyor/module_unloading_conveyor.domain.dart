@@ -57,7 +57,7 @@ class ModuleUnLoadingConveyor extends StateMachine
   );
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut
   ];

@@ -1,15 +1,23 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/link.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/module_variant_builder.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas_allocation.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/shape.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/state_machine.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/object_details.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.presentation.dart';
 import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/module/module.presentation.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/vehicle/truck/truck.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.domain.dart';
 import 'package:user_command/user_command.dart';
 
@@ -49,7 +57,7 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   /// The direction (rotation) of the module group. This is the direction
   /// that the doors would be pointing towards (if it has any)
   CompassDirection direction;
-  PhysicalSystem destination;
+  LinkedSystem destination;
   AreaPosition position;
 
   late ModuleGroupShape shape;
@@ -215,7 +223,7 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
       keys.contains(PositionWithinModuleGroup.secondBottom) &&
           keys.contains(PositionWithinModuleGroup.secondTop);
 
-  isBeingTransportedTo(PhysicalSystem system) =>
+  isBeingTransportedTo(LinkedSystem system) =>
       position is BetweenModuleGroupPlaces &&
       (position as BetweenModuleGroupPlaces).destination.system == system;
 }
@@ -243,7 +251,7 @@ enum PositionWithinModuleGroup {
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
 
 abstract class AreaPosition {
-  /// topLeft of [AreaPanel] to the center of a thing on a [PhysicalSystem]
+  /// topLeft of [AreaPanel] to the center of a thing on a [LinkedSystem]
   OffsetInMeters center(SystemLayout layout);
 }
 
@@ -382,7 +390,7 @@ class BetweenModuleGroupPlaces
     destination.moduleGroup = transportedModuleGroup;
   }
 
-  void _callOnModuleTransportCompleted(PhysicalSystem system) {
+  void _callOnModuleTransportCompleted(VisibleSystem system) {
     if (system is StateMachine) {
       var stateMachine = system as StateMachine;
       if (stateMachine.currentState is ModuleTransportCompletedListener) {
@@ -601,7 +609,7 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
   }
 
   /// Creates a new [systemPositionsWithModules] map for all [ModuleGroup]s
-  /// that are at a [PhysicalSystem] position.
+  /// that are at a [LinkedSystem] position.
   /// We only do this once per update cycle for performance.
   updateSystemPositionsWithModuleGroups() {
     systemPositionsWithModules.clear();
@@ -621,4 +629,127 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
 
   bool anyAt(ModuleGroupPlace position) =>
       systemPositionsWithModules.containsKey(position);
+}
+
+/// A [System] that creathas multiple [ModuleGroupPlace]s with new [ModuleGroup]s. e.g.:
+/// * [BoxTruck]
+/// * [Trailer]
+/// * [LairageArea]
+abstract class ModuleGroupsSystem implements VisibleSystem {
+  CompassDirection get direction;
+  ModuleGroupsShape get shape;
+  LiveBirdHandlingArea get area;
+}
+
+/// a [CompoundShape] for a [ModuleGroupsSystem]
+abstract class ModuleGroupsShape extends CompoundShape {
+  List<OffsetInMeters> get centerToModuleGroupCenters;
+}
+
+class ModuleGroupPlaceFactory {
+  int sequenceNumber = 1;
+
+  List<ModuleGroupPlace> create(ModuleGroupsSystem system) => [
+        for (var centerToModuleGroupCenter
+            in system.shape.centerToModuleGroupCenters)
+          _createModuleGroupPlace(system, centerToModuleGroupCenter)
+      ];
+
+  ModuleGroupPlace _createModuleGroupPlace(
+      ModuleGroupsSystem system, OffsetInMeters centerToModuleGroupCenter) {
+    var place = ModuleGroupPlace(
+        system: system,
+        offsetFromCenterWhenSystemFacingNorth: centerToModuleGroupCenter);
+    var truckRow = _randomTruckRow(system);
+
+    var modules = truckRow.map((position, template) => MapEntry(
+        position,
+        Module(
+          variant: template.variant,
+          nrOfBirds: template.numberOfBirds,
+          sequenceNumber: ++sequenceNumber,
+        )));
+    var moduleGroup = ModuleGroup(
+        modules: modules,
+        direction: system.direction.rotate(90),
+        destination: _findModuleGroupDestination(system),
+        position: AtModuleGroupPlace(place));
+    place.moduleGroup = moduleGroup;
+    return place;
+  }
+
+  double _totalOccurrence(ModuleGroupsSystem system) {
+    var totalOccurrence = 0.0;
+    for (var moduleCombination in system.area.productDefinition.truckRows) {
+      totalOccurrence += moduleCombination.occurrence;
+    }
+    return totalOccurrence;
+  }
+
+  TruckRow _randomTruckRow(ModuleGroupsSystem system) {
+    var total = 0.0;
+    double totalOccurrence = _totalOccurrence(system);
+    var random = totalOccurrence * Random().nextDouble();
+    for (var truckRow in system.area.productDefinition.truckRows) {
+      total += truckRow.occurrence;
+      if (random <= total) {
+        return truckRow;
+      }
+    }
+    return system.area.productDefinition.truckRows.last;
+  }
+
+  LinkedSystem? findSingleSystemOnRoute(
+      ModuleGroupsSystem system, Iterable<LinkedSystem> candidates) {
+    LinkedSystem? found;
+    LoadingForkLiftTruck loadingForkLiftTruck =
+        findLoadingForkLiftTruck(system);
+    for (var candidate in candidates) {
+      var route =
+          loadingForkLiftTruck.modulesOut.findRoute(destination: candidate);
+      if (route != null) {
+        if (found == null) {
+          found = candidate;
+        } else {
+          /// not the only one
+          return null;
+        }
+      }
+    }
+    return found;
+  }
+
+  LoadingForkLiftTruck findLoadingForkLiftTruck(ModuleGroupsSystem system) {
+    var loadingForkLiftTrucks =
+        system.area.systems.whereType<LoadingForkLiftTruck>();
+    if (loadingForkLiftTrucks.length != 1) {
+      throw Exception(
+          'Expecting one LoadingForkLiftTruck but found ${loadingForkLiftTrucks.length}');
+    }
+    return loadingForkLiftTrucks.first;
+  }
+
+  LinkedSystem _findModuleGroupDestination(ModuleGroupsSystem system) {
+    var casUnits = system.area.systems.whereType<ModuleCas>();
+    var found = findSingleSystemOnRoute(system, casUnits);
+    if (found != null) {
+      return found;
+    }
+
+    var systemsThatAllocateToCasUnits = system.area.systems
+        .whereType<ModuleCasAllocation>()
+        .map((e) => e.allocationPlace.system as LinkedSystem);
+    found = findSingleSystemOnRoute(system, systemsThatAllocateToCasUnits);
+    if (found != null) {
+      return found;
+    }
+
+    var unLoadingForkLiftTrucks =
+        system.area.systems.whereType<UnLoadingForkLiftTruck>();
+    found = findSingleSystemOnRoute(system, unLoadingForkLiftTrucks);
+    if (found != null) {
+      return found;
+    }
+    throw Exception('Could not find an destination');
+  }
 }

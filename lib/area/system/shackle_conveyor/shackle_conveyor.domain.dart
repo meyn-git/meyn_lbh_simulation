@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/shackle_conveyor/shackle_conveyor.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-class ShackleConveyor implements PhysicalSystem, TimeProcessor {
+class ShackleConveyor implements LinkedSystem, TimeProcessor {
   final LiveBirdHandlingArea area;
   @override
   late String name = "ShackleConveyor$seqNr";
@@ -84,9 +84,7 @@ class ShackleConveyor implements PhysicalSystem, TimeProcessor {
       transferBird: transferBird);
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
-    birdIn
-  ];
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [birdIn];
 
   @override
   onUpdateToNextPointInTime(Duration jump) {

@@ -52,7 +52,7 @@ class ModuleCasAllocation implements System, TimeProcessor {
 
   List<ModuleGroupRoute> _findRoutesToCasUnits() {
     var routesToCasUnits = <ModuleGroupRoute>[];
-    var source = allocationPlace.system;
+    var source = allocationPlace.system as LinkedSystem;
     var sourceOutLinks = source.links.whereType<ModuleGroupOutLink>();
     for (var sourceOutLink in sourceOutLinks) {
       for (var casUnit in allModuleCasUnits) {

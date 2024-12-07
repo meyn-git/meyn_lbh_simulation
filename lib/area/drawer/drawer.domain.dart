@@ -8,7 +8,7 @@ import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 /// A place on a [system] where a [drawer] can be.
 /// Note that a [drawer] can also be between [DrawerPlace]s
 class DrawerPlace {
-  final PhysicalSystem system;
+  final LinkedSystem system;
   final OffsetInMeters centerToDrawerCenterWhenSystemFacesNorth;
   late final StateMachine? stateMachine;
   GrandeDrawer? drawer;

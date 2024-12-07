@@ -55,7 +55,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
 
   late String name = '$lineName-$productDefinition';
 
-  /// Updates all the [PhysicalSystem]s, [ModuleGroup]s and [GrandeDrawer]s]
+  /// Updates all the [LinkedSystem]s, [ModuleGroup]s and [GrandeDrawer]s]
   @override
   onUpdateToNextPointInTime(Duration jump) {
     durationSinceStart = durationSinceStart + jump;
@@ -82,7 +82,7 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
 
 /// a red dot for debugging the position
 class Marker {
-  final PhysicalSystem system;
+  final LinkedSystem system;
 
   final OffsetInMeters offsetFromSystemCenterWhenFacingNorth;
 
@@ -164,29 +164,29 @@ enum LoadFactor { minimum, average, max }
 /// all systems and caches the values for performance, because we only need
 /// to calculate this once per [Scenario]
 class SystemLayout {
-  final Map<PhysicalSystem, OffsetInMeters> _topLefts = {};
-  final Map<PhysicalSystem, OffsetInMeters> _centers = {};
-  final Map<PhysicalSystem, CompassDirection> _rotations = {};
+  final Map<LinkedSystem, OffsetInMeters> _topLefts = {};
+  final Map<LinkedSystem, OffsetInMeters> _centers = {};
+  final Map<LinkedSystem, CompassDirection> _rotations = {};
   final Map<DrawerConveyor, DrawerPath> _drawerPaths = {};
   final Map<DrawerConveyor, OffsetInMeters> _drawerStarts = {};
   late final SizeInMeters size;
 
-  final Iterable<PhysicalSystem> physicalSystems;
+  final Iterable<LinkedSystem> linkedSystems;
 
   late final aspectRatio = size.xInMeters / size.yInMeters;
 
-  SystemLayout(Systems systems) : physicalSystems = systems.physicalSystems {
+  SystemLayout(Systems systems) : linkedSystems = systems.linkedSystems {
     _placeSystems(systems.startDirection);
   }
 
   void _placeSystems(
     CompassDirection startDirection,
   ) {
-    if (physicalSystems.isEmpty) {
+    if (linkedSystems.isEmpty) {
       return;
     }
 
-    var system = physicalSystems.first;
+    var system = linkedSystems.first;
     var topLeft = OffsetInMeters.zero;
     var rotation = startDirection;
     //place all machines recursively (assuming they are all linked)
@@ -200,7 +200,7 @@ class SystemLayout {
   }
 
   void _correctOffsets(
-      Map<PhysicalSystem, OffsetInMeters> map, OffsetInMeters correction) {
+      Map<LinkedSystem, OffsetInMeters> map, OffsetInMeters correction) {
     for (var entry in map.entries) {
       map[entry.key] = entry.value + correction;
     }
@@ -231,7 +231,7 @@ class SystemLayout {
   }
 
   void _placeLinkedSystem(
-    PhysicalSystem system,
+    LinkedSystem system,
     OffsetInMeters topLeft,
     CompassDirection rotation,
   ) {
@@ -279,30 +279,30 @@ class SystemLayout {
   }
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
-  /// to the top left of the [PhysicalSystem]
-  OffsetInMeters topLeftWhenFacingNorthOf(PhysicalSystem system) =>
+  /// to the top left of the [LinkedSystem]
+  OffsetInMeters topLeftWhenFacingNorthOf(LinkedSystem system) =>
       _topLefts[system]!;
 
-  OffsetInMeters positionOnSystem(PhysicalSystem system,
+  OffsetInMeters positionOnSystem(VisibleSystem system,
           OffsetInMeters offsetFromSystemCenterWhenFacingNorth) =>
       centerOf(system) +
       offsetFromSystemCenterWhenFacingNorth.rotate(rotationOf(system));
 
   /// Returns the cached offset from the top left of the [LiveBirdHandlingArea]
-  /// to the center of the [PhysicalSystem]
-  OffsetInMeters centerOf(PhysicalSystem system) =>
+  /// to the center of the [VisibleSystem]
+  OffsetInMeters centerOf(VisibleSystem system) =>
       system is Vehicle ? system.position.center(this) : _centers[system]!;
 
-  /// Returns the cached rotation off a [PhysicalSystem] and
-  /// adds an additional rotation if the [PhysicalSystem] can rotate it self
-  CompassDirection rotationOf(PhysicalSystem system) => system is Vehicle
+  /// Returns the cached rotation off a [LinkedSystem] and
+  /// adds an additional rotation if the [LinkedSystem] can rotate it self
+  CompassDirection rotationOf(VisibleSystem system) => system is Vehicle
       ? system.direction
       : system is AdditionalRotation
           ? _rotations[system]! +
               (system as AdditionalRotation).additionalRotation
           : _rotations[system]!;
 
-  /// Returns the cached [DrawerPath] of a [PhysicalSystem]
+  /// Returns the cached [DrawerPath] of a [LinkedSystem]
   DrawerPath drawerPathOf(DrawerConveyor drawerConveyor) =>
       _drawerPaths[drawerConveyor]!;
 
@@ -314,7 +314,7 @@ class SystemLayout {
   String offsetString(OffsetInMeters offset) =>
       '${offset.yInMeters.toStringAsFixed(1)},${offset.xInMeters.toStringAsFixed(1)}';
 
-  bool _unknownPosition(PhysicalSystem system) =>
+  bool _unknownPosition(LinkedSystem system) =>
       !_topLefts.keys.contains(system);
 
   SizeInMeters _size() {
@@ -340,14 +340,14 @@ class SystemLayout {
   }
 
   void _validateAllMachinesArePlaced() {
-    for (var system in physicalSystems) {
+    for (var system in linkedSystems) {
       if (_unknownPosition(system)) {
         throw Exception('${system.name} is not linked to other machines');
       }
     }
   }
 
-  bool skip(PhysicalSystem system1, PhysicalSystem system2) =>
+  bool skip(LinkedSystem system1, LinkedSystem system2) =>
       system1 is DrawerLoaderLift && system2 is ModuleDrawerLoader ||
       system2 is DrawerLoaderLift && system1 is ModuleDrawerLoader;
 }

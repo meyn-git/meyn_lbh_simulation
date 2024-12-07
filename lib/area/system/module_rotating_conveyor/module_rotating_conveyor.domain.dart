@@ -25,7 +25,7 @@ enum ModuleRotatingConveyorDiameter {
 }
 
 class ModuleRotatingConveyor extends StateMachine
-    implements PhysicalSystem, AdditionalRotation {
+    implements LinkedSystem, AdditionalRotation {
   final LiveBirdHandlingArea area;
   CompassDirection currentDirection = const CompassDirection.unknown();
   final SpeedProfile turnSpeedProfile;
@@ -290,7 +290,7 @@ class ModuleRotatingConveyor extends StateMachine
       turnPositions.indexOf(turnPosition);
 
   bool _neighborModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
-      ModuleGroupOutLink<PhysicalSystem> neighborModuleOutLink,
+      ModuleGroupOutLink<LinkedSystem> neighborModuleOutLink,
       ModuleGroup neighborModuleGroup) {
     var destination = neighborModuleGroup.destination;
     if (destination is! ModuleCas) {
@@ -338,7 +338,7 @@ class ModuleRotatingConveyor extends StateMachine
       _createModuleGroupOutLinks();
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     ...modulesIns,
     ...modulesOuts
   ];
@@ -394,7 +394,7 @@ class ModuleRotatingConveyor extends StateMachine
     offsetFromCenterWhenSystemFacingNorth: OffsetInMeters.zero,
   );
 
-  bool _linkedTo(PhysicalSystem system) => modulesOuts
+  bool _linkedTo(LinkedSystem system) => modulesOuts
       .any((modulesOutLink) => modulesOutLink.linkedTo?.system == system);
 
   void initCurrentDirection() {
@@ -403,7 +403,7 @@ class ModuleRotatingConveyor extends StateMachine
     }
   }
 
-  TurnPosition? findTurnPositionForDestination(PhysicalSystem destination) {
+  TurnPosition? findTurnPositionForDestination(LinkedSystem destination) {
     for (int i = 0; i < turnPositions.length; i++) {
       var moduleGroupOutLink = modulesOuts[i];
       var route = moduleGroupOutLink.findRoute(destination: destination);
@@ -431,7 +431,7 @@ class ModuleRotatingConveyor extends StateMachine
       .appendProperty('currentDirection', currentDirection);
 
   bool _neighborModuleGroupAtDestination(
-          ModuleGroupOutLink<PhysicalSystem> neighborModuleOutLink,
+          ModuleGroupOutLink<LinkedSystem> neighborModuleOutLink,
           ModuleGroup neighborModuleGroup) =>
       neighborModuleOutLink.system == neighborModuleGroup.destination;
 }

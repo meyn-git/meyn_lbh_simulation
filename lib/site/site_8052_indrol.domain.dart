@@ -252,29 +252,48 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
                   [Area(productDefinition, Layout.cas3OppositeOfCas1)],
-              birdType: 'Female Turkey average weight',
-              lineSpeedInShacklesPerHour: newLineSpeedInShacklesPerHour,
+              birdType: 'Female Turkey max 12kg',
+              lineSpeedInShacklesPerHour: 4000,
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.femaleTurkeyRecipeAtIndrol(),
               truckRows: [
                 TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      femaleTurkeyGivenCapacity,
-                  PositionWithinModuleGroup.firstTop: femaleTurkeyGivenCapacity,
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .omnia
+                      .build()
+                      .withBirdsPerCompartment(
+                          _calculateBirdsPerCompartment(kilo.grams(12))),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .omnia
+                      .build()
+                      .withBirdsPerCompartment(
+                          _calculateBirdsPerCompartment(kilo.grams(12))),
                 })
               ]),
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
                   [Area(productDefinition, Layout.cas3OppositeOfCas1)],
-              birdType: 'Male Turkey average weight',
-              lineSpeedInShacklesPerHour: newLineSpeedInShacklesPerHour ~/ 2,
+              birdType: 'Male Turkey max 22kg',
+              lineSpeedInShacklesPerHour:
+                  3300, //TODO verify with Marcin. Was expecting 50% of female speed
               lineShacklePitchInInches: 12,
               casRecipe: const CasRecipe.maleTurkeyRecipeAtIndrol(),
               truckRows: [
                 TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      maleTurkeyGivenCapacity,
-                  PositionWithinModuleGroup.firstTop: maleTurkeyGivenCapacity,
+                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                      .meyn
+                      .omnia
+                      .build()
+                      .withBirdsPerCompartment(
+                          _calculateBirdsPerCompartment(kilo.grams(22))),
+                  PositionWithinModuleGroup.firstTop: BrandBuilder()
+                      .meyn
+                      .omnia
+                      .build()
+                      .withBirdsPerCompartment(
+                          _calculateBirdsPerCompartment(kilo.grams(22))),
                 })
               ]),
         ]);

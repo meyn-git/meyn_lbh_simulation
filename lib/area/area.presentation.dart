@@ -10,8 +10,6 @@ import 'package:meyn_lbh_simulation/area/drawer/drawer.presentation.dart';
 import 'package:meyn_lbh_simulation/area/module/module.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/system.presentation.dart';
 import 'package:meyn_lbh_simulation/theme.presentation.dart';
-import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
-import 'package:meyn_lbh_simulation/area/system/vehicle/route/route.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.domain.dart';
 
 class AreaPanel extends StatefulWidget {
@@ -72,12 +70,10 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
   static List<Widget> createChildren(Scenario scenario) {
     List<Widget> children = [];
     var area = scenario.area;
-    // children.addAll(createModuleGroupWidgets(area));
     children.addAll(createSystemWidgets(area));
     children.addAll(createDrawerWidgets(area));
     children.addAll(createMarkerWidgets(area));
     children.addAll(createModuleGroupWidgets(area));
-    children.addAll(createRouteWidgets(area));
     return children;
   }
 
@@ -102,7 +98,7 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
 
   static List<Widget> createSystemWidgets(LiveBirdHandlingArea area) {
     List<Widget> widgets = [];
-    for (var system in area.systems.physicalSystems) {
+    for (var system in area.systems.visibleSystems) {
       widgets
           .add(LayoutId(id: system, child: SystemWidget(area.layout, system)));
     }
@@ -115,17 +111,6 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     for (var drawer in drawers) {
       widgets.add(
           LayoutId(id: drawer, child: GrandeDrawerWidget(area.layout, drawer)));
-    }
-    return widgets;
-  }
-
-  static Iterable<Widget> createRouteWidgets(LiveBirdHandlingArea area) {
-    List<Widget> widgets = [];
-    var forkLiftTrucks = area.systems.whereType<LoadingForkLiftTruck>();
-    for (var forkLiftTruck in forkLiftTrucks) {
-      for (var route in forkLiftTruck.routes.all) {
-        widgets.add(LayoutId(id: route, child: RouteWidget(route)));
-      }
     }
     return widgets;
   }
@@ -157,12 +142,11 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     _layoutAndPositionSystems(lengthPerMeter);
     _layoutAndPositionDrawers(lengthPerMeter);
     _layoutAndPositionMarkers(lengthPerMeter);
-    _layoutAndPositionRoutes(lengthPerMeter);
   }
 
   void _layoutAndPositionSystems(double lengthPerMeter) {
-    for (var system in area.systems.physicalSystems) {
-      var size = system.sizeWhenFacingNorth.toSize() * lengthPerMeter;
+    for (var system in area.systems.visibleSystems) {
+      var size = sizeOfSystem(system).toSize() * lengthPerMeter;
       layoutChild(system, BoxConstraints.tight(size));
 
       var topLeft = topLeftOfSystem(system, lengthPerMeter);
@@ -170,16 +154,26 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     }
   }
 
-  Offset topLeftOfSystem(PhysicalSystem system, double lengthPerMeter) {
-    if (system is Vehicle) {
-      return (system.position.center(area.layout) - system.shape.centerCenter)
-              .toOffset() *
-          lengthPerMeter;
-    } else {
-      return area.layout.topLeftWhenFacingNorthOf(system).toOffset() *
-          lengthPerMeter;
-    }
-  }
+  SizeInMeters sizeOfSystem(VisibleSystem system) => system is LinkedSystem
+      ? sizeLinkedSystem(system)
+      : sizeOfVehicle(system as Vehicle);
+
+  SizeInMeters sizeLinkedSystem(LinkedSystem system) =>
+      system.sizeWhenFacingNorth;
+
+  SizeInMeters sizeOfVehicle(Vehicle vehicle) => vehicle.shape.size;
+
+  Offset topLeftOfSystem(system, lengthPerMeter) => system is Vehicle
+      ? topLeftOfVehicle(system, lengthPerMeter)
+      : topLeftOfLinkedSystem(system, lengthPerMeter);
+
+  Offset topLeftOfLinkedSystem(LinkedSystem system, double lengthPerMeter) =>
+      area.layout.topLeftWhenFacingNorthOf(system).toOffset() * lengthPerMeter;
+
+  Offset topLeftOfVehicle(Vehicle vehicle, double lengthPerMeter) =>
+      (vehicle.position.center(area.layout) - vehicle.shape.centerCenter)
+          .toOffset() *
+      lengthPerMeter;
 
   void _layoutAndPositionModuleGroups(double lengthPerMeter) {
     // var moduleType =
@@ -193,17 +187,6 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
       layoutChild(moduleGroup, BoxConstraints.tight(moduleSize));
       var topLeft = _moduleGroupTopLeft(moduleGroup, lengthPerMeter);
       positionChild(moduleGroup, topLeft);
-    }
-  }
-
-  void _layoutAndPositionRoutes(double lengthPerMeter) {
-    var forkLiftTrucks = area.systems.whereType<LoadingForkLiftTruck>();
-    for (var forkLiftTruck in forkLiftTrucks) {
-      for (var route in forkLiftTruck.routes.all) {
-        var routeSize = route.size.toSize() * lengthPerMeter;
-        layoutChild(route, BoxConstraints.tight(routeSize));
-        positionChild(route, Offset.zero);
-      }
     }
   }
 

@@ -10,20 +10,22 @@ import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/route/route.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.presentation.dart';
 
-abstract class Vehicle extends StateMachine implements PhysicalSystem {
-  Vehicle({required super.initialState});
-
+abstract class Vehicle implements VisibleSystem {
   AreaPosition get position;
   set position(AreaPosition position);
   CompassDirection get direction;
   set direction(CompassDirection compassDirection);
   VehicleShape get shape;
 
-  ModuleGroupPlace get moduleGroupPlace;
+  List<ModuleGroupPlace> get moduleGroupPlaces;
   int get moduleGroupStartRotationInDegrees;
 }
 
-abstract class Drive<T extends Vehicle> extends State<T> {
+abstract class VehicleStateMachine extends StateMachine implements Vehicle {
+  VehicleStateMachine({required super.initialState});
+}
+
+abstract class Drive<T extends VehicleStateMachine> extends State<T> {
   final State<T> Function(T vehicle) nextStateFunction;
   final SpeedProfile Function(T vehicle) speedProfileFunction;
   final VehicleRoute Function(T vehicle) routeFunction;
@@ -79,10 +81,12 @@ abstract class Drive<T extends Vehicle> extends State<T> {
       var radians = betweenAxcels.directionInRadians;
       vehicle.direction = CompassDirection(radians * 180 ~/ pi);
 
-      if (vehicle.moduleGroupPlace.moduleGroup != null) {
-        var moduleGroup = vehicle.moduleGroupPlace.moduleGroup!;
-        moduleGroup.direction =
-            vehicle.direction.rotate(vehicle.moduleGroupStartRotationInDegrees);
+      for (var place in vehicle.moduleGroupPlaces) {
+        if (place.moduleGroup != null) {
+          var moduleGroup = place.moduleGroup!;
+          moduleGroup.direction = vehicle.direction
+              .rotate(vehicle.moduleGroupStartRotationInDegrees);
+        }
       }
     }
   }

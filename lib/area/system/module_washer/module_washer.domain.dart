@@ -11,7 +11,7 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.presentation.dart';
 import 'package:user_command/user_command.dart';
 
-class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
+class ModuleWasherConveyor extends StateMachine implements LinkedSystem {
   final double lengthInMeters;
   final LiveBirdHandlingArea area;
   final SpeedProfile conveyorSpeedProfile;
@@ -33,7 +33,7 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
   );
 
-  late final modulesIn = ModuleGroupInLink<PhysicalSystem>(
+  late final modulesIn = ModuleGroupInLink<LinkedSystem>(
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
@@ -53,7 +53,7 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
   );
 
   @override
-  late List<Link<PhysicalSystem, Link<PhysicalSystem, dynamic>>> links = [
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
     modulesOut
   ];
@@ -63,7 +63,7 @@ class ModuleWasherConveyor extends StateMachine implements PhysicalSystem {
   bool get forceFeedOut => precedingNeighborWaitingToFeedOut(modulesIn);
 
   bool precedingNeighborWaitingToFeedOut(
-      ModuleGroupInLink<PhysicalSystem> modulesIn) {
+      ModuleGroupInLink<LinkedSystem> modulesIn) {
     var precedingNeighbor = modulesIn.linkedTo!.system;
     if (precedingNeighbor is ModuleWasherConveyor) {
       // recursive call
