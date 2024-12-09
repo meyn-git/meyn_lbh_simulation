@@ -69,52 +69,52 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
                       .withBirdsPerCompartment(30), //26
                 }),
               ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, Layout.stunStacked)],
-              birdType: '208 chickens/module',
-              lineSpeedInShacklesPerHour: birdsPerHour,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(26),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(26),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, Layout.stunStacked)],
-              birdType: '240 chickens/module',
-              lineSpeedInShacklesPerHour: birdsPerHour,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(30),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(30),
-                }),
-              ]),
+          // ProductDefinition(
+          //     areaFactory: (ProductDefinition productDefinition) =>
+          //         [Area(productDefinition, Layout.stunStacked)],
+          //     birdType: '208 chickens/module',
+          //     lineSpeedInShacklesPerHour: birdsPerHour,
+          //     lineShacklePitchInInches: 6,
+          //     casRecipe: const CasRecipe.standardChickenRecipe(),
+          //     truckRows: [
+          //       TruckRow({
+          //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
+          //             .marel
+          //             .gpl
+          //             .l4
+          //             .build()
+          //             .withBirdsPerCompartment(26),
+          //         PositionWithinModuleGroup.firstTop: BrandBuilder()
+          //             .marel
+          //             .gpl
+          //             .l4
+          //             .build()
+          //             .withBirdsPerCompartment(26),
+          //       })
+          //     ]),
+          // ProductDefinition(
+          //     areaFactory: (ProductDefinition productDefinition) =>
+          //         [Area(productDefinition, Layout.stunStacked)],
+          //     birdType: '240 chickens/module',
+          //     lineSpeedInShacklesPerHour: birdsPerHour,
+          //     lineShacklePitchInInches: 6,
+          //     casRecipe: const CasRecipe.standardChickenRecipe(),
+          //     truckRows: [
+          //       TruckRow({
+          //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
+          //             .marel
+          //             .gpl
+          //             .l4
+          //             .build()
+          //             .withBirdsPerCompartment(30),
+          //         PositionWithinModuleGroup.firstTop: BrandBuilder()
+          //             .marel
+          //             .gpl
+          //             .l4
+          //             .build()
+          //             .withBirdsPerCompartment(30),
+          //       }),
+          //     ]),
         ]);
 
   static int get birdsPerHour => 5000;
@@ -321,14 +321,12 @@ class Area extends LiveBirdHandlingArea {
     systems.add(ModuleCasStart(
       area: this,
       startIntervalFractions: <double>[
-        0.33,
-        0.66,
+        0.8,
         1,
         1.33,
         1.66,
         2,
         2.33,
-        2.66,
       ],
     ));
   }
