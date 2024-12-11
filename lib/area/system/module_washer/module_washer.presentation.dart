@@ -15,7 +15,7 @@ class ModuleWasherConveyorShape extends CompoundShape {
   late final OffsetInMeters centerToModuleOutLink;
 
   static const double conveyorWidthInMeters = 1.2;
-  static const double frameWidthInMeters = 0.065;
+  static const double frameWidthInMeters = 0.5;
 
   ModuleWasherConveyorShape(ModuleWasherConveyor moduleWasher) {
     var frameEast = Box(

@@ -4,6 +4,7 @@ import 'package:meyn_lbh_simulation/area/module/brand.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_drawer_column_unloader/module_drawer_column_unloader.domain.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
@@ -246,24 +247,18 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       drawerOutDirection: Direction.clockWise,
     );
 
-    var mc4 = ModuleConveyor(
-      area: this,
-    );
+    var mc4 = ModuleConveyor(area: this);
 
-    var mc5 = ModuleConveyor(
-      area: this,
-    );
+    var mc5 = ModuleConveyor(area: this);
 
-    var mc6 = ModuleConveyor(
-      area: this,
-    );
+    var mc6 = ModuleConveyor(area: this);
 
-    var moduleWasher1 = ModuleConveyor(
+    var moduleWasher1 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 2.25,
     );
 
-    var moduleWasher2 = ModuleConveyor(
+    var moduleWasher2 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 2.25,
     );

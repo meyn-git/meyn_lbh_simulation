@@ -139,6 +139,8 @@ class AreaWith3CASUnits extends LiveBirdHandlingArea {
       slideDoorLeft: true,
     );
 
+    var mc0 = ModuleConveyor(area: this);
+
     var tilter = ModuleTilter(
       area: this,
       tiltDirection: Direction.counterClockWise,
@@ -178,7 +180,8 @@ class AreaWith3CASUnits extends LiveBirdHandlingArea {
     systems.link(mrc2.modulesOuts[2], mrc3.modulesIns[0]);
     systems.link(mrc3.modulesOuts[1], cas1.modulesIn);
     systems.link(cas1.modulesOut, mrc3.modulesIns[1]);
-    systems.link(mrc3.modulesOuts[2], tilter.modulesIn);
+    systems.link(mrc3.modulesOuts[2], mc0.modulesIn);
+    systems.link(mc0.modulesOut, tilter.modulesIn);
     systems.link(tilter.modulesOut, birdDetection.modulesIn);
     systems.link(birdDetection.modulesOut, modulePreWasher.modulesIn);
     systems.link(modulePreWasher.modulesOut, moduleMainWasher.modulesIn);

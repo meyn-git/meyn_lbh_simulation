@@ -4,6 +4,7 @@ import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/brand.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/module.domain.dart';
@@ -243,7 +244,8 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mc3 = ModuleConveyor(area: this);
     var mc4 = ModuleConveyor(area: this);
-    var moduleWasher = ModuleConveyor(area: this, lengthInMeters: 5.5);
+    var moduleWasher1 = ModuleWasherConveyor(area: this, lengthInMeters: 2.75);
+    var moduleWasher2 = ModuleWasherConveyor(area: this, lengthInMeters: 2.75);
     var stacker = ModuleStacker(area: this);
     var unloadConveyor = ModuleUnLoadingConveyor(area: this);
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
@@ -291,8 +293,9 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(mc2.modulesOut, drawerUnloader.modulesIn);
     systems.link(drawerUnloader.modulesOut, mc3.modulesIn);
     systems.link(mc3.modulesOut, mc4.modulesIn);
-    systems.link(mc4.modulesOut, moduleWasher.modulesIn);
-    systems.link(moduleWasher.modulesOut, moduleDrawerLoader.modulesIn);
+    systems.link(mc4.modulesOut, moduleWasher1.modulesIn);
+    systems.link(moduleWasher1.modulesOut, moduleWasher2.modulesIn);
+    systems.link(moduleWasher2.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, stacker.modulesIn);
     systems.link(stacker.modulesOut, unloadConveyor.modulesIn);
     systems.link(unloadConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
