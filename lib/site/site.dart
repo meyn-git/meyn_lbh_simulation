@@ -13,7 +13,7 @@ import 'package:meyn_lbh_simulation/site/site_7696_dabe.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_0000_berika.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_8199_borgmeier.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_8395_lopez.domain.dart';
-import 'package:meyn_lbh_simulation/site/site_9110%20indykpol_ldc.domain.dart';
+import 'package:meyn_lbh_simulation/site/site_9110_indykpol_ldc.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_9164_micarna.dart';
 
 import 'site_5674_drobrimex.domain.dart';

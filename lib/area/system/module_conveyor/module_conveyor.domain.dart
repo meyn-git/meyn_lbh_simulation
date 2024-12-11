@@ -1,19 +1,19 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
 import 'package:get_it/get_it.dart';
+import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/link.domain.dart';
+import 'package:meyn_lbh_simulation/area/module/module.domain.dart';
 import 'package:meyn_lbh_simulation/area/object_details.domain.dart';
 import 'package:meyn_lbh_simulation/area/player.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_weigher/module_weighing_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/state_machine.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_conveyor/module_conveyor.presentation.dart';
 import 'package:user_command/user_command.dart';
-
-import '../../area.domain.dart';
-import '../../module/module.domain.dart';
-import '../state_machine.domain.dart';
 
 class ModuleConveyor extends StateMachine implements LinkedSystem {
   final double lengthInMeters;
@@ -31,10 +31,11 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
     required this.area,
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
+    State<ModuleWeigingConveyor>? initialState,
   })  : speedProfile =
             speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
         super(
-          initialState: CheckIfEmpty(),
+          initialState: initialState ?? CheckIfEmpty(),
         );
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(

@@ -3,11 +3,13 @@ import 'package:fling_units/fling_units.dart';
 import 'package:meyn_lbh_simulation/area/module/brand.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_tilter/module_tilter_dump_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_weigher/module_weighing_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/shackle_conveyor/shackle_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/module.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas.domain.dart';
@@ -65,7 +67,22 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
       : super([
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition)],
+                  [Area(productDefinition, SpeedType.asIs)],
+              birdType: 'Male Turkey $maleTurkeyMaxWeightInKiloGrams kg',
+              lineSpeedInShacklesPerHour: maleLineSpeedInShacklesPerHour,
+              lineShacklePitchInInches: schacklePitchInInch,
+              casRecipe: const CasRecipe.standardTurkeyRecipe(),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom:
+                      maleTurkeyMaxWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      maleTurkeyMaxWeightCapacity,
+                })
+              ]),
+          ProductDefinition(
+              areaFactory: (ProductDefinition productDefinition) =>
+                  [Area(productDefinition, SpeedType.asIs)],
               birdType: 'Female Turkey $femaleTurkeyMaxWeightInKiloGrams kg',
               lineSpeedInShacklesPerHour: femaleLineSpeedInShacklesPerHour,
               lineShacklePitchInInches: schacklePitchInInch,
@@ -80,7 +97,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
               ]),
           ProductDefinition(
               areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition)],
+                  [Area(productDefinition, SpeedType.toBe)],
               birdType: 'Male Turkey $maleTurkeyMaxWeightInKiloGrams kg',
               lineSpeedInShacklesPerHour: maleLineSpeedInShacklesPerHour,
               lineShacklePitchInInches: schacklePitchInInch,
@@ -93,6 +110,21 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
                       maleTurkeyMaxWeightCapacity,
                 })
               ]),
+          ProductDefinition(
+              areaFactory: (ProductDefinition productDefinition) =>
+                  [Area(productDefinition, SpeedType.toBe)],
+              birdType: 'Female Turkey $femaleTurkeyMaxWeightInKiloGrams kg',
+              lineSpeedInShacklesPerHour: femaleLineSpeedInShacklesPerHour,
+              lineShacklePitchInInches: schacklePitchInInch,
+              casRecipe: const CasRecipe.standardTurkeyRecipe(),
+              truckRows: [
+                TruckRow({
+                  PositionWithinModuleGroup.firstBottom:
+                      femaleTurkeyMaxWeightCapacity,
+                  PositionWithinModuleGroup.firstTop:
+                      femaleTurkeyMaxWeightCapacity,
+                })
+              ]),
         ]);
 
   static final Mass maxWeightPerCompartment = kilo.grams(150);
@@ -101,10 +133,33 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
       (maxWeightPerCompartment.as(grams) / birdMass.as(grams)).truncate();
 }
 
+enum SpeedType {
+  asIs(
+      name: 'Speed as is',
+      turnSpeedProfile: TurnTableSpeedProfileForOmniaContainers(),
+      moduleSpeedProfile:
+          ConveyorWithoutStopperSpeedProfileForOmniaContainers()),
+  toBe(
+      name: 'Speed to be',
+      turnSpeedProfile:
+          TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel(),
+      moduleSpeedProfile:
+          ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel());
+
+  final String name;
+  final SpeedProfile turnSpeedProfile;
+  final SpeedProfile moduleSpeedProfile;
+  const SpeedType(
+      {required this.name,
+      required this.turnSpeedProfile,
+      required this.moduleSpeedProfile});
+}
+
 class Area extends LiveBirdHandlingArea {
-  Area(ProductDefinition productDefinition)
+  final SpeedType speed;
+  Area(ProductDefinition productDefinition, this.speed)
       : super(
-          lineName: 'Turkeys',
+          lineName: speed.name,
           productDefinition: productDefinition,
         );
 
@@ -117,11 +172,20 @@ class Area extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.left,
     );
 
-    var loadingConveyor = ModuleLoadingConveyor(area: this);
+    var loadingConveyor = ModuleLoadingConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
-    var mc1 = ModuleConveyor(area: this);
+    var mc1 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
-    var mc2 = ModuleConveyor(area: this);
+    var mc2 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
@@ -135,6 +199,8 @@ class Area extends LiveBirdHandlingArea {
         TurnPosition(
             direction: const CompassDirection.west(), reverseFeedIn: true),
       ],
+      turnSpeedProfile: speed.turnSpeedProfile,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var mrc2 = ModuleRotatingConveyor(
@@ -146,6 +212,8 @@ class Area extends LiveBirdHandlingArea {
         TurnPosition(
             direction: const CompassDirection.south(), reverseFeedOut: true),
       ],
+      turnSpeedProfile: speed.turnSpeedProfile,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var mrc3 = ModuleRotatingConveyor(
@@ -159,44 +227,65 @@ class Area extends LiveBirdHandlingArea {
         TurnPosition(
             direction: const CompassDirection.south(), reverseFeedOut: true),
       ],
+      turnSpeedProfile: speed.turnSpeedProfile,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
       slideDoorLeft: false,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
       slideDoorLeft: true,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
-    var cas3 = ModuleCas(area: this, gasDuctsLeft: false, slideDoorLeft: true);
+    var cas3 = ModuleCas(
+      area: this,
+      gasDuctsLeft: false,
+      slideDoorLeft: true,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
+    );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
       slideDoorLeft: true,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
       slideDoorLeft: false,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
-    var mc3 = ModuleConveyor(area: this);
+    var mc3 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
-    var deStacker = ModuleDeStacker(area: this); //TODO add Indroll parameters
+    var deStacker = ModuleDeStacker(
+      area: this,
+      conveyorSpeed: speed.moduleSpeedProfile,
+    ); //TODO add Indroll parameters
 
-    var grossWeigher = ModuleConveyor(area: this);
+    var grossWeigher = ModuleWeigingConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
     var tilter = ModuleTilter(
       //TODO add Indroll parameters
       area: this,
       tiltDirection: Direction.clockWise,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var dumpConveyor = ModuleTilterDumpConveyor(area: this);
@@ -206,38 +295,55 @@ class Area extends LiveBirdHandlingArea {
       direction: Direction.counterClockWise,
     );
 
-    var tareWeigher = ModuleConveyor(area: this);
+    var tareWeigher = ModuleWeigingConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
     var preWasher1 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.2,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var preWasher2 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.2,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
-    var mc4 = ModuleConveyor(area: this);
+    var mc4 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
     var mainWasher1 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.4,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var mainWasher2 = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.4,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var desInfection = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 3.4,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
-    var mc5 = ModuleConveyor(area: this);
+    var mc5 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
-    var stacker = ModuleStacker(area: this);
+    var stacker = ModuleStacker(
+      area: this,
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
+    );
 
     var mrc4 = ModuleRotatingConveyor(
       area: this,
@@ -246,13 +352,23 @@ class Area extends LiveBirdHandlingArea {
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(direction: const CompassDirection.north()),
       ],
+      conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
-    var unloadingConveyor = ModuleUnLoadingConveyor(area: this);
+    var mc6 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
-    var mc6 = ModuleConveyor(area: this);
+    var mc7 = ModuleConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
-    var mc7 = ModuleConveyor(area: this);
+    var unloadingConveyor = ModuleUnLoadingConveyor(
+      area: this,
+      speedProfile: speed.moduleSpeedProfile,
+    );
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
