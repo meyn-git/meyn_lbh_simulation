@@ -4,6 +4,8 @@ import 'package:meyn_lbh_simulation/area/system/drawer_conveyor/drawer_conveyor.
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.presentation.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
@@ -117,6 +119,12 @@ CustomPainter createSystemPainter(
   }
   if (system is ModuleRotatingConveyor) {
     return ModuleRotatingConveyorPainter(system, theme);
+  }
+  if (system is ModuleShuttle) {
+    return ModuleShuttlePainter(system, theme);
+  }
+  if (system is ModuleShuttleCarrier) {
+    return ModuleShuttleCarrierPainter(system, theme);
   }
   if (system is ModuleCas) {
     return ModuleCasPainter(system, theme);

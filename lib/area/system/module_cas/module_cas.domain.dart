@@ -17,7 +17,7 @@ import '../vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
 
 class ModuleCas extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
-  final SpeedProfile conveyorSpeedProfile;
+  late SpeedProfile conveyorSpeedProfile;
   late CasRecipe recipe;
   final bool gasDuctsLeft;
   final bool slideDoorLeft;
@@ -94,7 +94,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   late ModuleCasShape shape = ModuleCasShape(this);
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-      place: moduleGroupPosition,
+      place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
       transportDuration: (inLink) =>
@@ -102,7 +102,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
       canFeedIn: () => canFeedIn);
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-      place: moduleGroupPosition,
+      place: moduleGroupPlace,
       offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
       directionToOtherLink: const CompassDirection.south(),
       durationUntilCanFeedOut: () => durationUntilCanFeedOut);
@@ -133,7 +133,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
 
-  late ModuleGroupPlace moduleGroupPosition = ModuleGroupPlace(
+  late ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToCabinCenter,
   );
@@ -244,7 +244,7 @@ class FeedIn extends State<ModuleCas>
   }
 
   void _verifyDoorDirection(ModuleCas cas) {
-    var moduleGroup = cas.moduleGroupPosition.moduleGroup!;
+    var moduleGroup = cas.moduleGroupPlace.moduleGroup!;
     if (moduleGroup.compartment is CompartmentWithDoor &&
         moduleGroup.direction.rotate(-90) != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
@@ -326,7 +326,7 @@ class StunStage extends DurationState<ModuleCas> {
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     if (stageNumber == 1) {
-      cas.moduleGroupPosition.moduleGroup!.startStunning();
+      cas.moduleGroupPlace.moduleGroup!.startStunning();
     }
   }
 }
@@ -344,7 +344,7 @@ class ExhaustStage extends DurationState<ModuleCas> {
   void onStart(ModuleCas cas) {
     super.onStart(cas);
     var destination = cas.moduleGroupDestinationAfterStunning;
-    var moduleGroup = cas.moduleGroupPosition.moduleGroup!;
+    var moduleGroup = cas.moduleGroupPlace.moduleGroup!;
     moduleGroup.endStunning();
     moduleGroup.destination = destination;
   }
@@ -386,7 +386,7 @@ class FeedOut extends State<ModuleCas>
 
   @override
   void onStart(ModuleCas cas) {
-    cas.moduleGroupPosition.moduleGroup!.position =
+    cas.moduleGroupPlace.moduleGroup!.position =
         BetweenModuleGroupPlaces.forModuleOutLink(cas.modulesOut);
   }
 

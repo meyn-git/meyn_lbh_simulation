@@ -188,10 +188,6 @@ class ForkLiftTruckRoutes {
           .addCurve(forkLiftTurnRadiusInMeter, turnAtConveyor.sign * 90)
           .addStraight(straightAtTurnPointInMeter);
 
-  VehicleRoute _emptyRoute() => VehicleRoute(
-      routeStartDirection: const CompassDirection.north(),
-      startPoint: OffsetInMeters.zero);
-
   VehicleRoute _turnPointToInToTruck(
           Direction turnAtConveyor, VehicleRoute aboveConveyorToTurnPoint) =>
       VehicleRoute(

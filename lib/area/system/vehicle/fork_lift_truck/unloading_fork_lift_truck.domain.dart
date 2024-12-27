@@ -163,7 +163,7 @@ class DriveInToModuleGroupOnConveyor extends Drive<UnLoadingForkLiftTruck> {
         as ModuleUnLoadingConveyorInterface;
     forkLiftTruck.moduleGroupStartRotationInDegrees = moduleUnLoadingConveyor
         .moduleGroupPlace.moduleGroup!.direction
-        .rotate(moduleUnLoadingConveyor.modulesOut.directionToOtherLink.degrees)
+        .rotate(-forkLiftTruck.area.layout.rotationOf(forkLiftTruck).degrees)
         .degrees;
   }
 }

@@ -84,6 +84,9 @@ class ObjectDetails {
     if (propertyValue is Detailable) {
       return propertyValue.objectDetails.toString();
     }
+    if (propertyValue is Enum) {
+      return _formatedEnum(propertyValue);
+    }
     return propertyValue.toString();
   }
 
@@ -91,6 +94,9 @@ class ObjectDetails {
     var durationString = duration.toString();
     return '${durationString.substring(0, durationString.length - 5)}s';
   }
+
+  String _formatedEnum(Enum propertyValue) =>
+      propertyValue.toString().split('.').last;
 }
 
 abstract class Detailable implements Namable {

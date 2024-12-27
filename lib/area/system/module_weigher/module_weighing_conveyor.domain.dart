@@ -7,12 +7,10 @@ import 'package:meyn_lbh_simulation/area/system/state_machine.domain.dart';
 class ModuleWeigingConveyor extends ModuleConveyor {
   final Duration stabelizeAndWeighDuration;
 
-  static const double defaultLengthInMeters = 2.75;
-
   ModuleWeigingConveyor({
     required super.area,
     SpeedProfile? speedProfile,
-    super.lengthInMeters = defaultLengthInMeters,
+    super.lengthInMeters = ModuleConveyor.defaultLengthInMeters,
     this.stabelizeAndWeighDuration = const Duration(seconds: 3),
   }) : super(
           initialState: CheckIfEmpty(),
@@ -26,7 +24,8 @@ class ModuleWeigingConveyor extends ModuleConveyor {
 class CheckIfEmpty extends DurationState<ModuleWeigingConveyor> {
   CheckIfEmpty()
       : super(
-            durationFunction: (moduleConveyor) => moduleConveyor.speedProfile
+            durationFunction: (moduleConveyor) => moduleConveyor
+                .conveyorSpeedProfile
                 .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
             nextStateFunction: (moduleConveyor) =>
                 SimultaneousFeedOutFeedInModuleGroup(

@@ -185,7 +185,6 @@ class SystemLayout {
     if (linkedSystems.isEmpty) {
       return;
     }
-
     var system = linkedSystems.first;
     var topLeft = OffsetInMeters.zero;
     var rotation = startDirection;

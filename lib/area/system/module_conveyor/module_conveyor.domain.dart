@@ -17,7 +17,7 @@ import 'package:user_command/user_command.dart';
 
 class ModuleConveyor extends StateMachine implements LinkedSystem {
   final double lengthInMeters;
-  final SpeedProfile speedProfile;
+  late SpeedProfile conveyorSpeedProfile;
   final LiveBirdHandlingArea area;
 
   @override
@@ -32,7 +32,7 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
     State<ModuleWeigingConveyor>? initialState,
-  })  : speedProfile =
+  })  : conveyorSpeedProfile =
             speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: initialState ?? CheckIfEmpty(),
@@ -43,7 +43,7 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     transportDuration: (inLink) =>
-        moduleTransportDuration(inLink, speedProfile),
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
     canFeedIn: () =>
         SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
   );
@@ -80,7 +80,8 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
   CheckIfEmpty()
       : super(
-            durationFunction: (moduleConveyor) => moduleConveyor.speedProfile
+            durationFunction: (moduleConveyor) => moduleConveyor
+                .conveyorSpeedProfile
                 .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
             nextStateFunction: (moduleConveyor) =>
                 SimultaneousFeedOutFeedInModuleGroup(

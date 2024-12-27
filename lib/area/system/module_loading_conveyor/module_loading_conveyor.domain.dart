@@ -15,7 +15,7 @@ import 'package:user_command/user_command.dart';
 class ModuleLoadingConveyor extends StateMachine
     implements ModuleLoadingConveyorInterface {
   final double lengthInMeters;
-  final SpeedProfile speedProfile;
+  late SpeedProfile conveyorSpeedProfile;
   @override
   final LiveBirdHandlingArea area;
 
@@ -30,7 +30,7 @@ class ModuleLoadingConveyor extends StateMachine
     required this.area,
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : speedProfile =
+  })  : conveyorSpeedProfile =
             speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
         super(
           initialState: CheckIfEmpty(),
@@ -42,7 +42,7 @@ class ModuleLoadingConveyor extends StateMachine
     offsetFromCenterWhenFacingNorth: shape.centerToModuleInLink,
     directionToOtherLink: const CompassDirection.south(),
     transportDuration: (inLink) =>
-        moduleTransportDuration(inLink, speedProfile),
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
     canFeedIn: () => currentState is WaitingToFeedIn,
   );
 
@@ -86,7 +86,8 @@ class ModuleLoadingConveyor extends StateMachine
 class CheckIfEmpty extends DurationState<ModuleLoadingConveyor> {
   CheckIfEmpty()
       : super(
-            durationFunction: (moduleConveyor) => moduleConveyor.speedProfile
+            durationFunction: (moduleConveyor) => moduleConveyor
+                .conveyorSpeedProfile
                 .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
             nextStateFunction: (moduleConveyor) => WaitingToFeedIn());
 

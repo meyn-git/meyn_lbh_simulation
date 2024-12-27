@@ -55,7 +55,8 @@ class MarelGplBuilder extends ModuleVariantBuilder {
       : super(
             values: ModuleVariantValues(
           family: 'GP L',
-          compartment: CompartmentWithDoor(birdFloorSpaceInSquareMeters: 2.55),
+          compartment:
+              CompartmentWithDoor(birdFloorSpaceInSquareMeters: 2.55 / 2),
           compartmentsPerLevel: 2,
           footprint: const SizeInMeters(xInMeters: 1.2, yInMeters: 2.43),
         ));
