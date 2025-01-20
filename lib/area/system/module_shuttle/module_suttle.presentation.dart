@@ -11,22 +11,24 @@ class ModuleShuttlePainter extends ShapePainter {
 }
 
 class ModuleShuttleFrameShape extends CompoundShape {
-  static const double sectionWidthInMeters = 2.8;
+  static const double sideWidthInMeters = 1.8;
   late List<OffsetInMeters> moduleGroupCenters;
 
   late Map<ShuttleLinkLocation, OffsetInMeters> linkLocationOffsets;
 
   ModuleShuttleFrameShape(ModuleShuttle shuttle) {
-    var widthInMeters = shuttle.nrOfSections * sectionWidthInMeters;
+    var widthInMeters = sideWidthInMeters +
+        shuttle.betweenPositionsInMeters.reduce((a, b) => a + b) +
+        sideWidthInMeters;
     var outLine = Box(
         xInMeters: widthInMeters,
         yInMeters: ModuleShuttleCarrierShape.lengthInMeters);
     add(OffsetInMeters.zero, outLine);
 
     moduleGroupCenters = [
-      for (int i = 0; i < shuttle.nrOfSections; i++)
+      for (int i = 0; i < shuttle.nrOfPositions; i++)
         OffsetInMeters(
-                xInMeters: (i + 0.5) * sectionWidthInMeters,
+                xInMeters: xInMetersForPosition(shuttle, i),
                 yInMeters: ModuleShuttleCarrierShape.lengthInMeters / 2) -
             centerCenter
     ];
@@ -34,13 +36,24 @@ class ModuleShuttleFrameShape extends CompoundShape {
     linkLocationOffsets = {
       for (var linkLocation in shuttle.linkLocations)
         linkLocation: OffsetInMeters(
-                xInMeters: (linkLocation.position + 0.5) * sectionWidthInMeters,
+                xInMeters: xInMetersForPosition(shuttle, linkLocation.position),
                 yInMeters: linkLocation.side.direction ==
                         const CompassDirection.north()
                     ? 0
                     : ModuleShuttleCarrierShape.lengthInMeters) -
             centerCenter
     };
+  }
+
+  double xInMetersForPosition(ModuleShuttle shuttle, int position) {
+    if (position == 0) {
+      return sideWidthInMeters;
+    }
+    if (position == 1) {
+      return sideWidthInMeters + shuttle.betweenPositionsInMeters.first;
+    }
+    return sideWidthInMeters +
+        shuttle.betweenPositionsInMeters.take(position).reduce((a, b) => a + b);
   }
 }
 

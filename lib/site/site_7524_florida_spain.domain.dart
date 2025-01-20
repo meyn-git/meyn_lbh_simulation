@@ -93,9 +93,13 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mc1 = ModuleConveyor(area: this);
 
-    var shuttle = ModuleShuttle(
-      area: this,
-    );
+    /// pos0: CAS3 is at left position
+    ///   in between 2.488m
+    /// pos1: CAS1+2 is at middle position
+    ///   in between 2.488m
+    /// pos2: Infeedconveyor and destacker are at right position
+    var shuttle =
+        ModuleShuttle(area: this, betweenPositionsInMeters: [2.488, 2.488]);
 
     // var mrc1 = ModuleRotatingConveyor(
     //   area: this,
