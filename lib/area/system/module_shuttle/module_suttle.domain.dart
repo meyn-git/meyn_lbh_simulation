@@ -601,10 +601,12 @@ class WaitToFeedOut extends State<ModuleShuttle> {
 
   @override
   void onCompleted(ModuleShuttle shuttle) {
-    if (_feedOutToExit(shuttle) && !_firstStack(shuttle)) {
-      shuttle.durationsPerStack.add(shuttle.durationPerStack);
+    if (_feedOutToExit(shuttle)) {
+      if (!_firstStack(shuttle)) {
+        shuttle.durationsPerStack.add(shuttle.durationPerStack);
+      }
+      shuttle.durationPerStack = Duration.zero;
     }
-    shuttle.durationPerStack = Duration.zero;
   }
 
   bool _firstStack(ModuleShuttle shuttle) =>
