@@ -234,35 +234,35 @@ class Area extends LiveBirdHandlingArea {
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
 

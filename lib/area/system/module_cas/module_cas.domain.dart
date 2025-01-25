@@ -15,14 +15,20 @@ import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 import '../vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
 
+enum ModuleDoor {
+  rollDoorUp,
+  slideDoorToLeft,
+  slideDoorToRight,
+}
+
 class ModuleCas extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
   late SpeedProfile conveyorSpeedProfile;
   late CasRecipe recipe;
   final bool gasDuctsLeft;
-  final bool slideDoorLeft;
-  final Duration closeSlideDoorDuration;
-  final Duration openSlideDoorDuration;
+  final ModuleDoor moduleDoor;
+  final Duration closeDoorDuration;
+  final Duration openDoorDuration;
   Duration waitingForStartDuration = Duration.zero;
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -32,13 +38,21 @@ class ModuleCas extends StateMachine implements LinkedSystem {
 
   ModuleCas({
     required this.area,
-    required this.slideDoorLeft,
+    required this.moduleDoor,
     required this.gasDuctsLeft,
-    this.closeSlideDoorDuration = const Duration(seconds: 6),
-    this.openSlideDoorDuration = const Duration(seconds: 6),
+    Duration? closeDoorDuration,
+    Duration? openDoorDuration,
     SpeedProfile? conveyorSpeedProfile,
   })  : conveyorSpeedProfile = conveyorSpeedProfile ??
             area.productDefinition.speedProfiles.moduleConveyor,
+        closeDoorDuration = closeDoorDuration ??
+            (moduleDoor == ModuleDoor.rollDoorUp
+                ? const Duration(seconds: 3)
+                : const Duration(seconds: 6)),
+        openDoorDuration = openDoorDuration ??
+            (moduleDoor == ModuleDoor.rollDoorUp
+                ? const Duration(seconds: 3)
+                : const Duration(seconds: 6)),
         super(
           initialState: CheckIfEmpty(),
         ) {
@@ -113,7 +127,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
     }
     if (currentState is ExhaustStage) {
       return (currentState as ExhaustStage).remainingDuration +
-          openSlideDoorDuration;
+          openDoorDuration;
     }
     if (currentState is WaitToFeedOut || currentState is FeedOut) {
       return Duration.zero;
@@ -128,7 +142,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   ];
 
   @override
-  late String name = 'ModuleCas$seqNr';
+  late final String name = 'ModuleCas$seqNr';
 
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
@@ -280,7 +294,7 @@ class WaitForStart extends State<ModuleCas> {
 class CloseSlideDoor extends DurationState<ModuleCas> {
   CloseSlideDoor()
       : super(
-          durationFunction: (cas) => cas.closeSlideDoorDuration,
+          durationFunction: (cas) => cas.closeDoorDuration,
           nextStateFunction: (cas) => StunStage(1),
         );
 
@@ -353,7 +367,7 @@ class ExhaustStage extends DurationState<ModuleCas> {
 class OpenSlideDoor extends DurationState<ModuleCas> {
   OpenSlideDoor()
       : super(
-          durationFunction: (cas) => cas.openSlideDoorDuration,
+          durationFunction: (cas) => cas.openDoorDuration,
           nextStateFunction: (cas) => WaitToFeedOut(),
         );
 

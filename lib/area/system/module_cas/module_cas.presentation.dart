@@ -11,9 +11,9 @@ class ModuleCasPainter extends ShapePainter {
 
 class ModuleCasShape extends CompoundShape {
   late final Box cabin;
-  late final Box slideDoorRail;
-
+  late final Box moduleDoor;
   late final CompassDirection gasDuctsDirection;
+  late final _cabinBottomToModuleGroupInOutLink;
 
   ModuleCasShape(ModuleCas cas) {
     var truckRowFootprint =
@@ -24,15 +24,28 @@ class ModuleCasShape extends CompoundShape {
     var rightPlatform = Box(xInMeters: 0.8, yInMeters: cabinSize.yInMeters);
     var inletDuct = Box(xInMeters: 0.3, yInMeters: 0.7);
     var outletDuct = Box(xInMeters: 0.3, yInMeters: 0.7);
-    slideDoorRail = Box(xInMeters: 3.175, yInMeters: 0.2);
+    moduleDoor = cas.moduleDoor == ModuleDoor.rollDoorUp
+        ? Box(xInMeters: 1.92, yInMeters: 0.5)
+        : Box(xInMeters: 3.175, yInMeters: 0.2);
 
     link(leftPlatform.centerRight, cabin.centerLeft);
     link(cabin.centerRight, rightPlatform.centerLeft);
 
-    if (cas.slideDoorLeft) {
-      link(rightPlatform.bottomRight.addX(-0.75), slideDoorRail.topRight);
-    } else {
-      link(leftPlatform.bottomLeft.addX(0.75), slideDoorRail.topLeft);
+    switch (cas.moduleDoor) {
+      case ModuleDoor.rollDoorUp:
+        link(cabin.bottomCenter, moduleDoor.topCenter);
+
+        /// shuttle has 20cm between front and track
+        _cabinBottomToModuleGroupInOutLink = 0.20;
+        break;
+      case ModuleDoor.slideDoorToLeft:
+        link(rightPlatform.bottomRight.addX(-0.75), moduleDoor.topRight);
+        _cabinBottomToModuleGroupInOutLink = moduleDoor.yInMeters;
+        break;
+      case ModuleDoor.slideDoorToRight:
+        link(leftPlatform.bottomLeft.addX(0.75), moduleDoor.topLeft);
+        _cabinBottomToModuleGroupInOutLink = moduleDoor.yInMeters;
+        break;
     }
 
     var ductOffsetY =
@@ -61,6 +74,6 @@ class ModuleCasShape extends CompoundShape {
 
   late final OffsetInMeters _cabinCenterToModuleGroupInOutLink = OffsetInMeters(
     xInMeters: 0,
-    yInMeters: cabin.yInMeters * 0.5 + slideDoorRail.yInMeters,
+    yInMeters: cabin.yInMeters * 0.5 + _cabinBottomToModuleGroupInOutLink,
   );
 }

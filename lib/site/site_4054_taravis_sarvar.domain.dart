@@ -278,8 +278,8 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas3 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      moduleDoor: ModuleDoor.slideDoorToLeft,
+      gasDuctsLeft: false,
     );
 
     var mrc2 = ModuleRotatingConveyor(
@@ -295,8 +295,8 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas2 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      moduleDoor: ModuleDoor.slideDoorToLeft,
+      gasDuctsLeft: false,
     );
 
     var mrc3 = ModuleRotatingConveyor(
@@ -312,8 +312,8 @@ class TaravisLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas1 = ModuleCas(
       area: this,
-      slideDoorLeft: true, //TODO
-      gasDuctsLeft: false, //TODO
+      moduleDoor: ModuleDoor.slideDoorToLeft,
+      gasDuctsLeft: false,
     );
 
     var mc2 = ModuleConveyor(area: this);

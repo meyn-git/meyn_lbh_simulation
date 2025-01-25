@@ -128,25 +128,25 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.rollDoorUp,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.rollDoorUp,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.rollDoorUp,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.rollDoorUp,
     );
 
     var destacker = ModuleDeStacker(area: this);

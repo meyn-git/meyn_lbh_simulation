@@ -182,19 +182,19 @@ class Area extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var deStacker = ModuleDeStacker(area: this); //TODO add Indroll parameters

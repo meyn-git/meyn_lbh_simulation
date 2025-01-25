@@ -199,19 +199,19 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var unloader = ModuleDrawerRowUnloader(

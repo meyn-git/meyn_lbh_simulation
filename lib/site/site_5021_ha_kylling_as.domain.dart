@@ -148,13 +148,13 @@ class AreaWithGp extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var mc2 = ModuleConveyor(area: this);
@@ -259,19 +259,19 @@ class AreaWithGrande extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mc2 = ModuleConveyor(area: this);

@@ -98,7 +98,7 @@ class AreaWith3CASUnits extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mrc2 = ModuleRotatingConveyor(
@@ -117,7 +117,7 @@ class AreaWith3CASUnits extends LiveBirdHandlingArea {
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mrc3 = ModuleRotatingConveyor(
@@ -136,7 +136,7 @@ class AreaWith3CASUnits extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mc0 = ModuleConveyor(area: this);

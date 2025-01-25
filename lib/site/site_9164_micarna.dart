@@ -168,13 +168,13 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var mrc5 = ModuleRotatingConveyor(
@@ -197,13 +197,13 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
-      slideDoorLeft: false,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var mrc6 = ModuleRotatingConveyor(
@@ -225,7 +225,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mc2 = ModuleConveyor(area: this);

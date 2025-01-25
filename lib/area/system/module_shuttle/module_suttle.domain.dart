@@ -26,6 +26,7 @@ class ModuleShuttle extends StateMachine implements LinkedSystem, Detailable {
   final SpeedProfile carrierSpeedProfile;
   final Duration unlockDuration;
   final Duration lockDuration;
+  final Duration conveyorSimultaneousFeedInDelay;
 
   /// e.g. 7524 Florida
   /// pos0: CAS3 is at left position
@@ -51,6 +52,9 @@ class ModuleShuttle extends StateMachine implements LinkedSystem, Detailable {
 
     /// duration is from: 7524 Florida - Spain\2024-12-16 calculate capacity
     this.unlockDuration = const Duration(seconds: 4),
+    // 7 sec based on 7524 Florida startup video
+    // 4 sec based on 9423 Wech measured by ewon on 2025-01-22 by Roel
+    this.conveyorSimultaneousFeedInDelay = const Duration(seconds: 7),
     this.conveyorSpeedProfile = const ShuttleConveyorSpeedProfile(),
     this.carrierSpeedProfile = const ShuttleCarrierSpeedProfile(),
   }) : super(initialState: OverrideNeighboringConveyorSpeeds()) {
@@ -583,14 +587,11 @@ class WaitToFeedOut extends State<ModuleShuttle> {
     )]!;
 
     if (shuttleOutLink.linkedTo!.canFeedIn()) {
-      if (shuttleInLink.linkedTo!.durationUntilCanFeedOut() == Duration.zero) {
+      if (shuttleInLink.linkedTo?.durationUntilCanFeedOut() == Duration.zero) {
         return SimultaneousFeedOutFeedInModuleGroup(
             modulesIn: shuttleInLink,
             modulesOut: shuttleOutLink,
-
-            /// total duration: 27sec. = 20 sec to feed out, feed in starts 7 seconds later and also takes 20 sec
-            /// times are from: 7524 Florida - Spain\2024-12-16 calculate capacity
-            inFeedDelay: Duration(seconds: 7),
+            inFeedDelay: shuttle.conveyorSimultaneousFeedInDelay,
             stateWhenCompleted: Decide());
       }
 
@@ -695,6 +696,14 @@ class BetweenCarrierPositions implements CarrierPosition, TimeProcessor {
             shuttle.shape.moduleGroupCenters[destinationPositionNumber]) -
         startPosition;
     duration = shuttle.carrier.transportDuration(destinationPositionNumber);
+
+    /// following for print only TODO remove later
+    int currentPosition =
+        (shuttle.carrier.position as AtCarrierPosition).positionNumber;
+    var distanceInMeters = shuttle.carrier
+        .calculateDistanceInMeters(currentPosition, destinationPositionNumber);
+    print(
+        '** Shuttle: from: $currentPosition to: $destinationPositionNumber, distance:$distanceInMeters duration:$duration');
   }
 
   Duration get remaining => duration - elapsed;

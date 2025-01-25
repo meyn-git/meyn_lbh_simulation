@@ -250,39 +250,39 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     if (areaType == DobrimexAreaType.sixCasUnits) {
       cas6 = ModuleCas(
         area: this,
-        gasDuctsLeft: true, // TODO
-        slideDoorLeft: true, // TODO
+        gasDuctsLeft: true,
+        moduleDoor: ModuleDoor.slideDoorToLeft,
       );
     }
 
     var cas5 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, // TODO
-      slideDoorLeft: false, // TODO
+      gasDuctsLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas4 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, // TODO
-      slideDoorLeft: true, // TODO
+      gasDuctsLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas3 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, // TODO
-      slideDoorLeft: false, // TODO
+      gasDuctsLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas2 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, // TODO
-      slideDoorLeft: true, // TODO
+      gasDuctsLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas1 = ModuleCas(
       area: this,
-      gasDuctsLeft: true, // TODO
-      slideDoorLeft: false, // TODO
+      gasDuctsLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var deStacker = ModuleDeStacker(area: this);

@@ -26,7 +26,9 @@ class ModuleWasherConveyor extends StateMachine implements LinkedSystem {
         super(initialState: CheckIfEmpty());
 
   @override
-  final String name = 'ModuleWasherConveyor';
+  late final String name = 'ModuleWasherConveyor$seqNr';
+
+  late final seqNr = area.systems.seqNrOf(this);
 
   late final ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
     system: this,

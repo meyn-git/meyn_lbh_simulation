@@ -110,7 +110,7 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas5 = ModuleCas(
       area: this,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
     );
 
@@ -133,13 +133,13 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas4 = ModuleCas(
       area: this,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
     );
 
     var cas3 = ModuleCas(
       area: this,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
     );
 
@@ -162,13 +162,13 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var cas2 = ModuleCas(
       area: this,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
     );
 
     var cas1 = ModuleCas(
       area: this,
-      slideDoorLeft: true,
+      moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
     );
 

@@ -6,6 +6,7 @@ import 'package:meyn_lbh_simulation/area/module/module.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/module_variant_builder.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_drawer_loader/module_drawer_loader.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas_allocation.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas_start.domain.dart';
@@ -340,7 +341,8 @@ class SystemLayout {
 
   void _validateAllMachinesArePlaced() {
     for (var system in linkedSystems) {
-      if (_unknownPosition(system)) {
+      // ModuleShuttleCarrier is added later
+      if (_unknownPosition(system) && system is! ModuleShuttleCarrier) {
         throw Exception('${system.name} is not linked to other machines');
       }
     }
