@@ -20,6 +20,7 @@ import 'package:meyn_lbh_simulation/area/system/module_conveyor/module_conveyor.
 import 'package:meyn_lbh_simulation/area/system/module_tilter/module_tilter.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
 
 import 'site.dart';
 
@@ -39,44 +40,73 @@ class FloridaProductDefinitions extends DelegatingList<ProductDefinition> {
       : super([
           ProductDefinition(
               //2,82286 stacks per hour
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [FloridaLiveBirdHandlingArea(productDefinition)],
+              areaFactory: (ProductDefinition productDefinition) => [
+                    FloridaLiveBirdHandlingArea(
+                        productDefinition, LayoutVariant.asIs)
+                  ],
               birdType: 'Chicken',
 
               /// TODO get numbers
               lineSpeedInShacklesPerHour: 15000,
               lineShacklePitchInInches: 6,
               casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                /// TODO get numbers
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      // TODO: 25 birds was from Schildermans
-                      //.withLoadDensity( LoadDensity.eec64_432(averageWeightHaviestFlock, 90),averageWeightHaviestFlock ),
-                      .withBirdsPerCompartment(25),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      // TODO: 25 birds was from Schildermans
-                      //.withLoadDensity( LoadDensity.eec64_432(averageWeightHaviestFlock, 90),averageWeightHaviestFlock ),
-                      .withBirdsPerCompartment(25),
-                })
-              ]),
+              truckRows: truckRows),
+          ProductDefinition(
+              //2,82286 stacks per hour
+              areaFactory: (ProductDefinition productDefinition) => [
+                    FloridaLiveBirdHandlingArea(
+                        productDefinition, LayoutVariant.toBe)
+                  ],
+              birdType: 'Chicken',
+
+              /// TODO get numbers
+              lineSpeedInShacklesPerHour: 15000,
+              lineShacklePitchInInches: 6,
+              casRecipe: const CasRecipe.standardChickenRecipe(),
+              truckRows: truckRows),
         ]);
+
+  static List<TruckRow> get truckRows {
+    return [
+      // 2024-01-08 From Albert Ribalta Pardo <aribalta@meyn.com>
+      // Are Meyn Systenate containers (compatable with Marel GP)
+      TruckRow({
+        PositionWithinModuleGroup.firstBottom: BrandBuilder()
+            .marel
+            .gpl
+            .l4
+            .build()
+            // 2024-01-08 worst case 3.1kg/bird=25birds per compartment
+            .withBirdsPerCompartment(25),
+        PositionWithinModuleGroup.firstTop: BrandBuilder()
+            .marel
+            .gpl
+            .l4
+            .build()
+            // 2024-01-08 worst case 3.1kg/bird=25birds per compartment
+            .withBirdsPerCompartment(25),
+      })
+    ];
+  }
 
   static Mass get averageWeightHaviestFlock => grams(3600);
 }
 
+enum LayoutVariant {
+  asIs('as is with 3 CAS units'),
+  toBe('to be with 4 CAS units'),
+  ;
+
+  final String name;
+  const LayoutVariant(this.name);
+}
+
 class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
-  FloridaLiveBirdHandlingArea(ProductDefinition productDefinition)
+  final LayoutVariant layoutVariant;
+  FloridaLiveBirdHandlingArea(
+      ProductDefinition productDefinition, this.layoutVariant)
       : super(
-          lineName: 'Chicken line',
+          lineName: layoutVariant.name,
           productDefinition: productDefinition,
         );
 
@@ -93,60 +123,91 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mc1 = ModuleConveyor(area: this);
 
-    /// pos0: CAS3 is at left position
-    ///   in between 2.488m
-    /// pos1: CAS1+2 is at middle position
-    ///   in between 2.488m
-    /// pos2: Infeedconveyor and destacker are at right position
-    var shuttle =
-        ModuleShuttle(area: this, betweenPositionsInMeters: [2.488, 2.488]);
+    /// Shuttle durations and speeds from time measurements
+    /// at 9423 Wech via e-won by Roel on 2025-01-22
+    var shuttleConveyorSpeedProfile = SpeedProfile.total(
+        totalDistance: 3.05,
+        // added 1 sec because simulation seems to be running a bit faster
+        totalDurationInSeconds: 14.5 + 1,
+        accelerationInSeconds: 1.5,
+        decelerationInSeconds: 0.7);
 
-    // var mrc1 = ModuleRotatingConveyor(
-    //   area: this,
-    //   diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
-    //   turnPositions: [
-    //     TurnPosition(direction: const CompassDirection.south()),
-    //     TurnPosition(
-    //         direction: const CompassDirection.west(), reverseFeedIn: true),
-    //     TurnPosition(
-    //         direction: const CompassDirection.east(), reverseFeedOut: true),
-    //     TurnPosition(direction: const CompassDirection.north()),
-    //   ],
-    // );
+    var shuttle = ModuleShuttle(
+      area: this,
 
-    // var mrc2 = ModuleRotatingConveyor(
-    //   area: this,
-    //   diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
-    //   turnPositions: [
-    //     TurnPosition(direction: const CompassDirection.south()),
-    //     TurnPosition(
-    //         direction: const CompassDirection.west(), reverseFeedIn: true),
-    //     TurnPosition(direction: const CompassDirection.north()),
-    //   ],
-    // );
+      /// Shuttle (un)locking is switched off (takes 3.2 seconds at Wech)
+      /// but the shuttle needs to wait unti the CAS doors open
+      /// CAS1 +2 door open in 3.5sec (as Wech)
+      /// CAS 3 door open in 7 sec (assuming we can bring change this to 3.5 sec)
+      lockDuration: Duration(milliseconds: 3500),
+
+      /// Shuttle (un)locking is switched off (takes 3.2 seconds at Wech)
+      /// Normaly unlock occurs middle container sensor on carrier
+      /// is (de) activated, while container is still transporting
+      /// so outside the critical time path and therefore 0s
+      unlockDuration: Duration.zero,
+
+      /// stack into destacker	                      16.5 s
+      /// stack into shuttle at pos 0/1               14.0 s
+      /// stack into destacker & shuttle at pos 0/1	  20.5 s
+      /// Start delay simontanuously feed in after feed out started= 20.5 - 16.5 = 4s
+      conveyorSimultaneousFeedInDelay: Duration(seconds: 4),
+
+      //                        	Total duration	Distance	  Calculated max speed
+      // stack into CAS		                14.5 s	  3.050 m	  0.2276 m/s
+      // stack out of CAS		              14.5 s	  3.050 m	  0.2276 m/s
+      // stack into destacker		          16.5 s	  3.200 m	  0.2078 m/s
+      // stack into shuttle at pos 0/1		14.0 s	  2.800 m	  0.2171 m/s
+
+      conveyorSpeedProfile: shuttleConveyorSpeedProfile,
+
+      // Between	                    And	    Total duration	Distance	Calculated max speed
+      // Infeed conveyor\ destacker	  CAS 1+2	       9.7 s	  2.488 m	  0.3231 m/s
+      // Infeed conveyor\ destacker	  CAS 3+4	      17.0 s	  4.976 m	  0.3317 m/s
+      // CAS 1+2	                    CAS 3+4	       9.7 s	  2.488 m	  0.3231 m/s
+
+      carrierSpeedProfile: SpeedProfile.total(
+          totalDistance: 2.488,
+          //// added 1 sec because simulation seems to be running a bit faster
+          totalDurationInSeconds: 9.7 + 1,
+          accelerationInSeconds: 2,
+          decelerationInSeconds: 2),
+
+      /// distances from layout
+      /// pos0: CAS3 is at left position
+      ///   in between 2.488m
+      /// pos1: CAS1+2 is at middle position
+      ///   in between 2.488m
+      /// pos2: Infeedconveyor and destacker are at right position
+      betweenPositionsInMeters: [2.488, 2.488],
+    );
 
     var cas1 = ModuleCas(
       area: this,
-      gasDuctsLeft: true,
+      gasDuctsLeft: false,
       moduleDoor: ModuleDoor.rollDoorUp,
+      conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
 
     var cas2 = ModuleCas(
       area: this,
-      gasDuctsLeft: false,
+      gasDuctsLeft: true,
       moduleDoor: ModuleDoor.rollDoorUp,
+      conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
 
     var cas3 = ModuleCas(
       area: this,
-      gasDuctsLeft: true,
+      gasDuctsLeft: false,
       moduleDoor: ModuleDoor.rollDoorUp,
+      conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
 
     var cas4 = ModuleCas(
       area: this,
-      gasDuctsLeft: false,
+      gasDuctsLeft: true,
       moduleDoor: ModuleDoor.rollDoorUp,
+      conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
 
     var destacker = ModuleDeStacker(area: this);
@@ -213,42 +274,43 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // systems.link(mrc2.modulesOuts[2], destacker.modulesIn);
 
     // shuttle Left
-    systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 0, side: ShuttleSide.a)]!,
-        cas3.modulesIn);
-    systems.link(
-        cas3.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: 0, side: ShuttleSide.a)]!);
-
+    if (layoutVariant == LayoutVariant.toBe) {
+      systems.link(
+          shuttle.modulesOuts[
+              ShuttleLinkLocation(position: 0, side: ShuttleSide.a)]!,
+          cas4.modulesIn);
+      systems.link(
+          cas4.modulesOut,
+          shuttle.modulesIns[
+              ShuttleLinkLocation(position: 0, side: ShuttleSide.a)]!);
+    }
     systems.link(
         shuttle.modulesOuts[
             ShuttleLinkLocation(position: 0, side: ShuttleSide.b)]!,
-        cas4.modulesIn);
+        cas3.modulesIn);
     systems.link(
-        cas4.modulesOut,
+        cas3.modulesOut,
         shuttle.modulesIns[
             ShuttleLinkLocation(position: 0, side: ShuttleSide.b)]!);
 
     // shuttle middle
     systems.link(
         shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.a)]!,
+            ShuttleLinkLocation(position: 1, side: ShuttleSide.b)]!,
         cas1.modulesIn);
     systems.link(
         cas1.modulesOut,
         shuttle.modulesIns[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.a)]!);
+            ShuttleLinkLocation(position: 1, side: ShuttleSide.b)]!);
 
     systems.link(
         shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.b)]!,
+            ShuttleLinkLocation(position: 1, side: ShuttleSide.a)]!,
         cas2.modulesIn);
     systems.link(
         cas2.modulesOut,
         shuttle.modulesIns[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.b)]!);
+            ShuttleLinkLocation(position: 1, side: ShuttleSide.a)]!);
 
     // shuttle right
     systems.link(
