@@ -445,25 +445,6 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
       ),
     );
 
-    systems.add(
-      ModuleCasStart(
-        area: this,
-        //FIXME remove?
-        // startIntervalFractions: <double>[
-        //   0,
-        //   0.1,
-        //   0.2,
-        //   0.4,
-        //   0.6,
-        //   0.8,
-        //   1,
-        //   1,
-        //   1,
-        //   1,
-        //   1.5,
-        //   2,
-        // ],
-      ),
-    );
+    systems.add(ModuleCasStart(area: this));
   }
 }
