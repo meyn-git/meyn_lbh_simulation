@@ -177,13 +177,7 @@ class DabeLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var tilter = ModuleTilter(area: this, tiltDirection: Direction.clockWise);
 
-    var dumpConveyor = ModuleTilterDumpConveyor(
-      area: this,
-      minBirdsOnDumpBeltBuffer:
-          (productDefinition.averageNumberOfBirdsPerTruckRow).round(),
-      maxBirdsOnDumpBeltBuffer:
-          (productDefinition.averageNumberOfBirdsPerTruckRow * 2).round(),
-    );
+    var dumpConveyor = ModuleTilterDumpConveyor(area: this);
 
     var shackleConveyor = ShackleConveyor(
       area: this,

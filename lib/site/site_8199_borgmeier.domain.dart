@@ -410,7 +410,7 @@ class Simultaneously extends LiveBirdHandlingArea {
 
   ///Capacity can not be reached because unloader can not feed out, because transport trough module washer takes too long
 
-  ///FIXME: ModuleConveyors to feed out and feed in simultaneously
+  ///TODO: ModuleConveyors to feed out and feed in simultaneously
 
-  ///FIXME: Module washer to be 2 module conveyors that feed out and feed in simultaniously with force feed out when modulesIn.linkToOther.canFeedOut
+  ///TODO: Module washer to be 2 module conveyors that feed out and feed in simultaniously with force feed out when modulesIn.linkToOther.canFeedOut
 }

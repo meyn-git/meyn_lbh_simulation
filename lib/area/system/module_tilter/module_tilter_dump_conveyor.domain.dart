@@ -32,12 +32,10 @@ class ModuleTilterDumpConveyor implements LinkedSystem, TimeProcessor {
     this.lengthInMeters = 3,
   }) : minBirdsOnDumpBeltBuffer =
            minBirdsOnDumpBeltBuffer ??
-           (area.productDefinition.averageNumberOfBirdsPerTruckRow * 0.5)
-               .round(),
+           (area.productDefinition.averageNumberOfBirdsPerModule).round(),
        maxBirdsOnDumpBelt =
            maxBirdsOnDumpBeltBuffer ??
-           (area.productDefinition.averageNumberOfBirdsPerTruckRow * 1.5)
-               .round() {
+           (area.productDefinition.averageNumberOfBirdsPerModule * 2).round() {
     //TODO verify minBirdsOnDumpBeltBuffer
     if (lengthInMeters < 3) {
       throw ArgumentError('ModuleTilterDumpBelt must be at least 3 meters');

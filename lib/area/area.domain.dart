@@ -147,17 +147,6 @@ class ProductDefinition {
 
   List<LiveBirdHandlingArea> get areas => areaFactory(this);
 
-  /// FIXME: check where this is used, because often averageProductsPerModule should be used
-  double get averageNumberOfBirdsPerTruckRow {
-    var totalBirds = 0;
-    var totalOccurrence = 0.0;
-    for (var truckRow in truckRows) {
-      totalBirds += truckRow.numberOfBirds;
-      totalOccurrence += truckRow.occurrence;
-    }
-    return totalBirds / totalOccurrence;
-  }
-
   double get averageNumberOfBirdsPerModule {
     var totalBirdsPerModule = 0.0;
     var totalTruckRowOccurrence = 0.0;

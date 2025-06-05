@@ -134,7 +134,7 @@ class Wash extends State<ModuleWasherConveyor> {
   Duration durationOfTwoModules(ModuleWasherConveyor washer) {
     var productDefinition = washer.area.productDefinition;
     var averageProductsPerModuleGroup =
-        productDefinition.averageNumberOfBirdsPerTruckRow;
+        productDefinition.averageNumberOfBirdsPerModule;
     var lineSpeedInShacklesPerHour =
         productDefinition.lineSpeedInShacklesPerHour;
     var modulesPerHour =
