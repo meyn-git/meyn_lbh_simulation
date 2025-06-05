@@ -75,19 +75,20 @@ class ModuleShuttle extends StateMachine implements LinkedSystem, Detailable {
   late List<ShuttleLinkLocation> linkLocations = [
     for (int position = 0; position < nrOfPositions; position++)
       for (var side in ShuttleSide.values)
-        ShuttleLinkLocation(position: position, side: side)
+        ShuttleLinkLocation(position: position, side: side),
   ];
 
   late Map<ShuttleLinkLocation, ModuleGroupInLink> modulesIns = {
     for (var linkLocation in linkLocations)
       linkLocation: ModuleGroupInLink(
-          place: modulePlaces[linkLocation.position],
-          offsetFromCenterWhenFacingNorth:
-              shape.linkLocationOffsets[linkLocation]!,
-          directionToOtherLink: linkLocation.side.direction,
-          transportDuration: (inLink) =>
-              moduleTransportDuration(inLink, conveyorSpeedProfile),
-          canFeedIn: () => _canFeedIn(linkLocation))
+        place: modulePlaces[linkLocation.position],
+        offsetFromCenterWhenFacingNorth:
+            shape.linkLocationOffsets[linkLocation]!,
+        directionToOtherLink: linkLocation.side.direction,
+        transportDuration: (inLink) =>
+            moduleTransportDuration(inLink, conveyorSpeedProfile),
+        canFeedIn: () => _canFeedIn(linkLocation),
+      ),
   };
 
   bool _canFeedIn(ShuttleLinkLocation linkLocation) =>
@@ -114,12 +115,13 @@ class ModuleShuttle extends StateMachine implements LinkedSystem, Detailable {
   late Map<ShuttleLinkLocation, ModuleGroupOutLink> modulesOuts = {
     for (var linkLocation in linkLocations)
       linkLocation: ModuleGroupOutLink(
-          place: modulePlaces[linkLocation.position],
-          offsetFromCenterWhenFacingNorth:
-              shape.linkLocationOffsets[linkLocation]!,
-          directionToOtherLink: linkLocation.side.direction,
-          durationUntilCanFeedOut: () =>
-              _canFeedOut(linkLocation) ? Duration.zero : unknownDuration)
+        place: modulePlaces[linkLocation.position],
+        offsetFromCenterWhenFacingNorth:
+            shape.linkLocationOffsets[linkLocation]!,
+        directionToOtherLink: linkLocation.side.direction,
+        durationUntilCanFeedOut: () =>
+            _canFeedOut(linkLocation) ? Duration.zero : unknownDuration,
+      ),
   };
 
   bool _canFeedOut(ShuttleLinkLocation linkLocation) =>
@@ -138,15 +140,18 @@ class ModuleShuttle extends StateMachine implements LinkedSystem, Detailable {
   late List<ModuleGroupPlace> modulePlaces = [
     for (int i = 0; i < nrOfPositions; i++)
       ModuleGroupPlace(
-          system: this,
-          offsetFromCenterWhenSystemFacingNorth: shape.moduleGroupCenters[i])
+        system: this,
+        offsetFromCenterWhenSystemFacingNorth: shape.moduleGroupCenters[i],
+      ),
   ];
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('speed',
-          '${durationsPerStack.averagePerHour.toStringAsFixed(1)} stacks/hour')
+      .appendProperty(
+        'speed',
+        '${durationsPerStack.averagePerHour.toStringAsFixed(1)} stacks/hour',
+      )
       .appendProperty('task', task);
 
   @override
@@ -188,7 +193,8 @@ class ModuleShuttle extends StateMachine implements LinkedSystem, Detailable {
   }
 
   bool _infeedConveyorCanFeedOut(
-      ModuleGroupOutLink<LinkedSystem> infeedConveyorOutLink) {
+    ModuleGroupOutLink<LinkedSystem> infeedConveyorOutLink,
+  ) {
     if (infeedConveyorOutLink.durationUntilCanFeedOut() != Duration.zero) {
       return false;
     }
@@ -321,8 +327,9 @@ class ModuleShuttleCarrier implements Vehicle, LinkedSystem {
   List<ModuleGroupPlace> get moduleGroupPlaces => [];
 
   ModuleGroup? get moduleGroup => position is AtCarrierPosition
-      ? shuttle.modulePlaces[(position as AtCarrierPosition).positionNumber]
-          .moduleGroup
+      ? shuttle
+            .modulePlaces[(position as AtCarrierPosition).positionNumber]
+            .moduleGroup
       : null;
 
   @override
@@ -359,10 +366,13 @@ class ModuleShuttleCarrier implements Vehicle, LinkedSystem {
     if (currentPosition == destinationPosition) {
       return Duration.zero;
     }
-    var distanceInMeters =
-        calculateDistanceInMeters(currentPosition, destinationPosition);
-    var duration =
-        shuttle.carrier.speedProfile.durationOfDistance(distanceInMeters);
+    var distanceInMeters = calculateDistanceInMeters(
+      currentPosition,
+      destinationPosition,
+    );
+    var duration = shuttle.carrier.speedProfile.durationOfDistance(
+      distanceInMeters,
+    );
     return duration;
   }
 
@@ -470,9 +480,10 @@ class Unlock extends DurationState<ModuleShuttle> {
   final String name = 'Unlock';
 
   Unlock(this.task)
-      : super(
-            durationFunction: (shuttle) => shuttle.unlockDuration,
-            nextStateFunction: (_) => MoveCarrier(task));
+    : super(
+        durationFunction: (shuttle) => shuttle.unlockDuration,
+        nextStateFunction: (_) => MoveCarrier(task),
+      );
 }
 
 class MoveCarrier extends State<ModuleShuttle> implements Detailable {
@@ -488,7 +499,9 @@ class MoveCarrier extends State<ModuleShuttle> implements Detailable {
     }
     var moduleGroup = shuttle.carrier.moduleGroup;
     carrierPosition = BetweenCarrierPositions(
-        shuttle: shuttle, destinationPositionNumber: task.location.position);
+      shuttle: shuttle,
+      destinationPositionNumber: task.location.position,
+    );
     shuttle.carrier.position = carrierPosition!;
 
     if (moduleGroup != null) {
@@ -513,13 +526,16 @@ class MoveCarrier extends State<ModuleShuttle> implements Detailable {
 
   @override
   void onCompleted(ModuleShuttle shuttle) {
-    shuttle.carrier.position =
-        AtCarrierPosition(shuttle, task.location.position);
+    shuttle.carrier.position = AtCarrierPosition(
+      shuttle,
+      task.location.position,
+    );
   }
 
   @override
-  ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('remaining', carrierPosition?.remaining);
+  ObjectDetails get objectDetails => ObjectDetails(
+    name,
+  ).appendProperty('remaining', carrierPosition?.remaining);
 }
 
 class Lock extends DurationState<ModuleShuttle> {
@@ -529,11 +545,12 @@ class Lock extends DurationState<ModuleShuttle> {
   final String name = 'Lock';
 
   Lock(this.task)
-      : super(
-            durationFunction: (shuttle) => shuttle.lockDuration,
-            nextStateFunction: (shuttle) => task.goal == ShuttleTaskGoal.feedIn
-                ? WaitToFeedIn()
-                : WaitToFeedOut());
+    : super(
+        durationFunction: (shuttle) => shuttle.lockDuration,
+        nextStateFunction: (shuttle) => task.goal == ShuttleTaskGoal.feedIn
+            ? WaitToFeedIn()
+            : WaitToFeedOut(),
+      );
 }
 
 class WaitToFeedIn extends State<ModuleShuttle>
@@ -581,18 +598,20 @@ class WaitToFeedOut extends State<ModuleShuttle> {
   @override
   State<ModuleShuttle>? nextState(ModuleShuttle shuttle) {
     var shuttleOutLink = shuttle.modulesOuts[shuttle.task!.location]!;
-    var shuttleInLink = shuttle.modulesIns[ShuttleLinkLocation(
-      position: shuttle.task!.location.position,
-      side: shuttle.task!.location.side.opposite,
-    )]!;
+    var shuttleInLink =
+        shuttle.modulesIns[ShuttleLinkLocation(
+          position: shuttle.task!.location.position,
+          side: shuttle.task!.location.side.opposite,
+        )]!;
 
     if (shuttleOutLink.linkedTo!.canFeedIn()) {
       if (shuttleInLink.linkedTo?.durationUntilCanFeedOut() == Duration.zero) {
         return SimultaneousFeedOutFeedInModuleGroup(
-            modulesIn: shuttleInLink,
-            modulesOut: shuttleOutLink,
-            inFeedDelay: shuttle.conveyorSimultaneousFeedInDelay,
-            stateWhenCompleted: Decide());
+          modulesIn: shuttleInLink,
+          modulesOut: shuttleOutLink,
+          inFeedDelay: shuttle.conveyorSimultaneousFeedInDelay,
+          stateWhenCompleted: Decide(),
+        );
       }
 
       return FeedOut();
@@ -631,7 +650,8 @@ class FeedOut extends State<ModuleShuttle>
   void onStart(ModuleShuttle shuttle) {
     var moduleGroup = shuttle.carrier.moduleGroup!;
     moduleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(
-        shuttle.modulesOuts[shuttle.task!.location]!);
+      shuttle.modulesOuts[shuttle.task!.location]!,
+    );
   }
 
   @override
@@ -663,7 +683,9 @@ class AtCarrierPosition implements CarrierPosition {
   OffsetInMeters center(SystemLayout layout) => _center ?? _calulateCenter();
 
   OffsetInMeters _calulateCenter() => shuttle.area.layout.positionOnSystem(
-      shuttle, shuttle.shape.moduleGroupCenters[positionNumber]);
+    shuttle,
+    shuttle.shape.moduleGroupCenters[positionNumber],
+  );
 }
 
 /// Position is between 2 [ModuleShuttle.shape.moduleGroupCenters]
@@ -691,19 +713,27 @@ class BetweenCarrierPositions implements CarrierPosition, TimeProcessor {
     startPositionNumber =
         (shuttle.carrier.position as AtCarrierPosition).positionNumber;
     startPosition = shuttle.area.layout.positionOnSystem(
-        shuttle, shuttle.shape.moduleGroupCenters[startPositionNumber]);
-    vector = shuttle.area.layout.positionOnSystem(shuttle,
-            shuttle.shape.moduleGroupCenters[destinationPositionNumber]) -
+      shuttle,
+      shuttle.shape.moduleGroupCenters[startPositionNumber],
+    );
+    vector =
+        shuttle.area.layout.positionOnSystem(
+          shuttle,
+          shuttle.shape.moduleGroupCenters[destinationPositionNumber],
+        ) -
         startPosition;
     duration = shuttle.carrier.transportDuration(destinationPositionNumber);
 
     /// following for print only TODO remove later
     int currentPosition =
         (shuttle.carrier.position as AtCarrierPosition).positionNumber;
-    var distanceInMeters = shuttle.carrier
-        .calculateDistanceInMeters(currentPosition, destinationPositionNumber);
+    var distanceInMeters = shuttle.carrier.calculateDistanceInMeters(
+      currentPosition,
+      destinationPositionNumber,
+    );
     print(
-        '** Shuttle: from: $currentPosition to: $destinationPositionNumber, distance:$distanceInMeters duration:$duration');
+      '** Shuttle: from: $currentPosition to: $destinationPositionNumber, distance:$distanceInMeters duration:$duration',
+    );
   }
 
   Duration get remaining => duration - elapsed;
@@ -733,7 +763,8 @@ class ShuttleConveyorSpeedProfile extends SpeedProfile {
   static const _totalDurationInSeconds = 20;
   static const _accelerationInSeconds = 1.5;
   static const _decelerationInSeconds = 0.7;
-  static const _maxSpeed = _totalDistanceInMeters /
+  static const _maxSpeed =
+      _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -741,10 +772,11 @@ class ShuttleConveyorSpeedProfile extends SpeedProfile {
           0.5 * _decelerationInSeconds);
 
   const ShuttleConveyorSpeedProfile()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 ///SpeedProfile.total(totalDistance: 2*2.488, totalDurationInSeconds: 16, accelerationInSeconds: 2, decelerationInSeconds: 2)
@@ -759,7 +791,8 @@ class ShuttleCarrierSpeedProfile extends SpeedProfile {
   static const _accelerationInSeconds = 2;
   // assumption
   static const _decelerationInSeconds = 2;
-  static const _maxSpeed = _totalDistanceInMeters /
+  static const _maxSpeed =
+      _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -767,8 +800,9 @@ class ShuttleCarrierSpeedProfile extends SpeedProfile {
           0.5 * _decelerationInSeconds);
 
   const ShuttleCarrierSpeedProfile()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }

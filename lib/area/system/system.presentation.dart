@@ -61,9 +61,10 @@ class SystemWidget extends StatelessWidget {
     return Listener(
       onPointerDown: (_) => monitor(system),
       child: RotationTransition(
-          turns: AlwaysStoppedAnimation(layout.rotationOf(system).toFraction()),
-          //TODO fix so that it is not continously creating new painers
-          child: CustomPaint(painter: createSystemPainter(system, theme))),
+        turns: AlwaysStoppedAnimation(layout.rotationOf(system).toFraction()),
+        //TODO fix so that it is not continously creating new painers
+        child: CustomPaint(painter: createSystemPainter(system, theme)),
+      ),
     );
   }
 
@@ -72,13 +73,15 @@ class SystemWidget extends StatelessWidget {
     var systems = player.scenario!.area.systems;
     List<Object> objectsToMonitor = [
       system,
-      ...relatedObjectsToMonitor(systems, system)
+      ...relatedObjectsToMonitor(systems, system),
     ];
     player.objectsToMonitor.addAll(objectsToMonitor);
   }
 
   List<Detailable> relatedObjectsToMonitor(
-      List<System> systems, VisibleSystem selectedSystem) {
+    List<System> systems,
+    VisibleSystem selectedSystem,
+  ) {
     var relatedObjects = <Detailable>[];
     if (selectedSystem is ModuleCas) {
       relatedObjects.addAll(systems.whereType<ModuleCasStart>());

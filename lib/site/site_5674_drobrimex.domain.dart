@@ -21,156 +21,163 @@ import 'site.dart';
 
 class DobrimexSite extends Site {
   DobrimexSite()
-      : super(
-          meynLayoutNumber: 5674,
-          organizationName: 'Drobrimex',
-          city: 'Szczecin',
-          country: 'Poland',
-          productDefinitions: DobrimexProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 5674,
+        organizationName: 'Drobrimex',
+        city: 'Szczecin',
+        country: 'Poland',
+        productDefinitions: DobrimexProductDefinitions(),
+      );
 }
 
 class DobrimexProductDefinitions extends DelegatingList<ProductDefinition> {
   DobrimexProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
-              birdType: 'Chicken',
+    : super([
+        ProductDefinition(
+          areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
+          birdType: 'Chicken',
 
-              /// Running a too high line speed so we can determine the actual
-              /// hanged birds/hour, by monitoring the [ShackleLine].
-              lineSpeedInShacklesPerHour: 16500,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
-              birdType: 'Chicken',
+          /// Running a too high line speed so we can determine the actual
+          /// hanged birds/hour, by monitoring the [ShackleLine].
+          lineSpeedInShacklesPerHour: 16500,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: _areaFactory(DobrimexAreaType.fiveCasUnits),
+          birdType: 'Chicken',
 
-              /// Runs 14200 b/h theoretically (see previous product definition),
-              /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
-              lineSpeedInShacklesPerHour: 12780,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
-              birdType: 'Chicken',
+          /// Runs 14200 b/h theoretically (see previous product definition),
+          /// Assuming we need 10% margin = 14200 *0.9=12780 b/h
+          lineSpeedInShacklesPerHour: 12780,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+          birdType: 'Chicken',
 
-              /// Running a too high line speed so we can determine the actual
-              /// hanged birds/hour, by monitoring the [ShackleLine].
-              lineSpeedInShacklesPerHour: 19800,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
-              birdType: 'Chicken',
+          /// Running a too high line speed so we can determine the actual
+          /// hanged birds/hour, by monitoring the [ShackleLine].
+          lineSpeedInShacklesPerHour: 19800,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: _areaFactory(DobrimexAreaType.sixCasUnits),
+          birdType: 'Chicken',
 
-              /// Runs 17100 b/h theoretically (see previous product definition),
-              /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
-              lineSpeedInShacklesPerHour: 15390,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .angliaAutoFlow
-                      .chicken
-                      .smallBirds
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(15),
-                })
-              ]),
-        ]);
+          /// Runs 17100 b/h theoretically (see previous product definition),
+          /// Assuming we need 10% margin = 17100 *0.9=15390 b/h
+          lineSpeedInShacklesPerHour: 15390,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .angliaAutoFlow
+                  .chicken
+                  .smallBirds
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(15),
+            }),
+          ],
+        ),
+      ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition) _areaFactory(
-          DobrimexAreaType areaType) =>
-      (ProductDefinition productDefinition) =>
-          [DobrimexLiveBirdHandlingArea(productDefinition, areaType)];
+    DobrimexAreaType areaType,
+  ) =>
+      (ProductDefinition productDefinition) => [
+        DobrimexLiveBirdHandlingArea(productDefinition, areaType),
+      ];
 }
 
 enum DobrimexAreaType { fiveCasUnits, sixCasUnits }
@@ -181,13 +188,14 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
   final DobrimexAreaType areaType;
 
   DobrimexLiveBirdHandlingArea(
-      ProductDefinition productDefinition, this.areaType)
-      : super(
-          lineName: 'Line 1',
-          productDefinition: productDefinition,
-        );
+    ProductDefinition productDefinition,
+    this.areaType,
+  ) : super(lineName: 'Line 1', productDefinition: productDefinition);
 
-  static const drawerSpeedInMetersPerSecond = 0.5; //TODO
+  static const drawerSpeedInMetersPerSecond = 0.5;
+
+  static const int levelsOfModulesForCasUnits = 2;
+  static const int numberOfModuleStacksForCasUnits = 1;
 
   @override
   void createSystemsAndLinks() {
@@ -207,7 +215,9 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
           reverseFeedOut: true,
         ),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.east()),
       ],
     );
@@ -251,6 +261,8 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
       cas6 = ModuleCas(
         area: this,
         gasDuctsLeft: true,
+        numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+        levelsOfModules: levelsOfModulesForCasUnits,
         moduleDoor: ModuleDoor.slideDoorToLeft,
       );
     }
@@ -258,30 +270,40 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
@@ -304,19 +326,25 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     /// Drawer line 1
     var unloader1 = ModuleDrawerRowUnloader(
-        area: this, drawerOutDirection: Direction.counterClockWise);
+      area: this,
+      drawerOutDirection: Direction.counterClockWise,
+    );
 
     var receiver1 = ModuleDrawerRowUnloaderReceiver(
-        area: this,
-        drawerOutDirection: Direction.counterClockWise,
-        crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
+      area: this,
+      drawerOutDirection: Direction.counterClockWise,
+      crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var dc1a = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerSpeedInMetersPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var dc1b = DrawerConveyorStraight(
-        lengthInMeters: 3, metersPerSecond: drawerSpeedInMetersPerSecond);
+      lengthInMeters: 3,
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var hangingConveyor1 = DrawerHangingConveyor(
       allDrawers: drawers,
@@ -332,19 +360,25 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     /// Drawer line 2
     var unloader2 = ModuleDrawerRowUnloader(
-        area: this, drawerOutDirection: Direction.counterClockWise);
+      area: this,
+      drawerOutDirection: Direction.counterClockWise,
+    );
 
     var receiver2 = ModuleDrawerRowUnloaderReceiver(
-        area: this,
-        drawerOutDirection: Direction.clockWise,
-        crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
+      area: this,
+      drawerOutDirection: Direction.clockWise,
+      crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var dc2a = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
-        metersPerSecond: drawerSpeedInMetersPerSecond);
+      direction: Direction.counterClockWise,
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var dc2b = DrawerConveyorStraight(
-        lengthInMeters: 3, metersPerSecond: drawerSpeedInMetersPerSecond);
+      lengthInMeters: 3,
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var hangingConveyor2 = DrawerHangingConveyor(
       allDrawers: drawers,
@@ -404,22 +438,32 @@ class DobrimexLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(dc2b.drawerOut, hangingConveyor2.drawerIn);
     systems.link(hangingConveyor2.drawerOut, dc2c.drawerIn);
 
-    systems.add(ModuleCasAllocation(
-        area: this, allocationPlace: loadingConveyor.moduleGroupPlace));
+    systems.add(
+      ModuleCasAllocation(
+        area: this,
+        allocationPlace: loadingConveyor.moduleGroupPlace,
+      ),
+    );
 
-    systems.add(ModuleCasStart(area: this, startIntervalFractions: <double>[
-      0,
-      0.1,
-      0.2,
-      0.4,
-      0.6,
-      0.8,
-      1,
-      1,
-      1,
-      1,
-      1.5,
-      2,
-    ]));
+    systems.add(
+      ModuleCasStart(
+        area: this,
+        //FIXME remove?
+        // startIntervalFractions: <double>[
+        //   0,
+        //   0.1,
+        //   0.2,
+        //   0.4,
+        //   0.6,
+        //   0.8,
+        //   1,
+        //   1,
+        //   1,
+        //   1,
+        //   1.5,
+        //   2,
+        // ],
+      ),
+    );
   }
 }

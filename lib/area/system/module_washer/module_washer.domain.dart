@@ -21,9 +21,10 @@ class ModuleWasherConveyor extends StateMachine implements LinkedSystem {
     required this.area,
     SpeedProfile? conveyorSpeedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        super(initialState: CheckIfEmpty());
+  }) : conveyorSpeedProfile =
+           conveyorSpeedProfile ??
+           area.productDefinition.speedProfiles.moduleConveyor,
+       super(initialState: CheckIfEmpty());
 
   @override
   late final String name = 'ModuleWasherConveyor$seqNr';
@@ -51,13 +52,14 @@ class ModuleWasherConveyor extends StateMachine implements LinkedSystem {
     directionToOtherLink: const CompassDirection.north(),
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
-            currentState),
+          currentState,
+        ),
   );
 
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   late final ModuleWasherConveyorShape shape = ModuleWasherConveyorShape(this);
@@ -65,7 +67,8 @@ class ModuleWasherConveyor extends StateMachine implements LinkedSystem {
   bool get forceFeedOut => precedingNeighborWaitingToFeedOut(modulesIn);
 
   bool precedingNeighborWaitingToFeedOut(
-      ModuleGroupInLink<LinkedSystem> modulesIn) {
+    ModuleGroupInLink<LinkedSystem> modulesIn,
+  ) {
     var precedingNeighbor = modulesIn.linkedTo!.system;
     if (precedingNeighbor is ModuleWasherConveyor) {
       // recursive call
@@ -84,15 +87,16 @@ class ModuleWasherConveyor extends StateMachine implements LinkedSystem {
 
 class CheckIfEmpty extends DurationState<ModuleWasherConveyor> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (moduleWasher) => moduleWasher
-                .conveyorSpeedProfile
-                .durationOfDistance(moduleWasher.lengthInMeters),
-            nextStateFunction: (moduleWasher) =>
-                SimultaneousFeedOutFeedInModuleGroup<ModuleWasherConveyor>(
-                    modulesIn: moduleWasher.modulesIn,
-                    modulesOut: moduleWasher.modulesOut,
-                    stateWhenCompleted: Wash()));
+    : super(
+        durationFunction: (moduleWasher) => moduleWasher.conveyorSpeedProfile
+            .durationOfDistance(moduleWasher.lengthInMeters),
+        nextStateFunction: (moduleWasher) =>
+            SimultaneousFeedOutFeedInModuleGroup<ModuleWasherConveyor>(
+              modulesIn: moduleWasher.modulesIn,
+              modulesOut: moduleWasher.modulesOut,
+              stateWhenCompleted: Wash(),
+            ),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -107,11 +111,12 @@ class Wash extends State<ModuleWasherConveyor> {
   @override
   State<ModuleWasherConveyor>? nextState(ModuleWasherConveyor washer) =>
       feedOutAndFeedIn(washer)
-          ? SimultaneousFeedOutFeedInModuleGroup(
-              modulesIn: washer.modulesIn,
-              modulesOut: washer.modulesOut,
-              stateWhenCompleted: Wash())
-          : null;
+      ? SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: washer.modulesIn,
+          modulesOut: washer.modulesOut,
+          stateWhenCompleted: Wash(),
+        )
+      : null;
 
   bool feedOutAndFeedIn(ModuleWasherConveyor stateMachine) =>
       remainingDuration == Duration.zero || stateMachine.forceFeedOut;
@@ -129,14 +134,15 @@ class Wash extends State<ModuleWasherConveyor> {
   Duration durationOfTwoModules(ModuleWasherConveyor washer) {
     var productDefinition = washer.area.productDefinition;
     var averageProductsPerModuleGroup =
-        productDefinition.averageProductsPerModuleGroup;
+        productDefinition.averageNumberOfBirdsPerTruckRow;
     var lineSpeedInShacklesPerHour =
         productDefinition.lineSpeedInShacklesPerHour;
     var modulesPerHour =
         lineSpeedInShacklesPerHour / averageProductsPerModuleGroup;
     return Duration(
-        microseconds:
-            (const Duration(hours: 1).inMicroseconds / modulesPerHour).round() *
-                2);
+      microseconds:
+          (const Duration(hours: 1).inMicroseconds / modulesPerHour).round() *
+          2,
+    );
   }
 }

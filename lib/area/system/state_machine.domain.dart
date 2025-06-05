@@ -6,9 +6,7 @@ abstract class StateMachine implements TimeProcessor, Detailable, Namable {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   State currentState;
 
-  StateMachine({
-    required State initialState,
-  }) : currentState = initialState {
+  StateMachine({required State initialState}) : currentState = initialState {
     initialState.onStart(this);
   }
 
@@ -69,8 +67,10 @@ abstract class DurationState<T extends StateMachine> extends State<T>
   Duration? _remainingDuration;
   late Duration _startDuration;
 
-  DurationState(
-      {required this.durationFunction, required this.nextStateFunction});
+  DurationState({
+    required this.durationFunction,
+    required this.nextStateFunction,
+  });
 
   Duration get remainingDuration => _remainingDuration ?? _startDuration;
   // 0 = starting
@@ -102,6 +102,7 @@ abstract class DurationState<T extends StateMachine> extends State<T>
   }
 
   @override
-  ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
+  ObjectDetails get objectDetails => ObjectDetails(
+    name,
+  ).appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 }

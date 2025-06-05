@@ -7,14 +7,16 @@ import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.presentation.dar
 
 class LoadingForkLiftTruckPainter extends ShapePainter {
   LoadingForkLiftTruckPainter(
-      LoadingForkLiftTruck forkLiftTruck, LiveBirdsHandlingTheme theme)
-      : super(shape: forkLiftTruck.shape, theme: theme);
+    LoadingForkLiftTruck forkLiftTruck,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: forkLiftTruck.shape, theme: theme);
 }
 
 class UnLoadingForkLiftTruckPainter extends ShapePainter {
   UnLoadingForkLiftTruckPainter(
-      UnLoadingForkLiftTruck forkLiftTruck, LiveBirdsHandlingTheme theme)
-      : super(shape: forkLiftTruck.shape, theme: theme);
+    UnLoadingForkLiftTruck forkLiftTruck,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: forkLiftTruck.shape, theme: theme);
 }
 
 class ForkLiftTruckShape extends VehicleShape {
@@ -23,7 +25,7 @@ class ForkLiftTruckShape extends VehicleShape {
   @override
   late double centerToAxcelCenterInMeters;
 
-//TODO set with constructor parameter
+  //TODO set with constructor parameter
   var moduleGroupLengthInMeters = 2.43;
 
   ForkLiftTruckShape() {
@@ -40,7 +42,10 @@ class ForkLiftTruckShape extends VehicleShape {
     var forkCarriage = Box(xInMeters: 1.5, yInMeters: 0.15);
     var mast = Box(xInMeters: 0.8, yInMeters: 0.3);
     var body = BoxWithCurvedSouthSide(
-        xInMeters: 1.2, yInMeters: 2.1, yCurveInMeters: 0.2);
+      xInMeters: 1.2,
+      yInMeters: 2.1,
+      yCurveInMeters: 0.2,
+    );
     var frontLeftWheel = Box(xInMeters: 0.15, yInMeters: 0.6);
     var frontRightWheel = Box(xInMeters: 0.1, yInMeters: 0.6);
     var backLeftWheel = Box(xInMeters: 0.05, yInMeters: 0.4);
@@ -72,8 +77,10 @@ class ForkLiftTruckShape extends VehicleShape {
     var topToAxcelCenter = topToFrontAxcel + centerToAxcelCenterInMeters;
     var lengthToAdd =
         topToAxcelCenter * 2 - (topLefts[body]! + body.bottomCenter).yInMeters;
-    var paddingToMoveCenterPoint =
-        InvisibleBox(xInMeters: 1, yInMeters: lengthToAdd);
+    var paddingToMoveCenterPoint = InvisibleBox(
+      xInMeters: 1,
+      yInMeters: lengthToAdd,
+    );
 
     link(body.bottomCenter, paddingToMoveCenterPoint.topCenter);
 
@@ -85,7 +92,8 @@ class ForkLiftTruckShape extends VehicleShape {
     centerToFrontForkCariage =
         (topLefts[forkCarriage]! + forkCarriage.topCenter) - centerCenter;
 
-    centerToModuleGroupCenter =
-        centerToFrontForkCariage.addY(moduleGroupLengthInMeters * -0.55);
+    centerToModuleGroupCenter = centerToFrontForkCariage.addY(
+      moduleGroupLengthInMeters * -0.55,
+    );
   }
 }

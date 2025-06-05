@@ -26,66 +26,60 @@ import 'site.dart';
 
 class FloridaSite extends Site {
   FloridaSite()
-      : super(
-          meynLayoutNumber: 7524,
-          organizationName: 'Florida',
-          city: 'Castellon',
-          country: 'Spain',
-          productDefinitions: FloridaProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 7524,
+        organizationName: 'Florida',
+        city: 'Castellon',
+        country: 'Spain',
+        productDefinitions: FloridaProductDefinitions(),
+      );
 }
 
 class FloridaProductDefinitions extends DelegatingList<ProductDefinition> {
   FloridaProductDefinitions()
-      : super([
-          ProductDefinition(
-              //2,82286 stacks per hour
-              areaFactory: (ProductDefinition productDefinition) => [
-                    FloridaLiveBirdHandlingArea(
-                        productDefinition, LayoutVariant.asIs)
-                  ],
-              birdType: 'Chicken',
+    : super([
+        ProductDefinition(
+          //2,82286 stacks per hour
+          areaFactory: (ProductDefinition productDefinition) => [
+            FloridaLiveBirdHandlingArea(productDefinition, LayoutVariant.asIs),
+          ],
+          birdType: 'Chicken',
 
-              /// TODO get numbers
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-          ProductDefinition(
-              //2,82286 stacks per hour
-              areaFactory: (ProductDefinition productDefinition) => [
-                    FloridaLiveBirdHandlingArea(
-                        productDefinition, LayoutVariant.toBe)
-                  ],
-              birdType: 'Chicken',
+          /// TODO get numbers
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+        ProductDefinition(
+          //2,82286 stacks per hour
+          areaFactory: (ProductDefinition productDefinition) => [
+            FloridaLiveBirdHandlingArea(productDefinition, LayoutVariant.toBe),
+          ],
+          birdType: 'Chicken',
 
-              /// TODO get numbers
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-        ]);
+          /// TODO get numbers
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+      ]);
 
   static List<TruckRow> get truckRows {
     return [
       // 2024-01-08 From Albert Ribalta Pardo <aribalta@meyn.com>
       // Are Meyn Systenate containers (compatable with Marel GP)
       TruckRow({
-        PositionWithinModuleGroup.firstBottom: BrandBuilder()
-            .marel
-            .gpl
-            .l4
+        PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gpl.l4
             .build()
             // 2024-01-08 worst case 3.1kg/bird=25birds per compartment
             .withBirdsPerCompartment(25),
-        PositionWithinModuleGroup.firstTop: BrandBuilder()
-            .marel
-            .gpl
-            .l4
+        PositionWithinModuleGroup.firstTop: BrandBuilder().marel.gpl.l4
             .build()
             // 2024-01-08 worst case 3.1kg/bird=25birds per compartment
             .withBirdsPerCompartment(25),
-      })
+      }),
     ];
   }
 
@@ -94,21 +88,21 @@ class FloridaProductDefinitions extends DelegatingList<ProductDefinition> {
 
 enum LayoutVariant {
   asIs('as is with 3 CAS units'),
-  toBe('to be with 4 CAS units'),
-  ;
+  toBe('to be with 4 CAS units');
 
   final String name;
   const LayoutVariant(this.name);
 }
 
 class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  static const int levelsOfModulesInCas = 2;
+  static const int numberOfModuleStacksForCasUnits = 1;
+
   final LayoutVariant layoutVariant;
   FloridaLiveBirdHandlingArea(
-      ProductDefinition productDefinition, this.layoutVariant)
-      : super(
-          lineName: layoutVariant.name,
-          productDefinition: productDefinition,
-        );
+    ProductDefinition productDefinition,
+    this.layoutVariant,
+  ) : super(lineName: layoutVariant.name, productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -126,11 +120,12 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     /// Shuttle durations and speeds from time measurements
     /// at 9423 Wech via e-won by Roel on 2025-01-22
     var shuttleConveyorSpeedProfile = SpeedProfile.total(
-        totalDistance: 3.05,
-        // added 1 sec because simulation seems to be running a bit faster
-        totalDurationInSeconds: 14.5 + 1,
-        accelerationInSeconds: 1.5,
-        decelerationInSeconds: 0.7);
+      totalDistance: 3.05,
+      // added 1 sec because simulation seems to be running a bit faster
+      totalDurationInSeconds: 14.5 + 1,
+      accelerationInSeconds: 1.5,
+      decelerationInSeconds: 0.7,
+    );
 
     var shuttle = ModuleShuttle(
       area: this,
@@ -158,20 +153,19 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       // stack out of CAS		              14.5 s	  3.050 m	  0.2276 m/s
       // stack into destacker		          16.5 s	  3.200 m	  0.2078 m/s
       // stack into shuttle at pos 0/1		14.0 s	  2.800 m	  0.2171 m/s
-
       conveyorSpeedProfile: shuttleConveyorSpeedProfile,
 
       // Between	                    And	    Total duration	Distance	Calculated max speed
       // Infeed conveyor\ destacker	  CAS 1+2	       9.7 s	  2.488 m	  0.3231 m/s
       // Infeed conveyor\ destacker	  CAS 3+4	      17.0 s	  4.976 m	  0.3317 m/s
       // CAS 1+2	                    CAS 3+4	       9.7 s	  2.488 m	  0.3231 m/s
-
       carrierSpeedProfile: SpeedProfile.total(
-          totalDistance: 2.488,
-          //// added 1 sec because simulation seems to be running a bit faster
-          totalDurationInSeconds: 9.7 + 1,
-          accelerationInSeconds: 2,
-          decelerationInSeconds: 2),
+        totalDistance: 2.488,
+        //// added 1 sec because simulation seems to be running a bit faster
+        totalDurationInSeconds: 9.7 + 1,
+        accelerationInSeconds: 2,
+        decelerationInSeconds: 2,
+      ),
 
       /// distances from layout
       /// pos0: CAS3 is at left position
@@ -185,6 +179,8 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.rollDoorUp,
       conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
@@ -192,6 +188,8 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.rollDoorUp,
       conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
@@ -199,6 +197,8 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.rollDoorUp,
       conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
@@ -206,11 +206,13 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.rollDoorUp,
       conveyorSpeedProfile: shuttleConveyorSpeedProfile,
     );
 
-    var destacker = ModuleDeStacker(area: this);
+    var deStacker = ModuleDeStacker(area: this);
 
     var mc2 = ModuleConveyor(area: this);
 
@@ -228,10 +230,7 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var mc3 = ModuleConveyor(area: this);
 
-    var mainWasher1 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 4.23,
-    );
+    var mainWasher1 = ModuleWasherConveyor(area: this, lengthInMeters: 4.23);
 
     var buffer1_1 = ModuleBufferAngleTransferInFeed(
       area: this,
@@ -244,15 +243,9 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       moduleOutDirection: Direction.clockWise,
     );
 
-    var mainWasher2 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 4.23,
-    );
+    var mainWasher2 = ModuleWasherConveyor(area: this, lengthInMeters: 4.23);
 
-    var mainWasher3 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 4.23,
-    );
+    var mainWasher3 = ModuleWasherConveyor(area: this, lengthInMeters: 4.23);
 
     var mc4 = ModuleConveyor(area: this);
 
@@ -276,53 +269,83 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // shuttle Left
     if (layoutVariant == LayoutVariant.toBe) {
       systems.link(
-          shuttle.modulesOuts[
-              ShuttleLinkLocation(position: 0, side: ShuttleSide.a)]!,
-          cas4.modulesIn);
+        shuttle.modulesOuts[ShuttleLinkLocation(
+          position: 0,
+          side: ShuttleSide.a,
+        )]!,
+        cas4.modulesIn,
+      );
       systems.link(
-          cas4.modulesOut,
-          shuttle.modulesIns[
-              ShuttleLinkLocation(position: 0, side: ShuttleSide.a)]!);
+        cas4.modulesOut,
+        shuttle.modulesIns[ShuttleLinkLocation(
+          position: 0,
+          side: ShuttleSide.a,
+        )]!,
+      );
     }
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 0, side: ShuttleSide.b)]!,
-        cas3.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: 0,
+        side: ShuttleSide.b,
+      )]!,
+      cas3.modulesIn,
+    );
     systems.link(
-        cas3.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: 0, side: ShuttleSide.b)]!);
+      cas3.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: 0,
+        side: ShuttleSide.b,
+      )]!,
+    );
 
     // shuttle middle
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.b)]!,
-        cas1.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: 1,
+        side: ShuttleSide.b,
+      )]!,
+      cas1.modulesIn,
+    );
     systems.link(
-        cas1.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.b)]!);
+      cas1.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: 1,
+        side: ShuttleSide.b,
+      )]!,
+    );
 
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.a)]!,
-        cas2.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: 1,
+        side: ShuttleSide.a,
+      )]!,
+      cas2.modulesIn,
+    );
     systems.link(
-        cas2.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: 1, side: ShuttleSide.a)]!);
+      cas2.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: 1,
+        side: ShuttleSide.a,
+      )]!,
+    );
 
     // shuttle right
     systems.link(
-        mc1.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: 2, side: ShuttleSide.a)]!);
+      mc1.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: 2,
+        side: ShuttleSide.a,
+      )]!,
+    );
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: 2, side: ShuttleSide.b)]!,
-        destacker.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: 2,
+        side: ShuttleSide.b,
+      )]!,
+      deStacker.modulesIn,
+    );
 
-    systems.link(destacker.modulesOut, mc2.modulesIn);
+    systems.link(deStacker.modulesOut, mc2.modulesIn);
     systems.link(mc2.modulesOut, moduleTilter.modulesIn);
     systems.link(moduleTilter.modulesOut, mc3.modulesIn);
     systems.link(mc3.modulesOut, mainWasher1.modulesIn);
@@ -335,25 +358,18 @@ class FloridaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(mainWasher3.modulesOut, mc4.modulesIn);
     systems.link(mc4.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// bird transport
     systems.link(moduleTilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
     systems.add(
-        ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace));
+      ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace),
+    );
 
-    systems.add(ModuleCasStart(area: this, startIntervalFractions: [
-      0.6,
-      0.8,
-      1,
-      1.25,
-      1.5,
-      1.75,
-      2,
-      2.5,
-      3,
-    ]));
+    systems.add(ModuleCasStart(area: this));
   }
 }

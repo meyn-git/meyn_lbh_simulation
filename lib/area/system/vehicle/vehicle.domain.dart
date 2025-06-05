@@ -34,10 +34,11 @@ abstract class Drive<T extends VehicleStateMachine> extends State<T> {
   late Duration duration;
   bool atDestination = false;
 
-  Drive(
-      {required this.speedProfileFunction,
-      required this.routeFunction,
-      required this.nextStateFunction});
+  Drive({
+    required this.speedProfileFunction,
+    required this.routeFunction,
+    required this.nextStateFunction,
+  });
 
   @override
   void onStart(T vehicle) {
@@ -64,15 +65,20 @@ abstract class Drive<T extends VehicleStateMachine> extends State<T> {
         atDestination = true;
       }
 
-      var traveledInMeters = route.lengthInMeters *
+      var traveledInMeters =
+          route.lengthInMeters *
           elapsed.inMilliseconds /
           duration.inMilliseconds;
       var centerToAxcelCenterInMeters =
           vehicle.shape.centerToAxcelCenterInMeters;
-      var frontAxcelPosition = route.pointAlongRoute(traveledInMeters +
-          (centerToAxcelCenterInMeters * route.vehicleDirection.sign * -1));
-      var backAxcelPosition = route.pointAlongRoute(traveledInMeters +
-          (centerToAxcelCenterInMeters * route.vehicleDirection.sign));
+      var frontAxcelPosition = route.pointAlongRoute(
+        traveledInMeters +
+            (centerToAxcelCenterInMeters * route.vehicleDirection.sign * -1),
+      );
+      var backAxcelPosition = route.pointAlongRoute(
+        traveledInMeters +
+            (centerToAxcelCenterInMeters * route.vehicleDirection.sign),
+      );
 
       var betweenAxcels = backAxcelPosition - frontAxcelPosition;
       var centerPosition = (backAxcelPosition + frontAxcelPosition) * 0.5;
@@ -84,8 +90,9 @@ abstract class Drive<T extends VehicleStateMachine> extends State<T> {
       for (var place in vehicle.moduleGroupPlaces) {
         if (place.moduleGroup != null) {
           var moduleGroup = place.moduleGroup!;
-          moduleGroup.direction = vehicle.direction
-              .rotate(vehicle.moduleGroupStartRotationInDegrees);
+          moduleGroup.direction = vehicle.direction.rotate(
+            vehicle.moduleGroupStartRotationInDegrees,
+          );
         }
       }
     }

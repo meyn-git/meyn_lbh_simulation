@@ -6,7 +6,7 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleCasPainter extends ShapePainter {
   ModuleCasPainter(ModuleCas cas, LiveBirdsHandlingTheme theme)
-      : super(shape: cas.shape, theme: theme);
+    : super(shape: cas.shape, theme: theme);
 }
 
 class ModuleCasShape extends CompoundShape {
@@ -50,7 +50,7 @@ class ModuleCasShape extends CompoundShape {
 
     var ductOffsetY =
         (cabinSize.yInMeters - inletDuct.yInMeters - outletDuct.yInMeters) *
-            0.25;
+        0.25;
     if (cas.gasDuctsLeft) {
       link(leftPlatform.topRight.addY(ductOffsetY), inletDuct.topRight);
       link(leftPlatform.bottomRight.addY(-ductOffsetY), outletDuct.bottomRight);
@@ -63,8 +63,10 @@ class ModuleCasShape extends CompoundShape {
   }
 
   /// space between module and cabin
-  late final SizeInMeters cabinPadding =
-      const SizeInMeters(xInMeters: 0.15, yInMeters: 0.1);
+  late final SizeInMeters cabinPadding = const SizeInMeters(
+    xInMeters: 0.15,
+    yInMeters: 0.1,
+  );
 
   late final OffsetInMeters centerToCabinCenter =
       topLefts[cabin]! + cabin.centerCenter - centerCenter;

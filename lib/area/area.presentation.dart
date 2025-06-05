@@ -46,9 +46,12 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
             child: Column(
               children: [
                 FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: Text(scenarioTitle,
-                        style: const TextStyle(fontSize: 25))),
+                  fit: BoxFit.fitWidth,
+                  child: Text(
+                    scenarioTitle,
+                    style: const TextStyle(fontSize: 25),
+                  ),
+                ),
                 Expanded(
                   child: InteractiveViewer(
                     child: Align(
@@ -56,12 +59,13 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
                       child: AspectRatio(
                         aspectRatio: areaWidgetDelegate.area.layout.aspectRatio,
                         child: CustomMultiChildLayout(
-                            delegate: areaWidgetDelegate,
-                            children: createChildren(player.scenario!)),
+                          delegate: areaWidgetDelegate,
+                          children: createChildren(player.scenario!),
+                        ),
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           );
@@ -79,19 +83,22 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
 
   static List<Widget> createModuleGroupWidgets(LiveBirdHandlingArea area) {
     var moduleGroupWidgets = area.moduleGroups
-        .map<Widget>((moduleGroup) =>
-            LayoutId(id: moduleGroup, child: ModuleGroupWidget(moduleGroup)))
+        .map<Widget>(
+          (moduleGroup) =>
+              LayoutId(id: moduleGroup, child: ModuleGroupWidget(moduleGroup)),
+        )
         .toList();
     return moduleGroupWidgets;
   }
 
   static List<Widget> createMarkerWidgets(LiveBirdHandlingArea area) {
     var markerWidgets = area.markers
-        .map<Widget>((marker) => LayoutId(
+        .map<Widget>(
+          (marker) => LayoutId(
             id: marker,
-            child: Container(
-              color: Colors.red,
-            )))
+            child: Container(color: Colors.red),
+          ),
+        )
         .toList();
     return markerWidgets;
   }
@@ -99,8 +106,9 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
   static List<Widget> createSystemWidgets(LiveBirdHandlingArea area) {
     List<Widget> widgets = [];
     for (var system in area.systems.visibleSystems) {
-      widgets
-          .add(LayoutId(id: system, child: SystemWidget(area.layout, system)));
+      widgets.add(
+        LayoutId(id: system, child: SystemWidget(area.layout, system)),
+      );
     }
     return widgets;
   }
@@ -110,7 +118,8 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
     var drawers = area.drawers;
     for (var drawer in drawers) {
       widgets.add(
-          LayoutId(id: drawer, child: GrandeDrawerWidget(area.layout, drawer)));
+        LayoutId(id: drawer, child: GrandeDrawerWidget(area.layout, drawer)),
+      );
     }
     return widgets;
   }
@@ -211,9 +220,11 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     Size size = const Size(1, 1);
     for (var marker in area.markers) {
       layoutChild(marker, BoxConstraints.tight(size));
-      var position = (area.layout.positionOnSystem(
-                  marker.system, marker.offsetFromSystemCenterWhenFacingNorth))
-              .toOffset() *
+      var position =
+          (area.layout.positionOnSystem(
+            marker.system,
+            marker.offsetFromSystemCenterWhenFacingNorth,
+          )).toOffset() *
           lengthPerMeter;
       positionChild(marker, position);
     }
@@ -236,20 +247,21 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 
   _lengthPerMeter(Size size) =>
       area.layout.size.xInMeters < area.layout.size.yInMeters
-          ? size.height / area.layout.size.yInMeters
-          : size.width / area.layout.size.xInMeters;
+      ? size.height / area.layout.size.yInMeters
+      : size.width / area.layout.size.xInMeters;
 
   OffsetInMeters moduleGroupCenterToTopLeft(ModuleGroup moduleGroup) =>
       moduleGroup.shape.size.toOffsetInMeters() * -0.5;
   //const OffsetInMeters(xInMeters: 0.63, yInMeters: -0.6);
 
   Offset _moduleGroupTopLeft(ModuleGroup moduleGroup, double lengthPerMeter) {
-    var topLeft = moduleGroup.position.center(area.layout) +
+    var topLeft =
+        moduleGroup.position.center(area.layout) +
         moduleGroupCenterToTopLeft(moduleGroup);
     return topLeft.toOffset() * lengthPerMeter;
   }
 
-// TODO only when nessasary
+  // TODO only when nessasary
   @override
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => true;
 }

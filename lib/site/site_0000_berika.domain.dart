@@ -23,99 +23,97 @@ import 'site.dart';
 
 class BerikaSite extends Site {
   BerikaSite()
-      : super(
-          meynLayoutNumber: 0000,
-          organizationName: 'Berika',
-          city: '?',
-          country: 'Norway',
-          productDefinitions: ProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 0000,
+        organizationName: 'Berika',
+        city: '?',
+        country: 'Norway',
+        productDefinitions: ProductDefinitions(),
+      );
 }
 
 class ProductDefinitions extends DelegatingList<ProductDefinition> {
   ProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, Layout.stunSingle)],
-              birdType: '208 chickens/module',
-              lineSpeedInShacklesPerHour: birdsPerHour,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(26),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, Layout.stunSingle)],
-              birdType: '240 chickens/module',
-              lineSpeedInShacklesPerHour: birdsPerHour,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(30), //26
-                }),
-              ]),
-          // ProductDefinition(
-          //     areaFactory: (ProductDefinition productDefinition) =>
-          //         [Area(productDefinition, Layout.stunStacked)],
-          //     birdType: '208 chickens/module',
-          //     lineSpeedInShacklesPerHour: birdsPerHour,
-          //     lineShacklePitchInInches: 6,
-          //     casRecipe: const CasRecipe.standardChickenRecipe(),
-          //     truckRows: [
-          //       TruckRow({
-          //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
-          //             .marel
-          //             .gpl
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(26),
-          //         PositionWithinModuleGroup.firstTop: BrandBuilder()
-          //             .marel
-          //             .gpl
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(26),
-          //       })
-          //     ]),
-          // ProductDefinition(
-          //     areaFactory: (ProductDefinition productDefinition) =>
-          //         [Area(productDefinition, Layout.stunStacked)],
-          //     birdType: '240 chickens/module',
-          //     lineSpeedInShacklesPerHour: birdsPerHour,
-          //     lineShacklePitchInInches: 6,
-          //     casRecipe: const CasRecipe.standardChickenRecipe(),
-          //     truckRows: [
-          //       TruckRow({
-          //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
-          //             .marel
-          //             .gpl
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(30),
-          //         PositionWithinModuleGroup.firstTop: BrandBuilder()
-          //             .marel
-          //             .gpl
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(30),
-          //       }),
-          //     ]),
-        ]);
+    : super([
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition, Layout.stunSingle),
+          ],
+          birdType: '208 chickens/module',
+          lineSpeedInShacklesPerHour: birdsPerHour,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gpl.l4
+                  .build()
+                  .withBirdsPerCompartment(26),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition, Layout.stunSingle),
+          ],
+          birdType: '240 chickens/module',
+          lineSpeedInShacklesPerHour: birdsPerHour,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gpl.l4
+                  .build()
+                  .withBirdsPerCompartment(30), //26
+            }),
+          ],
+        ),
+        // ProductDefinition(
+        //     areaFactory: (ProductDefinition productDefinition) =>
+        //         [Area(productDefinition, Layout.stunStacked)],
+        //     birdType: '208 chickens/module',
+        //     lineSpeedInShacklesPerHour: birdsPerHour,
+        //     lineShacklePitchInInches: 6,
+        //     casRecipe: const CasRecipe.standardChickenRecipe(),
+        //     truckRows: [
+        //       TruckRow({
+        //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
+        //             .marel
+        //             .gpl
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(26),
+        //         PositionWithinModuleGroup.firstTop: BrandBuilder()
+        //             .marel
+        //             .gpl
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(26),
+        //       })
+        //     ]),
+        // ProductDefinition(
+        //     areaFactory: (ProductDefinition productDefinition) =>
+        //         [Area(productDefinition, Layout.stunStacked)],
+        //     birdType: '240 chickens/module',
+        //     lineSpeedInShacklesPerHour: birdsPerHour,
+        //     lineShacklePitchInInches: 6,
+        //     casRecipe: const CasRecipe.standardChickenRecipe(),
+        //     truckRows: [
+        //       TruckRow({
+        //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
+        //             .marel
+        //             .gpl
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(30),
+        //         PositionWithinModuleGroup.firstTop: BrandBuilder()
+        //             .marel
+        //             .gpl
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(30),
+        //       }),
+        //     ]),
+      ]);
 
   static int get birdsPerHour => 5000;
 }
@@ -130,11 +128,11 @@ enum Layout {
 
 class Area extends LiveBirdHandlingArea {
   final Layout layoutType;
+
+  static const int levelsOfModulesForCasUnits = 1;
+  static const numberOfModuleStacksForCasUnits = 1;
   Area(ProductDefinition productDefinition, this.layoutType)
-      : super(
-          lineName: layoutType.name,
-          productDefinition: productDefinition,
-        );
+    : super(lineName: layoutType.name, productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -144,9 +142,7 @@ class Area extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.left,
     );
 
-    var loadingConveyor = ModuleLoadingConveyor(
-      area: this,
-    );
+    var loadingConveyor = ModuleLoadingConveyor(area: this);
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
@@ -154,12 +150,18 @@ class Area extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedIn: true),
+          direction: const CompassDirection.east(),
+          reverseFeedIn: true,
+        ),
         if (layoutType == Layout.stunSingle)
           TurnPosition(
-              direction: const CompassDirection.south(), reverseFeedOut: true),
+            direction: const CompassDirection.south(),
+            reverseFeedOut: true,
+          ),
       ],
     );
 
@@ -169,35 +171,47 @@ class Area extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.east()),
         if (layoutType == Layout.stunSingle)
           TurnPosition(
-              direction: const CompassDirection.south(), reverseFeedOut: true),
+            direction: const CompassDirection.south(),
+            reverseFeedOut: true,
+          ),
       ],
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
@@ -211,9 +225,10 @@ class Area extends LiveBirdHandlingArea {
     );
 
     var dumpConveyor = ModuleTilterDumpConveyor(
-        area: this,
-        minBirdsOnDumpBeltBuffer: (208 * 0.5).round(),
-        maxBirdsOnDumpBeltBuffer: (208 * 1.5).round());
+      area: this,
+      minBirdsOnDumpBeltBuffer: (208 * 0.5).round(),
+      maxBirdsOnDumpBeltBuffer: (208 * 1.5).round(),
+    );
 
     var shackleConveyor = ShackleConveyor(
       area: this,
@@ -236,15 +251,9 @@ class Area extends LiveBirdHandlingArea {
       moduleOutDirection: Direction.clockWise,
     );
 
-    var mainWasher1 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 3.4,
-    );
+    var mainWasher1 = ModuleWasherConveyor(area: this, lengthInMeters: 3.4);
 
-    var mainWasher2 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 3.4,
-    );
+    var mainWasher2 = ModuleWasherConveyor(area: this, lengthInMeters: 3.4);
 
     var mc4 = ModuleConveyor(area: this);
 
@@ -265,7 +274,7 @@ class Area extends LiveBirdHandlingArea {
       //    stackModules: true,
     );
 
-// module transport
+    // module transport
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], cas3.modulesIn);
@@ -311,23 +320,15 @@ class Area extends LiveBirdHandlingArea {
 
     /// bird transport
     systems.link(tilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: loadingConveyor.moduleGroupPlace,
-    ));
+    systems.add(
+      ModuleCasAllocation(
+        area: this,
+        allocationPlace: loadingConveyor.moduleGroupPlace,
+      ),
+    );
 
-    systems.add(ModuleCasStart(
-      area: this,
-      startIntervalFractions: <double>[
-        0.8,
-        1,
-        1.33,
-        1.66,
-        2,
-        2.33,
-      ],
-    ));
+    systems.add(ModuleCasStart(area: this));
   }
 }

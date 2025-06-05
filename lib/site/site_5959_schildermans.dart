@@ -25,13 +25,13 @@ import 'site.dart';
 
 class SchildermansSite extends Site {
   SchildermansSite()
-      : super(
-          meynLayoutNumber: 5959,
-          organizationName: 'Schildermans',
-          city: 'Bree',
-          country: 'Belgium',
-          productDefinitions: ProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 5959,
+        organizationName: 'Schildermans',
+        city: 'Bree',
+        country: 'Belgium',
+        productDefinitions: ProductDefinitions(),
+      );
 }
 
 ///
@@ -101,39 +101,35 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
   static int lineSpeed = 9000;
 
   ProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition)],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: lineSpeed,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment(25),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .marel
-                      .gpl
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(25),
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: lineSpeed,
+          lineShacklePitchInInches: 12,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gpl.l5
+                  .build()
+                  .withBirdsPerCompartment(25),
+              PositionWithinModuleGroup.firstTop: BrandBuilder().marel.gpl.l4
+                  .build()
+                  .withBirdsPerCompartment(25),
+            }),
+          ],
+        ),
+      ]);
 }
 
 class Area extends LiveBirdHandlingArea {
+  static const levelsOfModulesForCasUnits = 2;
+  static const int numberOfModuleStacksForCasUnits = 1;
+
   Area(ProductDefinition productDefinition)
-      : super(
-          lineName: 'Line 1',
-          productDefinition: productDefinition,
-        );
+    : super(lineName: 'Line 1', productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -142,9 +138,7 @@ class Area extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.right,
     );
 
-    var loadingConveyor = ModuleLoadingConveyor(
-      area: this,
-    );
+    var loadingConveyor = ModuleLoadingConveyor(area: this);
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
@@ -161,10 +155,14 @@ class Area extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.north()),
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedOut: true),
+          direction: const CompassDirection.east(),
+          reverseFeedOut: true,
+        ),
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
-            direction: const CompassDirection.west(), reverseFeedIn: true),
+          direction: const CompassDirection.west(),
+          reverseFeedIn: true,
+        ),
       ],
     );
 
@@ -174,7 +172,9 @@ class Area extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.north()),
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedOut: true),
+          direction: const CompassDirection.east(),
+          reverseFeedOut: true,
+        ),
         TurnPosition(direction: const CompassDirection.west()),
       ],
     );
@@ -182,18 +182,24 @@ class Area extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
@@ -218,25 +224,13 @@ class Area extends LiveBirdHandlingArea {
 
     var mc1 = ModuleConveyor(area: this);
 
-    var preWasher = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 3.8,
-    );
+    var preWasher = ModuleWasherConveyor(area: this, lengthInMeters: 3.8);
 
-    var moduleWasher1 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 3.8,
-    );
+    var moduleWasher1 = ModuleWasherConveyor(area: this, lengthInMeters: 3.8);
 
-    var moduleWasher2 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 3.8,
-    );
+    var moduleWasher2 = ModuleWasherConveyor(area: this, lengthInMeters: 3.8);
 
-    var moduleWasher3 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 3.8,
-    );
+    var moduleWasher3 = ModuleWasherConveyor(area: this, lengthInMeters: 3.8);
 
     var buffer1_1 = ModuleBufferAngleTransferInFeed(
       area: this,
@@ -254,7 +248,7 @@ class Area extends LiveBirdHandlingArea {
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-// module transport
+    // module transport
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], mrc2.modulesIns[0]);
@@ -282,17 +276,18 @@ class Area extends LiveBirdHandlingArea {
     systems.link(mc1.modulesOut, stacker.modulesIn);
     systems.link(stacker.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// bird transport
     systems.link(tilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
-    systems.add(ModuleCasAllocation(
-        area: this, allocationPlace: mrc1.moduleGroupPlace));
+    systems.add(
+      ModuleCasAllocation(area: this, allocationPlace: mrc1.moduleGroupPlace),
+    );
 
-    systems.add(ModuleCasStart(
-      area: this,
-    ));
+    systems.add(ModuleCasStart(area: this));
   }
 }

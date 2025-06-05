@@ -42,11 +42,9 @@ class ModuleDeStacker extends StateMachine implements LinkedSystem {
         DefaultLiftPositionHeights.inAndOutFeedHeightInMeters,
     this.liftSpeed = const ElectricModuleLiftSpeedProfile(),
     this.heightsInMeters = const DefaultLiftPositionHeights(),
-  })  : conveyorSpeedProfile = conveyorSpeed ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        super(
-          initialState: CheckIfEmpty(),
-        );
+  }) : conveyorSpeedProfile =
+           conveyorSpeed ?? area.productDefinition.speedProfiles.moduleConveyor,
+       super(initialState: CheckIfEmpty());
 
   /// normaly used for rectangular containers (2 or more columns of compartments)
   late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
@@ -57,18 +55,18 @@ class ModuleDeStacker extends StateMachine implements LinkedSystem {
   /// only used for the first (stacked) square container with 1 column of compartments
   late ModuleGroupPlace onConveyorFirstSingleColumnModulePlace =
       ModuleGroupPlace(
-    system: this,
-    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter
-        .addY(-(DrawerVariant.lengthInMeters + 0.1) / 2),
-  );
+        system: this,
+        offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter
+            .addY(-(DrawerVariant.lengthInMeters + 0.1) / 2),
+      );
 
   /// only used for the second (stacked) square container with 1 column of compartments
   late ModuleGroupPlace onConveyorSecondSingleColumnModulePlace =
       ModuleGroupPlace(
-    system: this,
-    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter
-        .addY((DrawerVariant.lengthInMeters + 0.1) / 2),
-  );
+        system: this,
+        offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter
+            .addY((DrawerVariant.lengthInMeters + 0.1) / 2),
+      );
 
   late ModuleGroupPlace onSupportsPlace = ModuleGroupPlace(
     system: this,
@@ -92,13 +90,14 @@ class ModuleDeStacker extends StateMachine implements LinkedSystem {
     durationUntilCanFeedOut: () => (currentState is WaitToFeedOut)
         ? Duration.zero
         : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
-            currentState),
+            currentState,
+          ),
   );
 
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   late final int seqNr = area.systems.seqNrOf(this);
@@ -115,22 +114,27 @@ class ModuleDeStacker extends StateMachine implements LinkedSystem {
 
   State<ModuleDeStacker> createSimultaneousFeedOutFeedInModuleGroup() =>
       SimultaneousFeedOutFeedInModuleGroup<ModuleDeStacker>(
-          modulesIn: modulesIn,
-          modulesOut: modulesOut,
-          stateWhenCompleted: DecideAfterSimultaneousFeedOutFeedIn(),
-          inFeedDelay: timeBetweenStacksForStopperToGoUpInBetween);
+        modulesIn: modulesIn,
+        modulesOut: modulesOut,
+        stateWhenCompleted: DecideAfterSimultaneousFeedOutFeedIn(),
+        inFeedDelay: timeBetweenStacksForStopperToGoUpInBetween,
+      );
 
-  final Duration timeBetweenStacksForStopperToGoUpInBetween =
-      const Duration(seconds: 6);
+  final Duration timeBetweenStacksForStopperToGoUpInBetween = const Duration(
+    seconds: 6,
+  );
 }
 
 class CheckIfEmpty extends DurationState<ModuleDeStacker> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (deStacker) => deStacker.conveyorSpeedProfile
-                .durationOfDistance(deStacker.shape.yInMeters * 1.5),
-            nextStateFunction: (deStacker) => MoveLift(LiftPosition.inFeed,
-                deStacker.createSimultaneousFeedOutFeedInModuleGroup()));
+    : super(
+        durationFunction: (deStacker) => deStacker.conveyorSpeedProfile
+            .durationOfDistance(deStacker.shape.yInMeters * 1.5),
+        nextStateFunction: (deStacker) => MoveLift(
+          LiftPosition.inFeed,
+          deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
+        ),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -140,12 +144,14 @@ class MoveLift extends DurationState<ModuleDeStacker> implements Detailable {
   final LiftPosition goToPosition;
 
   MoveLift(this.goToPosition, State<ModuleDeStacker> nextState)
-      : super(
-            durationFunction: createDurationFunction(goToPosition),
-            nextStateFunction: (deStacker) => nextState);
+    : super(
+        durationFunction: createDurationFunction(goToPosition),
+        nextStateFunction: (deStacker) => nextState,
+      );
 
   static Duration Function(ModuleDeStacker) createDurationFunction(
-      LiftPosition goToPosition) {
+    LiftPosition goToPosition,
+  ) {
     return (deStacker) {
       var currentHeightInMeter = deStacker.currentHeightInMeter;
       var goToHeightInMeter = deStacker.heightsInMeters[goToPosition]!;
@@ -157,8 +163,10 @@ class MoveLift extends DurationState<ModuleDeStacker> implements Detailable {
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('goToPosition',
-          goToPosition.toString().replaceFirst('$LiftPosition.', ''))
+      .appendProperty(
+        'goToPosition',
+        goToPosition.toString().replaceFirst('$LiftPosition.', ''),
+      )
       .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 
   @override
@@ -190,10 +198,7 @@ class DecideAfterSimultaneousFeedOutFeedIn extends State<ModuleDeStacker> {
     }
 
     if (putTopModuleOnSupports(deStacker)) {
-      return MoveLift(
-        LiftPosition.topModuleAtSupport,
-        CloseModuleSupports(),
-      );
+      return MoveLift(LiftPosition.topModuleAtSupport, CloseModuleSupports());
     }
 
     return null;
@@ -224,16 +229,16 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
   String get name => 'CloseModuleSupports';
 
   CloseModuleSupports()
-      : super(
-          durationFunction: (deStacker) => deStacker.supportsCloseDuration,
-          nextStateFunction: (deStacker) => MoveLift(
-            LiftPosition.outFeed,
-            deStacker.previousSystem is! ModuleDeStacker ||
-                    deStacker.nextSystem is ModuleDeStacker
-                ? WaitToFeedOut()
-                : deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
-          ),
-        );
+    : super(
+        durationFunction: (deStacker) => deStacker.supportsCloseDuration,
+        nextStateFunction: (deStacker) => MoveLift(
+          LiftPosition.outFeed,
+          deStacker.previousSystem is! ModuleDeStacker ||
+                  deStacker.nextSystem is ModuleDeStacker
+              ? WaitToFeedOut()
+              : deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
+        ),
+      );
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
@@ -245,10 +250,11 @@ class CloseModuleSupports extends DurationState<ModuleDeStacker> {
     moduleGroupOnConveyor.remove(PositionWithinModuleGroup.firstTop);
 
     var moduleGroupOnSupports = ModuleGroup(
-        modules: {PositionWithinModuleGroup.firstBottom: module},
-        direction: moduleGroupOnConveyor.direction,
-        destination: moduleGroupOnConveyor.destination,
-        position: AtModuleGroupPlace(deStacker.onSupportsPlace));
+      modules: {PositionWithinModuleGroup.firstBottom: module},
+      direction: moduleGroupOnConveyor.direction,
+      destination: moduleGroupOnConveyor.destination,
+      position: AtModuleGroupPlace(deStacker.onSupportsPlace),
+    );
     deStacker.area.moduleGroups.add(moduleGroupOnSupports);
     deStacker.onSupportsPlace.moduleGroup = moduleGroupOnSupports;
   }
@@ -259,13 +265,13 @@ class OpenModuleSupports extends DurationState<ModuleDeStacker> {
   String get name => 'OpenModuleSupports';
 
   OpenModuleSupports()
-      : super(
-          durationFunction: (deStacker) => deStacker.supportsOpenDuration,
-          nextStateFunction: (deStacker) => MoveLift(
-            LiftPosition.outFeed,
-            deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
-          ),
-        );
+    : super(
+        durationFunction: (deStacker) => deStacker.supportsOpenDuration,
+        nextStateFunction: (deStacker) => MoveLift(
+          LiftPosition.outFeed,
+          deStacker.createSimultaneousFeedOutFeedInModuleGroup(),
+        ),
+      );
 
   @override
   void onCompleted(ModuleDeStacker deStacker) {
@@ -305,15 +311,18 @@ class FeedOut extends State<ModuleDeStacker>
   @override
   void onStart(ModuleDeStacker deStacker) {
     var transportedModuleGroup = deStacker.onConveyorPlace.moduleGroup!;
-    transportedModuleGroup.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(deStacker.modulesOut);
+    transportedModuleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(
+      deStacker.modulesOut,
+    );
   }
 
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (transportCompleted) {
       return MoveLift(
-          LiftPosition.singleModuleAtSupports, OpenModuleSupports());
+        LiftPosition.singleModuleAtSupports,
+        OpenModuleSupports(),
+      );
     }
     return null;
   }
@@ -332,7 +341,8 @@ class WaitToFeedOutFirstStackAndTransportSecondStackToCenter
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
     if (SimultaneousFeedOutFeedInModuleGroup.canFeedIn(
-        (deStacker.nextSystem as StateMachine).currentState)) {
+      (deStacker.nextSystem as StateMachine).currentState,
+    )) {
       return FeedOutFirstStackAndTransportSecondStackToCenter();
     }
     return null;
@@ -340,7 +350,8 @@ class WaitToFeedOutFirstStackAndTransportSecondStackToCenter
 }
 
 class FeedOutFirstStackAndTransportSecondStackToCenter
-    extends State<ModuleDeStacker> implements ModuleTransportCompletedListener {
+    extends State<ModuleDeStacker>
+    implements ModuleTransportCompletedListener {
   bool transportCompleted = false;
 
   @override
@@ -349,23 +360,26 @@ class FeedOutFirstStackAndTransportSecondStackToCenter
   @override
   void onStart(ModuleDeStacker deStacker) {
     var destinationFirstStack = deStacker.modulesOut.linkedTo!;
-    var duration =
-        destinationFirstStack.transportDuration(destinationFirstStack);
+    var duration = destinationFirstStack.transportDuration(
+      destinationFirstStack,
+    );
 
     var secondStack = createSecondStack(deStacker);
     deStacker.onConveyorSecondSingleColumnModulePlace.moduleGroup = secondStack;
     deStacker.area.moduleGroups.add(secondStack);
     secondStack.position = BetweenModuleGroupPlaces(
-        source: deStacker.onConveyorSecondSingleColumnModulePlace,
-        destination: deStacker.onConveyorPlace,
-        duration: duration);
+      source: deStacker.onConveyorSecondSingleColumnModulePlace,
+      destination: deStacker.onConveyorPlace,
+      duration: duration,
+    );
 
     var firstStack = createFirstStack(deStacker);
     deStacker.onConveyorFirstSingleColumnModulePlace.moduleGroup = firstStack;
     firstStack.position = BetweenModuleGroupPlaces(
-        source: deStacker.onConveyorFirstSingleColumnModulePlace,
-        destination: deStacker.modulesOut.linkedTo!.place,
-        duration: duration);
+      source: deStacker.onConveyorFirstSingleColumnModulePlace,
+      destination: deStacker.modulesOut.linkedTo!.place,
+      duration: duration,
+    );
   }
 
   ModuleGroup createFirstStack(ModuleDeStacker deStacker) {
@@ -373,8 +387,9 @@ class FeedOutFirstStackAndTransportSecondStackToCenter
     var moduleGroup = deStacker.onConveyorPlace.moduleGroup!;
     moduleGroup.remove(PositionWithinModuleGroup.secondBottom);
     moduleGroup.remove(PositionWithinModuleGroup.secondTop);
-    moduleGroup.position =
-        AtModuleGroupPlace(deStacker.onConveyorFirstSingleColumnModulePlace);
+    moduleGroup.position = AtModuleGroupPlace(
+      deStacker.onConveyorFirstSingleColumnModulePlace,
+    );
     return moduleGroup;
   }
 
@@ -387,11 +402,13 @@ class FeedOutFirstStackAndTransportSecondStackToCenter
           moduleGroup[PositionWithinModuleGroup.secondTop]!,
     };
     return ModuleGroup(
-        destination: moduleGroup.destination,
-        direction: moduleGroup.direction,
-        modules: modulesOfSecondStack,
-        position: AtModuleGroupPlace(
-            deStacker.onConveyorSecondSingleColumnModulePlace));
+      destination: moduleGroup.destination,
+      direction: moduleGroup.direction,
+      modules: modulesOfSecondStack,
+      position: AtModuleGroupPlace(
+        deStacker.onConveyorSecondSingleColumnModulePlace,
+      ),
+    );
   }
 
   @override

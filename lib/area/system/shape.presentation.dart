@@ -39,26 +39,53 @@ abstract class Shape {
   double get xInMeters;
   double get yInMeters;
 
-  late final ShapeTopLeftOffset topLeft =
-      ShapeTopLeftOffset(shape: this, xInMeters: 0, yInMeters: 0);
-  late final ShapeTopLeftOffset topCenter =
-      ShapeTopLeftOffset(shape: this, xInMeters: xInMeters * 0.5, yInMeters: 0);
-  late final ShapeTopLeftOffset topRight =
-      ShapeTopLeftOffset(shape: this, xInMeters: xInMeters, yInMeters: 0);
+  late final ShapeTopLeftOffset topLeft = ShapeTopLeftOffset(
+    shape: this,
+    xInMeters: 0,
+    yInMeters: 0,
+  );
+  late final ShapeTopLeftOffset topCenter = ShapeTopLeftOffset(
+    shape: this,
+    xInMeters: xInMeters * 0.5,
+    yInMeters: 0,
+  );
+  late final ShapeTopLeftOffset topRight = ShapeTopLeftOffset(
+    shape: this,
+    xInMeters: xInMeters,
+    yInMeters: 0,
+  );
 
-  late final ShapeTopLeftOffset centerLeft =
-      ShapeTopLeftOffset(shape: this, xInMeters: 0, yInMeters: yInMeters * 0.5);
+  late final ShapeTopLeftOffset centerLeft = ShapeTopLeftOffset(
+    shape: this,
+    xInMeters: 0,
+    yInMeters: yInMeters * 0.5,
+  );
   late final ShapeTopLeftOffset centerCenter = ShapeTopLeftOffset(
-      shape: this, xInMeters: xInMeters * 0.5, yInMeters: yInMeters * 0.5);
+    shape: this,
+    xInMeters: xInMeters * 0.5,
+    yInMeters: yInMeters * 0.5,
+  );
   late final ShapeTopLeftOffset centerRight = ShapeTopLeftOffset(
-      shape: this, xInMeters: xInMeters, yInMeters: yInMeters * 0.5);
+    shape: this,
+    xInMeters: xInMeters,
+    yInMeters: yInMeters * 0.5,
+  );
 
-  late final ShapeTopLeftOffset bottomLeft =
-      ShapeTopLeftOffset(shape: this, xInMeters: 0, yInMeters: yInMeters);
+  late final ShapeTopLeftOffset bottomLeft = ShapeTopLeftOffset(
+    shape: this,
+    xInMeters: 0,
+    yInMeters: yInMeters,
+  );
   late final ShapeTopLeftOffset bottomCenter = ShapeTopLeftOffset(
-      shape: this, xInMeters: xInMeters * 0.5, yInMeters: yInMeters);
+    shape: this,
+    xInMeters: xInMeters * 0.5,
+    yInMeters: yInMeters,
+  );
   late final ShapeTopLeftOffset bottomRight = ShapeTopLeftOffset(
-      shape: this, xInMeters: xInMeters, yInMeters: yInMeters);
+    shape: this,
+    xInMeters: xInMeters,
+    yInMeters: yInMeters,
+  );
 
   bool get shouldRepaint => false;
 
@@ -69,25 +96,34 @@ abstract class Shape {
     double sizePerMeter,
   );
 
-  late final SizeInMeters size =
-      SizeInMeters(xInMeters: xInMeters, yInMeters: yInMeters);
+  late final SizeInMeters size = SizeInMeters(
+    xInMeters: xInMeters,
+    yInMeters: yInMeters,
+  );
 }
 
 /// represents the offset from the top left of the shape
 class ShapeTopLeftOffset extends OffsetInMeters {
   final Shape shape;
-  ShapeTopLeftOffset(
-      {required this.shape,
-      required super.xInMeters,
-      required super.yInMeters});
+  ShapeTopLeftOffset({
+    required this.shape,
+    required super.xInMeters,
+    required super.yInMeters,
+  });
 
   @override
   ShapeTopLeftOffset addX(double xMetersToAdd) => ShapeTopLeftOffset(
-      shape: shape, xInMeters: xInMeters + xMetersToAdd, yInMeters: yInMeters);
+    shape: shape,
+    xInMeters: xInMeters + xMetersToAdd,
+    yInMeters: yInMeters,
+  );
 
   @override
   ShapeTopLeftOffset addY(double yMetersToAdd) => ShapeTopLeftOffset(
-      shape: shape, xInMeters: xInMeters, yInMeters: yInMeters + yMetersToAdd);
+    shape: shape,
+    xInMeters: xInMeters,
+    yInMeters: yInMeters + yMetersToAdd,
+  );
 }
 
 class Box extends Shape {
@@ -108,12 +144,14 @@ class Box extends Shape {
     paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
     canvas.drawRect(
-        Rect.fromLTWH(
-            offset.xInMeters * sizePerMeter,
-            offset.yInMeters * sizePerMeter,
-            xInMeters * sizePerMeter,
-            yInMeters * sizePerMeter),
-        paint);
+      Rect.fromLTWH(
+        offset.xInMeters * sizePerMeter,
+        offset.yInMeters * sizePerMeter,
+        xInMeters * sizePerMeter,
+        yInMeters * sizePerMeter,
+      ),
+      paint,
+    );
   }
 }
 
@@ -123,10 +161,11 @@ class BoxWithCurvedSouthSide extends Shape {
   @override
   final double yInMeters;
   final double yCurveInMeters;
-  BoxWithCurvedSouthSide(
-      {required this.xInMeters,
-      required this.yInMeters,
-      required this.yCurveInMeters});
+  BoxWithCurvedSouthSide({
+    required this.xInMeters,
+    required this.yInMeters,
+    required this.yCurveInMeters,
+  });
 
   @override
   void paint(
@@ -175,10 +214,11 @@ class BoxWithCurvedNorthSide extends Shape {
   @override
   final double yInMeters;
   final double yCurveInMeters;
-  BoxWithCurvedNorthSide(
-      {required this.xInMeters,
-      required this.yInMeters,
-      required this.yCurveInMeters});
+  BoxWithCurvedNorthSide({
+    required this.xInMeters,
+    required this.yInMeters,
+    required this.yCurveInMeters,
+  });
 
   @override
   void paint(
@@ -228,8 +268,12 @@ class InvisibleBox extends Box {
   InvisibleBox({required super.xInMeters, required super.yInMeters});
 
   @override
-  void paint(Canvas canvas, LiveBirdsHandlingTheme theme, OffsetInMeters offset,
-      double sizePerMeter) {
+  void paint(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     //no painting (invisible)
   }
 }
@@ -241,8 +285,8 @@ class Circle extends Shape {
   final double yInMeters;
 
   Circle({required double diameterInMeters})
-      : xInMeters = diameterInMeters,
-        yInMeters = diameterInMeters;
+    : xInMeters = diameterInMeters,
+      yInMeters = diameterInMeters;
 
   @override
   void paint(
@@ -254,8 +298,11 @@ class Circle extends Shape {
     var paint = Paint();
     paint.color = theme.machineColor;
     paint.style = PaintingStyle.stroke;
-    canvas.drawCircle(((offset + centerCenter) * sizePerMeter).toOffset(),
-        xInMeters * 0.5 * sizePerMeter, paint);
+    canvas.drawCircle(
+      ((offset + centerCenter) * sizePerMeter).toOffset(),
+      xInMeters * 0.5 * sizePerMeter,
+      paint,
+    );
   }
 }
 
@@ -269,13 +316,15 @@ abstract class CompoundShape extends Shape {
 
   link(ShapeTopLeftOffset anchor1, anchor2) {
     if (!topLefts.keys.contains(anchor1.shape)) {
-      topLefts[anchor1.shape] =
-          topLefts.isEmpty ? OffsetInMeters.zero : anchor1;
+      topLefts[anchor1.shape] = topLefts.isEmpty
+          ? OffsetInMeters.zero
+          : anchor1;
     }
 
     if (topLefts.keys.contains(anchor2.shape)) {
       throw ArgumentError(
-          'the shape of anchor2 was already added. Swap anchor1 and anchor2');
+        'the shape of anchor2 was already added. Swap anchor1 and anchor2',
+      );
     }
     topLefts[anchor2.shape] =
         topLefts[anchor1.shape]! + anchor1 + (anchor2 * -1.0);
@@ -295,8 +344,10 @@ abstract class CompoundShape extends Shape {
       left = min(left, topLeft.xInMeters);
       top = min(top, topLeft.yInMeters);
     }
-    var topLeftCorrection =
-        OffsetInMeters(xInMeters: left * -1, yInMeters: top * -1);
+    var topLeftCorrection = OffsetInMeters(
+      xInMeters: left * -1,
+      yInMeters: top * -1,
+    );
     xInMeters = 0.0;
     yInMeters = 0.0;
     for (var shape in topLefts.keys) {

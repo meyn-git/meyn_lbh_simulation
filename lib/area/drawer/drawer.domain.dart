@@ -18,7 +18,8 @@ class DrawerPlace {
     required this.centerToDrawerCenterWhenSystemFacesNorth,
     StateMachine? stateMachine,
   }) {
-    this.stateMachine = stateMachine ??
+    this.stateMachine =
+        stateMachine ??
         ((system is StateMachine) ? (system as StateMachine) : null);
   }
 }
@@ -44,9 +45,11 @@ class BetweenDrawerPlaces implements DrawerPositionAndSize, TimeProcessor {
 
   bool completed = false;
 
-  final OffsetInMeters drawerCenterToTopLeft = const OffsetInMeters(
-          xInMeters: DrawerVariant.lengthInMeters,
-          yInMeters: DrawerVariant.lengthInMeters) *
+  final OffsetInMeters drawerCenterToTopLeft =
+      const OffsetInMeters(
+        xInMeters: DrawerVariant.lengthInMeters,
+        yInMeters: DrawerVariant.lengthInMeters,
+      ) *
       -0.5;
 
   late final GrandeDrawer transportedDrawer;
@@ -60,11 +63,12 @@ class BetweenDrawerPlaces implements DrawerPositionAndSize, TimeProcessor {
   /// route to travel from [_startPosition] to [_destinationPosition]
   OffsetInMeters? _vector;
 
-  BetweenDrawerPlaces(
-      {required this.drawerRotation,
-      required this.duration,
-      required this.startPlace,
-      required this.destinationPlace});
+  BetweenDrawerPlaces({
+    required this.drawerRotation,
+    required this.duration,
+    required this.startPlace,
+    required this.destinationPlace,
+  });
 
   double get completedFraction =>
       elapsed.inMicroseconds / duration.inMicroseconds;
@@ -75,14 +79,18 @@ class BetweenDrawerPlaces implements DrawerPositionAndSize, TimeProcessor {
   /// top left of [LiveBirdHandlingArea] to drawer center of the start place
   OffsetInMeters startPosition(SystemLayout layout) =>
       _startPosition ??
-      layout.positionOnSystem(startPlace.system,
-          startPlace.centerToDrawerCenterWhenSystemFacesNorth);
+      layout.positionOnSystem(
+        startPlace.system,
+        startPlace.centerToDrawerCenterWhenSystemFacesNorth,
+      );
 
   /// top left of [LiveBirdHandlingArea] to drawer center of the destination place
   OffsetInMeters destinationPosition(SystemLayout layout) =>
       _destinationPosition ??
-      layout.positionOnSystem(destinationPlace.system,
-          destinationPlace.centerToDrawerCenterWhenSystemFacesNorth);
+      layout.positionOnSystem(
+        destinationPlace.system,
+        destinationPlace.centerToDrawerCenterWhenSystemFacesNorth,
+      );
 
   /// route to travel from [_startPosition] to [_destinationPosition]
   OffsetInMeters vector(SystemLayout layout) =>
@@ -113,7 +121,9 @@ class BetweenDrawerPlaces implements DrawerPositionAndSize, TimeProcessor {
   void onStart() {
     if (startPlace.drawer == null) {
       throw ArgumentError(
-          'is null', 'startPlace.drawer of ${startPlace.system.name}');
+        'is null',
+        'startPlace.drawer of ${startPlace.system.name}',
+      );
     }
     transportedDrawer = startPlace.drawer!;
 
@@ -165,9 +175,11 @@ abstract class DrawerTransportCompletedListener {
 
 class AtDrawerPlace implements DrawerPositionAndSize {
   final DrawerPlace drawerPlace;
-  final OffsetInMeters drawerCenterToTopLeft = const OffsetInMeters(
-          xInMeters: DrawerVariant.lengthInMeters,
-          yInMeters: DrawerVariant.lengthInMeters) *
+  final OffsetInMeters drawerCenterToTopLeft =
+      const OffsetInMeters(
+        xInMeters: DrawerVariant.lengthInMeters,
+        yInMeters: DrawerVariant.lengthInMeters,
+      ) *
       -0.5;
 
   OffsetInMeters? _topLeft;
@@ -184,7 +196,9 @@ class AtDrawerPlace implements DrawerPositionAndSize {
   @override
   OffsetInMeters topLeft(SystemLayout layout) =>
       _topLeft ??
-      layout.positionOnSystem(drawerPlace.system,
-              drawerPlace.centerToDrawerCenterWhenSystemFacesNorth) +
+      layout.positionOnSystem(
+            drawerPlace.system,
+            drawerPlace.centerToDrawerCenterWhenSystemFacesNorth,
+          ) +
           drawerCenterToTopLeft;
 }

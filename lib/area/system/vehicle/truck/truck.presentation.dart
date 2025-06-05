@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class TruckPainter extends ShapePainter {
   TruckPainter(BoxTruck truck, LiveBirdsHandlingTheme theme)
-      : super(shape: truck.shape, theme: theme);
+    : super(shape: truck.shape, theme: theme);
 }
 
 class TruckShape extends TrailerPullerShape {
@@ -18,11 +18,14 @@ class TruckShape extends TrailerPullerShape {
   late List<OffsetInMeters> centerToModuleGroupCenters;
 
   TruckShape(BoxTruck truck) {
-    var cabin =
-        Box(xInMeters: truck.widthInMeter, yInMeters: truck.cabinLengthInMeter);
+    var cabin = Box(
+      xInMeters: truck.widthInMeter,
+      yInMeters: truck.cabinLengthInMeter,
+    );
     var cargoFloor = Box(
-        xInMeters: truck.widthInMeter,
-        yInMeters: truck.cargoFloorLengthInMeter);
+      xInMeters: truck.widthInMeter,
+      yInMeters: truck.cargoFloorLengthInMeter,
+    );
     var leftWheels = <Box>[];
     var rightWheels = <Box>[];
     for (int i = 0; i < 3; i++) {
@@ -44,10 +47,13 @@ class TruckShape extends TrailerPullerShape {
         (topLefts[leftWheels.last]! + leftWheels.last.centerLeft).yInMeters;
     centerToAxcelCenterInMeters = (topToBackAxcel - topToFrontAxcel) / 2;
     var topToAxcelCenter = topToFrontAxcel + centerToAxcelCenterInMeters;
-    var lengthToAdd = topToAxcelCenter * 2 -
+    var lengthToAdd =
+        topToAxcelCenter * 2 -
         (topLefts[cargoFloor]! + cargoFloor.bottomCenter).yInMeters;
-    var paddingToMoveCenterPoint =
-        InvisibleBox(xInMeters: 1, yInMeters: lengthToAdd);
+    var paddingToMoveCenterPoint = InvisibleBox(
+      xInMeters: 1,
+      yInMeters: lengthToAdd,
+    );
 
     link(cabin.topCenter, paddingToMoveCenterPoint.bottomCenter);
 
@@ -58,24 +64,30 @@ class TruckShape extends TrailerPullerShape {
   }
 
   List<OffsetInMeters> _createCenterToModuleGroupCentersWhenFacingNorth(
-      BoxTruck truck, Box cargoFloor) {
+    BoxTruck truck,
+    Box cargoFloor,
+  ) {
     var betweenModulesInMeters = 0.02;
     var centerToModuleGroupCenters = <OffsetInMeters>[];
 
     var moduleSizeInMeters =
         truck.routes.area.productDefinition.truckRows.first.footprintOnSystem;
     var centerToModuleCenter = OffsetInMeters(
-        xInMeters: 0,
-        yInMeters: centerCenter.yInMeters -
-            topLefts[cargoFloor]!.yInMeters +
-            betweenModulesInMeters / 2 +
-            moduleSizeInMeters.xInMeters / 2);
-    var numberOfModules = cargoFloor.yInMeters ~/
+      xInMeters: 0,
+      yInMeters:
+          centerCenter.yInMeters -
+          topLefts[cargoFloor]!.yInMeters +
+          betweenModulesInMeters / 2 +
+          moduleSizeInMeters.xInMeters / 2,
+    );
+    var numberOfModules =
+        cargoFloor.yInMeters ~/
         (moduleSizeInMeters.xInMeters + betweenModulesInMeters);
     for (int i = 0; i < numberOfModules; i++) {
       centerToModuleGroupCenters.add(centerToModuleCenter);
-      centerToModuleCenter
-          .addY(betweenModulesInMeters + moduleSizeInMeters.xInMeters);
+      centerToModuleCenter.addY(
+        betweenModulesInMeters + moduleSizeInMeters.xInMeters,
+      );
     }
     return centerToModuleGroupCenters;
   }

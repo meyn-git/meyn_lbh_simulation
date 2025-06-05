@@ -14,6 +14,13 @@ class ObjectDetails {
     return this;
   }
 
+  ObjectDetails appendObjectDetails(ObjectDetails objectDetails) {
+    var name = objectDetails.name;
+    validateName(name);
+    properties[name] = objectDetails;
+    return this;
+  }
+
   void validateName(String name) {
     if (name.trim().isEmpty) {
       throw ArgumentError('May not be empty', 'name');
@@ -84,8 +91,11 @@ class ObjectDetails {
     if (propertyValue is Detailable) {
       return propertyValue.objectDetails.toString();
     }
+    if (propertyValue is ObjectDetails) {
+      return propertyValue.propertiesToString(1);
+    }
     if (propertyValue is Enum) {
-      return _formatedEnum(propertyValue);
+      return _formattedEnum(propertyValue);
     }
     return propertyValue.toString();
   }
@@ -95,7 +105,7 @@ class ObjectDetails {
     return '${durationString.substring(0, durationString.length - 5)}s';
   }
 
-  String _formatedEnum(Enum propertyValue) =>
+  String _formattedEnum(Enum propertyValue) =>
       propertyValue.toString().split('.').last;
 }
 

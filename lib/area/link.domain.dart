@@ -2,8 +2,10 @@ import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 
-abstract class Link<OWNER extends LinkedSystem,
-    LINKED_TO extends Link<LinkedSystem, dynamic>> {
+abstract class Link<
+  OWNER extends LinkedSystem,
+  LINKED_TO extends Link<LinkedSystem, dynamic>
+> {
   /// the [LinkedSystem] that owns the [Link]
   final OWNER system;
   final OffsetInMeters offsetFromCenterWhenFacingNorth;
@@ -67,23 +69,28 @@ class DrawersInLink<OWNER extends LinkedSystem>
 
 class DrawersOutLink<OWNER extends LinkedSystem>
     extends Link<OWNER, DrawersInLink> {
-  DrawersOutLink(
-      {required super.system,
-      required super.offsetFromCenterWhenFacingNorth,
-      required super.directionToOtherLink});
+  DrawersOutLink({
+    required super.system,
+    required super.offsetFromCenterWhenFacingNorth,
+    required super.directionToOtherLink,
+  });
 }
 
 Duration moduleTransportDuration(
-    ModuleGroupInLink<LinkedSystem> inLink, SpeedProfile conveyorSpeedProfile) {
+  ModuleGroupInLink<LinkedSystem> inLink,
+  SpeedProfile conveyorSpeedProfile,
+) {
   var source = inLink.linkedTo!;
   var destination = inLink;
   var distanceInMeters =
       source.distanceToFeedOutInMeters + destination.distanceToFeedInInMeters;
   var duration = conveyorSpeedProfile.durationOfDistance(distanceInMeters);
-  print('${source.system.name}-${destination.system.name}: '
-      '${source.distanceToFeedOutInMeters} + '
-      '${destination.distanceToFeedInInMeters} ='
-      ' $distanceInMeters m = ${(duration.inMilliseconds / 1000)} s');
+  print(
+    '${source.system.name}-${destination.system.name}: '
+    '${source.distanceToFeedOutInMeters} + '
+    '${destination.distanceToFeedInInMeters} ='
+    ' $distanceInMeters m = ${(duration.inMilliseconds / 1000)} s',
+  );
 
   return duration;
 }
@@ -144,8 +151,10 @@ class ModuleGroupOutLink<OWNER extends LinkedSystem>
     required this.durationUntilCanFeedOut,
   }) : super(system: (place.system as OWNER));
 
-  ModuleGroupRoute? findRoute(
-      {required LinkedSystem destination, ModuleGroupRoute? routeSoFar}) {
+  ModuleGroupRoute? findRoute({
+    required LinkedSystem destination,
+    ModuleGroupRoute? routeSoFar,
+  }) {
     routeSoFar ??= ModuleGroupRoute([]);
     routeSoFar.add(this);
 
@@ -158,9 +167,9 @@ class ModuleGroupOutLink<OWNER extends LinkedSystem>
       // failed: no neighbor
       return null;
     }
-    var outLinks = neighbor.links
-        .whereType<ModuleGroupOutLink>()
-        .where((outLink) => outLink.linkedTo != null);
+    var outLinks = neighbor.links.whereType<ModuleGroupOutLink>().where(
+      (outLink) => outLink.linkedTo != null,
+    );
     for (var outLink in outLinks) {
       if (hasNoRoundTrips(routeSoFar, outLink)) {
         // recursive call
@@ -179,7 +188,9 @@ class ModuleGroupOutLink<OWNER extends LinkedSystem>
   }
 
   bool hasNoRoundTrips(
-          ModuleGroupRoute route, ModuleGroupOutLink<LinkedSystem> linkToAdd) =>
+    ModuleGroupRoute route,
+    ModuleGroupOutLink<LinkedSystem> linkToAdd,
+  ) =>
       //    !route.systems.contains(linkToAdd.system) &&
       !route.systems.contains(linkToAdd.linkedTo!.system);
 
@@ -194,15 +205,10 @@ const Duration unknownDuration = Duration(days: 999);
 
 class BirdsInLink<OWNER extends LinkedSystem>
     extends Link<OWNER, BirdsOutLink> {
-  final bool Function() canReceiveBirds;
-  final void Function(int numberOfBirds) transferBirds;
-
   BirdsInLink({
     required super.system,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
-    required this.canReceiveBirds,
-    required this.transferBirds,
   });
 
   @override
@@ -212,42 +218,18 @@ class BirdsInLink<OWNER extends LinkedSystem>
 
 class BirdsOutLink<OWNER extends LinkedSystem>
     extends Link<OWNER, BirdsInLink> {
+  final int Function() availableBirds;
+  final void Function(int numberOfBirds) transferBirds;
+
   BirdsOutLink({
     required super.system,
     required super.offsetFromCenterWhenFacingNorth,
     required super.directionToOtherLink,
+    required this.availableBirds,
+    required this.transferBirds,
   });
 
   @override
   String toString() =>
       "BirdsOutLink from: ${system.name} ${linkedTo?.system.name ?? ''}'}";
-}
-
-class BirdInLink<OWNER extends LinkedSystem> extends Link<OWNER, BirdOutLink> {
-  final bool Function() canReceiveBird;
-  final void Function() transferBird;
-
-  BirdInLink({
-    required super.system,
-    required super.offsetFromCenterWhenFacingNorth,
-    required super.directionToOtherLink,
-    required this.canReceiveBird,
-    required this.transferBird,
-  });
-
-  @override
-  String toString() =>
-      "BirdInLink from: ${system.name} ${linkedTo?.system.name ?? ''}";
-}
-
-class BirdOutLink<OWNER extends LinkedSystem> extends Link<OWNER, BirdInLink> {
-  BirdOutLink({
-    required super.system,
-    required super.offsetFromCenterWhenFacingNorth,
-    required super.directionToOtherLink,
-  });
-
-  @override
-  String toString() =>
-      "BirdOutLink from: ${system.name} ${linkedTo?.system.name ?? ''}'}";
 }

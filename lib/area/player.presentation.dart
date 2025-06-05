@@ -87,19 +87,23 @@ class PlayerPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      if (_tooSmallForExtraPanels(constraints)) {
-        return areaPanel;
-      } else {
-        return Row(
-          children: [
-            Expanded(child: areaPanel),
-            const SizedBox(
-                width: _minimumSizeForExtraPanels, child: MonitorPanel())
-          ],
-        );
-      }
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (_tooSmallForExtraPanels(constraints)) {
+          return areaPanel;
+        } else {
+          return Row(
+            children: [
+              Expanded(child: areaPanel),
+              const SizedBox(
+                width: _minimumSizeForExtraPanels,
+                child: MonitorPanel(),
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 
   static const _minimumSizeForExtraPanels = 400.0;
@@ -121,23 +125,24 @@ class ScenarioTile extends StatefulWidget {
 class _ScenarioTileState extends State<ScenarioTile> {
   @override
   Widget build(BuildContext context) => ListTile(
-        title: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Text(_createText()),
-        ),
-        onTap: () {
-          setState(() {
-            _closeDialog(context);
-            widget.player.start(widget.scenario);
-          });
-        },
-      );
+    title: Padding(
+      padding: const EdgeInsets.only(left: 20),
+      child: Text(_createText()),
+    ),
+    onTap: () {
+      setState(() {
+        _closeDialog(context);
+        widget.player.start(widget.scenario);
+      });
+    },
+  );
 
   void _closeDialog(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
   }
 
-  String _createText() => '${widget.scenario.area.lineName}\n'
+  String _createText() =>
+      '${widget.scenario.area.lineName}\n'
       '${widget.scenario.area.productDefinition.birdType}\n'
       '${widget.scenario.area.productDefinition.lineSpeedInShacklesPerHour}b/h ${widget.scenario.area.productDefinition.truckRows.join(' ')}';
 }
@@ -149,7 +154,8 @@ class SiteTile extends StatelessWidget {
 
   String get _emailSubject => 'Invitation to the $applicationTitle';
 
-  String get _emailBody => 'Dear Madam or Sir,\n\n'
+  String get _emailBody =>
+      'Dear Madam or Sir,\n\n'
       'We would like to invite you to look at the: $applicationTitle.\n\n'
       'Please:\n'
       '- Open it on the following link: https://meyn-git.github.io/meyn_lbh_simulation_web/\n'
@@ -163,22 +169,23 @@ class SiteTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-        title: Text(
-          _createText(),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        trailing: _isAdmin
-            ? IconButton(
-                icon: const Icon(Icons.mail_outline),
-                tooltip: 'Send invitation e-mail',
-                onPressed: () {
-                  _sendEmail();
-                },
-              )
-            : null,
-      );
+    title: Text(
+      _createText(),
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+    trailing: _isAdmin
+        ? IconButton(
+            icon: const Icon(Icons.mail_outline),
+            tooltip: 'Send invitation e-mail',
+            onPressed: () {
+              _sendEmail();
+            },
+          )
+        : null,
+  );
 
-  String _createText() => '${site.meynLayoutCode}-${site.organizationName}\n'
+  String _createText() =>
+      '${site.meynLayoutCode}-${site.organizationName}\n'
       '${site.city}-${site.country}';
 
   Future<void> _sendEmail() async {
@@ -189,7 +196,8 @@ class SiteTile extends StatelessWidget {
   bool get _isAdmin => GetIt.instance<AuthorizationService>().isAdmin;
 
   Uri _createEmailUrl() => Uri.parse(
-      Uri.encodeFull('mailto:?subject=$_emailSubject&body=$_emailBody'));
+    Uri.encodeFull('mailto:?subject=$_emailSubject&body=$_emailBody'),
+  );
 }
 
 class SpeedDropDownButton extends StatefulWidget {
@@ -231,7 +239,8 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
                 Text(
                   'x${player.speed}',
                   style: TextStyle(
-                      color: Theme.of(context).appBarTheme.foregroundColor),
+                    color: Theme.of(context).appBarTheme.foregroundColor,
+                  ),
                 ),
               ],
             );
@@ -242,8 +251,10 @@ class _SpeedDropDownButtonState extends State<SpeedDropDownButton> {
             value: value,
             child: Row(
               children: [
-                Icon(Icons.speed_rounded,
-                    color: Theme.of(context).colorScheme.onSurface),
+                Icon(
+                  Icons.speed_rounded,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 Text('x$value'),
               ],
             ),
@@ -268,63 +279,65 @@ class _MenuState extends State<Menu> {
 
   @override
   Widget build(BuildContext context) => Drawer(
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Menu'),
-          ),
-          body: Scrollbar(
-            thumbVisibility: true,
-            controller: _scrollController,
-            child: ListView(
-              padding: EdgeInsets.zero,
-              controller: _scrollController,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.logout_outlined),
-                  title: const Text('Logout'),
-                  onTap: () {
-                    setState(() {
-                      _hideMenu(context);
-                      _logout(context);
-                    });
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text('About'),
-                  onTap: () {
-                    setState(() {
-                      _hideMenu(context);
-                      _showAboutDialog();
-                    });
-                  },
-                ),
-                ..._createListItems(_player),
-              ],
+    child: Scaffold(
+      appBar: AppBar(title: const Text('Menu')),
+      body: Scrollbar(
+        thumbVisibility: true,
+        controller: _scrollController,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          controller: _scrollController,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.logout_outlined),
+              title: const Text('Logout'),
+              onTap: () {
+                setState(() {
+                  _hideMenu(context);
+                  _logout(context);
+                });
+              },
             ),
-          ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About'),
+              onTap: () {
+                setState(() {
+                  _hideMenu(context);
+                  _showAboutDialog();
+                });
+              },
+            ),
+            ..._createListItems(_player),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 
   void _hideMenu(BuildContext context) {
     Navigator.pop(context);
   }
 
   void _showAboutDialog() => showAboutDialog(
-      context: context,
-      applicationLegalese: 'The 3-Clause BSD License:\n\n'
-          'Copyright 2021 Meyn Food Processing Technology\n\n'
-          'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
-          '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
-          '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'
-          '3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\n'
-          'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.');
+    context: context,
+    applicationLegalese:
+        'The 3-Clause BSD License:\n\n'
+        'Copyright 2021 Meyn Food Processing Technology\n\n'
+        'Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n'
+        '1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n'
+        '2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n'
+        '3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.\n\n'
+        'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.',
+  );
 
   void _logout(BuildContext context) {
     var authorizationService = GetIt.instance<AuthorizationService>();
     authorizationService.logout();
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => const LoginPage()));
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+    );
   }
 
   List<Widget> _createListItems(Player player) {

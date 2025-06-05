@@ -19,130 +19,133 @@ import 'package:meyn_lbh_simulation/site/site.dart';
 
 class HaerlandSite extends Site {
   HaerlandSite()
-      : super(
-          meynLayoutNumber: 5246,
-          organizationName: 'Nortura',
-          city: 'Haerland',
-          country: 'Norway',
-          productDefinitions: HaerlandProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 5246,
+        organizationName: 'Nortura',
+        city: 'Haerland',
+        country: 'Norway',
+        productDefinitions: HaerlandProductDefinitions(),
+      );
 }
 
 class HaerlandProductDefinitions extends DelegatingList<ProductDefinition> {
   static int birdsPerCompartment = 34 * 2;
 
   HaerlandProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: _areaFactoryTurkey(),
-              birdType: 'Small Turkeys',
-              lineSpeedInShacklesPerHour: 950,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .turkey
-                      .build()
-                      .withBirdsPerCompartment(8),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactoryTurkey(),
-              birdType: 'Big Turkeys',
-              lineSpeedInShacklesPerHour: 800,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .turkey
-                      .build()
-                      .withBirdsPerCompartment(3),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: _areaFactoryTurkey(),
-              birdType: 'Breeder Turkeys',
-              lineSpeedInShacklesPerHour: 100,
-              lineShacklePitchInInches: 12,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .angliaAutoFlow
-                      .turkey
-                      .build()
-                      .withBirdsPerCompartment(1),
-                })
-              ]),
+    : super([
+        ProductDefinition(
+          areaFactory: _areaFactoryTurkey(),
+          birdType: 'Small Turkeys',
+          lineSpeedInShacklesPerHour: 950,
+          lineShacklePitchInInches: 12,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .turkey
+                  .build()
+                  .withBirdsPerCompartment(8),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: _areaFactoryTurkey(),
+          birdType: 'Big Turkeys',
+          lineSpeedInShacklesPerHour: 800,
+          lineShacklePitchInInches: 12,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .turkey
+                  .build()
+                  .withBirdsPerCompartment(3),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: _areaFactoryTurkey(),
+          birdType: 'Breeder Turkeys',
+          lineSpeedInShacklesPerHour: 100,
+          lineShacklePitchInInches: 12,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .angliaAutoFlow
+                  .turkey
+                  .build()
+                  .withBirdsPerCompartment(1),
+            }),
+          ],
+        ),
 
-          // /// Lost chicken line to Marel Atlas
-          // ProductDefinition(
-          //     areaFactory: _areaFactoryChicken(),
-          //     birdType: 'Chickens',
-          //     lineSpeedInShacklesPerHour: 12500,
-          //     lineShacklePitchInInches: 6,
-          //     casRecipe: const CasRecipe.standardChickenRecipe(),
-          //     truckRows: [
-          //       TruckRow({
-          //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
-          //             .marel
-          //             .gps
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(birdsPerCompartment),
-          //         PositionWithinModuleGroup.firstTop: BrandBuilder()
-          //             .marel
-          //             .gps
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(birdsPerCompartment),
-          //       })
-          //     ]),
-          // ProductDefinition(
-          //     areaFactory: _areaFactoryChicken(),
-          //     birdType: 'Chickens',
-          //     lineSpeedInShacklesPerHour: 15000,
-          //     lineShacklePitchInInches: 6,
-          //     casRecipe: const CasRecipe.standardChickenRecipe(),
-          //     truckRows: [
-          //       TruckRow({
-          //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
-          //             .marel
-          //             .gps
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(birdsPerCompartment),
-          //         PositionWithinModuleGroup.firstTop: BrandBuilder()
-          //             .marel
-          //             .gps
-          //             .l4
-          //             .build()
-          //             .withBirdsPerCompartment(birdsPerCompartment),
-          //       })
-          //     ]),
-        ]);
+        // /// Lost chicken line to Marel Atlas
+        // ProductDefinition(
+        //     areaFactory: _areaFactoryChicken(),
+        //     birdType: 'Chickens',
+        //     lineSpeedInShacklesPerHour: 12500,
+        //     lineShacklePitchInInches: 6,
+        //     casRecipe: const CasRecipe.standardChickenRecipe(),
+        //     truckRows: [
+        //       TruckRow({
+        //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
+        //             .marel
+        //             .gps
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(birdsPerCompartment),
+        //         PositionWithinModuleGroup.firstTop: BrandBuilder()
+        //             .marel
+        //             .gps
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(birdsPerCompartment),
+        //       })
+        //     ]),
+        // ProductDefinition(
+        //     areaFactory: _areaFactoryChicken(),
+        //     birdType: 'Chickens',
+        //     lineSpeedInShacklesPerHour: 15000,
+        //     lineShacklePitchInInches: 6,
+        //     casRecipe: const CasRecipe.standardChickenRecipe(),
+        //     truckRows: [
+        //       TruckRow({
+        //         PositionWithinModuleGroup.firstBottom: BrandBuilder()
+        //             .marel
+        //             .gps
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(birdsPerCompartment),
+        //         PositionWithinModuleGroup.firstTop: BrandBuilder()
+        //             .marel
+        //             .gps
+        //             .l4
+        //             .build()
+        //             .withBirdsPerCompartment(birdsPerCompartment),
+        //       })
+        //     ]),
+      ]);
 
   // static List<LiveBirdHandlingArea> Function(ProductDefinition)
   //     _areaFactoryChicken() => (ProductDefinition productDefinition) =>
   //         [HaerlandLiveBirdHandlingChickenArea(productDefinition)];
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactoryTurkey() => (ProductDefinition productDefinition) =>
-          [HaerlandLiveBirdHandlingTurkeyArea(productDefinition)];
+  _areaFactoryTurkey() =>
+      (ProductDefinition productDefinition) => [
+        HaerlandLiveBirdHandlingTurkeyArea(productDefinition),
+      ];
 }
 
 class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
   static const double drawerSpeedInMetersPerSecond = 0.4;
-
+  static const int levelsOfModulesForCasUnits = 1;
+  static const int numberOfModuleStacksForCasUnits = 1;
   HaerlandLiveBirdHandlingTurkeyArea(ProductDefinition productDefinition)
-      : super(
-          lineName: 'Turkey Line',
-          productDefinition: productDefinition,
-        );
+    : super(lineName: 'Turkey Line', productDefinition: productDefinition);
 
   /// See "\\meyn.nl\project\acaddrwg\5246 Nortura Haerland - Norway\2023\02 - Meyn drawings\Sales\5246sb06z0001-Model.pdf"
   @override
@@ -199,31 +202,42 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var unloader = ModuleDrawerRowUnloader(
-        area: this, drawerOutDirection: Direction.counterClockWise);
+      area: this,
+      drawerOutDirection: Direction.counterClockWise,
+    );
 
     var receiver = ModuleDrawerRowUnloaderReceiver(
-        area: this,
-        drawerOutDirection: Direction.counterClockWise,
-        crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond);
+      area: this,
+      drawerOutDirection: Direction.counterClockWise,
+      crossOverFeedOutMetersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var drawerConveyor = DrawerConveyorStraight(
-        lengthInMeters: 7, metersPerSecond: drawerSpeedInMetersPerSecond);
+      lengthInMeters: 7,
+      metersPerSecond: drawerSpeedInMetersPerSecond,
+    );
 
     var hangingConveyor = DrawerHangingConveyor(
       allDrawers: drawers,
@@ -265,7 +279,9 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
     systems.link(unloader.modulesOut, mrc4.modulesIns[0]);
     systems.link(mrc4.modulesOuts[1], unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// drawer transport
     systems.link(unloader.drawersOut, receiver.drawersIn);
@@ -275,10 +291,9 @@ class HaerlandLiveBirdHandlingTurkeyArea extends LiveBirdHandlingArea {
 
     systems.add(ModuleCasStart(area: this));
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: mc1.moduleGroupPlace,
-    ));
+    systems.add(
+      ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace),
+    );
   }
 }
 

@@ -15,11 +15,7 @@ import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 import '../vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
 
-enum ModuleDoor {
-  rollDoorUp,
-  slideDoorToLeft,
-  slideDoorToRight,
-}
+enum ModuleDoor { rollDoorUp, slideDoorToLeft, slideDoorToRight }
 
 class ModuleCas extends StateMachine implements LinkedSystem {
   final LiveBirdHandlingArea area;
@@ -29,6 +25,8 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   final ModuleDoor moduleDoor;
   final Duration closeDoorDuration;
   final Duration openDoorDuration;
+  final int numberOfModuleStacks;
+  final int levelsOfModules;
   Duration waitingForStartDuration = Duration.zero;
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -40,22 +38,25 @@ class ModuleCas extends StateMachine implements LinkedSystem {
     required this.area,
     required this.moduleDoor,
     required this.gasDuctsLeft,
+    required this.numberOfModuleStacks,
+    required this.levelsOfModules,
     Duration? closeDoorDuration,
     Duration? openDoorDuration,
     SpeedProfile? conveyorSpeedProfile,
-  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        closeDoorDuration = closeDoorDuration ??
-            (moduleDoor == ModuleDoor.rollDoorUp
-                ? const Duration(seconds: 3)
-                : const Duration(seconds: 6)),
-        openDoorDuration = openDoorDuration ??
-            (moduleDoor == ModuleDoor.rollDoorUp
-                ? const Duration(seconds: 3)
-                : const Duration(seconds: 6)),
-        super(
-          initialState: CheckIfEmpty(),
-        ) {
+  }) : conveyorSpeedProfile =
+           conveyorSpeedProfile ??
+           area.productDefinition.speedProfiles.moduleConveyor,
+       closeDoorDuration =
+           closeDoorDuration ??
+           (moduleDoor == ModuleDoor.rollDoorUp
+               ? const Duration(seconds: 3)
+               : const Duration(seconds: 6)),
+       openDoorDuration =
+           openDoorDuration ??
+           (moduleDoor == ModuleDoor.rollDoorUp
+               ? const Duration(seconds: 3)
+               : const Duration(seconds: 6)),
+       super(initialState: CheckIfEmpty()) {
     _verifyCasRecipeIsDefined();
     recipe = area.productDefinition.casRecipe!;
   }
@@ -69,11 +70,13 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   bool get waitingToFeedOut => currentState is WaitToFeedOut;
 
   LinkedSystem get moduleGroupDestinationAfterStunning {
-    var unLoadingForkLiftTruck = area.systems.linkedSystems
-        .firstWhereOrNull((system) => system is UnLoadingForkLiftTruck);
+    var unLoadingForkLiftTruck = area.systems.linkedSystems.firstWhereOrNull(
+      (system) => system is UnLoadingForkLiftTruck,
+    );
     if (unLoadingForkLiftTruck == null) {
       throw Exception(
-          'The $LiveBirdHandlingArea MUST have a $UnLoadingForkLiftTruck.');
+        'The $LiveBirdHandlingArea MUST have a $UnLoadingForkLiftTruck.',
+      );
     }
     return unLoadingForkLiftTruck;
   }
@@ -94,32 +97,36 @@ class ModuleCas extends StateMachine implements LinkedSystem {
       (currentState as WaitForStart).start();
     } else {
       throw Exception(
-          'Can not start $name, because it is in $currentState state and not in $WaitForStart state.');
+        'Can not start $name, because it is in $currentState state and not in $WaitForStart state.',
+      );
     }
   }
 
   void _verifyCasRecipeIsDefined() {
     if (area.productDefinition.casRecipe == null) {
       throw ArgumentError(
-          '$LiveBirdHandlingArea error: You must specify the casRecipe in the layout when it contains one or more $ModuleCas');
+        '$LiveBirdHandlingArea error: You must specify the casRecipe in the layout when it contains one or more $ModuleCas',
+      );
     }
   }
 
   late ModuleCasShape shape = ModuleCasShape(this);
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-      place: moduleGroupPlace,
-      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
-      directionToOtherLink: const CompassDirection.south(),
-      transportDuration: (inLink) =>
-          moduleTransportDuration(inLink, conveyorSpeedProfile),
-      canFeedIn: () => canFeedIn);
+    place: moduleGroupPlace,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
+    directionToOtherLink: const CompassDirection.south(),
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
+    canFeedIn: () => canFeedIn,
+  );
 
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
-      place: moduleGroupPlace,
-      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
-      directionToOtherLink: const CompassDirection.south(),
-      durationUntilCanFeedOut: () => durationUntilCanFeedOut);
+    place: moduleGroupPlace,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInOutLink,
+    directionToOtherLink: const CompassDirection.south(),
+    durationUntilCanFeedOut: () => durationUntilCanFeedOut,
+  );
 
   get durationUntilCanFeedOut {
     if (currentState is OpenSlideDoor) {
@@ -138,7 +145,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   @override
@@ -151,6 +158,8 @@ class ModuleCas extends StateMachine implements LinkedSystem {
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToCabinCenter,
   );
+
+  late final int numberOfModules = numberOfModuleStacks * levelsOfModules;
 }
 
 class CasRecipe {
@@ -160,57 +169,61 @@ class CasRecipe {
   const CasRecipe(this.stunStageDurations, this.exhaustDuration);
 
   const CasRecipe.standardChickenRecipe()
-      : this(const [
-          Duration(seconds: 60), //18%
-          Duration(seconds: 60), //28%
-          Duration(seconds: 60), //33%
-          Duration(seconds: 60), //38%
-          Duration(seconds: 120) //67%
-        ], const Duration(seconds: 30));
+    : this(const [
+        Duration(seconds: 60), //18%
+        Duration(seconds: 60), //28%
+        Duration(seconds: 60), //33%
+        Duration(seconds: 60), //38%
+        Duration(seconds: 120), //67%
+      ], const Duration(seconds: 30));
 
   const CasRecipe.standardTurkeyRecipe()
-      : this(const [
-          Duration(seconds: 40), //22%
-          Duration(seconds: 40), //34%
-          Duration(seconds: 40), //43%
-          Duration(seconds: 120) //67%
-        ], const Duration(seconds: 30));
+    : this(const [
+        Duration(seconds: 40), //22%
+        Duration(seconds: 40), //34%
+        Duration(seconds: 40), //43%
+        Duration(seconds: 120), //67%
+      ], const Duration(seconds: 30));
 
   const CasRecipe.turkeyRecipeAtIndrolAtInstallation()
-      : this(const [
-          Duration(seconds: 35), //35%
-          Duration(seconds: 35), //43%
-          Duration(seconds: 30), //58%
-          Duration(seconds: 110) //72%
-        ], const Duration(seconds: 30));
+    : this(const [
+        Duration(seconds: 35), //35%
+        Duration(seconds: 35), //43%
+        Duration(seconds: 30), //58%
+        Duration(seconds: 110), //72%
+      ], const Duration(seconds: 30));
 
-//info from Maurizio on site @ 2024-09-18
+  //info from Maurizio on site @ 2024-09-18
   const CasRecipe.femaleTurkeyRecipeAtIndrol()
-      : this(const [
-          Duration(seconds: 35), //32%
-          Duration(seconds: 35), //38%
-          Duration(seconds: 30), //43%
-          Duration(seconds: 110) //72%
-        ], const Duration(seconds: 30));
+    : this(const [
+        Duration(seconds: 35), //32%
+        Duration(seconds: 35), //38%
+        Duration(seconds: 30), //43%
+        Duration(seconds: 110), //72%
+      ], const Duration(seconds: 30));
 
-//info from Maurizio on site @ 2024-09-18
+  //info from Maurizio on site @ 2024-09-18
   const CasRecipe.maleTurkeyRecipeAtIndrol()
-      : this(const [
-          Duration(seconds: 30), //32%
-          Duration(seconds: 30), //38%
-          Duration(seconds: 70), //72%
-          Duration(seconds: 100) //82%
-        ], const Duration(seconds: 30));
+    : this(const [
+        Duration(seconds: 30), //32%
+        Duration(seconds: 30), //38%
+        Duration(seconds: 70), //72%
+        Duration(seconds: 100), //82%
+      ], const Duration(seconds: 30));
+
+  Duration totalDurationWithoutModuleTransport() =>
+      stunStageDurations.fold(Duration(), (sum, element) => sum + element) +
+      exhaustDuration;
 }
 
 class CheckIfEmpty extends DurationState<ModuleCas> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (cas) =>
-                cas.conveyorSpeedProfile
-                    .durationOfDistance(cas.shape.yInMeters) *
-                1.5,
-            nextStateFunction: (cas) => WaitToFeedIn());
+    : super(
+        durationFunction: (cas) =>
+            cas.conveyorSpeedProfile.durationOfDistance(cas.shape.yInMeters) *
+            1.5,
+        nextStateFunction: (cas) => WaitToFeedIn(),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -255,6 +268,8 @@ class FeedIn extends State<ModuleCas>
   @override
   void onCompleted(ModuleCas cas) {
     _verifyDoorDirection(cas);
+    _verifyLevelsOfModules(cas);
+    _verifyStacksOfModules(cas);
   }
 
   void _verifyDoorDirection(ModuleCas cas) {
@@ -262,6 +277,26 @@ class FeedIn extends State<ModuleCas>
     if (moduleGroup.compartment is CompartmentWithDoor &&
         moduleGroup.direction.rotate(-90) != cas.doorDirection) {
       throw ('In correct door direction of the $ModuleGroup that was fed in to ${cas.name}');
+    }
+  }
+
+  void _verifyLevelsOfModules(ModuleCas cas) {
+    var moduleGroup = cas.moduleGroupPlace.moduleGroup!;
+    if (moduleGroup.numberOfModuleLevels != cas.levelsOfModules) {
+      throw Exception(
+        '${cas.name} can only accept a moduleGroup with ${cas.levelsOfModules} '
+        'levels of modules, but received ${moduleGroup.numberOfModuleLevels} module levels.',
+      );
+    }
+  }
+
+  void _verifyStacksOfModules(ModuleCas cas) {
+    var moduleGroup = cas.moduleGroupPlace.moduleGroup!;
+    if (moduleGroup.numberOfStacks != cas.numberOfModuleStacks) {
+      throw Exception(
+        '${cas.name} can only accept a moduleGroup with ${cas.numberOfModuleStacks} '
+        'stacks of modules, but received ${moduleGroup.numberOfStacks} module levels.',
+      );
     }
   }
 
@@ -293,10 +328,10 @@ class WaitForStart extends State<ModuleCas> {
 
 class CloseSlideDoor extends DurationState<ModuleCas> {
   CloseSlideDoor()
-      : super(
-          durationFunction: (cas) => cas.closeDoorDuration,
-          nextStateFunction: (cas) => StunStage(1),
-        );
+    : super(
+        durationFunction: (cas) => cas.closeDoorDuration,
+        nextStateFunction: (cas) => StunStage(1),
+      );
 
   @override
   String get name => 'CloseSlideDoor';
@@ -306,9 +341,10 @@ class StunStage extends DurationState<ModuleCas> {
   final int stageNumber;
 
   StunStage(this.stageNumber)
-      : super(
-            durationFunction: (cas) => findDuration(cas),
-            nextStateFunction: (cas) => findNextStage(cas, stageNumber));
+    : super(
+        durationFunction: (cas) => findDuration(cas),
+        nextStateFunction: (cas) => findNextStage(cas, stageNumber),
+      );
 
   static State<ModuleCas> findNextStage(ModuleCas cas, int currentStageNumber) {
     if (currentStageNumber >= numberOfStages(cas)) {
@@ -347,9 +383,10 @@ class StunStage extends DurationState<ModuleCas> {
 
 class ExhaustStage extends DurationState<ModuleCas> {
   ExhaustStage()
-      : super(
-            durationFunction: (cas) => cas.recipe.exhaustDuration,
-            nextStateFunction: (cas) => OpenSlideDoor());
+    : super(
+        durationFunction: (cas) => cas.recipe.exhaustDuration,
+        nextStateFunction: (cas) => OpenSlideDoor(),
+      );
 
   @override
   String get name => 'ExhaustStage';
@@ -366,10 +403,10 @@ class ExhaustStage extends DurationState<ModuleCas> {
 
 class OpenSlideDoor extends DurationState<ModuleCas> {
   OpenSlideDoor()
-      : super(
-          durationFunction: (cas) => cas.openDoorDuration,
-          nextStateFunction: (cas) => WaitToFeedOut(),
-        );
+    : super(
+        durationFunction: (cas) => cas.openDoorDuration,
+        nextStateFunction: (cas) => WaitToFeedOut(),
+      );
 
   @override
   String get name => 'OpenSlideDoor';

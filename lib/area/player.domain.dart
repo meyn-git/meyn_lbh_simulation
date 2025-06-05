@@ -22,7 +22,8 @@ class Player {
   static const maxSpeed = 64;
   static const maxJumpResolution = Duration(seconds: 1);
   static final timerInterval = Duration(
-      microseconds: (1 / maxSpeed * maxJumpResolution.inMicroseconds).round());
+    microseconds: (1 / maxSpeed * maxJumpResolution.inMicroseconds).round(),
+  );
 
   Scenario? _scenario;
 
@@ -31,11 +32,11 @@ class Player {
   set scenario(Scenario? scenario) {
     _scenario = scenario;
     if (scenario != null) {
-      Iterable<Detailable> shackleConveyors =
-          scenario.area.systems.whereType<ShackleConveyor>();
+      Iterable<Detailable> shackleConveyors = scenario.area.systems
+          .whereType<ShackleConveyor>();
       if (shackleConveyors.isEmpty) {
-        shackleConveyors =
-            scenario.area.systems.whereType<DrawerHangingConveyor>();
+        shackleConveyors = scenario.area.systems
+            .whereType<DrawerHangingConveyor>();
       }
       objectsToMonitor.clear();
       objectsToMonitor.addAll(shackleConveyors);
@@ -92,8 +93,8 @@ class Player {
   }
 
   static Duration _calculateJump(int speed) => Duration(
-      microseconds:
-          (speed / maxSpeed * maxJumpResolution.inMicroseconds).round());
+    microseconds: (speed / maxSpeed * maxJumpResolution.inMicroseconds).round(),
+  );
 
   void restart() {
     if (scenario != null) {

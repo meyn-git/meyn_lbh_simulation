@@ -23,24 +23,19 @@ class ClassicDrawerBuilder extends ModuleVariantBuilder {
   );
 
   @override
-  late final List<ModuleVariantBuilder> children = [
-    l4,
-    l5,
-  ];
+  late final List<ModuleVariantBuilder> children = [l4, l5];
 
   ClassicDrawerBuilder({required super.parent})
-      : super(
-            values: ModuleVariantValues(
+    : super(
+        values: ModuleVariantValues(
           family: 'Classic Drawer',
-          footprint: const SizeInMeters(
-            xInMeters: 1.16,
-            yInMeters: 2.43,
-          ),
+          footprint: const SizeInMeters(xInMeters: 1.16, yInMeters: 2.43),
           compartment: MeynDrawers.classic,
           compartmentsPerLevel: 3,
           birdType: BirdType.chicken,
           headSpaceInMeters: 0.255,
           camHeightInMeters: 0.07,
           frameMaterial: ModuleFrameMaterial.galvanizedSteel,
-        ));
+        ),
+      );
 }

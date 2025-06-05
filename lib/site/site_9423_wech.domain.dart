@@ -26,97 +26,106 @@ import 'site.dart';
 
 class WechSite extends Site {
   WechSite()
-      : super(
-          meynLayoutNumber: 9423,
-          organizationName: 'Wech Geflugel GmbH',
-          city: 'st Andrä im Lavanttal',
-          country: 'Austria',
-          productDefinitions: WechProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 9423,
+        organizationName: 'Wech Geflugel GmbH',
+        city: 'st Andrä im Lavanttal',
+        country: 'Austria',
+        productDefinitions: WechProductDefinitions(),
+      );
 }
 
 const smallBirdsPerCompartment = 48;
-const smallBirdsPerComntainer = smallBirdsPerCompartment * 8;
+const smallBirdsPerContainer = smallBirdsPerCompartment * 8;
 const bigBirdsPerCompartment = 28;
-const bigBirdsPerComntainer = smallBirdsPerCompartment * 8;
+const bigBirdsPerContainer = smallBirdsPerCompartment * 8;
 
 /// information from email Marc van der Giessen 2025-01-17
 class WechProductDefinitions extends DelegatingList<ProductDefinition> {
   WechProductDefinitions()
-      : super([
-          // as sold 9000
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) => [
-                    WechLiveBirdHandlingArea(
-                        productDefinition, LayoutVariant.installed2013)
-                  ],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 9000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-          // as sold 15000
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) => [
-                    WechLiveBirdHandlingArea(
-                        productDefinition, LayoutVariant.installed2013)
-                  ],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-          // with4thCasUnitsInLine 15000
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) => [
-                    WechLiveBirdHandlingArea(
-                        productDefinition, LayoutVariant.with4thCasUnitInLine)
-                  ],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-          // with4thCasUnitOtherSide 15000
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) => [
-                    WechLiveBirdHandlingArea(productDefinition,
-                        LayoutVariant.with4thCasUnitOtherSide)
-                  ],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-          // with4thCasUnitAndTurnTables 20000
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) => [
-                    WechLiveBirdHandlingArea(productDefinition,
-                        LayoutVariant.with4thCasUnitAndTurnTables)
-                  ],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 20000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: truckRows),
-        ]);
+    : super([
+        // as sold 9000
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            WechLiveBirdHandlingArea(
+              productDefinition,
+              LayoutVariant.installed2013,
+            ),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 9000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+        // as sold 15000
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            WechLiveBirdHandlingArea(
+              productDefinition,
+              LayoutVariant.installed2013,
+            ),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+        // with4thCasUnitsInLine 15000
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            WechLiveBirdHandlingArea(
+              productDefinition,
+              LayoutVariant.with4thCasUnitInLine,
+            ),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+        // with4thCasUnitOtherSide 15000
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            WechLiveBirdHandlingArea(
+              productDefinition,
+              LayoutVariant.with4thCasUnitOtherSide,
+            ),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+        // with4thCasUnitAndTurnTables 20000
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            WechLiveBirdHandlingArea(
+              productDefinition,
+              LayoutVariant.with4thCasUnitAndTurnTables,
+            ),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 20000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: truckRows,
+        ),
+      ]);
 
   static List<TruckRow> get truckRows {
     return [
       TruckRow({
-        PositionWithinModuleGroup.firstBottom: BrandBuilder()
-            .marel
-            .gpl
-            .l4
+        PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gpl.l4
             .build()
             .withBirdsPerCompartment(bigBirdsPerCompartment),
-        PositionWithinModuleGroup.firstTop: BrandBuilder()
-            .marel
-            .gpl
-            .l4
+        PositionWithinModuleGroup.firstTop: BrandBuilder().marel.gpl.l4
             .build()
             .withBirdsPerCompartment(bigBirdsPerCompartment),
-      })
+      }),
     ];
   }
 }
@@ -125,20 +134,18 @@ enum LayoutVariant {
   installed2013('As installed on 2013'),
   with4thCasUnitInLine('With 4th CAS units in line'),
   with4thCasUnitOtherSide('With 4th CAS units on other side'),
-  with4thCasUnitAndTurnTables('With 4th CAS units and turn tables'),
-  ;
+  with4thCasUnitAndTurnTables('With 4th CAS units and turn tables');
 
   final String name;
   const LayoutVariant(this.name);
 }
 
 class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  static const int levelsOfModulesInCas = 2;
+  static const int numberOfModuleStacksForCasUnits = 1;
   final LayoutVariant variant;
   WechLiveBirdHandlingArea(ProductDefinition productDefinition, this.variant)
-      : super(
-          lineName: variant.name,
-          productDefinition: productDefinition,
-        );
+    : super(lineName: variant.name, productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -156,34 +163,44 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: _casDoor,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: _casDoor,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: _casDoor,
     );
 
     var cas4 = ModuleCas(
-        area: this,
-        gasDuctsLeft: !(variant == LayoutVariant.with4thCasUnitOtherSide),
-        moduleDoor: _casDoor,
-        conveyorSpeedProfile: variant == LayoutVariant.with4thCasUnitOtherSide
-            ? SpeedProfile.total(
-                totalDistance: 3.05,
+      area: this,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
+      gasDuctsLeft: !(variant == LayoutVariant.with4thCasUnitOtherSide),
+      moduleDoor: _casDoor,
+      conveyorSpeedProfile: variant == LayoutVariant.with4thCasUnitOtherSide
+          ? SpeedProfile.total(
+              totalDistance: 3.05,
 
-                /// adding 10 seconds for extra conveyor because we need to go trough a wall
-                totalDurationInSeconds: 13.8 + 10,
-                accelerationInSeconds: 1.5,
-                decelerationInSeconds: 0.7)
-            : null);
+              /// adding 10 seconds for extra conveyor because we need to go trough a wall
+              totalDurationInSeconds: 13.8 + 10,
+              accelerationInSeconds: 1.5,
+              decelerationInSeconds: 0.7,
+            )
+          : null,
+    );
 
     var destacker = ModuleDeStacker(area: this);
 
@@ -210,14 +227,8 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
       diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
     );
 
-    var containerDipper = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 5.5,
-    );
-    var preWasher = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 5.5,
-    );
+    var containerDipper = ModuleWasherConveyor(area: this, lengthInMeters: 5.5);
+    var preWasher = ModuleWasherConveyor(area: this, lengthInMeters: 5.5);
 
     var mc3 = ModuleConveyor(area: this);
 
@@ -244,26 +255,15 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
       moduleOutDirection: Direction.counterClockWise,
     );
 
-    var mainWasher2 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 4.4,
-    );
+    var mainWasher2 = ModuleWasherConveyor(area: this, lengthInMeters: 4.4);
 
-    var mainWasher3 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 4.4,
-    );
+    var mainWasher3 = ModuleWasherConveyor(area: this, lengthInMeters: 4.4);
 
-    var mainWasher4 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 4.4,
-    );
+    var mainWasher4 = ModuleWasherConveyor(area: this, lengthInMeters: 4.4);
 
     var mc4 = ModuleConveyor(area: this);
 
-    var stacker = ModuleStacker(
-      area: this,
-    );
+    var stacker = ModuleStacker(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
@@ -314,28 +314,19 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     /// bird transport
     systems.link(moduleTilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
     systems.add(
-        ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace));
+      ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace),
+    );
 
-    systems.add(ModuleCasStart(area: this, startIntervalFractions: [
-      0.6,
-      0.8,
-      1,
-      1.25,
-      1.5,
-      1.75,
-      2,
-      2.5,
-      3,
-    ]));
+    systems.add(ModuleCasStart(area: this));
   }
 
   ModuleDoor get _casDoor =>
       variant == LayoutVariant.with4thCasUnitAndTurnTables
-          ? ModuleDoor.slideDoorToLeft
-          : ModuleDoor.rollDoorUp;
+      ? ModuleDoor.slideDoorToLeft
+      : ModuleDoor.rollDoorUp;
 
   void createAndLinkCasShuttle({
     required ModuleCas cas4,
@@ -373,11 +364,12 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
       //  stack into destacker            14.5 s	  3.200 m	    0.2388 m/s
       //  stack into shuttle at pos 0/1   12.4 s	  2.800 m	    0.2478 m/s
       conveyorSpeedProfile: SpeedProfile.total(
-          totalDistance: 3.2,
-          // added 1 sec because simulation seems to be running a bit faster
-          totalDurationInSeconds: 14.5 + 1,
-          accelerationInSeconds: 1.5,
-          decelerationInSeconds: 0.7),
+        totalDistance: 3.2,
+        // added 1 sec because simulation seems to be running a bit faster
+        totalDurationInSeconds: 14.5 + 1,
+        accelerationInSeconds: 1.5,
+        decelerationInSeconds: 0.7,
+      ),
 
       // Between	                    And	 total duration	Distance	Calculated  max speed
       // Infeed conveyor\ destacker	  CAS1	  15.4 s    	 4.279 m    0.3193 m/s
@@ -387,11 +379,12 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
       // CAS2	                        CAS3	  10.3 s    	 2.488 m	  0.2998 m/s
       // CAS1	                        CAS3	  22.3 s    	 6.185 m	  0.3047 m/s
       carrierSpeedProfile: SpeedProfile.total(
-          totalDistance: 10.464,
-          //// added 2 sec because simulation seems to be running a bit faster
-          totalDurationInSeconds: 35.5 + 2,
-          accelerationInSeconds: 2,
-          decelerationInSeconds: 2),
+        totalDistance: 10.464,
+        //// added 2 sec because simulation seems to be running a bit faster
+        totalDurationInSeconds: 35.5 + 2,
+        accelerationInSeconds: 2,
+        decelerationInSeconds: 2,
+      ),
 
       // distances from layout 9423s114z0001 sketch
       betweenPositionsInMeters: [
@@ -409,66 +402,102 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
     // first shuttle pos 0 (Left)
     if (variant == LayoutVariant.with4thCasUnitInLine) {
       systems.link(
-          cas4.modulesOut,
-          shuttle.modulesIns[
-              ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!);
+        cas4.modulesOut,
+        shuttle.modulesIns[ShuttleLinkLocation(
+          position: shuttlePos,
+          side: ShuttleSide.b,
+        )]!,
+      );
       systems.link(
-          shuttle.modulesOuts[
-              ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!,
-          cas4.modulesIn);
+        shuttle.modulesOuts[ShuttleLinkLocation(
+          position: shuttlePos,
+          side: ShuttleSide.b,
+        )]!,
+        cas4.modulesIn,
+      );
       shuttlePos++;
     }
 
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!,
-        cas3.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+      cas3.modulesIn,
+    );
     systems.link(
-        cas3.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!);
+      cas3.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+    );
     shuttlePos++;
 
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!,
-        cas2.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+      cas2.modulesIn,
+    );
     systems.link(
-        cas2.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!);
+      cas2.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+    );
     shuttlePos++;
 
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!,
-        cas1.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+      cas1.modulesIn,
+    );
     systems.link(
-        cas1.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!);
+      cas1.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+    );
 
     if (variant == LayoutVariant.with4thCasUnitOtherSide) {
       systems.link(
-          shuttle.modulesOuts[
-              ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.a)]!,
-          cas4.modulesIn);
+        shuttle.modulesOuts[ShuttleLinkLocation(
+          position: shuttlePos,
+          side: ShuttleSide.a,
+        )]!,
+        cas4.modulesIn,
+      );
       systems.link(
-          cas4.modulesOut,
-          shuttle.modulesIns[
-              ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.a)]!);
+        cas4.modulesOut,
+        shuttle.modulesIns[ShuttleLinkLocation(
+          position: shuttlePos,
+          side: ShuttleSide.a,
+        )]!,
+      );
     }
     shuttlePos++;
 
     // last shuttle pos (Right)
     systems.link(
-        mc1.modulesOut,
-        shuttle.modulesIns[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.a)]!);
+      mc1.modulesOut,
+      shuttle.modulesIns[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.a,
+      )]!,
+    );
     systems.link(
-        shuttle.modulesOuts[
-            ShuttleLinkLocation(position: shuttlePos, side: ShuttleSide.b)]!,
-        destacker.modulesIn);
+      shuttle.modulesOuts[ShuttleLinkLocation(
+        position: shuttlePos,
+        side: ShuttleSide.b,
+      )]!,
+      destacker.modulesIn,
+    );
   }
 
   void createAndLinkCasTurnTables({
@@ -480,48 +509,53 @@ class WechLiveBirdHandlingArea extends LiveBirdHandlingArea {
     required ModuleDeStacker destacker,
   }) {
     var mrc1 = ModuleRotatingConveyor(
-        area: this,
-        turnPositions: [
-          TurnPosition(direction: CompassDirection.west()),
-          TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
-          TurnPosition(direction: CompassDirection.south()),
-        ],
-        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
+      area: this,
+      turnPositions: [
+        TurnPosition(direction: CompassDirection.west()),
+        TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
+        TurnPosition(direction: CompassDirection.south()),
+      ],
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
+    );
 
     var mrc2 = ModuleRotatingConveyor(
-        area: this,
-        turnPositions: [
-          TurnPosition(direction: CompassDirection.north()),
-          TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
-          TurnPosition(direction: CompassDirection.south()),
-        ],
-        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
+      area: this,
+      turnPositions: [
+        TurnPosition(direction: CompassDirection.north()),
+        TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
+        TurnPosition(direction: CompassDirection.south()),
+      ],
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
+    );
 
     var mrc3 = ModuleRotatingConveyor(
-        area: this,
-        turnPositions: [
-          TurnPosition(direction: CompassDirection.north()),
-          TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
-          TurnPosition(direction: CompassDirection.south()),
-        ],
-        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
+      area: this,
+      turnPositions: [
+        TurnPosition(direction: CompassDirection.north()),
+        TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
+        TurnPosition(direction: CompassDirection.south()),
+      ],
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
+    );
 
     var mrc4 = ModuleRotatingConveyor(
-        area: this,
-        turnPositions: [
-          TurnPosition(direction: CompassDirection.north()),
-          TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
-          TurnPosition(direction: CompassDirection.south()),
-        ],
-        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
+      area: this,
+      turnPositions: [
+        TurnPosition(direction: CompassDirection.north()),
+        TurnPosition(direction: CompassDirection.east(), reverseFeedIn: true),
+        TurnPosition(direction: CompassDirection.south()),
+      ],
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
+    );
 
     var mrc5 = ModuleRotatingConveyor(
-        area: this,
-        turnPositions: [
-          TurnPosition(direction: CompassDirection.north()),
-          TurnPosition(direction: CompassDirection.east()),
-        ],
-        diameter: ModuleRotatingConveyorDiameter.beforeModuleCas);
+      area: this,
+      turnPositions: [
+        TurnPosition(direction: CompassDirection.north()),
+        TurnPosition(direction: CompassDirection.east()),
+      ],
+      diameter: ModuleRotatingConveyorDiameter.beforeModuleCas,
+    );
 
     systems.link(mc1.modulesOut, mrc1.modulesIns[0]);
     systems.link(mrc1.modulesOuts[1], cas1.modulesIn);

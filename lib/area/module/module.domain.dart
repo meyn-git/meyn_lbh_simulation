@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:fling_units/fling_units.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/link.domain.dart';
@@ -48,8 +49,9 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
 
   @override
   late final compartmentGroundSurface = SizeInMeters(
-      xInMeters: moduleGroundSurface.xInMeters,
-      yInMeters: moduleGroundSurface.yInMeters / compartmentsPerLevel);
+    xInMeters: moduleGroundSurface.xInMeters,
+    yInMeters: moduleGroundSurface.yInMeters / compartmentsPerLevel,
+  );
 
   @override
   late final ModuleVersion? version = modules.first.variant.version;
@@ -204,18 +206,23 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   Iterable<PositionWithinModuleGroup> get positions => keys;
 
   Iterable<int> get stackNumbers =>
-      keys.map((position) => position.stackNumber).toSet();
+      positions.map((position) => position.stackNumber).toSet();
 
   int get numberOfStacks => stackNumbers.length;
 
-  Map<PositionWithinModuleGroup, Module> stack(int stackNumber) => {
-        for (var position in positions
-            .where((position) => position.stackNumber == stackNumber))
-          position: this[position]!
-      };
+  int get numberOfModuleLevels =>
+      positions.map((position) => position.level).toSet().length;
 
-  List<Map<PositionWithinModuleGroup, Module>> get stacks =>
-      [for (var stackNumber in stackNumbers) stack(stackNumber)];
+  Map<PositionWithinModuleGroup, Module> stack(int stackNumber) => {
+    for (var position in positions.where(
+      (position) => position.stackNumber == stackNumber,
+    ))
+      position: this[position]!,
+  };
+
+  List<Map<PositionWithinModuleGroup, Module>> get stacks => [
+    for (var stackNumber in stackNumbers) stack(stackNumber),
+  ];
 
   bool get isStacked =>
       keys.contains(PositionWithinModuleGroup.firstBottom) &&
@@ -226,14 +233,27 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
   isBeingTransportedTo(LinkedSystem system) =>
       position is BetweenModuleGroupPlaces &&
       (position as BetweenModuleGroupPlaces).destination.system == system;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ModuleGroup) return false;
+    return mapEquals(this, other) &&
+        direction == other.direction &&
+        destination == other.destination &&
+        position == other.position;
+  }
+
+  @override
+  int get hashCode =>
+      Object.hashAll([super.hashCode, direction, destination, position]);
 }
 
 enum PositionWithinModuleGroup {
   firstBottom(stackNumber: 0, level: 0),
   firstTop(stackNumber: 0, level: 1),
   secondBottom(stackNumber: 1, level: 0),
-  secondTop(stackNumber: 1, level: 1),
-  ;
+  secondTop(stackNumber: 1, level: 1);
 
   /// the stack number of a [Module] within a [ModuleGroup]
   /// * 0= first (leading stack)
@@ -244,8 +264,10 @@ enum PositionWithinModuleGroup {
   /// * 0= bottom level
   /// * 1= stacked on bottom level (if any)
   final int level;
-  const PositionWithinModuleGroup(
-      {required this.stackNumber, required this.level});
+  const PositionWithinModuleGroup({
+    required this.stackNumber,
+    required this.level,
+  });
 }
 
 enum BirdContents { awakeBirds, birdsBeingStunned, stunnedBirds, noBirds }
@@ -316,11 +338,12 @@ class BetweenModuleGroupPlaces
   }
 
   BetweenModuleGroupPlaces.forModuleOutLink(ModuleGroupOutLink moduleOutLink)
-      : source = moduleOutLink.place,
-        destination = moduleOutLink.linkedTo!.place,
-        duration =
-            moduleOutLink.linkedTo!.transportDuration(moduleOutLink.linkedTo!),
-        moduleGroup = moduleOutLink.place.moduleGroup! {
+    : source = moduleOutLink.place,
+      destination = moduleOutLink.linkedTo!.place,
+      duration = moduleOutLink.linkedTo!.transportDuration(
+        moduleOutLink.linkedTo!,
+      ),
+      moduleGroup = moduleOutLink.place.moduleGroup! {
     onModuleTransportStarted();
   }
 
@@ -374,7 +397,9 @@ class BetweenModuleGroupPlaces
       _moduleCenterPosition(layout, destination);
 
   OffsetInMeters _moduleCenterPosition(
-      SystemLayout layout, ModuleGroupPlace position) {
+    SystemLayout layout,
+    ModuleGroupPlace position,
+  ) {
     var system = position.system;
     var offset = position.offsetFromCenterWhenSystemFacingNorth;
     return layout.positionOnSystem(system, offset);
@@ -405,13 +430,15 @@ class BetweenModuleGroupPlaces
 abstract class ModuleTransportCompletedListener {
   /// Will be called by [BetweenModuleGroupPlaces]
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces);
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  );
 }
 
 abstract class ModuleTransportStartedListener {
   /// Will be called by [BetweenModuleGroupPlaces]
   void onModuleTransportStarted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces);
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  );
 }
 
 class Module implements Detailable, Commandable {
@@ -458,8 +485,9 @@ class LoadDensity extends DerivedMeasurement<Area, Mass> {
     /// max=100%, in summer the loading density is normally 70-90%
     required int loadingPercentage,
   }) : super.divide(
-            _calculateArea(minFloorSpacePerKgLiveWeight, loadingPercentage),
-            grams(1000));
+         _calculateArea(minFloorSpacePerKgLiveWeight, loadingPercentage),
+         grams(1000),
+       );
 
   LoadDensity.floorSpaceInCm2({
     required double minCm2FloorSpacePerKgLiveWeight,
@@ -467,29 +495,35 @@ class LoadDensity extends DerivedMeasurement<Area, Mass> {
     /// max=100%, in summer the loading density is normally 70-90%
     required int loadingPercentage,
   }) : super.divide(
-            _calculateArea(
-                _areaFromSquareCentimeters(minCm2FloorSpacePerKgLiveWeight),
-                loadingPercentage),
-            grams(1000));
+         _calculateArea(
+           _areaFromSquareCentimeters(minCm2FloorSpacePerKgLiveWeight),
+           loadingPercentage,
+         ),
+         grams(1000),
+       );
 
   /// legal density according to European regulation EEC64.32
   factory LoadDensity.eec64_432(Mass averageBirdWeight, int loadingPercentage) {
     if (averageBirdWeight <= grams(1600)) {
       return LoadDensity.floorSpaceInCm2(
-          loadingPercentage: loadingPercentage,
-          minCm2FloorSpacePerKgLiveWeight: 180);
+        loadingPercentage: loadingPercentage,
+        minCm2FloorSpacePerKgLiveWeight: 180,
+      );
     } else if (averageBirdWeight <= grams(3000)) {
       return LoadDensity.floorSpaceInCm2(
-          loadingPercentage: loadingPercentage,
-          minCm2FloorSpacePerKgLiveWeight: 160);
+        loadingPercentage: loadingPercentage,
+        minCm2FloorSpacePerKgLiveWeight: 160,
+      );
     } else if (averageBirdWeight <= grams(5000)) {
       return LoadDensity.floorSpaceInCm2(
-          loadingPercentage: loadingPercentage,
-          minCm2FloorSpacePerKgLiveWeight: 115);
+        loadingPercentage: loadingPercentage,
+        minCm2FloorSpacePerKgLiveWeight: 115,
+      );
     } else {}
     return LoadDensity.floorSpaceInCm2(
-        loadingPercentage: loadingPercentage,
-        minCm2FloorSpacePerKgLiveWeight: 150);
+      loadingPercentage: loadingPercentage,
+      minCm2FloorSpacePerKgLiveWeight: 150,
+    );
   }
 
   static Area _areaFromSquareCentimeters(double squareCentimeters) =>
@@ -509,12 +543,7 @@ class LoadDensity extends DerivedMeasurement<Area, Mass> {
   }
 }
 
-enum Brand {
-  meyn,
-  marel,
-  baaderLinco,
-  angliaAutoFlow,
-}
+enum Brand { meyn, marel, baaderLinco, angliaAutoFlow }
 
 class ModuleTemplate {
   final ModuleVariant variant;
@@ -529,14 +558,17 @@ class ModuleTemplate {
   int get numberOfBirds => compartments * birdsPerCompartment;
 
   @override
-  String toString() => '${variant.levels}L'
+  String toString() =>
+      '${variant.levels}L'
       '${variant.compartmentsPerLevel == 1 ? '' : 'x${variant.compartmentsPerLevel}C'}'
       'x${birdsPerCompartment}B';
 
   void _verifyNumberOfBirds() {
     if (birdsPerCompartment < 1) {
       throw ArgumentError(
-          'A ModuleTemplate must contain birds', 'numberOfBirds');
+        'A ModuleTemplate must contain birds',
+        'numberOfBirds',
+      );
     }
   }
 }
@@ -549,10 +581,7 @@ class TruckRow
 
   late final SizeInMeters footprintOnSystem = _calculateFootprint();
 
-  TruckRow(
-    super.moduleCapacities, {
-    this.occurrence = 1,
-  });
+  TruckRow(super.moduleCapacities, {this.occurrence = 1});
 
   Iterable<PositionWithinModuleGroup> get positions => keys;
 
@@ -579,13 +608,16 @@ class TruckRow
     return result.toString();
   }
 
+  int get numberOfStacks =>
+      positions.map((position) => position.stackNumber).toSet().length;
+
+  int get numberOfModules => templates.length;
+
   SizeInMeters _calculateFootprint() {
-    var positions = keys;
-    var numberOfStacks =
-        positions.map((position) => position.stackNumber).toSet().length;
     var moduleFootprint = templates.first.variant.moduleGroundSurface;
     var width = moduleFootprint.xInMeters;
-    var length = numberOfStacks * moduleFootprint.yInMeters +
+    var length =
+        numberOfStacks * moduleFootprint.yInMeters +
         (numberOfStacks - 1) * ModuleGroupShape.offsetBetweenStacks;
     return SizeInMeters(xInMeters: width, yInMeters: length);
   }
@@ -602,6 +634,7 @@ enum BirdType { chicken, turkey }
 enum ModuleFrameMaterial { galvanizedSteel, stainlessSteel }
 
 class ModuleGroups extends DelegatingList<ModuleGroup> {
+  //can we get rid of this???
   Map<ModuleGroupPlace, ModuleGroup> systemPositionsWithModules = {};
 
   ModuleGroups() : super(<ModuleGroup>[]) {
@@ -629,6 +662,21 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
 
   bool anyAt(ModuleGroupPlace position) =>
       systemPositionsWithModules.containsKey(position);
+
+  Set<ModuleGroup> findOnOrGoingToSystem(LinkedSystem system) {
+    var found = <ModuleGroup>{};
+    for (ModuleGroup moduleGroup in this) {
+      var position = moduleGroup.position;
+      if (position is AtModuleGroupPlace && position.place.system == system) {
+        found.add(moduleGroup);
+      } else if (position is BetweenModuleGroupPlaces &&
+          (position.source.system == system ||
+              position.destination.system == system)) {
+        found.add(moduleGroup);
+      }
+    }
+    return found;
+  }
 }
 
 /// A [System] that creathas multiple [ModuleGroupPlace]s with new [ModuleGroup]s. e.g.:
@@ -650,30 +698,37 @@ class ModuleGroupPlaceFactory {
   int sequenceNumber = 1;
 
   List<ModuleGroupPlace> create(ModuleGroupsSystem system) => [
-        for (var centerToModuleGroupCenter
-            in system.shape.centerToModuleGroupCenters)
-          _createModuleGroupPlace(system, centerToModuleGroupCenter)
-      ];
+    for (var centerToModuleGroupCenter
+        in system.shape.centerToModuleGroupCenters)
+      _createModuleGroupPlace(system, centerToModuleGroupCenter),
+  ];
 
   ModuleGroupPlace _createModuleGroupPlace(
-      ModuleGroupsSystem system, OffsetInMeters centerToModuleGroupCenter) {
+    ModuleGroupsSystem system,
+    OffsetInMeters centerToModuleGroupCenter,
+  ) {
     var place = ModuleGroupPlace(
-        system: system,
-        offsetFromCenterWhenSystemFacingNorth: centerToModuleGroupCenter);
+      system: system,
+      offsetFromCenterWhenSystemFacingNorth: centerToModuleGroupCenter,
+    );
     var truckRow = _randomTruckRow(system);
 
-    var modules = truckRow.map((position, template) => MapEntry(
+    var modules = truckRow.map(
+      (position, template) => MapEntry(
         position,
         Module(
           variant: template.variant,
           nrOfBirds: template.numberOfBirds,
           sequenceNumber: ++sequenceNumber,
-        )));
+        ),
+      ),
+    );
     var moduleGroup = ModuleGroup(
-        modules: modules,
-        direction: system.direction.rotate(90),
-        destination: _findModuleGroupDestination(system),
-        position: AtModuleGroupPlace(place));
+      modules: modules,
+      direction: system.direction.rotate(90),
+      destination: _findModuleGroupDestination(system),
+      position: AtModuleGroupPlace(place),
+    );
     place.moduleGroup = moduleGroup;
     return place;
   }
@@ -700,13 +755,17 @@ class ModuleGroupPlaceFactory {
   }
 
   LinkedSystem? findSingleSystemOnRoute(
-      ModuleGroupsSystem system, Iterable<LinkedSystem> candidates) {
+    ModuleGroupsSystem system,
+    Iterable<LinkedSystem> candidates,
+  ) {
     LinkedSystem? found;
-    LoadingForkLiftTruck loadingForkLiftTruck =
-        findLoadingForkLiftTruck(system);
+    LoadingForkLiftTruck loadingForkLiftTruck = findLoadingForkLiftTruck(
+      system,
+    );
     for (var candidate in candidates) {
-      var route =
-          loadingForkLiftTruck.modulesOut.findRoute(destination: candidate);
+      var route = loadingForkLiftTruck.modulesOut.findRoute(
+        destination: candidate,
+      );
       if (route != null) {
         if (found == null) {
           found = candidate;
@@ -720,11 +779,12 @@ class ModuleGroupPlaceFactory {
   }
 
   LoadingForkLiftTruck findLoadingForkLiftTruck(ModuleGroupsSystem system) {
-    var loadingForkLiftTrucks =
-        system.area.systems.whereType<LoadingForkLiftTruck>();
+    var loadingForkLiftTrucks = system.area.systems
+        .whereType<LoadingForkLiftTruck>();
     if (loadingForkLiftTrucks.length != 1) {
       throw Exception(
-          'Expecting one LoadingForkLiftTruck but found ${loadingForkLiftTrucks.length}');
+        'Expecting one LoadingForkLiftTruck but found ${loadingForkLiftTrucks.length}',
+      );
     }
     return loadingForkLiftTrucks.first;
   }
@@ -744,8 +804,8 @@ class ModuleGroupPlaceFactory {
       return found;
     }
 
-    var unLoadingForkLiftTrucks =
-        system.area.systems.whereType<UnLoadingForkLiftTruck>();
+    var unLoadingForkLiftTrucks = system.area.systems
+        .whereType<UnLoadingForkLiftTruck>();
     found = findSingleSystemOnRoute(system, unLoadingForkLiftTrucks);
     if (found != null) {
       return found;

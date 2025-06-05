@@ -15,9 +15,9 @@ import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 abstract class System implements Namable, Commandable, Detailable {}
 
 abstract class VisibleSystem extends System {
-//TODO AreaPosition position
+  //TODO AreaPosition position
 
-//TODO CompasDirection direction
+  //TODO CompasDirection direction
 }
 
 abstract class LinkedSystem extends VisibleSystem {
@@ -40,13 +40,13 @@ abstract class AdditionalRotation {
 /// A Physical place on a [System] that can contain a [ModuleGroup]
 class ModuleGroupPlace {
   final VisibleSystem system;
-  ModuleGroup?
-      moduleGroup; // TODO change to ModuleGroup? moduleGroup, to be updated by BetweenModuleGroup Places See DrawerPlace
+  ModuleGroup? moduleGroup;
   final OffsetInMeters offsetFromCenterWhenSystemFacingNorth;
 
-  ModuleGroupPlace(
-      {required this.system,
-      required this.offsetFromCenterWhenSystemFacingNorth});
+  ModuleGroupPlace({
+    required this.system,
+    required this.offsetFromCenterWhenSystemFacingNorth,
+  });
 }
 
 class Systems extends DelegatingList<System> {
@@ -89,9 +89,7 @@ class Systems extends DelegatingList<System> {
 }
 
 class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
-  ModuleGroupRoute(
-    super.moduleGroupOutLinks,
-  );
+  ModuleGroupRoute(super.moduleGroupOutLinks);
 
   const ModuleGroupRoute.empty() : super(const []);
 
@@ -106,7 +104,8 @@ class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
     if (_moduleGroupGoingTo(cas)) {
       return 0;
     }
-    var score = _casReadinessScore * 3 +
+    var score =
+        _casReadinessScore * 3 +
         _troughPutScore * 2 +
         _distanceToTravelScore * 1;
     return score;
@@ -152,10 +151,11 @@ class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
 
   bool get containsRoundTrips => systems.length != systems.toSet().length;
 
-  bool _moduleGroupGoingTo(ModuleCas cas) =>
-      cas.area.moduleGroups.any((moduleGroup) =>
-          !moduleGroupAtAllocationPlace(moduleGroup) &&
-          moduleGroup.destination == cas);
+  bool _moduleGroupGoingTo(ModuleCas cas) => cas.area.moduleGroups.any(
+    (moduleGroup) =>
+        !moduleGroupAtAllocationPlace(moduleGroup) &&
+        moduleGroup.destination == cas,
+  );
 
   ModuleCas get cas {
     var destination = last.linkedTo?.system;
@@ -167,9 +167,9 @@ class ModuleGroupRoute extends DelegatingList<ModuleGroupOutLink> {
   }
 
   List<LinkedSystem> get systems => [
-        ...map((outLink) => outLink.system),
-        if (last.linkedTo?.system != null) last.linkedTo!.system
-      ];
+    ...map((outLink) => outLink.system),
+    if (last.linkedTo?.system != null) last.linkedTo!.system,
+  ];
 
   @override
   String toString() => systems.map((system) => system.name).join(' -> ');
@@ -214,22 +214,23 @@ class SizeInMeters {
   /// distance between furthest North and South points
   final double yInMeters;
 
-  const SizeInMeters({
-    required this.xInMeters,
-    required this.yInMeters,
-  });
+  const SizeInMeters({required this.xInMeters, required this.yInMeters});
 
   static const zero = SizeInMeters(xInMeters: 0, yInMeters: 0);
 
   SizeInMeters operator +(SizeInMeters other) => SizeInMeters(
-      xInMeters: xInMeters + other.xInMeters,
-      yInMeters: yInMeters + other.yInMeters);
+    xInMeters: xInMeters + other.xInMeters,
+    yInMeters: yInMeters + other.yInMeters,
+  );
 
   SizeInMeters operator -(SizeInMeters other) => SizeInMeters(
-      xInMeters: xInMeters - other.xInMeters,
-      yInMeters: yInMeters - other.yInMeters);
+    xInMeters: xInMeters - other.xInMeters,
+    yInMeters: yInMeters - other.yInMeters,
+  );
   SizeInMeters operator *(double factor) => SizeInMeters(
-      xInMeters: xInMeters * factor, yInMeters: yInMeters * factor);
+    xInMeters: xInMeters * factor,
+    yInMeters: yInMeters * factor,
+  );
 
   Size toSize() => Size(xInMeters, yInMeters);
 
@@ -246,23 +247,24 @@ class OffsetInMeters {
   final double yInMeters;
   final double xInMeters;
 
-  const OffsetInMeters({
-    required this.xInMeters,
-    required this.yInMeters,
-  });
+  const OffsetInMeters({required this.xInMeters, required this.yInMeters});
 
   static const zero = OffsetInMeters(xInMeters: 0, yInMeters: 0);
 
   OffsetInMeters operator +(OffsetInMeters other) => OffsetInMeters(
-      xInMeters: xInMeters + other.xInMeters,
-      yInMeters: yInMeters + other.yInMeters);
+    xInMeters: xInMeters + other.xInMeters,
+    yInMeters: yInMeters + other.yInMeters,
+  );
 
   OffsetInMeters operator -(OffsetInMeters other) => OffsetInMeters(
-      xInMeters: xInMeters - other.xInMeters,
-      yInMeters: yInMeters - other.yInMeters);
+    xInMeters: xInMeters - other.xInMeters,
+    yInMeters: yInMeters - other.yInMeters,
+  );
 
   OffsetInMeters operator *(double factor) => OffsetInMeters(
-      xInMeters: xInMeters * factor, yInMeters: yInMeters * factor);
+    xInMeters: xInMeters * factor,
+    yInMeters: yInMeters * factor,
+  );
 
   bool operator >=(OffsetInMeters other) =>
       xInMeters >= other.xInMeters && yInMeters >= other.yInMeters;
@@ -358,7 +360,8 @@ class Durations {
   Duration get average => durations.isEmpty
       ? Duration.zero
       : Duration(
-          milliseconds: (total.inMilliseconds / durations.length).round());
+          milliseconds: (total.inMilliseconds / durations.length).round(),
+        );
 
   double get averagePerHour =>
       durations.isEmpty ? 0 : 3600000 / average.inMilliseconds;

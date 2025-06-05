@@ -27,13 +27,13 @@ import 'site.dart';
 
 class IndykpolLdcSite extends Site {
   IndykpolLdcSite()
-      : super(
-          meynLayoutNumber: 9110,
-          organizationName: 'Indykpol LDC',
-          city: 'Olsztyn',
-          country: 'Poland',
-          productDefinitions: ProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 9110,
+        organizationName: 'Indykpol LDC',
+        city: 'Olsztyn',
+        country: 'Poland',
+        productDefinitions: ProductDefinitions(),
+      );
 }
 
 class ProductDefinitions extends DelegatingList<ProductDefinition> {
@@ -46,86 +46,96 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
       .meyn
       .omnia
       .build()
-      .withBirdsPerCompartment(_calculateBirdsPerCompartment(
-          kilo.grams(femaleTurkeyMaxWeightInKiloGrams)));
+      .withBirdsPerCompartment(
+        _calculateBirdsPerCompartment(
+          kilo.grams(femaleTurkeyMaxWeightInKiloGrams),
+        ),
+      );
 
   static int femaleLineSpeedInShacklesPerHour = 4000;
 
-// *************** MALES ******************
+  // *************** MALES ******************
   static const maleTurkeyMaxWeightInKiloGrams = 22;
 
   static final ModuleTemplate maleTurkeyMaxWeightCapacity = BrandBuilder()
       .meyn
       .omnia
       .build()
-      .withBirdsPerCompartment(_calculateBirdsPerCompartment(
-          kilo.grams(maleTurkeyMaxWeightInKiloGrams)));
+      .withBirdsPerCompartment(
+        _calculateBirdsPerCompartment(
+          kilo.grams(maleTurkeyMaxWeightInKiloGrams),
+        ),
+      );
 
   static int maleLineSpeedInShacklesPerHour = 3300;
 
   ProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, SpeedType.asIs)],
-              birdType: 'Male Turkey $maleTurkeyMaxWeightInKiloGrams kg',
-              lineSpeedInShacklesPerHour: maleLineSpeedInShacklesPerHour,
-              lineShacklePitchInInches: schacklePitchInInch,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      maleTurkeyMaxWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      maleTurkeyMaxWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, SpeedType.asIs)],
-              birdType: 'Female Turkey $femaleTurkeyMaxWeightInKiloGrams kg',
-              lineSpeedInShacklesPerHour: femaleLineSpeedInShacklesPerHour,
-              lineShacklePitchInInches: schacklePitchInInch,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      femaleTurkeyMaxWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      femaleTurkeyMaxWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, SpeedType.toBe)],
-              birdType: 'Male Turkey $maleTurkeyMaxWeightInKiloGrams kg',
-              lineSpeedInShacklesPerHour: maleLineSpeedInShacklesPerHour,
-              lineShacklePitchInInches: schacklePitchInInch,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      maleTurkeyMaxWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      maleTurkeyMaxWeightCapacity,
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [Area(productDefinition, SpeedType.toBe)],
-              birdType: 'Female Turkey $femaleTurkeyMaxWeightInKiloGrams kg',
-              lineSpeedInShacklesPerHour: femaleLineSpeedInShacklesPerHour,
-              lineShacklePitchInInches: schacklePitchInInch,
-              casRecipe: const CasRecipe.standardTurkeyRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom:
-                      femaleTurkeyMaxWeightCapacity,
-                  PositionWithinModuleGroup.firstTop:
-                      femaleTurkeyMaxWeightCapacity,
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition, SpeedType.asIs),
+          ],
+          birdType: 'Male Turkey $maleTurkeyMaxWeightInKiloGrams kg',
+          lineSpeedInShacklesPerHour: maleLineSpeedInShacklesPerHour,
+          lineShacklePitchInInches: schacklePitchInInch,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom:
+                  maleTurkeyMaxWeightCapacity,
+              PositionWithinModuleGroup.firstTop: maleTurkeyMaxWeightCapacity,
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition, SpeedType.asIs),
+          ],
+          birdType: 'Female Turkey $femaleTurkeyMaxWeightInKiloGrams kg',
+          lineSpeedInShacklesPerHour: femaleLineSpeedInShacklesPerHour,
+          lineShacklePitchInInches: schacklePitchInInch,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom:
+                  femaleTurkeyMaxWeightCapacity,
+              PositionWithinModuleGroup.firstTop: femaleTurkeyMaxWeightCapacity,
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition, SpeedType.toBe),
+          ],
+          birdType: 'Male Turkey $maleTurkeyMaxWeightInKiloGrams kg',
+          lineSpeedInShacklesPerHour: maleLineSpeedInShacklesPerHour,
+          lineShacklePitchInInches: schacklePitchInInch,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom:
+                  maleTurkeyMaxWeightCapacity,
+              PositionWithinModuleGroup.firstTop: maleTurkeyMaxWeightCapacity,
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            Area(productDefinition, SpeedType.toBe),
+          ],
+          birdType: 'Female Turkey $femaleTurkeyMaxWeightInKiloGrams kg',
+          lineSpeedInShacklesPerHour: femaleLineSpeedInShacklesPerHour,
+          lineShacklePitchInInches: schacklePitchInInch,
+          casRecipe: const CasRecipe.standardTurkeyRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom:
+                  femaleTurkeyMaxWeightCapacity,
+              PositionWithinModuleGroup.firstTop: femaleTurkeyMaxWeightCapacity,
+            }),
+          ],
+        ),
+      ]);
 
   static final Mass maxWeightPerCompartment = kilo.grams(150);
 
@@ -135,33 +145,34 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
 
 enum SpeedType {
   asIs(
-      name: 'Speed as is',
-      turnSpeedProfile: TurnTableSpeedProfileForOmniaContainers(),
-      moduleSpeedProfile:
-          ConveyorWithoutStopperSpeedProfileForOmniaContainers()),
+    name: 'Speed as is',
+    turnSpeedProfile: TurnTableSpeedProfileForOmniaContainers(),
+    moduleSpeedProfile: ConveyorWithoutStopperSpeedProfileForOmniaContainers(),
+  ),
   toBe(
-      name: 'Speed to be',
-      turnSpeedProfile:
-          TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel(),
-      moduleSpeedProfile:
-          ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel());
+    name: 'Speed to be',
+    turnSpeedProfile:
+        TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel(),
+    moduleSpeedProfile:
+        ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel(),
+  );
 
   final String name;
   final SpeedProfile turnSpeedProfile;
   final SpeedProfile moduleSpeedProfile;
-  const SpeedType(
-      {required this.name,
-      required this.turnSpeedProfile,
-      required this.moduleSpeedProfile});
+  const SpeedType({
+    required this.name,
+    required this.turnSpeedProfile,
+    required this.moduleSpeedProfile,
+  });
 }
 
 class Area extends LiveBirdHandlingArea {
+  static const int levelsOfModulesInCas = 2;
+  static const int numberOfModuleStacksForCasUnits = 1;
   final SpeedType speed;
   Area(ProductDefinition productDefinition, this.speed)
-      : super(
-          lineName: speed.name,
-          productDefinition: productDefinition,
-        );
+    : super(lineName: speed.name, productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -193,11 +204,17 @@ class Area extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.north()),
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedOut: true),
+          direction: const CompassDirection.east(),
+          reverseFeedOut: true,
+        ),
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedIn: true),
+          direction: const CompassDirection.south(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(
-            direction: const CompassDirection.west(), reverseFeedIn: true),
+          direction: const CompassDirection.west(),
+          reverseFeedIn: true,
+        ),
       ],
       turnSpeedProfile: speed.turnSpeedProfile,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
@@ -210,7 +227,9 @@ class Area extends LiveBirdHandlingArea {
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
+          direction: const CompassDirection.south(),
+          reverseFeedOut: true,
+        ),
       ],
       turnSpeedProfile: speed.turnSpeedProfile,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
@@ -222,10 +241,14 @@ class Area extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
+          direction: const CompassDirection.south(),
+          reverseFeedOut: true,
+        ),
       ],
       turnSpeedProfile: speed.turnSpeedProfile,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
@@ -234,6 +257,8 @@ class Area extends LiveBirdHandlingArea {
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToRight,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
@@ -241,6 +266,8 @@ class Area extends LiveBirdHandlingArea {
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
@@ -248,6 +275,8 @@ class Area extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
@@ -255,6 +284,8 @@ class Area extends LiveBirdHandlingArea {
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
@@ -262,6 +293,8 @@ class Area extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToRight,
       conveyorSpeedProfile: speed.moduleSpeedProfile,
     );
@@ -276,7 +309,7 @@ class Area extends LiveBirdHandlingArea {
       conveyorSpeed: speed.moduleSpeedProfile,
     ); //TODO add Indroll parameters
 
-    var grossWeigher = ModuleWeigingConveyor(
+    var grossWeigher = ModuleWeighingConveyor(
       area: this,
       speedProfile: speed.moduleSpeedProfile,
     );
@@ -295,7 +328,7 @@ class Area extends LiveBirdHandlingArea {
       direction: Direction.counterClockWise,
     );
 
-    var tareWeigher = ModuleWeigingConveyor(
+    var tareWeigher = ModuleWeighingConveyor(
       area: this,
       speedProfile: speed.moduleSpeedProfile,
     );
@@ -372,7 +405,7 @@ class Area extends LiveBirdHandlingArea {
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-// module transport
+    // module transport
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mc1.modulesIn);
     systems.link(mc1.modulesOut, mc2.modulesIn);
@@ -410,40 +443,18 @@ class Area extends LiveBirdHandlingArea {
     systems.link(mc6.modulesOut, mc7.modulesIn);
     systems.link(mc7.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// bird transport
     systems.link(tilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: mc2.moduleGroupPlace,
-    ));
+    systems.add(
+      ModuleCasAllocation(area: this, allocationPlace: mc2.moduleGroupPlace),
+    );
 
-    systems.add(ModuleCasStart(
-      area: this,
-      startIntervalFractions: <double>[
-        0,
-        0.2,
-        0.4,
-        0.6,
-        0.8,
-        1,
-        1,
-        1.25,
-        1.5,
-        2,
-      ],
-      //  transportTimeCorrections: {
-      //   cas1: ModuleSystem.meynOmnia.casTransportDuration.inSeconds,
-      //   cas2: 0,
-      //   cas3: layout2 == Layout.cas3NextToCas2
-      //       ? -ModuleSystem.meynOmnia.casTransportDuration.inSeconds
-      //       : layout2 == Layout.cas3OppositeOfCas1
-      //           ? ModuleSystem.meynOmnia.casTransportDuration.inSeconds
-      //           : 0
-      // },
-    ));
+    systems.add(ModuleCasStart(area: this));
   }
 }

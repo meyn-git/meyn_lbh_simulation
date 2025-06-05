@@ -25,67 +25,71 @@ import 'site.dart';
 
 class GutBergmarkSite extends Site {
   GutBergmarkSite()
-      : super(
-          meynLayoutNumber: 4649,
-          organizationName: 'Gut Bergmark',
-          city: '',
-          country: 'Germany',
-          productDefinitions: GutBergmarkProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 4649,
+        organizationName: 'Gut Bergmark',
+        city: '',
+        country: 'Germany',
+        productDefinitions: GutBergmarkProductDefinitions(),
+      );
 }
 
 class GutBergmarkProductDefinitions extends DelegatingList<ProductDefinition> {
   static final maxBirdWeight = 2.8.kilo.grams;
   static const summerLoadPercentage = 90;
-  static final minLoadDensity =
-      LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
+  static final minLoadDensity = LoadDensity.eec64_432(
+    maxBirdWeight,
+    summerLoadPercentage,
+  );
 
   GutBergmarkProductDefinitions()
-      : super([
-          ProductDefinition(
-              //13500 b/h
-              areaFactory: _areaFactory(),
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c2
-                      .l4
-                      .gs
-                      .build()
-                      .withLoadDensity(minLoadDensity, maxBirdWeight),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c2
-                      .l5
-                      .gs
-                      .build()
-                      .withLoadDensity(minLoadDensity, maxBirdWeight),
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          //13500 b/h
+          areaFactory: _areaFactory(),
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c2
+                  .l4
+                  .gs
+                  .build()
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c2
+                  .l5
+                  .gs
+                  .build()
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
+            }),
+          ],
+        ),
+      ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [GutBergmarkLiveBirdHandlingArea(productDefinition)];
+  _areaFactory() =>
+      (ProductDefinition productDefinition) => [
+        GutBergmarkLiveBirdHandlingArea(productDefinition),
+      ];
 }
 
 class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
+  static const int levelsOfModulesForCasUnits = 2;
+  static const int numberOfModuleStacksForCasUnits = 1;
 
   GutBergmarkLiveBirdHandlingArea(ProductDefinition productDefinition)
-      : super(
-          lineName: 'Line1',
-          productDefinition: productDefinition,
-        );
+    : super(lineName: 'Line1', productDefinition: productDefinition);
   @override
   void createSystemsAndLinks() {
     var loadingForkLiftTruck = LoadingForkLiftTruck(
@@ -112,6 +116,8 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       area: this,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
     );
 
     var mrc2 = ModuleRotatingConveyor(
@@ -135,12 +141,16 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       area: this,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
     );
 
     var cas3 = ModuleCas(
       area: this,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
     );
 
     var mrc3 = ModuleRotatingConveyor(
@@ -164,12 +174,16 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
       area: this,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
     );
 
     var cas1 = ModuleCas(
       area: this,
       moduleDoor: ModuleDoor.slideDoorToLeft,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
     );
 
     var mc1 = ModuleConveyor(area: this);
@@ -190,51 +204,62 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.counterClockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor2 = DrawerConveyorStraight(
-        lengthInMeters: 3,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 3,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var hangingConveyor = DrawerHangingConveyor(
-        productDefinition: productDefinition,
-        hangers: 11, // TODO 11 hangers for 15000?
-        metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
-        allDrawers: drawers);
+      productDefinition: productDefinition,
+      hangers: 11, // TODO 11 hangers for 15000?
+      metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
+      allDrawers: drawers,
+    );
 
     var conveyor3 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 1);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 1,
+    );
 
     var taraDrawerWeigher = DrawerWeighingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor4 = DrawerTurningConveyor();
 
     var soaker = DrawerSoakingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor5 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 9.5);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 9.5,
+    );
 
     var washer = DrawerWashingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor6 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 3.6);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 3.6,
+    );
 
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.counterClockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.counterClockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor9 = DrawerConveyorStraight(
-        lengthInMeters: 1.4,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 1.4,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var drawerLoaderLift = DrawerLoaderLift(area: this);
     var moduleDrawerLoader = ModuleDrawerLoader(
@@ -250,28 +275,19 @@ class GutBergmarkLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var unloadConveyor = ModuleUnLoadingConveyor(area: this);
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-    systems.add(ModuleCasStart(area: this, startIntervalFractions: <double>[
-      0.5,
-      0.6,
-      0.7,
-      0.8,
-      0.9,
-      1,
-      1,
-      1,
-      1.1,
-      1.2,
-      1.3,
-    ], transportTimeCorrections: {
-      cas3: -12,
-      cas4: -12,
-      cas5: -24,
-    }));
+    systems.add(
+      ModuleCasStart(
+        area: this,
+        transportTimeCorrections: {cas3: -12, cas4: -12, cas5: -24},
+      ),
+    );
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: loadingConveyor.moduleGroupPlace,
-    ));
+    systems.add(
+      ModuleCasAllocation(
+        area: this,
+        allocationPlace: loadingConveyor.moduleGroupPlace,
+      ),
+    );
 
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);

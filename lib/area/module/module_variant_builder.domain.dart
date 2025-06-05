@@ -94,8 +94,9 @@ class ModuleVariant implements ModuleVariantBase {
   final SizeInMeters moduleGroundSurface;
   @override
   late final compartmentGroundSurface = SizeInMeters(
-      xInMeters: moduleGroundSurface.xInMeters,
-      yInMeters: moduleGroundSurface.yInMeters / compartmentsPerLevel);
+    xInMeters: moduleGroundSurface.xInMeters,
+    yInMeters: moduleGroundSurface.yInMeters / compartmentsPerLevel,
+  );
   @override
   final Compartment compartment;
   final int levels;
@@ -108,7 +109,7 @@ class ModuleVariant implements ModuleVariantBase {
   final double totalHeightInMeters;
   final double camHeightInMeters;
   final ModuleFrameMaterial frameMaterial;
-// [weightWithoutBirdsInKiloGram] is with drawers (if any)
+  // [weightWithoutBirdsInKiloGram] is with drawers (if any)
   final double? weightWithoutBirdsInKiloGram;
 
   ModuleVariant({
@@ -131,16 +132,21 @@ class ModuleVariant implements ModuleVariantBase {
       ModuleTemplate(variant: this, birdsPerCompartment: birdsPerCompartment);
 
   ModuleTemplate withLoadDensity(
-          LoadDensity loadDensity, Mass averageNormalBirdWeight) =>
-      ModuleTemplate(
-          variant: this,
-          birdsPerCompartment: birdsPerCompartment(
-              loadDensity: loadDensity,
-              averageBirdWeightOfHeaviestFlock: averageNormalBirdWeight));
+    LoadDensity loadDensity,
+    Mass averageNormalBirdWeight,
+  ) => ModuleTemplate(
+    variant: this,
+    birdsPerCompartment: birdsPerCompartment(
+      loadDensity: loadDensity,
+      averageBirdWeightOfHeaviestFlock: averageNormalBirdWeight,
+    ),
+  );
 
   Mass maxWeightPerCompartment(LoadDensity loadDensity) =>
-      kilo.grams(compartment.birdFloorSpaceInSquareMeters /
-          loadDensity.squareMeterPerKgLiveWeight);
+      (compartment.birdFloorSpaceInSquareMeters /
+              loadDensity.squareMeterPerKgLiveWeight)
+          .kilo
+          .grams;
 
   int birdsPerCompartment({
     required LoadDensity loadDensity,
@@ -220,22 +226,21 @@ class ModuleVariantValues {
   });
 
   ModuleVariantValues merge(ModuleVariantValues toMerge) => ModuleVariantValues(
-        brand: toMerge.brand ?? brand,
-        family: toMerge.family ?? family,
-        version: toMerge.version ?? version,
-        birdType: toMerge.birdType ?? birdType,
-        footprint: toMerge.footprint ?? footprint,
-        compartment: toMerge.compartment ?? compartment,
-        levels: toMerge.levels ?? levels,
-        compartmentsPerLevel:
-            toMerge.compartmentsPerLevel ?? compartmentsPerLevel,
-        headSpaceInMeters: toMerge.headSpaceInMeters ?? headSpaceInMeters,
-        totalHeightInMeters: toMerge.totalHeightInMeters ?? totalHeightInMeters,
-        camHeightInMeters: toMerge.camHeightInMeters ?? camHeightInMeters,
-        frameMaterial: toMerge.frameMaterial ?? frameMaterial,
-        weightWithoutBirdsInKiloGram: toMerge.weightWithoutBirdsInKiloGram ??
-            weightWithoutBirdsInKiloGram,
-      );
+    brand: toMerge.brand ?? brand,
+    family: toMerge.family ?? family,
+    version: toMerge.version ?? version,
+    birdType: toMerge.birdType ?? birdType,
+    footprint: toMerge.footprint ?? footprint,
+    compartment: toMerge.compartment ?? compartment,
+    levels: toMerge.levels ?? levels,
+    compartmentsPerLevel: toMerge.compartmentsPerLevel ?? compartmentsPerLevel,
+    headSpaceInMeters: toMerge.headSpaceInMeters ?? headSpaceInMeters,
+    totalHeightInMeters: toMerge.totalHeightInMeters ?? totalHeightInMeters,
+    camHeightInMeters: toMerge.camHeightInMeters ?? camHeightInMeters,
+    frameMaterial: toMerge.frameMaterial ?? frameMaterial,
+    weightWithoutBirdsInKiloGram:
+        toMerge.weightWithoutBirdsInKiloGram ?? weightWithoutBirdsInKiloGram,
+  );
 
   @override
   String toString() {

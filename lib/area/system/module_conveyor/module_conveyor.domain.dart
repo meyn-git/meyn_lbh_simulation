@@ -31,12 +31,10 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
     required this.area,
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-    State<ModuleWeigingConveyor>? initialState,
-  })  : conveyorSpeedProfile =
-            speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
-        super(
-          initialState: initialState ?? CheckIfEmpty(),
-        );
+    State<ModuleWeighingConveyor>? initialState,
+  }) : conveyorSpeedProfile =
+           speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
+       super(initialState: initialState ?? CheckIfEmpty());
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
     place: moduleGroupPlace,
@@ -54,13 +52,14 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
     directionToOtherLink: const CompassDirection.north(),
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
-            currentState),
+          currentState,
+        ),
   );
 
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   late final int seqNr = area.systems.seqNrOf(this);
@@ -79,15 +78,17 @@ class ModuleConveyor extends StateMachine implements LinkedSystem {
 
 class CheckIfEmpty extends DurationState<ModuleConveyor> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (moduleConveyor) => moduleConveyor
-                .conveyorSpeedProfile
-                .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
-            nextStateFunction: (moduleConveyor) =>
-                SimultaneousFeedOutFeedInModuleGroup(
-                    modulesIn: moduleConveyor.modulesIn,
-                    modulesOut: moduleConveyor.modulesOut,
-                    stateWhenCompleted: DoAgain()));
+    : super(
+        durationFunction: (moduleConveyor) => moduleConveyor
+            .conveyorSpeedProfile
+            .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
+        nextStateFunction: (moduleConveyor) =>
+            SimultaneousFeedOutFeedInModuleGroup(
+              modulesIn: moduleConveyor.modulesIn,
+              modulesOut: moduleConveyor.modulesOut,
+              stateWhenCompleted: DoAgain(),
+            ),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -100,9 +101,10 @@ class DoAgain extends State<ModuleConveyor> {
   @override
   State<ModuleConveyor>? nextState(ModuleConveyor moduleConveyor) =>
       SimultaneousFeedOutFeedInModuleGroup(
-          modulesIn: moduleConveyor.modulesIn,
-          modulesOut: moduleConveyor.modulesOut,
-          stateWhenCompleted: this);
+        modulesIn: moduleConveyor.modulesIn,
+        modulesOut: moduleConveyor.modulesOut,
+        stateWhenCompleted: this,
+      );
 }
 
 class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
@@ -151,9 +153,9 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
 
   static Duration durationUntilCanFeedOut(currentState) =>
       (currentState is SimultaneousFeedOutFeedInModuleGroup) &&
-              currentState.feedOutStateMachine.currentState is WaitToFeedOut
-          ? Duration.zero
-          : unknownDuration;
+          currentState.feedOutStateMachine.currentState is WaitToFeedOut
+      ? Duration.zero
+      : unknownDuration;
 
   @override
   void onStart(_) {
@@ -174,14 +176,16 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
 
   @override
   void onModuleTransportStarted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     feedInStateMachine.onModuleTransportStarted(betweenModuleGroupPlaces);
     feedOutStateMachine.onModuleTransportStarted(betweenModuleGroupPlaces);
   }
 
   @override
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     feedInStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
     feedOutStateMachine.onModuleTransportCompleted(betweenModuleGroupPlaces);
   }
@@ -206,14 +210,15 @@ class FeedInStateMachine extends StateMachine
       simultaneousFeedOutFeedIn.modulesIn;
 
   FeedInStateMachine(this.simultaneousFeedOutFeedIn)
-      : super(initialState: WaitUntilThereIsSpaceToFeedIn());
+    : super(initialState: WaitUntilThereIsSpaceToFeedIn());
 
   @override
   final String name = 'FeedInStateMachine';
 
   @override
   void onModuleTransportStarted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     if (currentState is ModuleTransportStartedListener &&
         betweenModuleGroupPlaces.destination == modulesIn.place) {
       var listener = currentState as ModuleTransportStartedListener;
@@ -223,7 +228,8 @@ class FeedInStateMachine extends StateMachine
 
   @override
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     if (currentState is ModuleTransportCompletedListener &&
         betweenModuleGroupPlaces.destination == modulesIn.place) {
       var listener = currentState as ModuleTransportCompletedListener;
@@ -245,7 +251,9 @@ class WaitUntilThereIsSpaceToFeedIn extends State<FeedInStateMachine> {
 
   @override
   void onUpdateToNextPointInTime(
-      FeedInStateMachine feedInStateMachine, Duration jump) {
+    FeedInStateMachine feedInStateMachine,
+    Duration jump,
+  ) {
     var feedOutStateMachine =
         feedInStateMachine.simultaneousFeedOutFeedIn.feedOutStateMachine;
     if (feedOutStateMachine.currentState is FeedOut) {
@@ -327,7 +335,7 @@ class FeedOutStateMachine extends StateMachine
       simultaneousFeedOutFeedIn.modulesOut;
 
   FeedOutStateMachine(this.simultaneousFeedOutFeedIn)
-      : super(initialState: WaitToFeedOut());
+    : super(initialState: WaitToFeedOut());
 
   @override
   final String name = 'FeedOutStateMachine';
@@ -340,7 +348,8 @@ class FeedOutStateMachine extends StateMachine
 
   @override
   void onModuleTransportStarted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     if (currentState is ModuleTransportStartedListener &&
         betweenModuleGroupPlaces.destination == modulesOut.place) {
       var listener = currentState as ModuleTransportStartedListener;
@@ -350,7 +359,8 @@ class FeedOutStateMachine extends StateMachine
 
   @override
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     if (currentState is ModuleTransportCompletedListener &&
         betweenModuleGroupPlaces.source.system == modulesOut.place.system) {
       var listener = currentState as ModuleTransportCompletedListener;
@@ -365,7 +375,8 @@ class WaitToFeedOut extends State<FeedOutStateMachine> {
 
   @override
   State<FeedOutStateMachine>? nextState(
-      FeedOutStateMachine feedOutStateMachine) {
+    FeedOutStateMachine feedOutStateMachine,
+  ) {
     if (!feedOutStateMachine.nextNeighborWaitingToFeedIn) {
       return null;
     }
@@ -387,8 +398,9 @@ class FeedOut extends State<FeedOutStateMachine>
   @override
   void onStart(FeedOutStateMachine stateMachine) {
     var moduleGroup = stateMachine.modulesOut.place.moduleGroup!;
-    moduleGroup.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(stateMachine.modulesOut);
+    moduleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(
+      stateMachine.modulesOut,
+    );
   }
 
   @override
@@ -434,31 +446,35 @@ class FeedOutFirstStack extends State<FeedOutStateMachine>
     moduleGroups.add(firstStackModuleGroup);
 
     var firstStackPlace = ModuleGroupPlace(
-        system: system,
-        offsetFromCenterWhenSystemFacingNorth:
-            centerPlace.offsetFromCenterWhenSystemFacingNorth.addY(
-                moduleGroupLengthInMeters * -0.5 + moduleLengthInMeters * 0.5));
+      system: system,
+      offsetFromCenterWhenSystemFacingNorth: centerPlace
+          .offsetFromCenterWhenSystemFacingNorth
+          .addY(moduleGroupLengthInMeters * -0.5 + moduleLengthInMeters * 0.5),
+    );
     firstStackPlace.moduleGroup = firstStackModuleGroup;
 
     firstStackPosition = BetweenModuleGroupPlaces(
-        source: firstStackPlace,
-        destination: stateMachine.modulesOut.linkedTo!.place,
-        duration: outFeedDuration);
+      source: firstStackPlace,
+      destination: stateMachine.modulesOut.linkedTo!.place,
+      duration: outFeedDuration,
+    );
     firstStackModuleGroup.position = firstStackPosition;
 
     for (var position in firstStack.keys) {
       remainingStacksModuleGroup.remove(position);
     }
     var remainingStackPlace = ModuleGroupPlace(
-        system: system,
-        offsetFromCenterWhenSystemFacingNorth:
-            centerPlace.offsetFromCenterWhenSystemFacingNorth.addY(
-                moduleGroupLengthInMeters * 0.5 - moduleLengthInMeters * 0.5));
+      system: system,
+      offsetFromCenterWhenSystemFacingNorth: centerPlace
+          .offsetFromCenterWhenSystemFacingNorth
+          .addY(moduleGroupLengthInMeters * 0.5 - moduleLengthInMeters * 0.5),
+    );
     remainingStackPlace.moduleGroup = remainingStacksModuleGroup;
     remainingStacksModuleGroup.position = BetweenModuleGroupPlaces(
-        source: remainingStackPlace,
-        destination: centerPlace,
-        duration: outFeedDuration * 0.5);
+      source: remainingStackPlace,
+      destination: centerPlace,
+      duration: outFeedDuration * 0.5,
+    );
   }
 
   AtModuleGroupPlace dummyPlace(FeedOutStateMachine stateMachine) =>

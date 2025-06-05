@@ -5,7 +5,7 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleStackerPainter extends ShapePainter {
   ModuleStackerPainter(ModuleStacker stacker, LiveBirdsHandlingTheme theme)
-      : super(shape: stacker.shape, theme: theme);
+    : super(shape: stacker.shape, theme: theme);
 }
 
 class ModuleStackerShape extends ModuleDeStackerShape {}

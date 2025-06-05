@@ -7,7 +7,7 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleShuttlePainter extends ShapePainter {
   ModuleShuttlePainter(ModuleShuttle shuttle, LiveBirdsHandlingTheme theme)
-      : super(shape: shuttle.shape, theme: theme);
+    : super(shape: shuttle.shape, theme: theme);
 }
 
 class ModuleShuttleFrameShape extends CompoundShape {
@@ -17,31 +17,36 @@ class ModuleShuttleFrameShape extends CompoundShape {
   late Map<ShuttleLinkLocation, OffsetInMeters> linkLocationOffsets;
 
   ModuleShuttleFrameShape(ModuleShuttle shuttle) {
-    var widthInMeters = sideWidthInMeters +
+    var widthInMeters =
+        sideWidthInMeters +
         shuttle.betweenPositionsInMeters.reduce((a, b) => a + b) +
         sideWidthInMeters;
     var outLine = Box(
-        xInMeters: widthInMeters,
-        yInMeters: ModuleShuttleCarrierShape.lengthInMeters);
+      xInMeters: widthInMeters,
+      yInMeters: ModuleShuttleCarrierShape.lengthInMeters,
+    );
     add(OffsetInMeters.zero, outLine);
 
     moduleGroupCenters = [
       for (int i = 0; i < shuttle.nrOfPositions; i++)
         OffsetInMeters(
-                xInMeters: xInMetersForPosition(shuttle, i),
-                yInMeters: ModuleShuttleCarrierShape.lengthInMeters / 2) -
-            centerCenter
+              xInMeters: xInMetersForPosition(shuttle, i),
+              yInMeters: ModuleShuttleCarrierShape.lengthInMeters / 2,
+            ) -
+            centerCenter,
     ];
 
     linkLocationOffsets = {
       for (var linkLocation in shuttle.linkLocations)
-        linkLocation: OffsetInMeters(
-                xInMeters: xInMetersForPosition(shuttle, linkLocation.position),
-                yInMeters: linkLocation.side.direction ==
-                        const CompassDirection.north()
-                    ? 0
-                    : ModuleShuttleCarrierShape.lengthInMeters) -
-            centerCenter
+        linkLocation:
+            OffsetInMeters(
+              xInMeters: xInMetersForPosition(shuttle, linkLocation.position),
+              yInMeters:
+                  linkLocation.side.direction == const CompassDirection.north()
+                  ? 0
+                  : ModuleShuttleCarrierShape.lengthInMeters,
+            ) -
+            centerCenter,
     };
   }
 
@@ -59,8 +64,9 @@ class ModuleShuttleFrameShape extends CompoundShape {
 
 class ModuleShuttleCarrierPainter extends ShapePainter {
   ModuleShuttleCarrierPainter(
-      ModuleShuttleCarrier carrier, LiveBirdsHandlingTheme theme)
-      : super(shape: carrier.shape, theme: theme);
+    ModuleShuttleCarrier carrier,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: carrier.shape, theme: theme);
 }
 
 class ModuleShuttleCarrierShape extends VehicleShape {

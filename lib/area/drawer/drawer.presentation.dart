@@ -18,7 +18,8 @@ class GrandeDrawerWidget extends StatelessWidget {
       child: drawer.position is DrawerPositionAndSize
           ? Transform.scale(
               scale: (drawer.position as DrawerPositionAndSize).scale,
-              child: CustomPaint(painter: DrawerPainter(drawer, theme)))
+              child: CustomPaint(painter: DrawerPainter(drawer, theme)),
+            )
           : CustomPaint(painter: DrawerPainter(drawer, theme)),
     );
   }

@@ -13,13 +13,11 @@ class AuthorizationService {
   List<Site> get sitesThatCanBeViewed =>
       _loggedInUser?.sitesThatCanBeViewed ?? <Site>[];
 
-  void login({
-    required String name,
-    required String passWord,
-  }) {
+  void login({required String name, required String passWord}) {
     /// TODO add delay after 3 failed attempts to protect against [brute force attack](https://en.wikipedia.org/wiki/Brute-force_attack)
     var foundUser = _users.firstWhereOrNull(
-        (user) => _nameMatches(user, name) && _passwordMatches(user, passWord));
+      (user) => _nameMatches(user, name) && _passwordMatches(user, passWord),
+    );
     if (foundUser == null) {
       if (!_users.any((user) => _nameMatches(user, name))) {
         throw LoginException('Login failed: Invalid user name.');
@@ -29,7 +27,8 @@ class AuthorizationService {
       }
       if (_loggedInUser!.sitesThatCanBeViewed.isNotEmpty) {
         throw LoginException(
-            'Login failed: You are not allowed to view anything.');
+          'Login failed: You are not allowed to view anything.',
+        );
       }
     } else {
       _loggedInUser = foundUser;
@@ -93,10 +92,7 @@ class UserFactory {
 
   Sites get sites => GetIt.instance<Sites>();
 
-  User _createAdminUser({
-    required String name,
-    required String password,
-  }) =>
+  User _createAdminUser({required String name, required String password}) =>
       User(
         name: name,
         password: password,
@@ -104,10 +100,7 @@ class UserFactory {
         sitesThatCanBeViewed: sites,
       );
 
-  User _createViewAllUser({
-    required String name,
-    required String password,
-  }) =>
+  User _createViewAllUser({required String name, required String password}) =>
       User(
         name: name,
         password: password,
@@ -115,9 +108,12 @@ class UserFactory {
         sitesThatCanBeViewed: sites,
       );
 
-  Iterable<User> _createSiteUsers() => sites.map((site) => User(
+  Iterable<User> _createSiteUsers() => sites.map(
+    (site) => User(
       name: AuthorizationService.userNameForSite(site),
       password: AuthorizationService.passwordForSite(site),
       isAdmin: false,
-      sitesThatCanBeViewed: [site]));
+      sitesThatCanBeViewed: [site],
+    ),
+  );
 }

@@ -69,8 +69,8 @@ class BoxTruck extends Truck implements ModuleGroupsSystem {
   }) : super(initialState: DriveToUnloadPoint());
 
   @override
-  late List<ModuleGroupPlace> moduleGroupPlaces =
-      ModuleGroupPlaceFactory().create(this);
+  late List<ModuleGroupPlace> moduleGroupPlaces = ModuleGroupPlaceFactory()
+      .create(this);
 
   @override
   // TODO: implement moduleGroupStartRotationInDegrees
@@ -99,9 +99,10 @@ class BoxTruck extends Truck implements ModuleGroupsSystem {
 
   @override
   final SpeedProfile speedProfile = const SpeedProfile(
-      maxSpeed: maxSpeedInMetersPerSecond,
-      acceleration: acceleration,
-      deceleration: deceleration);
+    maxSpeed: maxSpeedInMetersPerSecond,
+    acceleration: acceleration,
+    deceleration: deceleration,
+  );
 
   @override
   late LiveBirdHandlingArea area = super.routes.area;
@@ -112,11 +113,11 @@ class DriveToUnloadPoint extends Drive<Truck> {
   final String name = 'DriveToUnloadPoint';
 
   DriveToUnloadPoint()
-      : super(
-          speedProfileFunction: (truck) => truck.speedProfile,
-          routeFunction: (truck) => truck.routes.fromEntranceToUnLoadPoint,
-          nextStateFunction: (truck) => WaitUntilModulesUnloaded(),
-        );
+    : super(
+        speedProfileFunction: (truck) => truck.speedProfile,
+        routeFunction: (truck) => truck.routes.fromEntranceToUnLoadPoint,
+        nextStateFunction: (truck) => WaitUntilModulesUnloaded(),
+      );
 
   @override
   void onUpdateToNextPointInTime(Truck vehicle, Duration jump) {

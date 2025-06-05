@@ -17,13 +17,14 @@ class DefaultLiftPositionHeights extends DelegatingMap<LiftPosition, double> {
   static const double clearanceHeightInMeters = 0.5;
 
   const DefaultLiftPositionHeights()
-      : super(const {
-          LiftPosition.inFeed: inAndOutFeedHeightInMeters,
-          LiftPosition.outFeed: inAndOutFeedHeightInMeters,
-          LiftPosition.topModuleAtSupport:
-              inAndOutFeedHeightInMeters + clearanceHeightInMeters,
-          LiftPosition.singleModuleAtSupports: inAndOutFeedHeightInMeters +
-              clearanceHeightInMeters +
-              containerHeightInMeters
-        });
+    : super(const {
+        LiftPosition.inFeed: inAndOutFeedHeightInMeters,
+        LiftPosition.outFeed: inAndOutFeedHeightInMeters,
+        LiftPosition.topModuleAtSupport:
+            inAndOutFeedHeightInMeters + clearanceHeightInMeters,
+        LiftPosition.singleModuleAtSupports:
+            inAndOutFeedHeightInMeters +
+            clearanceHeightInMeters +
+            containerHeightInMeters,
+      });
 }

@@ -23,14 +23,11 @@ abstract class ModuleBufferSystem extends StateMachine implements LinkedSystem {
 
   Shape get shape;
 
-  ModuleBufferSystem({
-    required this.area,
-    SpeedProfile? conveyorSpeedProfile,
-  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        super(
-          initialState: WaitToFeedIn(),
-        );
+  ModuleBufferSystem({required this.area, SpeedProfile? conveyorSpeedProfile})
+    : conveyorSpeedProfile =
+          conveyorSpeedProfile ??
+          area.productDefinition.speedProfiles.moduleConveyor,
+      super(initialState: WaitToFeedIn());
 
   ModuleGroupInLink get modulesIn;
 
@@ -39,7 +36,7 @@ abstract class ModuleBufferSystem extends StateMachine implements LinkedSystem {
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   late final int seqNr = area.systems.seqNrOf(this);
@@ -83,22 +80,20 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
     WaitToFeedIn: () => FeedIn(),
     FeedIn: () => WaitToFeedOut(),
     WaitToFeedOut: () => FeedOut(),
-    FeedOut: () => WaitToFeedIn()
+    FeedOut: () => WaitToFeedIn(),
   };
 
-  ModuleBufferConveyor({
-    required super.area,
-    super.conveyorSpeedProfile,
-  });
+  ModuleBufferConveyor({required super.area, super.conveyorSpeedProfile});
 
   @override
   late final Shape shape = Box(
-      xInMeters:
-          area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
-              0.27,
-      yInMeters:
-          area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
-              0.2);
+    xInMeters:
+        area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
+        0.27,
+    yInMeters:
+        area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
+        0.2,
+  );
 }
 
 abstract class ModuleBufferAngleTransferSystem extends ModuleBufferSystem {
@@ -132,9 +127,9 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth:
         (moduleOutDirection == Direction.counterClockWise
-                ? shape.centerLeft
-                : shape.centerRight) -
-            shape.centerCenter,
+            ? shape.centerLeft
+            : shape.centerRight) -
+        shape.centerCenter,
     directionToOtherLink: moduleOutDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
@@ -147,12 +142,13 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem
 
   @override
   late final Shape shape = Box(
-      xInMeters:
-          area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
-              0.2,
-      yInMeters:
-          area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
-              0.27);
+    xInMeters:
+        area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
+        0.2,
+    yInMeters:
+        area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
+        0.27,
+  );
 
   ///TODO add frame left or right based on [moduleOutDirection]
 
@@ -166,12 +162,13 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem
     Up: () => WaitToFeedIn(),
   };
 
-  ModuleBufferAngleTransferInFeed(
-      {required super.area,
-      super.conveyorSpeedProfile,
-      super.upDuration,
-      super.downDuration,
-      required super.moduleOutDirection});
+  ModuleBufferAngleTransferInFeed({
+    required super.area,
+    super.conveyorSpeedProfile,
+    super.upDuration,
+    super.downDuration,
+    required super.moduleOutDirection,
+  });
 
   @override
   void moduleGroupFreeFromForkLiftTruck() {
@@ -197,9 +194,9 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth:
         (moduleOutDirection == Direction.counterClockWise
-                ? shape.centerLeft
-                : shape.centerRight) -
-            shape.centerCenter,
+            ? shape.centerLeft
+            : shape.centerRight) -
+        shape.centerCenter,
     directionToOtherLink: moduleOutDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
@@ -212,12 +209,13 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem
 
   @override
   late final Shape shape = Box(
-      xInMeters:
-          area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
-              0.27,
-      yInMeters:
-          area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
-              0.2);
+    xInMeters:
+        area.productDefinition.truckRows.first.footprintOnSystem.yInMeters +
+        0.27,
+    yInMeters:
+        area.productDefinition.truckRows.first.footprintOnSystem.xInMeters +
+        0.2,
+  );
 
   ///TODO add frame left or right based on [moduleOutDirection]
 
@@ -231,12 +229,13 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem
     Down: () => WaitToFeedIn(),
   };
 
-  ModuleBufferAngleTransferOutFeed(
-      {required super.area,
-      super.conveyorSpeedProfile,
-      super.upDuration,
-      super.downDuration,
-      required super.moduleOutDirection});
+  ModuleBufferAngleTransferOutFeed({
+    required super.area,
+    super.conveyorSpeedProfile,
+    super.upDuration,
+    super.downDuration,
+    required super.moduleOutDirection,
+  });
 
   @override
   void moduleGroupFreeFromForkLiftTruck() {
@@ -315,8 +314,9 @@ class FeedOut extends State<ModuleBufferSystem>
   @override
   void onStart(ModuleBufferSystem system) {
     var transportedModuleGroup = system.moduleGroupPlace.moduleGroup!;
-    transportedModuleGroup.position =
-        BetweenModuleGroupPlaces.forModuleOutLink(system.modulesOut);
+    transportedModuleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(
+      system.modulesOut,
+    );
   }
 
   @override
@@ -335,10 +335,11 @@ class FeedOut extends State<ModuleBufferSystem>
 
 class Up extends DurationState<ModuleBufferSystem> {
   Up()
-      : super(
-            durationFunction: (system) =>
-                (system as ModuleBufferAngleTransferSystem).upDuration,
-            nextStateFunction: (system) => system.nextState[Up]!());
+    : super(
+        durationFunction: (system) =>
+            (system as ModuleBufferAngleTransferSystem).upDuration,
+        nextStateFunction: (system) => system.nextState[Up]!(),
+      );
 
   @override
   String get name => 'Up';
@@ -346,10 +347,11 @@ class Up extends DurationState<ModuleBufferSystem> {
 
 class Down extends DurationState<ModuleBufferSystem> {
   Down()
-      : super(
-            durationFunction: (system) =>
-                (system as ModuleBufferAngleTransferSystem).downDuration,
-            nextStateFunction: (system) => system.nextState[Down]!());
+    : super(
+        durationFunction: (system) =>
+            (system as ModuleBufferAngleTransferSystem).downDuration,
+        nextStateFunction: (system) => system.nextState[Down]!(),
+      );
 
   @override
   String get name => 'Down';

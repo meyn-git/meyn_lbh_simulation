@@ -41,20 +41,44 @@ abstract class LiveBirdHandlingArea implements TimeProcessor {
   void validateModuleCasStart() {
     if (systems.whereType<ModuleCas>().isNotEmpty &&
         systems.whereType<ModuleCasStart>().isEmpty) {
-      throw Exception('Add a $ModuleCasStart to the systems '
-          'when you have $ModuleCas systems.');
+      throw Exception(
+        'Add a $ModuleCasStart to the systems '
+        'when you have $ModuleCas systems.',
+      );
     }
   }
 
   void validateModuleCasAllocation() {
     if (systems.whereType<ModuleCas>().length > 1 &&
         systems.whereType<ModuleCasAllocation>().isEmpty) {
-      throw Exception('Add a $ModuleCasAllocation to the timeProcessors '
-          'when you have 1 or more $ModuleCas systems.');
+      throw Exception(
+        'Add a $ModuleCasAllocation to the timeProcessors '
+        'when you have 1 or more $ModuleCas systems.',
+      );
     }
   }
 
   late String name = '$lineName-$productDefinition';
+
+  late final int modulesPerCasUnitCycle = _modulesPerCasUnitCycle();
+
+  int _modulesPerCasUnitCycle() {
+    var casUnits = systems.whereType<ModuleCas>();
+    if (casUnits.isEmpty) {
+      throw Exception('No $ModuleCas units found');
+    }
+    var levelsOfModules = casUnits
+        .map((casUnit) => casUnit.levelsOfModules)
+        .toSet();
+    if (levelsOfModules.length > 1) {
+      throw Exception(
+        'All $ModuleCas units must have the same number of module levels',
+      );
+    }
+    var levelOfModules = levelsOfModules.first;
+    var truckRow = productDefinition.truckRows.first;
+    return levelOfModules * truckRow.numberOfStacks;
+  }
 
   /// Updates all the [LinkedSystem]s, [ModuleGroup]s and [GrandeDrawer]s]
   @override
@@ -103,10 +127,11 @@ class ProductDefinition {
   final CasRecipe? casRecipe;
 
   late final SpeedProfiles speedProfiles = SpeedProfiles.ofVariantBase(
-      truckRows.first.templates.first.variant as ModuleVariantBase);
+    truckRows.first.templates.first.variant as ModuleVariantBase,
+  );
 
   final List<LiveBirdHandlingArea> Function(ProductDefinition)
-      areaFactory; //TODO does this have to be a list?
+  areaFactory; //TODO does this have to be a list?
 
   ProductDefinition({
     required this.areaFactory,
@@ -122,14 +147,25 @@ class ProductDefinition {
 
   List<LiveBirdHandlingArea> get areas => areaFactory(this);
 
-  double get averageProductsPerModuleGroup {
+  /// FIXME: check where this is used, because often averageProductsPerModule should be used
+  double get averageNumberOfBirdsPerTruckRow {
     var totalBirds = 0;
     var totalOccurrence = 0.0;
-    for (var moduleGroupCapacity in truckRows) {
-      totalBirds += moduleGroupCapacity.numberOfBirds;
-      totalOccurrence += moduleGroupCapacity.occurrence;
+    for (var truckRow in truckRows) {
+      totalBirds += truckRow.numberOfBirds;
+      totalOccurrence += truckRow.occurrence;
     }
     return totalBirds / totalOccurrence;
+  }
+
+  double get averageNumberOfBirdsPerModule {
+    var totalBirdsPerModule = 0.0;
+    var totalTruckRowOccurrence = 0.0;
+    for (var truckRow in truckRows) {
+      totalBirdsPerModule += truckRow.numberOfBirds / truckRow.numberOfModules;
+      totalTruckRowOccurrence += truckRow.occurrence;
+    }
+    return totalBirdsPerModule / totalTruckRowOccurrence;
   }
 
   @override
@@ -180,9 +216,7 @@ class SystemLayout {
     _placeSystems(systems.startDirection);
   }
 
-  void _placeSystems(
-    CompassDirection startDirection,
-  ) {
+  void _placeSystems(CompassDirection startDirection) {
     if (linkedSystems.isEmpty) {
       return;
     }
@@ -200,7 +234,9 @@ class SystemLayout {
   }
 
   void _correctOffsets(
-      Map<LinkedSystem, OffsetInMeters> map, OffsetInMeters correction) {
+    Map<LinkedSystem, OffsetInMeters> map,
+    OffsetInMeters correction,
+  ) {
     for (var entry in map.entries) {
       map[entry.key] = entry.value + correction;
     }
@@ -241,8 +277,8 @@ class SystemLayout {
         topLeft + system.sizeWhenFacingNorth.toOffsetInMeters() * 0.5;
     if (system is DrawerConveyor) {
       var toCenter = _centers[system]!;
-      var centerToStart =
-          system.drawerIn.offsetFromCenterWhenFacingNorth.rotate(rotation);
+      var centerToStart = system.drawerIn.offsetFromCenterWhenFacingNorth
+          .rotate(rotation);
       _drawerStarts[system] = toCenter + centerToStart;
       var originalDrawerPath = system.drawerPath;
       var rotatedDrawerPath = originalDrawerPath.rotate(rotation);
@@ -256,19 +292,24 @@ class SystemLayout {
       if (system2 != null &&
           _unknownPosition(system2) &&
           !skip(system1, system2)) {
-        var system2Rotation = rotation +
+        var system2Rotation =
+            rotation +
             link.directionToOtherLink -
             link.linkedTo!.directionToOtherLink.opposite;
         var system1TopLeftToCenter =
             system1.sizeWhenFacingNorth.toOffsetInMeters() * 0.5;
-        var system1CenterToLink =
-            link.offsetFromCenterWhenFacingNorth.rotate(system1Rotation);
-        var system2LinkToCenter = link.linkedTo!.offsetFromCenterWhenFacingNorth
-                .rotate(system2Rotation) *
+        var system1CenterToLink = link.offsetFromCenterWhenFacingNorth.rotate(
+          system1Rotation,
+        );
+        var system2LinkToCenter =
+            link.linkedTo!.offsetFromCenterWhenFacingNorth.rotate(
+              system2Rotation,
+            ) *
             -1;
         var system2CenterToTopLeft =
             system2.sizeWhenFacingNorth.toOffsetInMeters() * -0.5;
-        var system2TopLeft = system1TopLeft +
+        var system2TopLeft =
+            system1TopLeft +
             system1TopLeftToCenter +
             system1CenterToLink +
             system2LinkToCenter +
@@ -283,8 +324,10 @@ class SystemLayout {
   OffsetInMeters topLeftWhenFacingNorthOf(LinkedSystem system) =>
       _topLefts[system]!;
 
-  OffsetInMeters positionOnSystem(VisibleSystem system,
-          OffsetInMeters offsetFromSystemCenterWhenFacingNorth) =>
+  OffsetInMeters positionOnSystem(
+    VisibleSystem system,
+    OffsetInMeters offsetFromSystemCenterWhenFacingNorth,
+  ) =>
       centerOf(system) +
       offsetFromSystemCenterWhenFacingNorth.rotate(rotationOf(system));
 
@@ -298,9 +341,8 @@ class SystemLayout {
   CompassDirection rotationOf(VisibleSystem system) => system is Vehicle
       ? system.direction
       : system is AdditionalRotation
-          ? _rotations[system]! +
-              (system as AdditionalRotation).additionalRotation
-          : _rotations[system]!;
+      ? _rotations[system]! + (system as AdditionalRotation).additionalRotation
+      : _rotations[system]!;
 
   /// Returns the cached [DrawerPath] of a [LinkedSystem]
   DrawerPath drawerPathOf(DrawerConveyor drawerConveyor) =>

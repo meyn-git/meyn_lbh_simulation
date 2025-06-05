@@ -3,6 +3,7 @@ import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/site/scenario.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_0000_keskinoglu.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_1112_senpilic_gida_santic.domain.dart';
+import 'package:meyn_lbh_simulation/site/site_1203_abalioglu.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_4054_taravis_sarvar.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_4649_gut_bergmark.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_5021_ha_kylling_as.domain.dart';
@@ -66,25 +67,26 @@ abstract class Site {
 
 class Sites extends DelegatingList<Site> {
   Sites()
-      : super([
-          FloridaSite(),
-          WechSite(),
-          IndykpolLdcSite(),
-          SchildermansSite(),
-          BerikaSite(),
-          MicarnaSite(),
-          IndrolSite(),
-          KeskinogluSite(),
-          SenpelicSite(),
-          HaKyllingAsSite(),
-          BorgmeierSite(),
-          GutBergmarkSite(),
-          VanDerLindenSite(),
-          LopezSite(),
-          HaerlandSite(),
-          TaravisSite(),
-          FileniSite(),
-          DobrimexSite(),
-          DabeSite(),
-        ]);
+    : super([
+        AbaliogluSite(),
+        IndrolSite(),
+        FloridaSite(),
+        WechSite(),
+        IndykpolLdcSite(),
+        SchildermansSite(),
+        BerikaSite(),
+        MicarnaSite(),
+        KeskinogluSite(),
+        SenpelicSite(),
+        HaKyllingAsSite(),
+        BorgmeierSite(),
+        GutBergmarkSite(),
+        VanDerLindenSite(),
+        LopezSite(),
+        HaerlandSite(),
+        TaravisSite(),
+        FileniSite(),
+        DobrimexSite(),
+        DabeSite(),
+      ]);
 }

@@ -4,5 +4,5 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class TruckRoutesPainter extends RoutePainter {
   TruckRoutesPainter(TruckRoutes system, LiveBirdsHandlingTheme theme)
-      : super(system.fullRoute, theme);
+    : super(system.fullRoute, theme);
 }

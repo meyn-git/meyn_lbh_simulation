@@ -30,11 +30,9 @@ class ModuleLoadingConveyor extends StateMachine
     required this.area,
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : conveyorSpeedProfile =
-            speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
-        super(
-          initialState: CheckIfEmpty(),
-        );
+  }) : conveyorSpeedProfile =
+           speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
+       super(initialState: CheckIfEmpty());
 
   @override
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
@@ -57,7 +55,7 @@ class ModuleLoadingConveyor extends StateMachine
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   late final int seqNr = area.systems.seqNrOf(this);
@@ -78,18 +76,20 @@ class ModuleLoadingConveyor extends StateMachine
   void moduleGroupFreeFromForkLiftTruck() {
     if (currentState is WaitingUntilFreeFromForkLiftTruck) {
       (currentState as WaitingUntilFreeFromForkLiftTruck)
-          .freeFromForkLiftTruck = true;
+              .freeFromForkLiftTruck =
+          true;
     }
   }
 }
 
 class CheckIfEmpty extends DurationState<ModuleLoadingConveyor> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (moduleConveyor) => moduleConveyor
-                .conveyorSpeedProfile
-                .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
-            nextStateFunction: (moduleConveyor) => WaitingToFeedIn());
+    : super(
+        durationFunction: (moduleConveyor) => moduleConveyor
+            .conveyorSpeedProfile
+            .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
+        nextStateFunction: (moduleConveyor) => WaitingToFeedIn(),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -101,8 +101,8 @@ class WaitingToFeedIn extends State<ModuleLoadingConveyor> {
 
   @override
   State<ModuleLoadingConveyor>? nextState(
-          ModuleLoadingConveyor moduleConveyor) =>
-      isLoaded(moduleConveyor) ? WaitingUntilFreeFromForkLiftTruck() : null;
+    ModuleLoadingConveyor moduleConveyor,
+  ) => isLoaded(moduleConveyor) ? WaitingUntilFreeFromForkLiftTruck() : null;
 
   bool isLoaded(ModuleLoadingConveyor moduleConveyor) =>
       moduleConveyor.moduleGroupPlace.moduleGroup != null;
@@ -116,8 +116,8 @@ class WaitingUntilFreeFromForkLiftTruck extends State<ModuleLoadingConveyor> {
 
   @override
   State<ModuleLoadingConveyor>? nextState(
-          ModuleLoadingConveyor moduleConveyor) =>
-      freeFromForkLiftTruck ? WaitingToFeedOut() : null;
+    ModuleLoadingConveyor moduleConveyor,
+  ) => freeFromForkLiftTruck ? WaitingToFeedOut() : null;
 }
 
 class WaitingToFeedOut extends State<ModuleLoadingConveyor> {
@@ -126,8 +126,8 @@ class WaitingToFeedOut extends State<ModuleLoadingConveyor> {
 
   @override
   State<ModuleLoadingConveyor>? nextState(
-          ModuleLoadingConveyor moduleConveyor) =>
-      canFeedOut(moduleConveyor) ? FeedOut() : null;
+    ModuleLoadingConveyor moduleConveyor,
+  ) => canFeedOut(moduleConveyor) ? FeedOut() : null;
 
   bool canFeedOut(ModuleLoadingConveyor moduleConveyor) =>
       moduleConveyor.modulesOut.linkedTo!.canFeedIn();
@@ -144,17 +144,19 @@ class FeedOut extends State<ModuleLoadingConveyor>
   void onStart(ModuleLoadingConveyor moduleLoadingConveyor) {
     var moduleGroup = moduleLoadingConveyor.moduleGroupPlace.moduleGroup!;
     moduleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(
-        moduleLoadingConveyor.modulesOut);
+      moduleLoadingConveyor.modulesOut,
+    );
   }
 
   @override
   State<ModuleLoadingConveyor>? nextState(
-          ModuleLoadingConveyor moduleConveyor) =>
-      completed ? WaitingToFeedIn() : null;
+    ModuleLoadingConveyor moduleConveyor,
+  ) => completed ? WaitingToFeedIn() : null;
 
   @override
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     completed = true;
   }
 }

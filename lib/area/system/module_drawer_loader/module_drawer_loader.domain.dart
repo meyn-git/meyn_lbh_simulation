@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/drawer/drawer.domain.dart';
@@ -43,43 +45,46 @@ class DrawerLoaderLift extends StateMachine implements LinkedSystem {
   Duration drawerPushOutCycle = Duration.zero;
   Durations drawerPushOutCycles = Durations(maxSize: 20);
 
-  late final List<DrawerLiftPlace> drawerLiftPlaces =
-      shape.centerLiftToDrawerCenterInLift
-          .map((offset) => DrawerLiftPlace(
-                system: this,
-                centerToDrawerCenterWhenSystemFacesNorth: offset,
-                level: shape.centerLiftToDrawerCenterInLift.indexOf(offset),
-              ))
-          .toList();
+  late final List<DrawerLiftPlace> drawerLiftPlaces = shape
+      .centerLiftToDrawerCenterInLift
+      .map(
+        (offset) => DrawerLiftPlace(
+          system: this,
+          centerToDrawerCenterWhenSystemFacesNorth: offset,
+          level: shape.centerLiftToDrawerCenterInLift.indexOf(offset),
+        ),
+      )
+      .toList();
 
   late final DrawerPlace drawerInPlace = DrawerPlace(
-      system: this,
-      centerToDrawerCenterWhenSystemFacesNorth:
-          shape.centerToDrawerInLink.addY(DrawerVariant.lengthInMeters / 2));
+    system: this,
+    centerToDrawerCenterWhenSystemFacesNorth: shape.centerToDrawerInLink.addY(
+      DrawerVariant.lengthInMeters / 2,
+    ),
+  );
 
   DrawerLoaderLift({
     required this.area,
     this.upDuration = const Duration(
-        milliseconds:
-            1600), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
+      milliseconds: 1600,
+    ), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
 
     this.feedInDrawerDuration = const Duration(milliseconds: 2500), // TODO
     this.pusherPushDuration = const Duration(
-        milliseconds:
-            2500), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
+      milliseconds: 2500,
+    ), // Based on "Speed calculations_estimates_V3_Erik.xlsx"
     this.pusherBackDuration = const Duration(milliseconds: 2500), // TODO
     this.nrOfLiftPositions = 6,
-  }) : super(
-          initialState: SimultaneouslyFeedInAndFeedOutDrawers(),
-        );
+  }) : super(initialState: SimultaneouslyFeedInAndFeedOutDrawers());
 
   @override
   late SizeInMeters sizeWhenFacingNorth = _size();
 
   bool get canGoUp {
     var drawersToPushOut = drawerLiftPlaces
-        .where((drawerPlace) =>
-            drawerPlace.level > 0 && drawerPlace.drawer != null)
+        .where(
+          (drawerPlace) => drawerPlace.level > 0 && drawerPlace.drawer != null,
+        )
         .length;
     return !bottomPositionIsEmpty && drawersToPushOut < levelsToLoad;
   }
@@ -105,15 +110,17 @@ class DrawerLoaderLift extends StateMachine implements LinkedSystem {
   SizeInMeters _size() => shape.size;
 
   late DrawerInLink<DrawerLoaderLift> drawerIn = DrawerInLink<DrawerLoaderLift>(
-      system: this,
-      offsetFromCenterWhenFacingNorth: shape.centerToDrawerInLink,
-      directionToOtherLink: const CompassDirection.south());
+    system: this,
+    offsetFromCenterWhenFacingNorth: shape.centerToDrawerInLink,
+    directionToOtherLink: const CompassDirection.south(),
+  );
 
   late DrawersOutLink<DrawerLoaderLift> drawersOut =
       DrawersOutLink<DrawerLoaderLift>(
-          system: this,
-          offsetFromCenterWhenFacingNorth: shape.centerToDrawersOutLink,
-          directionToOtherLink: const CompassDirection.north());
+        system: this,
+        offsetFromCenterWhenFacingNorth: shape.centerToDrawersOutLink,
+        directionToOtherLink: const CompassDirection.north(),
+      );
 
   @override
   late List<Link> links = [drawerIn, drawersOut];
@@ -124,8 +131,10 @@ class DrawerLoaderLift extends StateMachine implements LinkedSystem {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('speed',
-          '${drawerPushOutCycles.averagePerHour.toStringAsFixed(1)} drawers/hour');
+      .appendProperty(
+        'speed',
+        '${drawerPushOutCycles.averagePerHour.toStringAsFixed(1)} drawers/hour',
+      );
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
@@ -140,12 +149,12 @@ class DrawerLoaderLift extends StateMachine implements LinkedSystem {
 
   bool get bottomPositionIsEmpty => drawerLiftPlaces.first.drawer == null;
 
-  GrandeDrawer? drawerAtEndOfPrecedingConveyor() =>
-      drawers.firstWhereOrNull((drawer) =>
-          drawer.position is OnConveyorPosition &&
-          (drawer.position as OnConveyorPosition).conveyor ==
-              precedingConveyor &&
-          (drawer.position as OnConveyorPosition).atEnd);
+  GrandeDrawer? drawerAtEndOfPrecedingConveyor() => drawers.firstWhereOrNull(
+    (drawer) =>
+        drawer.position is OnConveyorPosition &&
+        (drawer.position as OnConveyorPosition).conveyor == precedingConveyor &&
+        (drawer.position as OnConveyorPosition).atEnd,
+  );
 
   @override
   late final String name = 'DrawerLoaderLift$seqNr';
@@ -176,8 +185,9 @@ class WaitingToFeedInDrawer extends DrawerFeedInState {
   }
 
   bool canStartFeedInDrawer(
-          GrandeDrawer? drawerToFeedIn, DrawerLoaderLift lift) =>
-      drawerToFeedIn != null && lift.bottomPositionIsEmpty;
+    GrandeDrawer? drawerToFeedIn,
+    DrawerLoaderLift lift,
+  ) => drawerToFeedIn != null && lift.bottomPositionIsEmpty;
 }
 
 class FeedingInDrawer extends DrawerFeedInState
@@ -257,8 +267,10 @@ class FeedingOutDrawers extends DrawersFeedOutState
     for (var drawerToFeedOut in drawersToFeedOut) {
       var position = (drawerToFeedOut.position as AtDrawerPlace);
       var level = (position.drawerPlace as DrawerLiftPlace).level;
-      drawerToFeedOut.position =
-          BetweenLiftAndDrawerLoader(lift: lift, level: level);
+      drawerToFeedOut.position = BetweenLiftAndDrawerLoader(
+        lift: lift,
+        level: level,
+      );
     }
   }
 
@@ -356,10 +368,11 @@ class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift>
 
 class RaiseLift extends DurationState<DrawerLoaderLift> {
   RaiseLift()
-      : super(
-            durationFunction: (drawerLift) => drawerLift.upDuration,
-            nextStateFunction: (drawerLift) =>
-                SimultaneouslyFeedInAndFeedOutDrawers());
+    : super(
+        durationFunction: (drawerLift) => drawerLift.upDuration,
+        nextStateFunction: (drawerLift) =>
+            SimultaneouslyFeedInAndFeedOutDrawers(),
+      );
 
   @override
   String get name => 'RaiseLift';
@@ -373,8 +386,10 @@ class RaiseLift extends DurationState<DrawerLoaderLift> {
     for (DrawerLiftPlace drawerPlace in lift.drawerLiftPlaces) {
       GrandeDrawer? drawer = drawerPlace.drawer;
       if (drawer != null) {
-        drawer.position =
-            BetweenLiftPositions(lift: lift, startLevel: drawerPlace.level);
+        drawer.position = BetweenLiftPositions(
+          lift: lift,
+          startLevel: drawerPlace.level,
+        );
       }
     }
   }
@@ -388,12 +403,13 @@ class BetweenDrawerConveyorAndDrawerLoader extends BetweenDrawerPlaces
   late final double endScale =
       lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
-  BetweenDrawerConveyorAndDrawerLoader._(
-      {required this.lift,
-      required super.drawerRotation,
-      required super.duration,
-      required super.startPlace,
-      required super.destinationPlace});
+  BetweenDrawerConveyorAndDrawerLoader._({
+    required this.lift,
+    required super.drawerRotation,
+    required super.duration,
+    required super.startPlace,
+    required super.destinationPlace,
+  });
 
   factory BetweenDrawerConveyorAndDrawerLoader(DrawerLoaderLift lift) {
     var drawerRotation = lift.area.layout.rotationOf(lift);
@@ -405,11 +421,12 @@ class BetweenDrawerConveyorAndDrawerLoader extends BetweenDrawerPlaces
     startPlace.drawer = drawer;
     var destinationPlace = lift.drawerLiftPlaces[0];
     return BetweenDrawerConveyorAndDrawerLoader._(
-        lift: lift,
-        drawerRotation: drawerRotation,
-        duration: lift.pusherPushDuration,
-        startPlace: startPlace,
-        destinationPlace: destinationPlace);
+      lift: lift,
+      drawerRotation: drawerRotation,
+      duration: lift.pusherPushDuration,
+      startPlace: startPlace,
+      destinationPlace: destinationPlace,
+    );
   }
 
   @override
@@ -424,34 +441,38 @@ class BetweenLiftAndDrawerLoader extends BetweenDrawerPlaces
       lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
   final double endScale = 1;
 
-  BetweenLiftAndDrawerLoader._(
-      {required this.lift,
-      required super.drawerRotation,
-      required super.duration,
-      required super.startPlace,
-      required super.destinationPlace});
+  BetweenLiftAndDrawerLoader._({
+    required this.lift,
+    required super.drawerRotation,
+    required super.duration,
+    required super.startPlace,
+    required super.destinationPlace,
+  });
 
-  factory BetweenLiftAndDrawerLoader(
-      {required DrawerLoaderLift lift, required int level}) {
+  factory BetweenLiftAndDrawerLoader({
+    required DrawerLoaderLift lift,
+    required int level,
+  }) {
     var drawerRotation = lift.area.layout.rotationOf(lift);
     var loader = lift.drawersOut.linkedTo!.system as ModuleDrawerLoader;
     var startPlace = lift.drawerLiftPlaces[level];
     var destinationPlace = loader.drawerPlaces[level];
     return BetweenLiftAndDrawerLoader._(
-        lift: lift,
-        drawerRotation: drawerRotation,
-        duration: lift.pusherPushDuration,
-        startPlace: startPlace,
-        destinationPlace: destinationPlace);
+      lift: lift,
+      drawerRotation: drawerRotation,
+      duration: lift.pusherPushDuration,
+      startPlace: startPlace,
+      destinationPlace: destinationPlace,
+    );
   }
 
-// // TODO can not do this while drawers are iterated
-// // See https://stackoverflow.com/questions/54150583/concurrent-modification-during-iteration-while-trying-to-remove-object-from-a-li
-//   @override
-//   void onCompleted() {
-//     super.onCompleted();
-//     lift.area.drawers.remove(transportedDrawer);
-//   }
+  // // TODO can not do this while drawers are iterated
+  // // See https://stackoverflow.com/questions/54150583/concurrent-modification-during-iteration-while-trying-to-remove-object-from-a-li
+  //   @override
+  //   void onCompleted() {
+  //     super.onCompleted();
+  //     lift.area.drawers.remove(transportedDrawer);
+  //   }
 
   @override
   double get scale => (endScale - startScale) * completedFraction + startScale;
@@ -466,10 +487,7 @@ class LiftPosition extends AtDrawerPlace {
 
   LiftPosition._(super.drawerPlace, {required this.lift, required this.level});
 
-  factory LiftPosition({
-    required DrawerLoaderLift lift,
-    required int level,
-  }) {
+  factory LiftPosition({required DrawerLoaderLift lift, required int level}) {
     var destinationPlace = lift.drawerLiftPlaces[level];
     return LiftPosition._(destinationPlace, lift: lift, level: level);
   }
@@ -485,24 +503,28 @@ class BetweenLiftPositions extends BetweenDrawerPlaces {
   late final double _scale =
       lift.shape.minimizedDrawerSize.xInMeters / DrawerVariant.lengthInMeters;
 
-  BetweenLiftPositions._(
-      {required this.lift,
-      required super.drawerRotation,
-      required super.duration,
-      required super.startPlace,
-      required super.destinationPlace});
+  BetweenLiftPositions._({
+    required this.lift,
+    required super.drawerRotation,
+    required super.duration,
+    required super.startPlace,
+    required super.destinationPlace,
+  });
 
-  factory BetweenLiftPositions(
-      {required DrawerLoaderLift lift, required int startLevel}) {
+  factory BetweenLiftPositions({
+    required DrawerLoaderLift lift,
+    required int startLevel,
+  }) {
     var drawerRotation = lift.area.layout.rotationOf(lift);
     var startPlace = lift.drawerLiftPlaces[startLevel];
     var destinationPlace = lift.drawerLiftPlaces[startLevel + 1];
     return BetweenLiftPositions._(
-        lift: lift,
-        drawerRotation: drawerRotation,
-        duration: lift.upDuration,
-        startPlace: startPlace,
-        destinationPlace: destinationPlace);
+      lift: lift,
+      drawerRotation: drawerRotation,
+      duration: lift.upDuration,
+      startPlace: startPlace,
+      destinationPlace: destinationPlace,
+    );
   }
 
   @override
@@ -522,9 +544,9 @@ class ModuleDrawerLoader extends StateMachine implements LinkedSystem {
   late final List<DrawerPlace> drawerPlaces = [
     for (int level = 0; level <= 5; level++)
       DrawerPlace(
-          system: this,
-          centerToDrawerCenterWhenSystemFacesNorth:
-              shape.centerToConveyorCenter)
+        system: this,
+        centerToDrawerCenterWhenSystemFacesNorth: shape.centerToConveyorCenter,
+      ),
   ];
 
   late final CompassDirection drawerFeedInDirection = drawersIn
@@ -540,24 +562,24 @@ class ModuleDrawerLoader extends StateMachine implements LinkedSystem {
     required this.area,
     required this.drawersInDirection,
     SpeedProfile? conveyorSpeedProfile,
-  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        singleColumnOfCompartments =
-            allModulesHaveOneSingleCompartmentColumn(area),
-        super(
-          initialState: CheckIfEmpty(),
-        );
+  }) : conveyorSpeedProfile =
+           conveyorSpeedProfile ??
+           area.productDefinition.speedProfiles.moduleConveyor,
+       singleColumnOfCompartments = allModulesHaveOneSingleCompartmentColumn(
+         area,
+       ),
+       super(initialState: CheckIfEmpty());
 
   static bool allModulesHaveOneSingleCompartmentColumn(
-          LiveBirdHandlingArea area) =>
-      area.productDefinition.truckRows.every((truckRow) => truckRow.templates
-          .every((moduleTemplate) =>
-              moduleTemplate.variant.compartmentsPerLevel == 1));
+    LiveBirdHandlingArea area,
+  ) => area.productDefinition.truckRows.every(
+    (truckRow) => truckRow.templates.every(
+      (moduleTemplate) => moduleTemplate.variant.compartmentsPerLevel == 1,
+    ),
+  );
 
   @override
-  late List<Command> commands = [
-    RemoveFromMonitorPanel(this),
-  ];
+  late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   @override
   late final SizeInMeters sizeWhenFacingNorth = shape.size;
@@ -606,7 +628,8 @@ class ModuleDrawerLoader extends StateMachine implements LinkedSystem {
     directionToOtherLink: const CompassDirection.north(),
     durationUntilCanFeedOut: () =>
         SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
-            currentState),
+          currentState,
+        ),
   );
 
   @override
@@ -626,8 +649,10 @@ class ModuleDrawerLoader extends StateMachine implements LinkedSystem {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('speed',
-          '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour');
+      .appendProperty(
+        'speed',
+        '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour',
+      );
 
   void onEndOfCycle() {
     durationsPerModule.add(durationPerModule);
@@ -648,21 +673,23 @@ class CheckIfEmpty extends DurationState<ModuleDrawerLoader> {
   String get name => 'CheckIfEmpty';
 
   CheckIfEmpty()
-      : super(
-            durationFunction: (loader) => loader.conveyorSpeedProfile
-                .durationOfDistance(loader.shape.yInMeters * 1.5),
-            nextStateFunction: (loader) =>
-                SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerLoader>(
-                    modulesIn: loader.modulesIn,
-                    modulesOut: loader.modulesOut,
-                    inFeedDelay: Duration.zero,
-                    nextStateCondition: NextStateCondition
-                        .whenFeedInIsCompletedAndFeedOutIsStarted,
-                    stateWhenCompleted: WaitToPushInColumn(
-                      loader.singleColumnOfCompartments
-                          ? ColumnToProcess.only
-                          : ColumnToProcess.first,
-                    )));
+    : super(
+        durationFunction: (loader) => loader.conveyorSpeedProfile
+            .durationOfDistance(loader.shape.yInMeters * 1.5),
+        nextStateFunction: (loader) =>
+            SimultaneousFeedOutFeedInModuleGroup<ModuleDrawerLoader>(
+              modulesIn: loader.modulesIn,
+              modulesOut: loader.modulesOut,
+              inFeedDelay: Duration.zero,
+              nextStateCondition:
+                  NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
+              stateWhenCompleted: WaitToPushInColumn(
+                loader.singleColumnOfCompartments
+                    ? ColumnToProcess.only
+                    : ColumnToProcess.first,
+              ),
+            ),
+      );
 }
 
 enum ColumnToProcess {
@@ -697,9 +724,10 @@ enum ColumnToProcess {
           nextStateCondition:
               NextStateCondition.whenFeedInIsCompletedAndFeedOutIsStarted,
           stateWhenCompleted: WaitToPushInColumn(
-              loader.singleColumnOfCompartments
-                  ? ColumnToProcess.only
-                  : ColumnToProcess.first),
+            loader.singleColumnOfCompartments
+                ? ColumnToProcess.only
+                : ColumnToProcess.first,
+          ),
         );
     }
   }
@@ -729,17 +757,30 @@ class WaitToPushInColumn extends State<ModuleDrawerLoader>
       throw ('${loader.name}: Can not process containers');
     }
     if (moduleGroup.compartment.birdsExitOnOneSide &&
-        moduleGroup.direction.rotate(90) != loader.drawerFeedInDirection) {
-      throw ('${loader.name}: Incorrect drawer out feed direction '
+        incorrectFeedInCorrection(moduleGroup, loader)) {
+      throw ('${loader.name}: Incorrect drawer feed in direction '
           'of: $ModuleGroup');
     }
   }
 
+  bool incorrectFeedInCorrection(
+    ModuleGroup moduleGroup,
+    ModuleDrawerLoader loader,
+  ) =>
+      min(
+        moduleGroup.direction
+            .rotate(90)
+            .counterClockWiseDistanceInDegrees(loader.drawerFeedInDirection),
+        moduleGroup.direction
+            .rotate(90)
+            .clockWiseDistanceInDegrees(loader.drawerFeedInDirection),
+      ) >
+      3;
   @override
   State<ModuleDrawerLoader>? nextState(ModuleDrawerLoader loader) =>
       transportCompleted
-          ? columnToProcess.nextStateAfterPusherOut(loader)
-          : null;
+      ? columnToProcess.nextStateAfterPusherOut(loader)
+      : null;
 
   @override
   onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces) {
@@ -765,9 +806,10 @@ class FeedInToSecondColumn extends State<ModuleDrawerLoader>
   void onStart(ModuleDrawerLoader loader) {
     var moduleGroup = loader.moduleGroupFirstColumnPlace.moduleGroup!;
     moduleGroup.position = BetweenModuleGroupPlaces(
-        source: loader.moduleGroupFirstColumnPlace,
-        destination: loader.moduleGroupSecondColumnPlace,
-        duration: duration(loader));
+      source: loader.moduleGroupFirstColumnPlace,
+      destination: loader.moduleGroupSecondColumnPlace,
+      duration: duration(loader),
+    );
   }
 
   Duration duration(ModuleDrawerLoader loader) =>

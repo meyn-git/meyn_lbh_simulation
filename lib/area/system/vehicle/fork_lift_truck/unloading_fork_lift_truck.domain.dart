@@ -35,12 +35,12 @@ class UnLoadingForkLiftTruck extends VehicleStateMachine
   @override
   int moduleGroupStartRotationInDegrees = 0;
 
-  late ForkLiftTruckRoutes routes =
-      routes = ForkLiftTruckRoutes.forUnLoadingForkLiftTruck(
-    forkLiftTruck: this,
-    turnAtConveyor: turnAtConveyor,
-    turnAtTruck: turnAtTruck,
-  );
+  late ForkLiftTruckRoutes routes = routes =
+      ForkLiftTruckRoutes.forUnLoadingForkLiftTruck(
+        forkLiftTruck: this,
+        turnAtConveyor: turnAtConveyor,
+        turnAtTruck: turnAtTruck,
+      );
 
   @override
   late AreaPosition position = FixedAreaPosition(OffsetInMeters.zero);
@@ -56,16 +56,19 @@ class UnLoadingForkLiftTruck extends VehicleStateMachine
   }) : super(initialState: Initialize());
 
   late ModuleGroupInLink modulesIn = ModuleGroupInLink(
-      place: moduleGroupPlaces.first,
-      offsetFromCenterWhenFacingNorth: OffsetInMeters(
-          xInMeters: 0, yInMeters: sizeWhenFacingNorth.yInMeters * -0.5),
-      directionToOtherLink: const CompassDirection.north(),
-      transportDuration: (_) => Duration.zero,
-      canFeedIn: () => currentState is WaitUntilConveyorCanFeedOut);
+    place: moduleGroupPlaces.first,
+    offsetFromCenterWhenFacingNorth: OffsetInMeters(
+      xInMeters: 0,
+      yInMeters: sizeWhenFacingNorth.yInMeters * -0.5,
+    ),
+    directionToOtherLink: const CompassDirection.north(),
+    transportDuration: (_) => Duration.zero,
+    canFeedIn: () => currentState is WaitUntilConveyorCanFeedOut,
+  );
 
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
-    modulesIn
+    modulesIn,
   ];
 
   @override
@@ -79,7 +82,7 @@ class UnLoadingForkLiftTruck extends VehicleStateMachine
     ModuleGroupPlace(
       system: this,
       offsetFromCenterWhenSystemFacingNorth: shape.centerToModuleGroupCenter,
-    )
+    ),
   ];
 }
 
@@ -101,19 +104,19 @@ class Initialize extends State<UnLoadingForkLiftTruck> {
 
   @override
   State<UnLoadingForkLiftTruck>? nextState(
-          UnLoadingForkLiftTruck forkLiftTruck) =>
-      DriveToBeforeConveyor();
+    UnLoadingForkLiftTruck forkLiftTruck,
+  ) => DriveToBeforeConveyor();
 }
 
 class DriveToBeforeConveyor extends Drive<UnLoadingForkLiftTruck> {
   DriveToBeforeConveyor()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.turnPointToBeforeConveyor,
-            nextStateFunction: (forkLiftTruck) =>
-                WaitUntilConveyorCanFeedOut());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.turnPointToBeforeConveyor,
+        nextStateFunction: (forkLiftTruck) => WaitUntilConveyorCanFeedOut(),
+      );
 
   @override
   final String name = 'DriveToBeforeConveyor';
@@ -125,10 +128,10 @@ class WaitUntilConveyorCanFeedOut extends State<UnLoadingForkLiftTruck> {
 
   @override
   State<UnLoadingForkLiftTruck>? nextState(
-          UnLoadingForkLiftTruck forkLiftTruck) =>
-      moduleConveyorIsWaitingToFeedOut(forkLiftTruck)
-          ? DriveInToModuleGroupOnConveyor()
-          : null;
+    UnLoadingForkLiftTruck forkLiftTruck,
+  ) => moduleConveyorIsWaitingToFeedOut(forkLiftTruck)
+      ? DriveInToModuleGroupOnConveyor()
+      : null;
 
   bool moduleConveyorIsWaitingToFeedOut(UnLoadingForkLiftTruck forkLiftTruck) =>
       forkLiftTruck.modulesIn.linkedTo!.durationUntilCanFeedOut() ==
@@ -140,15 +143,15 @@ class DriveInToModuleGroupOnConveyor extends Drive<UnLoadingForkLiftTruck> {
   final String name = 'DriveInToModuleGroupOnConveyor';
 
   DriveInToModuleGroupOnConveyor()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.beforeConveyorToAboveConveyor,
-            nextStateFunction: (forkLiftTruck) =>
-                needToStackModules(forkLiftTruck)
-                    ? LiftModuleGroupFromConveyorToStackModules()
-                    : LiftModuleGroupFromConveyorToDriveToTruck());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.beforeConveyorToAboveConveyor,
+        nextStateFunction: (forkLiftTruck) => needToStackModules(forkLiftTruck)
+            ? LiftModuleGroupFromConveyorToStackModules()
+            : LiftModuleGroupFromConveyorToDriveToTruck(),
+      );
 
   static bool needToStackModules(UnLoadingForkLiftTruck forkLiftTruck) {
     var moduleGroupOnUnloadingConveyor =
@@ -159,10 +162,13 @@ class DriveInToModuleGroupOnConveyor extends Drive<UnLoadingForkLiftTruck> {
 
   @override
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
-    var moduleUnLoadingConveyor = forkLiftTruck.modulesIn.linkedTo!.system
-        as ModuleUnLoadingConveyorInterface;
+    var moduleUnLoadingConveyor =
+        forkLiftTruck.modulesIn.linkedTo!.system
+            as ModuleUnLoadingConveyorInterface;
     forkLiftTruck.moduleGroupStartRotationInDegrees = moduleUnLoadingConveyor
-        .moduleGroupPlace.moduleGroup!.direction
+        .moduleGroupPlace
+        .moduleGroup!
+        .direction
         .rotate(-forkLiftTruck.area.layout.rotationOf(forkLiftTruck).degrees)
         .degrees;
   }
@@ -174,10 +180,11 @@ class LiftModuleGroupFromConveyorToDriveToTruck
   final String name = 'LiftModuleGroupFromConveyorToDriveToTruck';
 
   LiftModuleGroupFromConveyorToDriveToTruck()
-      : super(
-            durationFunction: (forkLiftTruck) =>
-                forkLiftTruck.pickUpOrLowerModuleGroupDuration,
-            nextStateFunction: (_) => DriveFromAboveConveyorToBeforeConveyor());
+    : super(
+        durationFunction: (forkLiftTruck) =>
+            forkLiftTruck.pickUpOrLowerModuleGroupDuration,
+        nextStateFunction: (_) => DriveFromAboveConveyorToBeforeConveyor(),
+      );
 
   @override
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
@@ -186,9 +193,11 @@ class LiftModuleGroupFromConveyorToDriveToTruck
   }
 
   void moveModuleGroupFromConveyorToForks(
-      UnLoadingForkLiftTruck forkLiftTruck) {
-    var moduleUnLoadingConveyor = forkLiftTruck.modulesIn.linkedTo!.system
-        as ModuleUnLoadingConveyorInterface;
+    UnLoadingForkLiftTruck forkLiftTruck,
+  ) {
+    var moduleUnLoadingConveyor =
+        forkLiftTruck.modulesIn.linkedTo!.system
+            as ModuleUnLoadingConveyorInterface;
     var moduleGroup = moduleUnLoadingConveyor.moduleGroupPlace.moduleGroup!;
     // TODO if (moduleGroup.numberOfStacks > 1) {
     //   throw Exception('$name can only feed in a single stack at a time!');
@@ -196,14 +205,16 @@ class LiftModuleGroupFromConveyorToDriveToTruck
     if (forkLiftTruck.modulesIn.linkedTo!.system
         is! ModuleUnLoadingConveyorInterface) {
       throw Exception(
-          '$name must be linked to a ModuleUnLoadingConveyorInterface!');
+        '$name must be linked to a ModuleUnLoadingConveyorInterface!',
+      );
     }
     moduleUnLoadingConveyor.moduleGroupPlace.moduleGroup = null;
 
     forkLiftTruck.moduleGroupPlaces.first.moduleGroup = moduleGroup;
 
-    moduleGroup.position =
-        AtModuleGroupPlace(forkLiftTruck.moduleGroupPlaces.first);
+    moduleGroup.position = AtModuleGroupPlace(
+      forkLiftTruck.moduleGroupPlaces.first,
+    );
   }
 }
 
@@ -213,16 +224,17 @@ class DriveFromAboveConveyorToBeforeConveyor
   final String name = 'DriveModuleGroupFromConveyor';
 
   DriveFromAboveConveyorToBeforeConveyor()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.aboveConveyorToBeforeConveyor,
-            nextStateFunction: (forkLiftTruck) =>
-                DriveFromBeforeConveyorAndTurn());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.aboveConveyorToBeforeConveyor,
+        nextStateFunction: (forkLiftTruck) => DriveFromBeforeConveyorAndTurn(),
+      );
 
   ModuleUnLoadingConveyorInterface moduleUnLoadingConveyor(
-          UnLoadingForkLiftTruck forkLiftTruck) =>
+    UnLoadingForkLiftTruck forkLiftTruck,
+  ) =>
       forkLiftTruck.modulesIn.linkedTo!.system
           as ModuleUnLoadingConveyorInterface;
 
@@ -237,12 +249,13 @@ class DriveFromBeforeConveyorAndTurn extends Drive<UnLoadingForkLiftTruck> {
   final String name = 'DriveFromBeforeConveyorAndTurn';
 
   DriveFromBeforeConveyorAndTurn()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.beforeConveyorToTurnPoint,
-            nextStateFunction: (_) => WaitForTruck());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.beforeConveyorToTurnPoint,
+        nextStateFunction: (_) => WaitForTruck(),
+      );
 }
 
 class WaitForTruck extends State<UnLoadingForkLiftTruck> {
@@ -251,19 +264,21 @@ class WaitForTruck extends State<UnLoadingForkLiftTruck> {
 
   @override
   State<UnLoadingForkLiftTruck>? nextState(
-      UnLoadingForkLiftTruck forkLiftTruck) {
+    UnLoadingForkLiftTruck forkLiftTruck,
+  ) {
     return DriveModuleGroupToTruck();
   }
 }
 
 class DriveModuleGroupToTruck extends Drive<UnLoadingForkLiftTruck> {
   DriveModuleGroupToTruck()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.turnPointToInToTruck,
-            nextStateFunction: (_) => LowerModuleGroupOnTruck());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.turnPointToInToTruck,
+        nextStateFunction: (_) => LowerModuleGroupOnTruck(),
+      );
 
   @override
   final String name = 'DriveModuleGroupToTruck';
@@ -271,10 +286,11 @@ class DriveModuleGroupToTruck extends Drive<UnLoadingForkLiftTruck> {
 
 class LowerModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
   LowerModuleGroupOnTruck()
-      : super(
-            durationFunction: (forkLiftTruck) =>
-                forkLiftTruck.pickUpOrLowerModuleGroupDuration,
-            nextStateFunction: (forkLiftTruck) => DriveFromTruckAndTurn());
+    : super(
+        durationFunction: (forkLiftTruck) =>
+            forkLiftTruck.pickUpOrLowerModuleGroupDuration,
+        nextStateFunction: (forkLiftTruck) => DriveFromTruckAndTurn(),
+      );
 
   @override
   final String name = 'LowerModuleGroupOnTruck';
@@ -294,12 +310,13 @@ class LowerModuleGroupOnTruck extends DurationState<UnLoadingForkLiftTruck> {
 
 class DriveFromTruckAndTurn extends Drive<UnLoadingForkLiftTruck> {
   DriveFromTruckAndTurn()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.inTruckToTurnPoint,
-            nextStateFunction: (forkLiftTruck) => DriveToBeforeConveyor());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.inTruckToTurnPoint,
+        nextStateFunction: (forkLiftTruck) => DriveToBeforeConveyor(),
+      );
 
   @override
   final String name = 'DriveFromTruckAndTurn';
@@ -313,13 +330,15 @@ class LiftModuleGroupFromConveyorToStackModules
   final String name = 'LiftModuleGroupFromConveyorToStackModules';
 
   LiftModuleGroupFromConveyorToStackModules()
-      : super(
-            durationFunction: (forkLiftTruck) =>
-                forkLiftTruck.liftUpOrDown1ModuleDuration,
-            nextStateFunction: (_) => WaitUntil2ndModuleIsFedIn());
+    : super(
+        durationFunction: (forkLiftTruck) =>
+            forkLiftTruck.liftUpOrDown1ModuleDuration,
+        nextStateFunction: (_) => WaitUntil2ndModuleIsFedIn(),
+      );
 
   ModuleUnLoadingConveyorInterface moduleUnLoadingConveyor(
-          UnLoadingForkLiftTruck forkLiftTruck) =>
+    UnLoadingForkLiftTruck forkLiftTruck,
+  ) =>
       forkLiftTruck.modulesIn.linkedTo!.system
           as ModuleUnLoadingConveyorInterface;
 
@@ -338,12 +357,13 @@ class WaitUntil2ndModuleIsFedIn extends State<UnLoadingForkLiftTruck>
 
   @override
   State<UnLoadingForkLiftTruck>? nextState(
-          UnLoadingForkLiftTruck stateMachine) =>
-      completed ? LowerModuleOnModuleGroupOnConveyor() : null;
+    UnLoadingForkLiftTruck stateMachine,
+  ) => completed ? LowerModuleOnModuleGroupOnConveyor() : null;
 
   @override
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     completed = true;
   }
 }
@@ -354,10 +374,11 @@ class LowerModuleOnModuleGroupOnConveyor
   final String name = 'LowerModuleOnModuleGroupOnConveyor';
 
   LowerModuleOnModuleGroupOnConveyor()
-      : super(
-            durationFunction: (forkLiftTruck) =>
-                forkLiftTruck.pickUpOrLowerModuleGroupDuration,
-            nextStateFunction: (_) => DriveOutOfTopModuleOnConveyor());
+    : super(
+        durationFunction: (forkLiftTruck) =>
+            forkLiftTruck.pickUpOrLowerModuleGroupDuration,
+        nextStateFunction: (_) => DriveOutOfTopModuleOnConveyor(),
+      );
   @override
   void onCompleted(UnLoadingForkLiftTruck forkLiftTruck) {
     mergeModuleGroups(forkLiftTruck);
@@ -376,8 +397,9 @@ class LowerModuleOnModuleGroupOnConveyor
 
     moduleGroupOnConveyor[PositionWithinModuleGroup.firstTop] =
         moduleGroupOnForks[PositionWithinModuleGroup.firstBottom]!;
-    if (moduleGroupOnForks.keys
-        .contains(PositionWithinModuleGroup.secondBottom)) {
+    if (moduleGroupOnForks.keys.contains(
+      PositionWithinModuleGroup.secondBottom,
+    )) {
       moduleGroupOnConveyor[PositionWithinModuleGroup.secondTop] =
           moduleGroupOnForks[PositionWithinModuleGroup.secondBottom]!;
     }
@@ -390,12 +412,13 @@ class DriveOutOfTopModuleOnConveyor extends Drive<UnLoadingForkLiftTruck> {
   final String name = 'DriveOutOfTopModuleOnConveyor';
 
   DriveOutOfTopModuleOnConveyor()
-      : super(
-            speedProfileFunction: (forkLiftTruck) =>
-                forkLiftTruck.driveSpeedProfile,
-            routeFunction: (forkLiftTruck) =>
-                forkLiftTruck.routes.aboveConveyorToBeforeConveyor,
-            nextStateFunction: (_) => LowerForksToBottomModule());
+    : super(
+        speedProfileFunction: (forkLiftTruck) =>
+            forkLiftTruck.driveSpeedProfile,
+        routeFunction: (forkLiftTruck) =>
+            forkLiftTruck.routes.aboveConveyorToBeforeConveyor,
+        nextStateFunction: (_) => LowerForksToBottomModule(),
+      );
 }
 
 class LowerForksToBottomModule extends DurationState<UnLoadingForkLiftTruck> {
@@ -403,8 +426,9 @@ class LowerForksToBottomModule extends DurationState<UnLoadingForkLiftTruck> {
   final String name = 'LowerForksToBottomModule';
 
   LowerForksToBottomModule()
-      : super(
-            durationFunction: (forkLiftTruck) =>
-                forkLiftTruck.liftUpOrDown1ModuleDuration,
-            nextStateFunction: (_) => WaitUntilConveyorCanFeedOut());
+    : super(
+        durationFunction: (forkLiftTruck) =>
+            forkLiftTruck.liftUpOrDown1ModuleDuration,
+        nextStateFunction: (_) => WaitUntilConveyorCanFeedOut(),
+      );
 }

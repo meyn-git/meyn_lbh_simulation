@@ -21,13 +21,13 @@ import 'site.dart';
 
 class FileniSite extends Site {
   FileniSite()
-      : super(
-          meynLayoutNumber: 7324,
-          organizationName: 'Fileni',
-          city: 'Castelplanio',
-          country: 'Italy',
-          productDefinitions: FileniProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 7324,
+        organizationName: 'Fileni',
+        city: 'Castelplanio',
+        country: 'Italy',
+        productDefinitions: FileniProductDefinitions(),
+      );
 }
 
 /// Fileni chicken: ModuleGroup = 4 and 5 compartment module
@@ -37,112 +37,106 @@ class FileniSite extends Site {
 /// Pollo PICCOLO:              54 birds/compartment @ 10000 birds/hour
 class FileniProductDefinitions extends DelegatingList<ProductDefinition> {
   FileniProductDefinitions()
-      : super([
-          ProductDefinition(
-              //2,82286 stacks per hour
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo Bio',
-              lineSpeedInShacklesPerHour: 8000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment(26),
-                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(26),
-                })
-              ]),
-          ProductDefinition(
-              // 1,3 stacks per hour
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo RUSTICANELLO Pesante',
-              lineSpeedInShacklesPerHour: 6000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment(33),
-                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(33),
-                })
-              ]),
-          ProductDefinition(
-              //0.6319997 stacks per hour
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo RUSTICANELLO',
-              lineSpeedInShacklesPerHour: 7000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment(52),
-                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(52),
-                })
-              ]),
-          ProductDefinition(
-              //0,8379
-              areaFactory: _areaFactory(),
-              birdType: 'Pollo PICCOLO',
-              lineSpeedInShacklesPerHour: 10000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment(54),
-                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l4
-                      .build()
-                      .withBirdsPerCompartment(54),
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          //2,82286 stacks per hour
+          areaFactory: _areaFactory(),
+          birdType: 'Pollo Bio',
+          lineSpeedInShacklesPerHour: 8000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gps.l5
+                  .build()
+                  .withBirdsPerCompartment(26),
+              PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                  .marel
+                  .gps
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(26),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          // 1,3 stacks per hour
+          areaFactory: _areaFactory(),
+          birdType: 'Pollo RUSTICANELLO Pesante',
+          lineSpeedInShacklesPerHour: 6000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gps.l5
+                  .build()
+                  .withBirdsPerCompartment(33),
+              PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                  .marel
+                  .gps
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(33),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          //0.6319997 stacks per hour
+          areaFactory: _areaFactory(),
+          birdType: 'Pollo RUSTICANELLO',
+          lineSpeedInShacklesPerHour: 7000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gps.l5
+                  .build()
+                  .withBirdsPerCompartment(52),
+              PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                  .marel
+                  .gps
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(52),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          //0,8379
+          areaFactory: _areaFactory(),
+          birdType: 'Pollo PICCOLO',
+          lineSpeedInShacklesPerHour: 10000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gps.l5
+                  .build()
+                  .withBirdsPerCompartment(54),
+              PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                  .marel
+                  .gps
+                  .l4
+                  .build()
+                  .withBirdsPerCompartment(54),
+            }),
+          ],
+        ),
+      ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [FileniLiveBirdHandlingArea(productDefinition)];
+  _areaFactory() =>
+      (ProductDefinition productDefinition) => [
+        FileniLiveBirdHandlingArea(productDefinition),
+      ];
 }
 
 class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  static const int levelsOfModulesForCasUnits = 1;
+  static const int numberOfModuleStacksForCasUnits = 2;
+
   FileniLiveBirdHandlingArea(ProductDefinition productDefinition)
-      : super(
-          lineName: 'Chicken line',
-          productDefinition: productDefinition,
-        );
+    : super(lineName: 'Chicken line', productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -162,7 +156,9 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
       ],
     );
 
@@ -172,10 +168,14 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
+          direction: const CompassDirection.south(),
+          reverseFeedOut: true,
+        ),
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
       ],
     );
 
@@ -185,49 +185,60 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.east()),
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedOut: true),
+          direction: const CompassDirection.south(),
+          reverseFeedOut: true,
+        ),
         TurnPosition(direction: const CompassDirection.west()),
         TurnPosition(
-            direction: const CompassDirection.north(), reverseFeedIn: true),
+          direction: const CompassDirection.north(),
+          reverseFeedIn: true,
+        ),
       ],
     );
 
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mc2 = ModuleConveyor(area: this, lengthInMeters: 3.5);
 
-    var tilter = ModuleTilter(
-      area: this,
-      tiltDirection: Direction.clockWise,
-    );
+    var tilter = ModuleTilter(area: this, tiltDirection: Direction.clockWise);
 
     var dumpConveyor = ModuleTilterDumpConveyor(area: this);
 
@@ -240,7 +251,7 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-// module transport
+    // module transport
     systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
     systems.link(loadingConveyor.modulesOut, mc1.modulesIn);
     systems.link(mc1.modulesOut, mrc1.modulesIns[0]);
@@ -263,16 +274,17 @@ class FileniLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(mc2.modulesOut, tilter.modulesIn);
     systems.link(tilter.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// bird transport
     systems.link(tilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: mc1.moduleGroupPlace,
-    ));
+    systems.add(
+      ModuleCasAllocation(area: this, allocationPlace: mc1.moduleGroupPlace),
+    );
 
     systems.add(ModuleCasStart(area: this));
   }

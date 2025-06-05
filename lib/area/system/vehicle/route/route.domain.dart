@@ -18,8 +18,8 @@ class VehicleRoute {
     required CompassDirection routeStartDirection,
     required OffsetInMeters startPoint,
     this.vehicleDirection = VehicleDirection.forward,
-  })  : points = [startPoint],
-        _currentDirection = routeStartDirection;
+  }) : points = [startPoint],
+       _currentDirection = routeStartDirection;
 
   late SizeInMeters size = _calculateSize();
 
@@ -28,7 +28,8 @@ class VehicleRoute {
       throw ArgumentError('must be positive', 'distance');
     }
     var radians = _currentDirection.toRadians();
-    OffsetInMeters newPoint = points.last +
+    OffsetInMeters newPoint =
+        points.last +
         OffsetInMeters(
           xInMeters: distance * sin(radians),
           yInMeters: distance * -cos(radians),
@@ -81,8 +82,9 @@ class VehicleRoute {
       final direction = (endPoint - startPoint).directionInRadians;
       return startPoint +
           OffsetInMeters(
-              xInMeters: traveledInMeters * sin(direction),
-              yInMeters: traveledInMeters * -cos(direction));
+            xInMeters: traveledInMeters * sin(direction),
+            yInMeters: traveledInMeters * -cos(direction),
+          );
     }
     if (traveledInMeters > lengthInMeters) {
       final startPoint = points[points.length - 2];
@@ -91,8 +93,9 @@ class VehicleRoute {
       final extraInMeters = traveledInMeters - lengthInMeters;
       return endPoint +
           OffsetInMeters(
-              xInMeters: extraInMeters * sin(direction),
-              yInMeters: extraInMeters * -cos(direction));
+            xInMeters: extraInMeters * sin(direction),
+            yInMeters: extraInMeters * -cos(direction),
+          );
     }
 
     // Find the segment the vehicle is on
@@ -105,14 +108,17 @@ class VehicleRoute {
     final segmentEndDist = _cumulativeDistances[index + 1];
 
     // Calculate interpolation factor for the current segment
-    final segmentFraction = (traveledInMeters - segmentStartDist) /
+    final segmentFraction =
+        (traveledInMeters - segmentStartDist) /
         (segmentEndDist - segmentStartDist);
 
     // Interpolate between startPoint and endPoint
     return OffsetInMeters(
-      xInMeters: startPoint.xInMeters +
+      xInMeters:
+          startPoint.xInMeters +
           (endPoint.xInMeters - startPoint.xInMeters) * segmentFraction,
-      yInMeters: startPoint.yInMeters +
+      yInMeters:
+          startPoint.yInMeters +
           (endPoint.yInMeters - startPoint.yInMeters) * segmentFraction,
     );
   }
@@ -156,8 +162,9 @@ class VehicleRoute {
     var yMin = yPoints.reduce(min);
     var yMax = yPoints.reduce(max);
     return SizeInMeters(
-        xInMeters: max((xMax - xMin), 0.01),
-        yInMeters: max((yMax - yMin), 0.01));
+      xInMeters: max((xMax - xMin), 0.01),
+      yInMeters: max((yMax - yMin), 0.01),
+    );
   }
 }
 

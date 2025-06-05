@@ -6,8 +6,9 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleDeStackerPainter extends ShapePainter {
   ModuleDeStackerPainter(
-      ModuleDeStacker deStacker, LiveBirdsHandlingTheme theme)
-      : super(shape: deStacker.shape, theme: theme);
+    ModuleDeStacker deStacker,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: deStacker.shape, theme: theme);
 }
 
 class ModuleDeStackerShape extends CompoundShape {
@@ -22,14 +23,17 @@ class ModuleDeStackerShape extends CompoundShape {
     var northWestLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
     var liftFrame = Box(xInMeters: 1.661, yInMeters: lengthInMeters);
     var westConveyorFrame = Box(
-        xInMeters: ModuleConveyorShape.frameWidthInMeters,
-        yInMeters: lengthInMeters);
+      xInMeters: ModuleConveyorShape.frameWidthInMeters,
+      yInMeters: lengthInMeters,
+    );
     conveyor = Box(
-        xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
-        yInMeters: lengthInMeters);
+      xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
+      yInMeters: lengthInMeters,
+    );
     var eastConveyorFrame = Box(
-        xInMeters: ModuleConveyorShape.frameWidthInMeters,
-        yInMeters: lengthInMeters);
+      xInMeters: ModuleConveyorShape.frameWidthInMeters,
+      yInMeters: lengthInMeters,
+    );
 
     link(liftFrame.centerCenter, conveyor.centerCenter);
     link(liftFrame.topRight, northEastLeg.topLeft);
@@ -46,9 +50,9 @@ class ModuleDeStackerShape extends CompoundShape {
   late final OffsetInMeters centerToSupportsCenter =
       centerToConveyorCenter.addX(0.1)..addY(0.1);
 
-  late final OffsetInMeters centerToModuleGroupOutLink =
-      centerToConveyorCenter.addY(lengthInMeters * -0.5);
+  late final OffsetInMeters centerToModuleGroupOutLink = centerToConveyorCenter
+      .addY(lengthInMeters * -0.5);
 
-  late final OffsetInMeters centerToModuleGroupInLink =
-      centerToConveyorCenter.addY(lengthInMeters * 0.5);
+  late final OffsetInMeters centerToModuleGroupInLink = centerToConveyorCenter
+      .addY(lengthInMeters * 0.5);
 }

@@ -6,8 +6,9 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ShackleConveyorPainter extends ShapePainter {
   ShackleConveyorPainter(
-      ShackleConveyor shackleConveyor, LiveBirdsHandlingTheme theme)
-      : super(shape: shackleConveyor.shape, theme: theme);
+    ShackleConveyor shackleConveyor,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: shackleConveyor.shape, theme: theme);
 }
 
 class ShackleConveyorShape extends Shape {
@@ -15,10 +16,11 @@ class ShackleConveyorShape extends Shape {
   static const double inchInMeters = 0.0254;
 
   late final OffsetInMeters centerToBirdInLink = OffsetInMeters(
-      xInMeters: shackleConveyor.direction == Direction.counterClockWise
-          ? shackleDiameterInMeters * -0.5
-          : shackleDiameterInMeters * 0.5,
-      yInMeters: 2);
+    xInMeters: shackleConveyor.direction == Direction.counterClockWise
+        ? shackleDiameterInMeters * -0.5
+        : shackleDiameterInMeters * 0.5,
+    yInMeters: 2,
+  );
   ShackleConveyorShape(this.shackleConveyor);
 
   /// repaint the shackles
@@ -26,8 +28,12 @@ class ShackleConveyorShape extends Shape {
   bool get shouldRepaint => true;
 
   @override
-  void paint(Canvas canvas, LiveBirdsHandlingTheme theme, OffsetInMeters offset,
-      double sizePerMeter) {
+  void paint(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     _paintLine(canvas, theme, offset, sizePerMeter);
     _paintShackles(canvas, theme, offset, sizePerMeter);
   }
@@ -43,21 +49,25 @@ class ShackleConveyorShape extends Shape {
   @override
   double get yInMeters => 5;
 
-  _paintLine(Canvas canvas, LiveBirdsHandlingTheme theme, OffsetInMeters offset,
-      double sizePerMeter) {
+  _paintLine(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     var paint = Paint();
     paint.color = theme.machineColor;
 
     var x = shackleDiameterInMeters * 0.5 * sizePerMeter;
-    canvas.drawLine(
-      Offset(x, 0.0),
-      Offset(x, yInMeters * sizePerMeter),
-      paint,
-    );
+    canvas.drawLine(Offset(x, 0.0), Offset(x, yInMeters * sizePerMeter), paint);
   }
 
-  void _paintShackles(Canvas canvas, LiveBirdsHandlingTheme theme,
-      OffsetInMeters offset, double sizePerMeter) {
+  void _paintShackles(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     var shacklePitchInMeters =
         shackleConveyor.shacklePitchInInches * inchInMeters;
 
@@ -68,14 +78,17 @@ class ShackleConveyorShape extends Shape {
     strokePaint.color = theme.machineColor;
     strokePaint.style = PaintingStyle.stroke;
 
-    var fraction = 1 -
+    var fraction =
+        1 -
         (shackleConveyor.elapsedTime.inMilliseconds /
             shackleConveyor.timePerBird.inMilliseconds);
     var position = OffsetInMeters(
-        xInMeters: shackleDiameterInMeters * 0.5,
-        yInMeters: shacklePitchInMeters * fraction +
-            yInMeters -
-            shacklePitchInMeters * 1.5);
+      xInMeters: shackleDiameterInMeters * 0.5,
+      yInMeters:
+          shacklePitchInMeters * fraction +
+          yInMeters -
+          shacklePitchInMeters * 1.5,
+    );
     var radius = shackleDiameterInMeters * sizePerMeter * 0.5;
 
     int visibleShackles = (yInMeters / shacklePitchInMeters).truncate();

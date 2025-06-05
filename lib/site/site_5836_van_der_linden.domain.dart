@@ -21,59 +21,59 @@ import 'site.dart';
 
 class VanDerLindenSite extends Site {
   VanDerLindenSite()
-      : super(
-          meynLayoutNumber: 5836,
-          organizationName: 'VanDerLinden',
-          city: 'Panningen',
-          country: 'Nederland',
-          productDefinitions: VanDerLindenProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 5836,
+        organizationName: 'VanDerLinden',
+        city: 'Panningen',
+        country: 'Nederland',
+        productDefinitions: VanDerLindenProductDefinitions(),
+      );
 }
 
 class VanDerLindenProductDefinitions extends DelegatingList<ProductDefinition> {
   VanDerLindenProductDefinitions()
-      : super([
-          ProductDefinition(
-              //2,82286 stacks per hour
-              areaFactory: _areaFactory(),
-              birdType: 'Kuikens',
-              lineSpeedInShacklesPerHour: 7000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                /// according to:  \\meyn.nl\project\acaddrwg\5836 Van der Linden - The Netherlands\2021\02 - Meyn drawings\Sales\5836s102z00b1-Model.pdf
-                /// min = 192 per container (190)
-                /// mac = 252 per container
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment((190 / 5).round()),
-                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
-                      .marel
-                      .gps
-                      .l5
-                      .build()
-                      .withBirdsPerCompartment((190 / 5).round()),
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          //2,82286 stacks per hour
+          areaFactory: _areaFactory(),
+          birdType: 'Kuikens',
+          lineSpeedInShacklesPerHour: 7000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            /// according to:  \\meyn.nl\project\acaddrwg\5836 Van der Linden - The Netherlands\2021\02 - Meyn drawings\Sales\5836s102z00b1-Model.pdf
+            /// min = 192 per container (190)
+            /// mac = 252 per container
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder().marel.gps.l5
+                  .build()
+                  .withBirdsPerCompartment((190 / 5).round()),
+              PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                  .marel
+                  .gps
+                  .l5
+                  .build()
+                  .withBirdsPerCompartment((190 / 5).round()),
+            }),
+          ],
+        ),
+      ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactory() => (ProductDefinition productDefinition) =>
-          [VanDerLindenLiveBirdHandlingArea(productDefinition)];
+  _areaFactory() =>
+      (ProductDefinition productDefinition) => [
+        VanDerLindenLiveBirdHandlingArea(productDefinition),
+      ];
 }
 
 /// See \\meyn.nl\project\acaddrwg\5836 Van der Linden - The Netherlands\2021\02 - Meyn drawings\Sales\5836s102z00b1-Model.pdf
 /// See: https://meyn-git.github.io/meyn_lbh_simulation_web/
 class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  static const int levelsOfModulesForCasUnits = 1;
+  static const int numberOfModuleStacksForCasUnits = 2;
+
   VanDerLindenLiveBirdHandlingArea(ProductDefinition productDefinition)
-      : super(
-          lineName: 'Chicken line',
-          productDefinition: productDefinition,
-        );
+    : super(lineName: 'Chicken line', productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -92,9 +92,13 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
-            direction: const CompassDirection.west(), reverseFeedIn: true),
+          direction: const CompassDirection.west(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedOut: true),
+          direction: const CompassDirection.east(),
+          reverseFeedOut: true,
+        ),
         TurnPosition(direction: const CompassDirection.north()),
       ],
     );
@@ -105,7 +109,9 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
       turnPositions: [
         TurnPosition(direction: const CompassDirection.south()),
         TurnPosition(
-            direction: const CompassDirection.west(), reverseFeedIn: true),
+          direction: const CompassDirection.west(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.north()),
       ],
     );
@@ -113,18 +119,24 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesForCasUnits,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
@@ -160,14 +172,20 @@ class VanDerLindenLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(mc2.modulesOut, moduleTilter.modulesIn);
     systems.link(moduleTilter.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// bird transport
     systems.link(moduleTilter.birdsOut, dumpConveyor.birdsIn);
-    systems.link(dumpConveyor.birdOut, shackleConveyor.birdIn);
+    systems.link(dumpConveyor.birdOut, shackleConveyor.birdsIn);
 
-    systems.add(ModuleCasAllocation(
-        area: this, allocationPlace: loadingConveyor.moduleGroupPlace));
+    systems.add(
+      ModuleCasAllocation(
+        area: this,
+        allocationPlace: loadingConveyor.moduleGroupPlace,
+      ),
+    );
 
     systems.add(ModuleCasStart(area: this));
   }

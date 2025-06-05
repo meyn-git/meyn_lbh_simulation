@@ -10,8 +10,9 @@ import 'package:meyn_lbh_simulation/site/site.dart';
 
 void main() {
   GetIt.instance.registerSingleton<Sites>(Sites());
-  GetIt.instance
-      .registerSingleton<AuthorizationService>(AuthorizationService());
+  GetIt.instance.registerSingleton<AuthorizationService>(
+    AuthorizationService(),
+  );
   GetIt.instance.registerSingleton<Player>(Player());
 
   runApp(const MyApp());

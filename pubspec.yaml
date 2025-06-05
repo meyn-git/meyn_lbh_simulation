@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.8.0
 
 dependencies:
   flutter:
@@ -12,17 +12,16 @@ dependencies:
   collection: ^1.18.0
   get_it: ^8.0.3
   url_launcher: ^6.3.0
-  user_command: ^0.0.9
+  user_command: ^0.0.10
   fling_units: ^2.2.7
   process_run: ^1.2.0
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   given_when_then_unit_test: ^0.2.1
   shouldly: ^0.5.0+1
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   flutter_launcher_icons: "^0.14.2"
 
 # dart run flutter_launcher_icons

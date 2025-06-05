@@ -28,11 +28,13 @@ class SpeedProfile {
     required double decelerationInSeconds,
   }) {
     // Calculate the time spent at constant speed
-    double constantSpeedTime = totalDurationInSeconds -
+    double constantSpeedTime =
+        totalDurationInSeconds -
         (accelerationInSeconds + decelerationInSeconds);
 
     // Calculate the maximum speed
-    double maxSpeed = totalDistance /
+    double maxSpeed =
+        totalDistance /
         (0.5 * accelerationInSeconds +
             constantSpeedTime +
             0.5 * decelerationInSeconds);
@@ -66,22 +68,27 @@ class SpeedProfile {
 
       // Calculate total travel time
       return Duration(
-          milliseconds: ((timeAccel + timeConst + timeDecel) * 1000).round());
+        milliseconds: ((timeAccel + timeConst + timeDecel) * 1000).round(),
+      );
     } else {
       // If the distance is too short to reach max speed, solve with only acceleration and deceleration
       // Solve for time using kinematic equations (quadratic solution)
-      double timeAccel = sqrt(2 *
-          distance /
-          (acceleration +
-              (acceleration * deceleration / (acceleration + deceleration))));
+      double timeAccel = sqrt(
+        2 *
+            distance /
+            (acceleration +
+                (acceleration * deceleration / (acceleration + deceleration))),
+      );
       double timeDecel = timeAccel * (acceleration / deceleration);
       return Duration(milliseconds: ((timeAccel + timeDecel) * 1000).round());
     }
   }
 
   bool maxSpeedIsReached(
-          double distance, double distanceAccel, double distanceDecel) =>
-      distance > (distanceAccel + distanceDecel);
+    double distance,
+    double distanceAccel,
+    double distanceDecel,
+  ) => distance > (distanceAccel + distanceDecel);
 
   @override
   String toString() {
@@ -94,11 +101,12 @@ class SpeedProfile {
 class ElectricModuleLiftSpeedProfile extends SpeedProfile {
   static const totalDistanceInMeters =
       DefaultLiftPositionHeights.containerHeightInMeters +
-          DefaultLiftPositionHeights.clearanceHeightInMeters;
+      DefaultLiftPositionHeights.clearanceHeightInMeters;
   static const totalDurationInSeconds = 10;
   static const accelerationInSeconds = 3;
   static const decelerationInSeconds = 3;
-  static const maxConstSpeed = totalDistanceInMeters /
+  static const maxConstSpeed =
+      totalDistanceInMeters /
       (0.5 * accelerationInSeconds +
           (totalDurationInSeconds -
               accelerationInSeconds -
@@ -106,10 +114,11 @@ class ElectricModuleLiftSpeedProfile extends SpeedProfile {
           0.5 * decelerationInSeconds);
 
   const ElectricModuleLiftSpeedProfile()
-      : super(
-            maxSpeed: maxConstSpeed,
-            acceleration: maxConstSpeed / accelerationInSeconds,
-            deceleration: maxConstSpeed / decelerationInSeconds);
+    : super(
+        maxSpeed: maxConstSpeed,
+        acceleration: maxConstSpeed / accelerationInSeconds,
+        deceleration: maxConstSpeed / decelerationInSeconds,
+      );
 }
 
 /// values are based on 7113 Tyson Union City VDL system
@@ -120,7 +129,8 @@ class TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel
   static const _totalDurationInSeconds = 6;
   static const _accelerationInSeconds = 2;
   static const _decelerationInSeconds = 2;
-  static const _maxSpeed = _totalDistanceInDegrees /
+  static const _maxSpeed =
+      _totalDistanceInDegrees /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -128,10 +138,11 @@ class TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel
           0.5 * _decelerationInSeconds);
 
   const TurnTableSpeedProfileForModulesWithMultipleCompartmentsPerLevel()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 /// values are based on measurements at: 7696-Dabe-Germanyk
@@ -141,7 +152,8 @@ class TurnTableSpeedProfileForModulesWith1CompartmentPerLevel
   static const _totalDurationInSeconds = 9;
   static const _accelerationInSeconds = 2;
   static const _decelerationInSeconds = 2;
-  static const _maxSpeed = _totalDistanceInDegrees /
+  static const _maxSpeed =
+      _totalDistanceInDegrees /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -149,10 +161,11 @@ class TurnTableSpeedProfileForModulesWith1CompartmentPerLevel
           0.5 * _decelerationInSeconds);
 
   const TurnTableSpeedProfileForModulesWith1CompartmentPerLevel()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 /// values are based on measurements at: 8052-Indrol Grodzisk
@@ -161,7 +174,8 @@ class TurnTableSpeedProfileForOmniaContainers extends SpeedProfile {
   static const _totalDurationInSeconds = 11.5;
   static const _accelerationInSeconds = 4;
   static const _decelerationInSeconds = 4;
-  static const _maxSpeed = _totalDistanceInDegrees /
+  static const _maxSpeed =
+      _totalDistanceInDegrees /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -169,10 +183,11 @@ class TurnTableSpeedProfileForOmniaContainers extends SpeedProfile {
           0.5 * _decelerationInSeconds);
 
   const TurnTableSpeedProfileForOmniaContainers()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 /// values are based on 7113 Tyson Union City VDL system
@@ -183,7 +198,8 @@ class ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel
   static const _totalDurationInSeconds = 12;
   static const _accelerationInSeconds = 1.5;
   static const _decelerationInSeconds = 0.7;
-  static const _maxSpeed = _totalDistanceInMeters /
+  static const _maxSpeed =
+      _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -191,10 +207,11 @@ class ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel
           0.5 * _decelerationInSeconds);
 
   const ConveyorSpeedProfileForModulesWithMultipleCompartmentsPerLevel()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 /// values are based on measurements at: 7696-Dabe-Germanyk
@@ -204,7 +221,8 @@ class ConveyorSpeedProfileForModulesWith1CompartmentPerLevel
   static const _totalDurationInSeconds = 13.4;
   static const _accelerationInSeconds = 1.5;
   static const _decelerationInSeconds = 0.7;
-  static const _maxSpeed = _totalDistanceInMeters /
+  static const _maxSpeed =
+      _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -212,10 +230,11 @@ class ConveyorSpeedProfileForModulesWith1CompartmentPerLevel
           0.5 * _decelerationInSeconds);
 
   const ConveyorSpeedProfileForModulesWith1CompartmentPerLevel()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 /// values are based on measurements at: 8052-Indrol Grodzisk
@@ -227,7 +246,8 @@ class ConveyorWithoutStopperSpeedProfileForOmniaContainers
   static const _totalDurationInSeconds = 14;
   static const _accelerationInSeconds = 2;
   static const _decelerationInSeconds = 2;
-  static const _maxSpeed = _totalDistanceInMeters /
+  static const _maxSpeed =
+      _totalDistanceInMeters /
       (0.5 * _accelerationInSeconds +
           (_totalDurationInSeconds -
               _accelerationInSeconds -
@@ -235,10 +255,11 @@ class ConveyorWithoutStopperSpeedProfileForOmniaContainers
           0.5 * _decelerationInSeconds);
 
   const ConveyorWithoutStopperSpeedProfileForOmniaContainers()
-      : super(
-            maxSpeed: _maxSpeed,
-            acceleration: _maxSpeed / _accelerationInSeconds,
-            deceleration: _maxSpeed / _decelerationInSeconds);
+    : super(
+        maxSpeed: _maxSpeed,
+        acceleration: _maxSpeed / _accelerationInSeconds,
+        deceleration: _maxSpeed / _decelerationInSeconds,
+      );
 }
 
 enum SpeedProfiles {
@@ -279,8 +300,7 @@ enum SpeedProfiles {
 
     /// lift speed profile is assumed to be identical to other systems (not verified)
     lift: ElectricModuleLiftSpeedProfile(),
-  ),
-  ;
+  );
 
   const SpeedProfiles({
     required this.moduleConveyor,

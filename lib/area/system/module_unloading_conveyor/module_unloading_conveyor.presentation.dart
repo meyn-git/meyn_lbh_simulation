@@ -5,8 +5,9 @@ import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module
 
 class ModuleUnLoadingConveyorPainter extends ShapePainter {
   ModuleUnLoadingConveyorPainter(
-      ModuleUnLoadingConveyor conveyor, LiveBirdsHandlingTheme theme)
-      : super(shape: conveyor.shape, theme: theme);
+    ModuleUnLoadingConveyor conveyor,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: conveyor.shape, theme: theme);
 }
 
 class ModuleUnLoadingConveyorShape extends CompoundShape {
@@ -21,24 +22,34 @@ class ModuleUnLoadingConveyorShape extends CompoundShape {
   static const double taperedGuideWidthInMeters = 0.3;
 
   ModuleUnLoadingConveyorShape(
-      ModuleUnLoadingConveyor moduleUnloadingConveyor) {
+    ModuleUnLoadingConveyor moduleUnloadingConveyor,
+  ) {
     var moduleGroupFootPrint = moduleUnloadingConveyor
-        .area.productDefinition.truckRows.first.footprintOnSystem;
+        .area
+        .productDefinition
+        .truckRows
+        .first
+        .footprintOnSystem;
     var frameEast = Box(
-        xInMeters: frameWidthInMeters,
-        yInMeters: moduleUnloadingConveyor.lengthInMeters);
+      xInMeters: frameWidthInMeters,
+      yInMeters: moduleUnloadingConveyor.lengthInMeters,
+    );
     var taperedGuideEast = Box(
-        xInMeters: taperedGuideWidthInMeters,
-        yInMeters: moduleGroupFootPrint.yInMeters);
+      xInMeters: taperedGuideWidthInMeters,
+      yInMeters: moduleGroupFootPrint.yInMeters,
+    );
     var conveyor = Box(
-        xInMeters: conveyorWidthInMeters,
-        yInMeters: moduleUnloadingConveyor.lengthInMeters);
+      xInMeters: conveyorWidthInMeters,
+      yInMeters: moduleUnloadingConveyor.lengthInMeters,
+    );
     var frameWest = Box(
-        xInMeters: frameWidthInMeters,
-        yInMeters: moduleUnloadingConveyor.lengthInMeters);
+      xInMeters: frameWidthInMeters,
+      yInMeters: moduleUnloadingConveyor.lengthInMeters,
+    );
     var taperedGuideWest = Box(
-        xInMeters: taperedGuideWidthInMeters,
-        yInMeters: moduleGroupFootPrint.yInMeters);
+      xInMeters: taperedGuideWidthInMeters,
+      yInMeters: moduleGroupFootPrint.yInMeters,
+    );
 
     var motor = Box(xInMeters: 0.3, yInMeters: 0.63);
     link(frameWest.centerRight, conveyor.centerLeft);
@@ -50,13 +61,16 @@ class ModuleUnLoadingConveyorShape extends CompoundShape {
     var centerToConveyorCenter =
         topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
     centerToModuleGroupPlace = OffsetInMeters(
-        xInMeters: centerToConveyorCenter.xInMeters,
-        yInMeters: moduleGroupFootPrint.yInMeters * 0.5 - yInMeters * 0.5);
+      xInMeters: centerToConveyorCenter.xInMeters,
+      yInMeters: moduleGroupFootPrint.yInMeters * 0.5 - yInMeters * 0.5,
+    );
     centerToModuleInLink = OffsetInMeters(
-        xInMeters: centerToConveyorCenter.xInMeters,
-        yInMeters: yInMeters * 0.5);
+      xInMeters: centerToConveyorCenter.xInMeters,
+      yInMeters: yInMeters * 0.5,
+    );
     centerToModuleOutLink = OffsetInMeters(
-        xInMeters: centerToConveyorCenter.xInMeters,
-        yInMeters: yInMeters * -0.5);
+      xInMeters: centerToConveyorCenter.xInMeters,
+      yInMeters: yInMeters * -0.5,
+    );
   }
 }

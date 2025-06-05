@@ -46,8 +46,9 @@ class ModuleRotatingConveyor extends StateMachine
   /// See [_verifyTurnPositions]
   final List<TurnPosition> turnPositions;
 
-  late final ModuleRotatingConveyorShape shape =
-      ModuleRotatingConveyorShape(this);
+  late final ModuleRotatingConveyorShape shape = ModuleRotatingConveyorShape(
+    this,
+  );
 
   ModuleRotatingConveyor({
     required this.area,
@@ -57,16 +58,15 @@ class ModuleRotatingConveyor extends StateMachine
     required this.turnPositions,
     required this.diameter,
     State<ModuleRotatingConveyor>? initialState,
-  })  : turnSpeedProfile = turnSpeedProfile ??
-            area.productDefinition.speedProfiles.turnTableTurn,
-        conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor
+  }) : turnSpeedProfile =
+           turnSpeedProfile ??
+           area.productDefinition.speedProfiles.turnTableTurn,
+       conveyorSpeedProfile =
+           conveyorSpeedProfile ??
+           area.productDefinition.speedProfiles.moduleConveyor,
 
-        ///TODO should be different for single stack or multiple stacks
-        ,
-        super(
-          initialState: initialState ?? TurnToFeedIn(),
-        ) {
+       ///TODO should be different for single stack or multiple stacks
+       super(initialState: initialState ?? TurnToFeedIn()) {
     _verifyTurnPositions();
     _initWaitingDurations();
   }
@@ -119,15 +119,17 @@ class ModuleRotatingConveyor extends StateMachine
   void _increaseNeighborsWaitingDurations(Duration jump) {
     for (int i = 0; i < turnPositions.length; i++) {
       if (_neighborCanFeedOut(i)) {
-        neighborsWaitingToFeedOutDurations[i] =
-            _noMoreThan1Hour(neighborsWaitingToFeedOutDurations[i]! + jump);
+        neighborsWaitingToFeedOutDurations[i] = _noMoreThan1Hour(
+          neighborsWaitingToFeedOutDurations[i]! + jump,
+        );
       } else {
         neighborsWaitingToFeedOutDurations[i] = Duration.zero;
       }
 
       if (_neighborCanFeedIn(i)) {
-        neighborsWaitingToFeedInDurations[i] =
-            _noMoreThan1Hour(neighborsWaitingToFeedInDurations[i]! + jump);
+        neighborsWaitingToFeedInDurations[i] = _noMoreThan1Hour(
+          neighborsWaitingToFeedInDurations[i]! + jump,
+        );
       } else {
         neighborsWaitingToFeedInDurations[i] = Duration.zero;
       }
@@ -172,8 +174,8 @@ class ModuleRotatingConveyor extends StateMachine
 
   CompassDirection? get firstFeedInDirection =>
       (feedInTurnPositionsOtherThanCas.isEmpty
-          ? null
-          : feedInTurnPositionsOtherThanCas.first.feedInDirection);
+      ? null
+      : feedInTurnPositionsOtherThanCas.first.feedInDirection);
 
   Duration _noMoreThan1Hour(Duration duration) {
     const max = Duration(hours: 1);
@@ -198,9 +200,13 @@ class ModuleRotatingConveyor extends StateMachine
       return 0;
     }
     if (_neighborModuleGroupAtDestination(
-            neighborModuleOutLink, neighborModuleGroup) ||
+          neighborModuleOutLink,
+          neighborModuleGroup,
+        ) ||
         _neighborModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
-            neighborModuleOutLink, neighborModuleGroup)) {
+          neighborModuleOutLink,
+          neighborModuleGroup,
+        )) {
       return 0;
     }
 
@@ -209,17 +215,19 @@ class ModuleRotatingConveyor extends StateMachine
       return 0;
     }
 
-    var durationUntilCanFeedOut =
-        modulesIns[index].linkedTo!.durationUntilCanFeedOut();
+    var durationUntilCanFeedOut = modulesIns[index].linkedTo!
+        .durationUntilCanFeedOut();
     if (durationUntilCanFeedOut != Duration.zero) {
       var feedInDirection = turnPosition.feedInDirection;
       var rotationDistance = degreesToRotate(feedInDirection);
-      var durationToRotate =
-          turnSpeedProfile.durationOfDistance(rotationDistance.toDouble());
+      var durationToRotate = turnSpeedProfile.durationOfDistance(
+        rotationDistance.toDouble(),
+      );
       if (durationToRotate < durationUntilCanFeedOut) {
         return 0;
       } else {
-        var score = 1 -
+        var score =
+            1 -
             (durationUntilCanFeedOut.inMicroseconds /
                 durationToRotate.inMicroseconds);
         return score;
@@ -253,14 +261,16 @@ class ModuleRotatingConveyor extends StateMachine
 
   late TurnPosition? onlyFeedInTurnPositionOtherThanCas =
       feedInTurnPositionsOtherThanCas.length == 1
-          ? feedInTurnPositionsOtherThanCas.first
-          : null;
+      ? feedInTurnPositionsOtherThanCas.first
+      : null;
 
-  late Iterable<TurnPosition> feedInTurnPositionsOtherThanCas =
-      turnPositions.where((turnPosition) =>
-          modulesIns[turnPositionIndex(turnPosition)].linkedTo != null &&
-          modulesIns[turnPositionIndex(turnPosition)].linkedTo!.system
-              is! ModuleCas);
+  late Iterable<TurnPosition> feedInTurnPositionsOtherThanCas = turnPositions
+      .where(
+        (turnPosition) =>
+            modulesIns[turnPositionIndex(turnPosition)].linkedTo != null &&
+            modulesIns[turnPositionIndex(turnPosition)].linkedTo!.system
+                is! ModuleCas,
+      );
 
   TurnPosition? get bestOutFeedTurnPosition {
     var moduleGroup = moduleGroupPlace.moduleGroup;
@@ -279,19 +289,22 @@ class ModuleRotatingConveyor extends StateMachine
   CompassDirection? get feedOutDirection =>
       bestOutFeedTurnPosition?.feedOutDirection;
 
-  late TurnPosition? onlyOutFeedPosition =
-      outFeedPositions.length == 1 ? outFeedPositions.first : null;
+  late TurnPosition? onlyOutFeedPosition = outFeedPositions.length == 1
+      ? outFeedPositions.first
+      : null;
 
   late Iterable<TurnPosition> outFeedPositions = turnPositions.where(
-      (turnPosition) =>
-          modulesOuts[turnPositionIndex(turnPosition)].linkedTo != null);
+    (turnPosition) =>
+        modulesOuts[turnPositionIndex(turnPosition)].linkedTo != null,
+  );
 
   int turnPositionIndex(TurnPosition turnPosition) =>
       turnPositions.indexOf(turnPosition);
 
   bool _neighborModuleNeedsToWaitUntilDestinationCasUnitOkToFeedIn(
-      ModuleGroupOutLink<LinkedSystem> neighborModuleOutLink,
-      ModuleGroup neighborModuleGroup) {
+    ModuleGroupOutLink<LinkedSystem> neighborModuleOutLink,
+    ModuleGroup neighborModuleGroup,
+  ) {
     var destination = neighborModuleGroup.destination;
     if (destination is! ModuleCas) {
       return false;
@@ -306,14 +319,18 @@ class ModuleRotatingConveyor extends StateMachine
   List<ModuleGroupInLink> _createModuleGroupInLinks() {
     var inLinks = <ModuleGroupInLink>[];
     for (var turnPosition in turnPositions) {
-      inLinks.add(ModuleGroupInLink(
+      inLinks.add(
+        ModuleGroupInLink(
           place: moduleGroupPlace,
-          offsetFromCenterWhenFacingNorth:
-              shape.centerToModuleGroupLink(turnPosition.direction),
+          offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupLink(
+            turnPosition.direction,
+          ),
           directionToOtherLink: turnPosition.direction,
           transportDuration: (inLink) =>
               moduleTransportDuration(inLink, conveyorSpeedProfile),
-          canFeedIn: () => canFeedIn(turnPosition)));
+          canFeedIn: () => canFeedIn(turnPosition),
+        ),
+      );
     }
     return inLinks;
   }
@@ -321,13 +338,17 @@ class ModuleRotatingConveyor extends StateMachine
   List<ModuleGroupOutLink> _createModuleGroupOutLinks() {
     var outLinks = <ModuleGroupOutLink>[];
     for (var turnPosition in turnPositions) {
-      outLinks.add(ModuleGroupOutLink(
+      outLinks.add(
+        ModuleGroupOutLink(
           place: moduleGroupPlace,
-          offsetFromCenterWhenFacingNorth:
-              shape.centerToModuleGroupLink(turnPosition.direction),
+          offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupLink(
+            turnPosition.direction,
+          ),
           directionToOtherLink: turnPosition.direction,
           durationUntilCanFeedOut: () =>
-              canFeedOut(turnPosition) ? Duration.zero : unknownDuration));
+              canFeedOut(turnPosition) ? Duration.zero : unknownDuration,
+        ),
+      );
     }
     return outLinks;
   }
@@ -340,7 +361,7 @@ class ModuleRotatingConveyor extends StateMachine
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     ...modulesIns,
-    ...modulesOuts
+    ...modulesOuts,
   ];
 
   late final int seqNr = area.systems.seqNrOf(this);
@@ -357,11 +378,15 @@ class ModuleRotatingConveyor extends StateMachine
   void _verifyTurnPositions() {
     if (turnPositions.isEmpty) {
       throw ArgumentError(
-          'must contain at least one turn position', 'turnPositions');
+        'must contain at least one turn position',
+        'turnPositions',
+      );
     }
     if (turnPositions.length > 4) {
       throw ArgumentError(
-          'can not contain more then 4 turn positions', 'turnPositions');
+        'can not contain more then 4 turn positions',
+        'turnPositions',
+      );
     }
     for (var i = 0; i < turnPositions.length; i++) {
       var turnPosition = turnPositions[i];
@@ -377,14 +402,16 @@ class ModuleRotatingConveyor extends StateMachine
   ) {
     const noOverlapInDegrees = 90;
     for (var other in others) {
-      if (turnPosition.direction
-                  .counterClockWiseDistanceInDegrees(other.direction) <
+      if (turnPosition.direction.counterClockWiseDistanceInDegrees(
+                other.direction,
+              ) <
               noOverlapInDegrees * 0.5 ||
           turnPosition.direction.clockWiseDistanceInDegrees(other.direction) <
               noOverlapInDegrees * 0.5) {
         throw ArgumentError(
-            'directions must be $noOverlapInDegrees degrees apart',
-            'turnPositions');
+          'directions must be $noOverlapInDegrees degrees apart',
+          'turnPositions',
+        );
       }
     }
   }
@@ -394,8 +421,9 @@ class ModuleRotatingConveyor extends StateMachine
     offsetFromCenterWhenSystemFacingNorth: OffsetInMeters.zero,
   );
 
-  bool _linkedTo(LinkedSystem system) => modulesOuts
-      .any((modulesOutLink) => modulesOutLink.linkedTo?.system == system);
+  bool _linkedTo(LinkedSystem system) => modulesOuts.any(
+    (modulesOutLink) => modulesOutLink.linkedTo?.system == system,
+  );
 
   void initCurrentDirection() {
     if (currentDirection == const CompassDirection.unknown()) {
@@ -416,10 +444,11 @@ class ModuleRotatingConveyor extends StateMachine
   }
 
   int degreesToRotate(CompassDirection goToDirection) {
-    var clockWiseDistance =
-        currentDirection.clockWiseDistanceInDegrees(goToDirection);
-    var counterClockWiseDistance =
-        currentDirection.counterClockWiseDistanceInDegrees(goToDirection);
+    var clockWiseDistance = currentDirection.clockWiseDistanceInDegrees(
+      goToDirection,
+    );
+    var counterClockWiseDistance = currentDirection
+        .counterClockWiseDistanceInDegrees(goToDirection);
     bool clockWise =
         clockWiseDistance < counterClockWiseDistance; //TODO stopperDirection
     return clockWise ? clockWiseDistance : -counterClockWiseDistance;
@@ -431,9 +460,9 @@ class ModuleRotatingConveyor extends StateMachine
       .appendProperty('currentDirection', currentDirection);
 
   bool _neighborModuleGroupAtDestination(
-          ModuleGroupOutLink<LinkedSystem> neighborModuleOutLink,
-          ModuleGroup neighborModuleGroup) =>
-      neighborModuleOutLink.system == neighborModuleGroup.destination;
+    ModuleGroupOutLink<LinkedSystem> neighborModuleOutLink,
+    ModuleGroup neighborModuleGroup,
+  ) => neighborModuleOutLink.system == neighborModuleGroup.destination;
 }
 
 class TurnPosition {
@@ -484,18 +513,22 @@ abstract class TurnState extends State<ModuleRotatingConveyor> {
       } else {
         elapsed = duration;
       }
-      rotatingConveyor.currentDirection = conveyorStartDirection
-          .rotate((rotationDistance * completionFactor).round());
+      rotatingConveyor.currentDirection = conveyorStartDirection.rotate(
+        (rotationDistance * completionFactor).round(),
+      );
     }
   }
 
   void initRotation(
-      ModuleRotatingConveyor rotatingConveyor, CompassDirection goToDirection) {
+    ModuleRotatingConveyor rotatingConveyor,
+    CompassDirection goToDirection,
+  ) {
     conveyorStartDirection = rotatingConveyor.currentDirection;
     conveyorEndDirection = goToDirection;
     rotationDistance = rotatingConveyor.degreesToRotate(goToDirection);
-    duration = rotatingConveyor.turnSpeedProfile
-        .durationOfDistance(rotationDistance.toDouble());
+    duration = rotatingConveyor.turnSpeedProfile.durationOfDistance(
+      rotationDistance.toDouble(),
+    );
     elapsed = Duration.zero;
   }
 }
@@ -507,7 +540,9 @@ class TurnToFeedIn extends TurnState implements ModuleTransportStartedListener {
 
   @override
   void onUpdateToNextPointInTime(
-      ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+    ModuleRotatingConveyor rotatingConveyor,
+    Duration jump,
+  ) {
     if (!feedInStarted) {
       // this prevents turning while committed to feeding in
       var goToDirection = rotatingConveyor.feedInDirection;
@@ -517,7 +552,8 @@ class TurnToFeedIn extends TurnState implements ModuleTransportStartedListener {
 
   @override
   State<ModuleRotatingConveyor>? nextState(
-      ModuleRotatingConveyor rotatingConveyor) {
+    ModuleRotatingConveyor rotatingConveyor,
+  ) {
     if (feedInStarted) {
       return FeedIn();
     }
@@ -533,7 +569,8 @@ class TurnToFeedIn extends TurnState implements ModuleTransportStartedListener {
     var onFeedInPosition =
         rotatingConveyor.currentDirection == best.feedInDirection;
     var index = rotatingConveyor.turnPositionIndex(best);
-    var neighborCanFeedOut = rotatingConveyor.modulesIns[index].linkedTo!
+    var neighborCanFeedOut =
+        rotatingConveyor.modulesIns[index].linkedTo!
             .durationUntilCanFeedOut() ==
         Duration.zero;
     return onFeedInPosition && neighborCanFeedOut;
@@ -553,7 +590,8 @@ class FeedIn extends State<ModuleRotatingConveyor>
   String get name => 'FeedIn';
   @override
   State<ModuleRotatingConveyor>? nextState(
-      ModuleRotatingConveyor rotatingConveyor) {
+    ModuleRotatingConveyor rotatingConveyor,
+  ) {
     if (completed) {
       return TurnToFeedOut();
     }
@@ -575,14 +613,17 @@ class TurnToFeedOut extends TurnState {
 
   @override
   void onUpdateToNextPointInTime(
-      ModuleRotatingConveyor rotatingConveyor, Duration jump) {
+    ModuleRotatingConveyor rotatingConveyor,
+    Duration jump,
+  ) {
     var goToDirection = rotatingConveyor.feedOutDirection;
     turn(rotatingConveyor, goToDirection, jump);
   }
 
   @override
   State<ModuleRotatingConveyor>? nextState(
-      ModuleRotatingConveyor rotatingConveyor) {
+    ModuleRotatingConveyor rotatingConveyor,
+  ) {
     if (startFeedOut(rotatingConveyor)) {
       return FeedOut();
     }
@@ -598,14 +639,16 @@ class TurnToFeedOut extends TurnState {
     var onOutFeedPosition =
         rotatingConveyor.currentDirection == best.feedOutDirection;
     var index = rotatingConveyor.turnPositionIndex(best);
-    var neighborCanFeedIn =
-        rotatingConveyor.modulesOuts[index].linkedTo!.canFeedIn();
+    var neighborCanFeedIn = rotatingConveyor.modulesOuts[index].linkedTo!
+        .canFeedIn();
     return onOutFeedPosition && neighborCanFeedIn;
   }
 
   @override
   void initRotation(
-      ModuleRotatingConveyor rotatingConveyor, CompassDirection goToDirection) {
+    ModuleRotatingConveyor rotatingConveyor,
+    CompassDirection goToDirection,
+  ) {
     super.initRotation(rotatingConveyor, goToDirection);
     initModuleGroupRotation(rotatingConveyor);
   }
@@ -628,8 +671,9 @@ class TurnToFeedOut extends TurnState {
   }
 
   void turnModuleGroup() {
-    moduleGroup.direction = moduleGroupStartDirection
-        .rotate((rotationDistance * completionFactor).round());
+    moduleGroup.direction = moduleGroupStartDirection.rotate(
+      (rotationDistance * completionFactor).round(),
+    );
   }
 }
 
@@ -642,15 +686,17 @@ class FeedOut extends State<ModuleRotatingConveyor>
   @override
   void onStart(ModuleRotatingConveyor rotatingConveyor) {
     var moduleGroup = rotatingConveyor.moduleGroupPlace.moduleGroup!;
-    var index = rotatingConveyor.turnPositions
-        .indexOf(rotatingConveyor.bestOutFeedTurnPosition!);
+    var index = rotatingConveyor.turnPositions.indexOf(
+      rotatingConveyor.bestOutFeedTurnPosition!,
+    );
     var moduleOut = rotatingConveyor.modulesOuts[index];
     moduleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(moduleOut);
   }
 
   @override
   State<ModuleRotatingConveyor>? nextState(
-      ModuleRotatingConveyor rotatingConveyor) {
+    ModuleRotatingConveyor rotatingConveyor,
+  ) {
     if (completed) {
       return TurnToFeedIn();
     }

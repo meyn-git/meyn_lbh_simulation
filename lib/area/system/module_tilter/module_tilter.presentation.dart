@@ -6,7 +6,7 @@ import '../../../theme.presentation.dart';
 
 class ModuleTilterPainter extends ShapePainter {
   ModuleTilterPainter(ModuleTilter tilter, LiveBirdsHandlingTheme theme)
-      : super(shape: tilter.shape, theme: theme);
+    : super(shape: tilter.shape, theme: theme);
 }
 
 class ModuleTilterShape extends CompoundShape {
@@ -28,7 +28,8 @@ class ModuleTilterShape extends CompoundShape {
       link(rightConveyorFrame.centerRight, platform.centerLeft);
       link(leftConveyorFrame.bottomLeft.addY(-0.25), pivotFrame1.bottomRight);
       link(leftConveyorFrame.topLeft.addY(0.25), pivotFrame2.topRight);
-      centerToBirdsOutLink = topLefts[leftConveyorFrame]! +
+      centerToBirdsOutLink =
+          topLefts[leftConveyorFrame]! +
           leftConveyorFrame.centerLeft -
           centerCenter;
     } else {
@@ -37,7 +38,8 @@ class ModuleTilterShape extends CompoundShape {
       link(conveyor.centerRight, rightConveyorFrame.centerLeft);
       link(rightConveyorFrame.bottomRight.addY(-0.25), pivotFrame1.bottomLeft);
       link(rightConveyorFrame.topRight.addY(0.25), pivotFrame2.topLeft);
-      centerToBirdsOutLink = topLefts[rightConveyorFrame]! +
+      centerToBirdsOutLink =
+          topLefts[rightConveyorFrame]! +
           rightConveyorFrame.centerRight -
           centerCenter;
     }
@@ -46,9 +48,9 @@ class ModuleTilterShape extends CompoundShape {
   late final OffsetInMeters centerToConveyorCenter =
       topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
 
-  late final OffsetInMeters centerToModuleGroupOutLink =
-      centerToConveyorCenter.addY(lengthInMeters * -0.5);
+  late final OffsetInMeters centerToModuleGroupOutLink = centerToConveyorCenter
+      .addY(lengthInMeters * -0.5);
 
-  late final OffsetInMeters centerToModuleGroupInLink =
-      centerToConveyorCenter.addY(lengthInMeters * 0.5);
+  late final OffsetInMeters centerToModuleGroupInLink = centerToConveyorCenter
+      .addY(lengthInMeters * 0.5);
 }

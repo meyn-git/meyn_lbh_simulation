@@ -67,9 +67,11 @@ class MonitorTile extends StatelessWidget {
         }
       },
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(14))),
-      tileColor:
-          Theme.of(context).liveBirdsHandling.machineColor.withOpacity(0.2),
+        borderRadius: BorderRadius.all(Radius.circular(14)),
+      ),
+      tileColor: Theme.of(
+        context,
+      ).liveBirdsHandling.machineColor.withOpacity(0.2),
       title: Text(name),
       subtitle: subTitleWidget,
     );
@@ -87,12 +89,8 @@ class MonitorTile extends StatelessWidget {
     }
   }
 
-  Widget? get subTitleWidget => objectToMonitor is Detailable
-      ? Text(
-          subTitle,
-          softWrap: false,
-        )
-      : null;
+  Widget? get subTitleWidget =>
+      objectToMonitor is Detailable ? Text(subTitle, softWrap: false) : null;
 
   String get subTitle =>
       (objectToMonitor as Detailable).objectDetails.propertiesToString(0);

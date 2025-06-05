@@ -3,6 +3,7 @@
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/link.domain.dart';
 import 'package:meyn_lbh_simulation/area/module/module_variant_builder.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_cas/module_bird_unloader.dart';
 import 'package:meyn_lbh_simulation/area/system/module_conveyor/module_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
@@ -15,13 +16,18 @@ import '../../area.domain.dart';
 import '../../module/module.domain.dart';
 import '../state_machine.domain.dart';
 
-class ModuleTilter extends StateMachine implements LinkedSystem {
+class ModuleTilter extends StateMachine implements ModuleBirdUnloader {
   final LiveBirdHandlingArea area;
   final Direction tiltDirection;
+
+  bool startTilt = false;
 
   Duration? durationPerModule;
 
   Durations durationsPerModule = Durations(maxSize: 8);
+
+  @override
+  final double waitingCasModuleLoadSetPoint = 0.5;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
@@ -44,11 +50,10 @@ class ModuleTilter extends StateMachine implements LinkedSystem {
     this.tiltForwardDuration = const Duration(seconds: 9),
     this.tiltBackDuration = const Duration(seconds: 5),
     Duration? outFeedDuration,
-  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        super(
-          initialState: CheckIfEmpty(),
-        ) {
+  }) : conveyorSpeedProfile =
+           conveyorSpeedProfile ??
+           area.productDefinition.speedProfiles.moduleConveyor,
+       super(initialState: CheckIfEmpty()) {
     _verifyDirections();
   }
 
@@ -65,34 +70,40 @@ class ModuleTilter extends StateMachine implements LinkedSystem {
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
       .appendProperty('currentState', currentState)
-      .appendProperty('speed',
-          '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour')
+      .appendProperty(
+        'speed',
+        '${durationsPerModule.averagePerHour.toStringAsFixed(1)} modules/hour',
+      )
       .appendProperty('moduleGroup', moduleGroupPlace.moduleGroup);
 
   @override
   late String name = 'ModuleTilter$seqNr';
 
   late final moduleGroupPlace = ModuleGroupPlace(
-      system: this,
-      offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter);
+    system: this,
+    offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
+  );
 
   late final modulesIn = ModuleGroupInLink<LinkedSystem>(
-      place: moduleGroupPlace,
-      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
-      directionToOtherLink: const CompassDirection.south(),
-      transportDuration: (inLink) =>
-          moduleTransportDuration(inLink, conveyorSpeedProfile),
-      feedInSingleStack: true,
-      canFeedIn: () =>
-          SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState));
+    place: moduleGroupPlace,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupInLink,
+    directionToOtherLink: const CompassDirection.south(),
+    transportDuration: (inLink) =>
+        moduleTransportDuration(inLink, conveyorSpeedProfile),
+    feedInSingleStack: true,
+    canFeedIn: () =>
+        SimultaneousFeedOutFeedInModuleGroup.canFeedIn(currentState),
+  );
 
   late final modulesOut = ModuleGroupOutLink(
-      place: moduleGroupPlace,
-      offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
-      directionToOtherLink: const CompassDirection.north(),
-      durationUntilCanFeedOut: () =>
-          SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
-              currentState));
+    place: moduleGroupPlace,
+    offsetFromCenterWhenFacingNorth: shape.centerToModuleGroupOutLink,
+    directionToOtherLink: const CompassDirection.north(),
+    durationUntilCanFeedOut: () =>
+        SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
+          currentState,
+        ),
+  );
 
   late final birdsOut = BirdsOutLink(
     system: this,
@@ -100,6 +111,9 @@ class ModuleTilter extends StateMachine implements LinkedSystem {
     directionToOtherLink: tiltDirection == Direction.counterClockWise
         ? const CompassDirection.west()
         : const CompassDirection.east(),
+    availableBirds: () =>
+        canDumpBirds ? moduleGroupPlace.moduleGroup!.numberOfBirds : 0,
+    transferBirds: (_) => startTilt = true,
   );
 
   @override
@@ -124,6 +138,8 @@ class ModuleTilter extends StateMachine implements LinkedSystem {
 
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
+
+  bool get canDumpBirds => currentState is WaitToTilt;
 }
 
 class CheckIfEmpty extends DurationState<ModuleTilter> {
@@ -131,15 +147,18 @@ class CheckIfEmpty extends DurationState<ModuleTilter> {
   String get name => 'CheckIfEmpty';
 
   CheckIfEmpty()
-      : super(
-            durationFunction: (tilter) =>
-                tilter.conveyorSpeedProfile
-                    .durationOfDistance(tilter.shape.yInMeters) *
-                1.5,
-            nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
-                modulesIn: tilter.modulesIn,
-                modulesOut: tilter.modulesOut,
-                stateWhenCompleted: WaitToTilt()));
+    : super(
+        durationFunction: (tilter) =>
+            tilter.conveyorSpeedProfile.durationOfDistance(
+              tilter.shape.yInMeters,
+            ) *
+            1.5,
+        nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: tilter.modulesIn,
+          modulesOut: tilter.modulesOut,
+          stateWhenCompleted: WaitToTilt(),
+        ),
+      );
 }
 
 class WaitToTilt extends State<ModuleTilter> {
@@ -160,14 +179,17 @@ class WaitToTilt extends State<ModuleTilter> {
       throw Exception('${tilter.name}: can only unload containers with doors');
     }
     if (moduleGroup.direction.rotate(-90) != tilter.doorDirection) {
-      throw Exception('${tilter.name}: In correct door direction of '
-          '$ModuleGroup');
+      throw Exception(
+        '${tilter.name}: In correct door direction of '
+        '$ModuleGroup',
+      );
     }
   }
 
   @override
   State<ModuleTilter>? nextState(ModuleTilter tilter) {
-    if (tilter.birdsOut.linkedTo!.canReceiveBirds()) {
+    if (tilter.startTilt) {
+      tilter.startTilt = false;
       return TiltForward();
     }
     return null;
@@ -179,14 +201,14 @@ class TiltForward extends DurationState<ModuleTilter> {
   String get name => 'TiltForward';
 
   TiltForward()
-      : super(
-            durationFunction: (tilter) => tilter.tiltForwardDuration,
-            nextStateFunction: (tilter) => TiltBack());
+    : super(
+        durationFunction: (tilter) => tilter.tiltForwardDuration,
+        nextStateFunction: (tilter) => TiltBack(),
+      );
 
   @override
   void onCompleted(ModuleTilter tilter) {
     var moduleGroup = tilter.moduleGroupPlace.moduleGroup!;
-    tilter.birdsOut.linkedTo!.transferBirds(moduleGroup.numberOfBirds);
     moduleGroup.unloadBirds();
   }
 }
@@ -196,13 +218,14 @@ class TiltBack extends DurationState<ModuleTilter> {
   String get name => 'TiltBack';
 
   TiltBack()
-      : super(
-            durationFunction: (tilter) => tilter.tiltBackDuration,
-            nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
-                  modulesIn: tilter.modulesIn,
-                  modulesOut: tilter.modulesOut,
-                  stateWhenCompleted: WaitToTilt(),
-                ));
+    : super(
+        durationFunction: (tilter) => tilter.tiltBackDuration,
+        nextStateFunction: (tilter) => SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: tilter.modulesIn,
+          modulesOut: tilter.modulesOut,
+          stateWhenCompleted: WaitToTilt(),
+        ),
+      );
 
   @override
   void onCompleted(ModuleTilter tilter) {

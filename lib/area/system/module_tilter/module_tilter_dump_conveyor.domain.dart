@@ -30,12 +30,14 @@ class ModuleTilterDumpConveyor implements LinkedSystem, TimeProcessor {
     int? minBirdsOnDumpBeltBuffer,
     int? maxBirdsOnDumpBeltBuffer,
     this.lengthInMeters = 3,
-  })  : minBirdsOnDumpBeltBuffer = minBirdsOnDumpBeltBuffer ??
-            (area.productDefinition.averageProductsPerModuleGroup * 0.5)
-                .round(),
-        maxBirdsOnDumpBelt = maxBirdsOnDumpBeltBuffer ??
-            (area.productDefinition.averageProductsPerModuleGroup * 1.5)
-                .round() {
+  }) : minBirdsOnDumpBeltBuffer =
+           minBirdsOnDumpBeltBuffer ??
+           (area.productDefinition.averageNumberOfBirdsPerTruckRow * 0.5)
+               .round(),
+       maxBirdsOnDumpBelt =
+           maxBirdsOnDumpBeltBuffer ??
+           (area.productDefinition.averageNumberOfBirdsPerTruckRow * 1.5)
+               .round() {
     //TODO verify minBirdsOnDumpBeltBuffer
     if (lengthInMeters < 3) {
       throw ArgumentError('ModuleTilterDumpBelt must be at least 3 meters');
@@ -69,16 +71,22 @@ class ModuleTilterDumpConveyor implements LinkedSystem, TimeProcessor {
   late String name = 'ModuleTilterDumpBelt$seqNr';
 
   late final birdsIn = BirdsInLink(
-      system: this,
-      offsetFromCenterWhenFacingNorth: shape.centerToBirdsInLink,
-      directionToOtherLink: const CompassDirection.south(),
-      canReceiveBirds: () => canReceiveBirds,
-      transferBirds: receiveBirds);
+    system: this,
+    offsetFromCenterWhenFacingNorth: shape.centerToBirdsInLink,
+    directionToOtherLink: const CompassDirection.south(),
+  );
 
-  late final birdOut = BirdOutLink(
+  late final birdOut = BirdsOutLink(
     system: this,
     offsetFromCenterWhenFacingNorth: shape.centerToBirdOutLink,
     directionToOtherLink: const CompassDirection.north(),
+    availableBirds: () => birdsOnDumpBelt,
+    transferBirds: (int numberOfBirdsTransferred) {
+      birdsOnDumpBelt -= numberOfBirdsTransferred;
+      if (birdsOnDumpBelt < 0) {
+        throw Exception('$name: Transferred more birds than possible');
+      }
+    },
   );
 
   @override
@@ -92,9 +100,14 @@ class ModuleTilterDumpConveyor implements LinkedSystem, TimeProcessor {
 
   @override
   void onUpdateToNextPointInTime(Duration jump) {
-    if (birdsOnDumpBelt > 0 && birdOut.linkedTo!.canReceiveBird()) {
-      birdOut.linkedTo!.transferBird();
-      birdsOnDumpBelt--;
+    if (!canReceiveBirds) {
+      return;
     }
+    var birdsToReceive = birdsIn.linkedTo!.availableBirds();
+    if (birdsToReceive == 0) {
+      return;
+    }
+    birdsIn.linkedTo!.transferBirds(birdsToReceive);
+    birdsOnDumpBelt += birdsToReceive;
   }
 }

@@ -25,84 +25,88 @@ import 'package:meyn_lbh_simulation/site/site.dart';
 
 class MicarnaSite extends Site {
   MicarnaSite()
-      : super(
-          meynLayoutNumber: 9164,
-          organizationName: 'Micarna',
-          city: 'Courtepin',
-          country: 'Switzerland',
-          productDefinitions: MicarnaProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 9164,
+        organizationName: 'Micarna',
+        city: 'Courtepin',
+        country: 'Switzerland',
+        productDefinitions: MicarnaProductDefinitions(),
+      );
 }
 
 class MicarnaProductDefinitions extends DelegatingList<ProductDefinition> {
   static final maxBirdWeight = 2.5.kilo.grams;
   static const summerLoadPercentage = 80;
-  static final minLoadDensity =
-      LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
+  static final minLoadDensity = LoadDensity.eec64_432(
+    maxBirdWeight,
+    summerLoadPercentage,
+  );
 
   MicarnaProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: _areaFactoryV2(),
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 13500,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c1
-                      .l5
-                      .gs
-                      .build()
-                      .withLoadDensity(minLoadDensity, maxBirdWeight),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c1
-                      .l4
-                      .gs
-                      .build()
-                      .withLoadDensity(minLoadDensity, maxBirdWeight),
-                  PositionWithinModuleGroup.secondBottom: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c1
-                      .l5
-                      .gs
-                      .build()
-                      .withLoadDensity(minLoadDensity, maxBirdWeight),
-                  PositionWithinModuleGroup.secondTop: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c1
-                      .l4
-                      .gs
-                      .build()
-                      .withLoadDensity(minLoadDensity, maxBirdWeight),
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          areaFactory: _areaFactoryV2(),
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 13500,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c1
+                  .l5
+                  .gs
+                  .build()
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c1
+                  .l4
+                  .gs
+                  .build()
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
+              PositionWithinModuleGroup.secondBottom: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c1
+                  .l5
+                  .gs
+                  .build()
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
+              PositionWithinModuleGroup.secondTop: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c1
+                  .l4
+                  .gs
+                  .build()
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
+            }),
+          ],
+        ),
+      ]);
 
   static List<LiveBirdHandlingArea> Function(ProductDefinition)
-      _areaFactoryV2() => (ProductDefinition productDefinition) =>
-          [MicarnaLiveBirdHandlingArea(productDefinition)];
+  _areaFactoryV2() =>
+      (ProductDefinition productDefinition) => [
+        MicarnaLiveBirdHandlingArea(productDefinition),
+      ];
 }
 
 class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
+  static const int levelsOfModulesInCas = 2;
+  static const int numberOfModuleStacksForCasUnits = 2;
   double drawerConveyorSpeedInMeterPerSecond = 0.5;
 
   MicarnaLiveBirdHandlingArea(ProductDefinition productDefinition)
-      : super(
-          lineName: 'Line1',
-          productDefinition: productDefinition,
-        );
+    : super(lineName: 'Line1', productDefinition: productDefinition);
 
   @override
   void createSystemsAndLinks() {
@@ -120,7 +124,9 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       diameter: ModuleRotatingConveyorDiameter.twoSingleColumnModules,
       turnPositions: [
         TurnPosition(
-            direction: const CompassDirection.south(), reverseFeedIn: true),
+          direction: const CompassDirection.south(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.east()),
       ],
     );
@@ -134,10 +140,7 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
       ],
     );
 
-    var mc1 = ModuleConveyor(
-      area: this,
-      lengthInMeters: 4.2,
-    );
+    var mc1 = ModuleConveyor(area: this, lengthInMeters: 4.2);
 
     var mrc3 = ModuleRotatingConveyor(
       area: this,
@@ -168,12 +171,16 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas5 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas4 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
@@ -197,12 +204,16 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas3 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var cas2 = ModuleCas(
       area: this,
       gasDuctsLeft: true,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToRight,
     );
 
@@ -225,58 +236,43 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     var cas1 = ModuleCas(
       area: this,
       gasDuctsLeft: false,
+      numberOfModuleStacks: numberOfModuleStacksForCasUnits,
+      levelsOfModules: levelsOfModulesInCas,
       moduleDoor: ModuleDoor.slideDoorToLeft,
     );
 
     var mc2 = ModuleConveyor(area: this);
 
-    var deStacker1 = ModuleDeStacker(
-      area: this,
-    );
+    var deStacker1 = ModuleDeStacker(area: this);
 
-    var deStacker2 = ModuleDeStacker(
-      area: this,
-    );
+    var deStacker2 = ModuleDeStacker(area: this);
 
-    var mc3 = ModuleConveyor(
-      area: this,
-    );
+    var mc3 = ModuleConveyor(area: this);
 
     var drawerUnloader = ModuleDrawerColumnUnloader(
       area: this,
       drawerOutDirection: Direction.clockWise,
     );
 
-    var mc4 = ModuleConveyor(area: this);
+    var mc4 = ModuleConveyor(area: this, lengthInMeters: 2.0625);
 
-    var mc5 = ModuleConveyor(area: this);
+    var mc5 = ModuleConveyor(area: this, lengthInMeters: 2.0625);
 
-    var mc6 = ModuleConveyor(area: this);
+    var mc6 = ModuleConveyor(area: this, lengthInMeters: 2.0625);
+    var mc6b = ModuleConveyor(area: this, lengthInMeters: 2.0625);
 
-    var moduleWasher1 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 2.25,
-    );
+    var moduleWasher1 = ModuleWasherConveyor(area: this, lengthInMeters: 2.25);
 
-    var moduleWasher2 = ModuleWasherConveyor(
-      area: this,
-      lengthInMeters: 2.25,
-    );
+    var moduleWasher2 = ModuleWasherConveyor(area: this, lengthInMeters: 2.25);
 
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
       drawersInDirection: Direction.clockWise,
     );
 
-    var stacker1 = ModuleStacker(
-      area: this,
-      maxLevelsInTop: 4,
-    );
+    var stacker1 = ModuleStacker(area: this, maxLevelsInTop: 4);
 
-    var stacker2 = ModuleStacker(
-      area: this,
-      maxLevelsInTop: 4,
-    );
+    var stacker2 = ModuleStacker(area: this, maxLevelsInTop: 4);
 
     var unloadingConveyor = ModuleUnLoadingConveyor(area: this);
 
@@ -313,14 +309,17 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(drawerUnloader.modulesOut, mc4.modulesIn);
     systems.link(mc4.modulesOut, mc5.modulesIn);
     systems.link(mc5.modulesOut, mc6.modulesIn);
-    systems.link(mc6.modulesOut, moduleWasher1.modulesIn);
+    systems.link(mc6.modulesOut, mc6b.modulesIn);
+    systems.link(mc6b.modulesOut, moduleWasher1.modulesIn);
     systems.link(moduleWasher1.modulesOut, moduleWasher2.modulesIn);
     systems.link(moduleWasher2.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, stacker1.modulesIn);
     systems.link(stacker1.modulesOut, stacker2.modulesIn);
     systems.link(stacker2.modulesOut, unloadingConveyor.modulesIn);
     systems.link(
-        unloadingConveyor.modulesOut, unLoadingForkLiftTruck.modulesIn);
+      unloadingConveyor.modulesOut,
+      unLoadingForkLiftTruck.modulesIn,
+    );
 
     /// drawer systems
 
@@ -331,51 +330,62 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor2 = DrawerConveyorStraight(
-        lengthInMeters: 3,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 3,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var hangingConveyor = DrawerHangingConveyor(
-        productDefinition: productDefinition,
-        hangers: 11, // TODO 11 hangers for 15000?
-        metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
-        allDrawers: drawers);
+      productDefinition: productDefinition,
+      hangers: 11, // TODO 11 hangers for 15000?
+      metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
+      allDrawers: drawers,
+    );
 
     var conveyor3 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 1);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 1,
+    );
 
     var taraDrawerWeigher = DrawerWeighingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor4 = DrawerTurningConveyor();
 
     var soaker = DrawerSoakingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor5 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 7.8);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 7.8,
+    );
 
     var washer = DrawerWashingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor6 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 5.0);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 5.0,
+    );
 
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor9 = DrawerConveyorStraight(
-        lengthInMeters: 1.4,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 1.4,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var drawerLoaderLift = DrawerLoaderLift(area: this);
 
@@ -397,34 +407,10 @@ class MicarnaLiveBirdHandlingArea extends LiveBirdHandlingArea {
     systems.link(conveyor9.drawerOut, drawerLoaderLift.drawerIn);
     systems.link(drawerLoaderLift.drawersOut, moduleDrawerLoader.drawersIn);
 
-    systems.add(ModuleCasAllocation(
-      area: this,
-      allocationPlace: mrc3.moduleGroupPlace,
-    ));
+    systems.add(
+      ModuleCasAllocation(area: this, allocationPlace: mrc3.moduleGroupPlace),
+    );
 
-    systems.add(ModuleCasStart(area: this, startIntervalFractions: <double>[
-      0.5,
-      0.5,
-      0.6,
-      0.6,
-      0.7,
-      0.7,
-      0.8,
-      0.8,
-      0.9,
-      0.9,
-      1,
-      1,
-      1.10,
-      1.10,
-      1.20,
-      1.20,
-      1.30,
-      1.30,
-      1.40,
-      1.40,
-      1.50,
-      1.50,
-    ]));
+    systems.add(ModuleCasStart(area: this));
   }
 }

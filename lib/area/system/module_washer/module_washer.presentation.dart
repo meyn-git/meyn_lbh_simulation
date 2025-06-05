@@ -5,8 +5,9 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleWasherConveyorPainter extends ShapePainter {
   ModuleWasherConveyorPainter(
-      ModuleWasherConveyor conveyor, LiveBirdsHandlingTheme theme)
-      : super(shape: conveyor.shape, theme: theme);
+    ModuleWasherConveyor conveyor,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: conveyor.shape, theme: theme);
 }
 
 class ModuleWasherConveyorShape extends CompoundShape {
@@ -19,17 +20,19 @@ class ModuleWasherConveyorShape extends CompoundShape {
 
   ModuleWasherConveyorShape(ModuleWasherConveyor moduleWasher) {
     var frameEast = Box(
-        xInMeters:
-            frameWidthInMeters, //standard grande drawer conveyor frame width
-        yInMeters: moduleWasher.lengthInMeters);
+      xInMeters:
+          frameWidthInMeters, //standard grande drawer conveyor frame width
+      yInMeters: moduleWasher.lengthInMeters,
+    );
     var conveyor = Box(
-        xInMeters:
-            conveyorWidthInMeters, //standard grande drawer conveyor width
-        yInMeters: moduleWasher.lengthInMeters);
+      xInMeters: conveyorWidthInMeters, //standard grande drawer conveyor width
+      yInMeters: moduleWasher.lengthInMeters,
+    );
     var frameWest = Box(
-        xInMeters:
-            frameWidthInMeters, //standard grande drawer conveyor frame width
-        yInMeters: moduleWasher.lengthInMeters);
+      xInMeters:
+          frameWidthInMeters, //standard grande drawer conveyor frame width
+      yInMeters: moduleWasher.lengthInMeters,
+    );
 
     var motor = Box(xInMeters: 0.3, yInMeters: 0.63);
     link(frameWest.centerRight, conveyor.centerLeft);
@@ -38,10 +41,12 @@ class ModuleWasherConveyorShape extends CompoundShape {
     centerToConveyorCenter =
         topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
     centerToModuleInLink = OffsetInMeters(
-        xInMeters: centerToConveyorCenter.xInMeters,
-        yInMeters: yInMeters * 0.5);
+      xInMeters: centerToConveyorCenter.xInMeters,
+      yInMeters: yInMeters * 0.5,
+    );
     centerToModuleOutLink = OffsetInMeters(
-        xInMeters: centerToConveyorCenter.xInMeters,
-        yInMeters: yInMeters * -0.5);
+      xInMeters: centerToConveyorCenter.xInMeters,
+      yInMeters: yInMeters * -0.5,
+    );
   }
 }

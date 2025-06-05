@@ -23,10 +23,7 @@ class ModuleCasAllocation implements System, TimeProcessor {
   final ModuleGroupPlace allocationPlace;
   late final List<ModuleGroupRoute> _routesToCasUnits = _findRoutesToCasUnits();
 
-  ModuleCasAllocation({
-    required this.area,
-    required this.allocationPlace,
-  });
+  ModuleCasAllocation({required this.area, required this.allocationPlace});
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
@@ -44,7 +41,9 @@ class ModuleCasAllocation implements System, TimeProcessor {
   ObjectDetails get objectDetails {
     var destination = casWithHighestScore;
     return ObjectDetails(name).appendProperty(
-        'destination', destination == null ? 'none' : destination.name);
+      'destination',
+      destination == null ? 'none' : destination.name,
+    );
   }
 
   @override
@@ -56,9 +55,7 @@ class ModuleCasAllocation implements System, TimeProcessor {
     var sourceOutLinks = source.links.whereType<ModuleGroupOutLink>();
     for (var sourceOutLink in sourceOutLinks) {
       for (var casUnit in allModuleCasUnits) {
-        var route = sourceOutLink.findRoute(
-          destination: casUnit,
-        );
+        var route = sourceOutLink.findRoute(destination: casUnit);
         if (route != null) {
           routesToCasUnits.add(route);
         }
@@ -68,8 +65,8 @@ class ModuleCasAllocation implements System, TimeProcessor {
     return routesToCasUnits;
   }
 
-  late final Iterable<ModuleCas> allModuleCasUnits =
-      area.systems.whereType<ModuleCas>();
+  late final Iterable<ModuleCas> allModuleCasUnits = area.systems
+      .whereType<ModuleCas>();
 
   ModuleCas? get casWithHighestScore {
     double highScore = 0;

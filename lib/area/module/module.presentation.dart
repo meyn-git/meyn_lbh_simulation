@@ -19,25 +19,22 @@ class ModuleGroupWidget extends StatelessWidget {
     return Listener(
       onPointerDown: (_) => monitor(moduleGroup),
       child: RotationTransition(
-          turns: AlwaysStoppedAnimation(moduleGroup.direction.toFraction()),
-          child: CustomPaint(
-            painter: ModuleGroupPainter(moduleGroup, theme),
-          )),
+        turns: AlwaysStoppedAnimation(moduleGroup.direction.toFraction()),
+        child: CustomPaint(painter: ModuleGroupPainter(moduleGroup, theme)),
+      ),
     );
   }
 }
 
 monitor(ModuleGroup moduleGroup) {
   var player = GetIt.instance<Player>();
-  List<Object> objectsToMonitor = [
-    moduleGroup,
-  ];
+  List<Object> objectsToMonitor = [moduleGroup];
   player.objectsToMonitor.addAll(objectsToMonitor);
 }
 
 class ModuleGroupPainter extends ShapePainter {
   ModuleGroupPainter(ModuleGroup moduleGroup, LiveBirdsHandlingTheme theme)
-      : super(shape: moduleGroup.shape, theme: theme);
+    : super(shape: moduleGroup.shape, theme: theme);
 }
 
 class ModuleGroupShape extends CompoundShape {
@@ -48,14 +45,17 @@ class ModuleGroupShape extends CompoundShape {
     var topLevel = positions.map((p) => p.level).reduce(max);
     var firstStackNumber = positions.map((p) => p.stackNumber).reduce(min);
     for (var position in positions) {
-      bool showOutDirection = moduleGroup.compartment.birdsExitOnOneSide &&
+      bool showOutDirection =
+          moduleGroup.compartment.birdsExitOnOneSide &&
           position.level == topLevel;
       var moduleShape = ModuleShape(moduleGroup, showOutDirection);
       var topLeft = OffsetInMeters.zero
           .addX(position.level * offsetPerLevel)
-          .addY(position.level * offsetPerLevel +
-              (position.stackNumber - firstStackNumber) *
-                  (moduleShape.yInMeters + offsetBetweenStacks));
+          .addY(
+            position.level * offsetPerLevel +
+                (position.stackNumber - firstStackNumber) *
+                    (moduleShape.yInMeters + offsetBetweenStacks),
+          );
       add(topLeft, moduleShape);
     }
   }
@@ -80,12 +80,16 @@ class ModuleCompartmentShape extends Shape {
   final ModuleGroup moduleGroup;
   final bool showOutDirection;
   ModuleCompartmentShape(this.moduleGroup, this.showOutDirection)
-      : xInMeters = moduleGroup.compartmentGroundSurface.xInMeters,
-        yInMeters = moduleGroup.compartmentGroundSurface.yInMeters;
+    : xInMeters = moduleGroup.compartmentGroundSurface.xInMeters,
+      yInMeters = moduleGroup.compartmentGroundSurface.yInMeters;
 
   @override
-  void paint(Canvas canvas, LiveBirdsHandlingTheme theme, OffsetInMeters offset,
-      double sizePerMeter) {
+  void paint(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     var paint = Paint();
     paint.color = color(theme);
     paint.style = PaintingStyle.stroke;
@@ -119,22 +123,13 @@ class ModuleCompartmentShape extends Shape {
 }
 
 void paintText(Canvas canvas, Size size, String text) {
-  const textStyle = TextStyle(
-    color: Colors.black,
-    fontSize: 30,
-  );
-  const textSpan = TextSpan(
-    text: 'Hello, world.',
-    style: textStyle,
-  );
+  const textStyle = TextStyle(color: Colors.black, fontSize: 30);
+  const textSpan = TextSpan(text: 'Hello, world.', style: textStyle);
   final textPainter = TextPainter(
     text: textSpan,
     textDirection: TextDirection.ltr,
   );
-  textPainter.layout(
-    minWidth: 0,
-    maxWidth: size.width,
-  );
+  textPainter.layout(minWidth: 0, maxWidth: size.width);
   final xCenter = (size.width - textPainter.width) / 2;
   final yCenter = (size.height - textPainter.height) / 2;
   final offset = Offset(xCenter, yCenter);

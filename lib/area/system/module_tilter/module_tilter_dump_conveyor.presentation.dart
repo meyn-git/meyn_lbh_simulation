@@ -7,8 +7,9 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleTilterDumpConveyorPainter extends ShapePainter {
   ModuleTilterDumpConveyorPainter(
-      ModuleTilterDumpConveyor dumpConveyor, LiveBirdsHandlingTheme theme)
-      : super(shape: dumpConveyor.shape, theme: theme);
+    ModuleTilterDumpConveyor dumpConveyor,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: dumpConveyor.shape, theme: theme);
 }
 
 class ModuleTilterDumpConveyorShape extends Shape {
@@ -20,40 +21,54 @@ class ModuleTilterDumpConveyorShape extends Shape {
   bool get shouldRepaint => true;
 
   @override
-  void paint(Canvas canvas, LiveBirdsHandlingTheme theme, OffsetInMeters offset,
-      double sizePerMeter) {
+  void paint(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     _paintReceivingConveyor(canvas, theme, offset, sizePerMeter);
     _paintBirdsOnReceivingConveyor(canvas, theme, offset, sizePerMeter);
   }
 
-  _paintReceivingConveyor(Canvas canvas, LiveBirdsHandlingTheme theme,
-      OffsetInMeters offset, double sizePerMeter) {
+  _paintReceivingConveyor(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     var conveyorPaint = Paint();
     conveyorPaint.color = theme.machineColor;
     conveyorPaint.style = PaintingStyle.stroke;
     canvas.drawRect(
-        Rect.fromLTWH(
-          offset.xInMeters * sizePerMeter,
-          offset.yInMeters * sizePerMeter,
-          xInMeters * sizePerMeter,
-          yInMeters * sizePerMeter,
-        ),
-        conveyorPaint);
+      Rect.fromLTWH(
+        offset.xInMeters * sizePerMeter,
+        offset.yInMeters * sizePerMeter,
+        xInMeters * sizePerMeter,
+        yInMeters * sizePerMeter,
+      ),
+      conveyorPaint,
+    );
   }
 
-  _paintBirdsOnReceivingConveyor(Canvas canvas, LiveBirdsHandlingTheme theme,
-      OffsetInMeters offset, double sizePerMeter) {
+  _paintBirdsOnReceivingConveyor(
+    Canvas canvas,
+    LiveBirdsHandlingTheme theme,
+    OffsetInMeters offset,
+    double sizePerMeter,
+  ) {
     var birdPaint = Paint();
     birdPaint.color = theme.machineColor.withOpacity(0.5);
     birdPaint.style = PaintingStyle.fill;
     canvas.drawRect(
-        Rect.fromLTRB(
-          offset.xInMeters * sizePerMeter,
-          offset.yInMeters * sizePerMeter,
-          xInMeters * sizePerMeter,
-          yInMeters * sizePerMeter * dumpConveyor.loadedFraction,
-        ),
-        birdPaint);
+      Rect.fromLTRB(
+        offset.xInMeters * sizePerMeter,
+        offset.yInMeters * sizePerMeter,
+        xInMeters * sizePerMeter,
+        yInMeters * sizePerMeter * dumpConveyor.loadedFraction,
+      ),
+      birdPaint,
+    );
   }
 
   @override
@@ -62,9 +77,13 @@ class ModuleTilterDumpConveyorShape extends Shape {
   @override
   double get yInMeters => dumpConveyor.lengthInMeters;
 
-  late final OffsetInMeters centerToBirdOutLink =
-      OffsetInMeters(xInMeters: 0, yInMeters: yInMeters * -0.5);
+  late final OffsetInMeters centerToBirdOutLink = OffsetInMeters(
+    xInMeters: 0,
+    yInMeters: yInMeters * -0.5,
+  );
 
-  late final OffsetInMeters centerToBirdsInLink =
-      OffsetInMeters(xInMeters: 0, yInMeters: yInMeters * 0.5);
+  late final OffsetInMeters centerToBirdsInLink = OffsetInMeters(
+    xInMeters: 0,
+    yInMeters: yInMeters * 0.5,
+  );
 }

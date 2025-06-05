@@ -45,13 +45,12 @@ class ModuleStacker extends StateMachine implements LinkedSystem {
     SpeedProfile? liftSpeedProfile,
     SpeedProfile? conveyorSpeedProfile,
     this.heightsInMeters = const DefaultLiftPositionHeights(),
-  })  : conveyorSpeedProfile = conveyorSpeedProfile ??
-            area.productDefinition.speedProfiles.moduleConveyor,
-        liftSpeedProfile =
-            liftSpeedProfile ?? area.productDefinition.speedProfiles.lift,
-        super(
-          initialState: CheckIfEmpty(),
-        );
+  }) : conveyorSpeedProfile =
+           conveyorSpeedProfile ??
+           area.productDefinition.speedProfiles.moduleConveyor,
+       liftSpeedProfile =
+           liftSpeedProfile ?? area.productDefinition.speedProfiles.lift,
+       super(initialState: CheckIfEmpty());
 
   late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
     system: this,
@@ -80,13 +79,14 @@ class ModuleStacker extends StateMachine implements LinkedSystem {
     durationUntilCanFeedOut: () => currentState is WaitToFeedOut
         ? Duration.zero
         : SimultaneousFeedOutFeedInModuleGroup.durationUntilCanFeedOut(
-            currentState),
+            currentState,
+          ),
   );
 
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   @override
@@ -103,28 +103,34 @@ class ModuleStacker extends StateMachine implements LinkedSystem {
 
   State<ModuleStacker> createSimultaneousFeedOutFeedInModuleGroup() =>
       SimultaneousFeedOutFeedInModuleGroup<ModuleStacker>(
-          modulesIn: modulesIn,
-          modulesOut: modulesOut,
-          stateWhenCompleted: DecideAfterModuleGroupFeedIn(),
-          inFeedDelay: timeBetweenStacksForStopperToGoUpInBetween);
+        modulesIn: modulesIn,
+        modulesOut: modulesOut,
+        stateWhenCompleted: DecideAfterModuleGroupFeedIn(),
+        inFeedDelay: timeBetweenStacksForStopperToGoUpInBetween,
+      );
 
-  final Duration timeBetweenStacksForStopperToGoUpInBetween =
-      const Duration(seconds: 6);
+  final Duration timeBetweenStacksForStopperToGoUpInBetween = const Duration(
+    seconds: 6,
+  );
 }
 
 class CheckIfEmpty extends DurationState<ModuleStacker> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (stacker) =>
-                stacker.conveyorSpeedProfile
-                    .durationOfDistance(stacker.shape.yInMeters) *
-                1.5,
-            nextStateFunction: (stacker) =>
-                SimultaneousFeedOutFeedInModuleGroup(
-                    modulesIn: stacker.modulesIn,
-                    modulesOut: stacker.modulesOut,
-                    stateWhenCompleted: MoveLift(LiftPosition.inFeed,
-                        stacker.createSimultaneousFeedOutFeedInModuleGroup())));
+    : super(
+        durationFunction: (stacker) =>
+            stacker.conveyorSpeedProfile.durationOfDistance(
+              stacker.shape.yInMeters,
+            ) *
+            1.5,
+        nextStateFunction: (stacker) => SimultaneousFeedOutFeedInModuleGroup(
+          modulesIn: stacker.modulesIn,
+          modulesOut: stacker.modulesOut,
+          stateWhenCompleted: MoveLift(
+            LiftPosition.inFeed,
+            stacker.createSimultaneousFeedOutFeedInModuleGroup(),
+          ),
+        ),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -137,26 +143,31 @@ class MoveLift extends DurationState<ModuleStacker> {
   final LiftPosition goToPosition;
 
   MoveLift(this.goToPosition, State<ModuleStacker> nextState)
-      : super(
-            durationFunction: createDurationFunction(goToPosition),
-            nextStateFunction: (stacker) => nextState);
+    : super(
+        durationFunction: createDurationFunction(goToPosition),
+        nextStateFunction: (stacker) => nextState,
+      );
 
   static Duration Function(ModuleStacker) createDurationFunction(
-      LiftPosition goToPosition) {
+    LiftPosition goToPosition,
+  ) {
     return (stacker) {
       var currentHeightInMeters = stacker.liftHeightInMeters;
       var goToHeightInMeters = stacker.heightsInMeters[goToPosition]!;
       var distanceInMeters = (currentHeightInMeters - goToHeightInMeters).abs();
-      var duration =
-          stacker.liftSpeedProfile.durationOfDistance(distanceInMeters);
+      var duration = stacker.liftSpeedProfile.durationOfDistance(
+        distanceInMeters,
+      );
       return duration;
     };
   }
 
   @override
   ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('goToPosition',
-          goToPosition.toString().replaceFirst('$LiftPosition.', ''))
+      .appendProperty(
+        'goToPosition',
+        goToPosition.toString().replaceFirst('$LiftPosition.', ''),
+      )
       .appendProperty('remaining', '${remainingDuration.inSeconds}sec');
 
   @override
@@ -176,7 +187,9 @@ class DecideAfterModuleGroupFeedIn extends State<ModuleStacker> {
     }
     if (hasNoModuleOnSupports(stacker)) {
       return MoveLift(
-          LiftPosition.singleModuleAtSupports, CloseModuleSupports());
+        LiftPosition.singleModuleAtSupports,
+        CloseModuleSupports(),
+      );
     } else {
       return MoveLift(LiftPosition.topModuleAtSupport, OpenModuleSupports());
     }
@@ -189,8 +202,9 @@ class DecideAfterModuleGroupFeedIn extends State<ModuleStacker> {
     var modulesAreAlreadyStacked2 = modulesAreAlreadyStacked(stacker);
     var skipModuleBecauseItHasTooManyLevelsToBePlacedInTop2 =
         skipModuleBecauseItHasTooManyLevelsToBePlacedInTop(stacker);
-    var moduleToBeStackedInNextStacker2 =
-        moduleToBeStackedInNextStacker(stacker);
+    var moduleToBeStackedInNextStacker2 = moduleToBeStackedInNextStacker(
+      stacker,
+    );
 
     return modulesAreAlreadyStacked2 ||
         skipModuleBecauseItHasTooManyLevelsToBePlacedInTop2 ||
@@ -208,7 +222,8 @@ class DecideAfterModuleGroupFeedIn extends State<ModuleStacker> {
       stacker.onConveyorPlace.moduleGroup!.isStacked;
 
   bool skipModuleBecauseItHasTooManyLevelsToBePlacedInTop(
-      ModuleStacker stacker) {
+    ModuleStacker stacker,
+  ) {
     return (stacker.maxLevelsInTop != null &&
         stacker.onConveyorPlace.moduleGroup!.modules.first.variant.levels >
             stacker.maxLevelsInTop! &&
@@ -221,11 +236,13 @@ class CloseModuleSupports extends DurationState<ModuleStacker> {
   String get name => 'CloseModuleSupports';
 
   CloseModuleSupports()
-      : super(
-          durationFunction: (stacker) => stacker.supportsCloseDuration,
-          nextStateFunction: (stacker) => MoveLift(LiftPosition.inFeed,
-              stacker.createSimultaneousFeedOutFeedInModuleGroup()),
-        );
+    : super(
+        durationFunction: (stacker) => stacker.supportsCloseDuration,
+        nextStateFunction: (stacker) => MoveLift(
+          LiftPosition.inFeed,
+          stacker.createSimultaneousFeedOutFeedInModuleGroup(),
+        ),
+      );
 
   @override
   void onCompleted(ModuleStacker stacker) {
@@ -241,11 +258,13 @@ class OpenModuleSupports extends DurationState<ModuleStacker> {
   String get name => 'OpenModuleSupports';
 
   OpenModuleSupports()
-      : super(
-          durationFunction: (stacker) => stacker.supportsOpenDuration,
-          nextStateFunction: (stacker) => MoveLift(LiftPosition.outFeed,
-              stacker.createSimultaneousFeedOutFeedInModuleGroup()),
-        );
+    : super(
+        durationFunction: (stacker) => stacker.supportsOpenDuration,
+        nextStateFunction: (stacker) => MoveLift(
+          LiftPosition.outFeed,
+          stacker.createSimultaneousFeedOutFeedInModuleGroup(),
+        ),
+      );
 
   @override
   void onCompleted(ModuleStacker stacker) {

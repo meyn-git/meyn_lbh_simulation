@@ -30,11 +30,9 @@ class ModuleUnLoadingConveyor extends StateMachine
     required this.area,
     SpeedProfile? speedProfile,
     this.lengthInMeters = defaultLengthInMeters,
-  })  : speedProfile =
-            speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
-        super(
-          initialState: CheckIfEmpty(),
-        );
+  }) : speedProfile =
+           speedProfile ?? area.productDefinition.speedProfiles.moduleConveyor,
+       super(initialState: CheckIfEmpty());
 
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
     place: moduleGroupPlace,
@@ -52,14 +50,14 @@ class ModuleUnLoadingConveyor extends StateMachine
     directionToOtherLink: const CompassDirection.north(),
     durationUntilCanFeedOut: () =>
         currentState is WaitingUntilUnloadedByForkLiftTruck?
-            ? Duration.zero
-            : unknownDuration,
+        ? Duration.zero
+        : unknownDuration,
   );
 
   @override
   late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [
     modulesIn,
-    modulesOut
+    modulesOut,
   ];
 
   late final int seqNr = area.systems.seqNrOf(this);
@@ -80,17 +78,19 @@ class ModuleUnLoadingConveyor extends StateMachine
   void moduleGroupFreeFromForkLiftTruck() {
     if (currentState is WaitingUntilUnloadedByForkLiftTruck) {
       (currentState as WaitingUntilUnloadedByForkLiftTruck)
-          .freeFromForkLiftTruck = true;
+              .freeFromForkLiftTruck =
+          true;
     }
   }
 }
 
 class CheckIfEmpty extends DurationState<ModuleUnLoadingConveyor> {
   CheckIfEmpty()
-      : super(
-            durationFunction: (moduleConveyor) => moduleConveyor.speedProfile
-                .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
-            nextStateFunction: (moduleConveyor) => WaitingToFeedIn());
+    : super(
+        durationFunction: (moduleConveyor) => moduleConveyor.speedProfile
+            .durationOfDistance(moduleConveyor.lengthInMeters * 1.5),
+        nextStateFunction: (moduleConveyor) => WaitingToFeedIn(),
+      );
 
   @override
   String get name => 'CheckIfEmpty';
@@ -105,12 +105,13 @@ class WaitingToFeedIn extends State<ModuleUnLoadingConveyor>
 
   @override
   State<ModuleUnLoadingConveyor>? nextState(
-          ModuleUnLoadingConveyor moduleConveyor) =>
-      started ? FeedIn() : null;
+    ModuleUnLoadingConveyor moduleConveyor,
+  ) => started ? FeedIn() : null;
 
   @override
   void onModuleTransportStarted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     started = true;
   }
 }
@@ -124,12 +125,13 @@ class FeedIn extends State<ModuleUnLoadingConveyor>
 
   @override
   State<ModuleUnLoadingConveyor>? nextState(
-          ModuleUnLoadingConveyor stateMachine) =>
-      completed ? WaitingUntilUnloadedByForkLiftTruck() : null;
+    ModuleUnLoadingConveyor stateMachine,
+  ) => completed ? WaitingUntilUnloadedByForkLiftTruck() : null;
 
   @override
   void onModuleTransportCompleted(
-      BetweenModuleGroupPlaces betweenModuleGroupPlaces) {
+    BetweenModuleGroupPlaces betweenModuleGroupPlaces,
+  ) {
     completed = true;
   }
 }
@@ -143,6 +145,6 @@ class WaitingUntilUnloadedByForkLiftTruck
 
   @override
   State<ModuleUnLoadingConveyor>? nextState(
-          ModuleUnLoadingConveyor moduleConveyor) =>
-      freeFromForkLiftTruck ? WaitingToFeedIn() : null;
+    ModuleUnLoadingConveyor moduleConveyor,
+  ) => freeFromForkLiftTruck ? WaitingToFeedIn() : null;
 }

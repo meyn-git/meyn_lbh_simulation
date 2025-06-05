@@ -37,38 +37,47 @@ class TruckRoutes extends LinkedSystem implements TimeProcessor {
     required this.area,
     CompassDirection direction = const CompassDirection.south(),
     double truckLengthInMeter = 15,
-    this.fromUnloadPointToInFeedConveyor =
-        const OffsetInMeters(xInMeters: 0, yInMeters: 10),
+    this.fromUnloadPointToInFeedConveyor = const OffsetInMeters(
+      xInMeters: 0,
+      yInMeters: 10,
+    ),
   }) {
     fromEntranceToUnLoadPoint = VehicleRoute(
-            routeStartDirection: direction, startPoint: OffsetInMeters.zero)
-        .addStraight(truckLengthInMeter * 1.5);
+      routeStartDirection: direction,
+      startPoint: OffsetInMeters.zero,
+    ).addStraight(truckLengthInMeter * 1.5);
     fromUnloadPointToLoadPoint = VehicleRoute(
-            routeStartDirection: direction, startPoint: OffsetInMeters.zero)
-        .addStraight(truckLengthInMeter * 1.5);
+      routeStartDirection: direction,
+      startPoint: OffsetInMeters.zero,
+    ).addStraight(truckLengthInMeter * 1.5);
     fromLoadPointToExit = VehicleRoute(
-            routeStartDirection: direction, startPoint: OffsetInMeters.zero)
-        .addStraight(truckLengthInMeter * 1.5);
+      routeStartDirection: direction,
+      startPoint: OffsetInMeters.zero,
+    ).addStraight(truckLengthInMeter * 1.5);
   }
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   @override
-  List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> get links =>
-      [modulesOut];
+  List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> get links => [
+    modulesOut,
+  ];
 
   /// only used to position these [TruckRoutes] relative to the rest of the systems
   late ModuleGroupOutLink modulesOut = ModuleGroupOutLink(
     place: moduleGroupPlace,
     offsetFromCenterWhenFacingNorth: fromUnloadPointToInFeedConveyor,
     directionToOtherLink: CompassDirection(
-        fromUnloadPointToInFeedConveyor.directionInRadians * pi ~/ 180),
+      fromUnloadPointToInFeedConveyor.directionInRadians * pi ~/ 180,
+    ),
     durationUntilCanFeedOut: () => unknownDuration,
   );
 
   late ModuleGroupPlace moduleGroupPlace = ModuleGroupPlace(
-      offsetFromCenterWhenSystemFacingNorth: OffsetInMeters.zero, system: this);
+    offsetFromCenterWhenSystemFacingNorth: OffsetInMeters.zero,
+    system: this,
+  );
 
   @override
   final String name = 'TruckRoutes';
@@ -80,9 +89,9 @@ class TruckRoutes extends LinkedSystem implements TimeProcessor {
   late SizeInMeters sizeWhenFacingNorth = calculateSizeWhenFacingNorth();
 
   late VehicleRoute fullRoute = VehicleRoute(
-      routeStartDirection: const CompassDirection.south(),
-      startPoint: all.first.points.first)
-    ..points.addAll(all.expand((route) => route.points));
+    routeStartDirection: const CompassDirection.south(),
+    startPoint: all.first.points.first,
+  )..points.addAll(all.expand((route) => route.points));
 
   List<Truck> trucks = [];
 

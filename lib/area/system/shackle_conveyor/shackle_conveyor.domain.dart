@@ -16,7 +16,7 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
   late List<Command> commands = [
     RemoveFromMonitorPanel(this),
     _startCommand,
-    _stopCommand
+    _stopCommand,
   ];
   late final seqNr = area.systems.seqNrOf(this);
 
@@ -27,39 +27,37 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
 
   final Direction direction;
 
-  bool hasBirdToHang = false;
-
   Command get _startCommand => Command.dynamic(
-        name: () => 'Start line',
-        visible: () => !running,
-        icon: () => Icons.play_arrow,
-        action: () {
-          running = true;
-        },
-      );
+    name: () => 'Start line',
+    visible: () => !running,
+    icon: () => Icons.play_arrow,
+    action: () {
+      running = true;
+    },
+  );
 
   Command get _stopCommand => Command.dynamic(
-        name: () => 'Stop line',
-        visible: () => running,
-        icon: () => Icons.stop,
-        action: () {
-          running = false;
-        },
-      );
+    name: () => 'Stop line',
+    visible: () => running,
+    icon: () => Icons.stop,
+    action: () {
+      running = false;
+    },
+  );
 
   Duration timePerBird;
 
   bool _running = false;
 
-  ShackleConveyor({
-    required this.area,
-    required this.direction,
-  })  : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
-        shacklePitchInInches = area.productDefinition.lineShacklePitchInInches,
-        timePerBird = Duration(
-            microseconds: (hourInMicroSeconds /
+  ShackleConveyor({required this.area, required this.direction})
+    : shacklesPerHour = area.productDefinition.lineSpeedInShacklesPerHour,
+      shacklePitchInInches = area.productDefinition.lineShacklePitchInInches,
+      timePerBird = Duration(
+        microseconds:
+            (hourInMicroSeconds /
                     area.productDefinition.lineSpeedInShacklesPerHour)
-                .round()) {
+                .round(),
+      ) {
     running = true;
   }
 
@@ -74,17 +72,16 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
 
   late final ShackleConveyorShape shape = ShackleConveyorShape(this);
 
-  late final birdIn = BirdInLink(
-      system: this,
-      offsetFromCenterWhenFacingNorth: shape.centerToBirdInLink,
-      directionToOtherLink: direction == Direction.counterClockWise
-          ? const CompassDirection.west()
-          : const CompassDirection.east(),
-      canReceiveBird: () => !hasBirdToHang,
-      transferBird: transferBird);
+  late final birdsIn = BirdsInLink(
+    system: this,
+    offsetFromCenterWhenFacingNorth: shape.centerToBirdInLink,
+    directionToOtherLink: direction == Direction.counterClockWise
+        ? const CompassDirection.west()
+        : const CompassDirection.east(),
+  );
 
   @override
-  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [birdIn];
+  late List<Link<LinkedSystem, Link<LinkedSystem, dynamic>>> links = [birdsIn];
 
   @override
   onUpdateToNextPointInTime(Duration jump) {
@@ -93,8 +90,11 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
       elapsedTime += jump;
 
       while (elapsedTime > timePerBird) {
+        var hasBirdToHang = birdsIn.linkedTo!.availableBirds() > 0;
         nextShackle(hasBird: hasBirdToHang);
-        hasBirdToHang = false;
+        if (hasBirdToHang) {
+          birdsIn.linkedTo!.transferBirds(1);
+        }
         elapsedTime = elapsedTime - timePerBird; //remainder
       }
     }
@@ -106,7 +106,9 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
       .appendProperty('runningTime', _runningTime)
       .appendProperty('hangedBirdsSinceStart', hangedBirdsSinceStart)
       .appendProperty(
-          'hangedBirdsPerHourSinceStart', hangedBirdsPerHourSinceStart)
+        'hangedBirdsPerHourSinceStart',
+        hangedBirdsPerHourSinceStart,
+      )
       .appendProperty('emptyShacklesSinceStart', emptyShacklesSinceStart)
       .appendProperty('lineEfficiency', lineEfficiency);
 
@@ -117,7 +119,7 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
   bool _waitForFirstBird = true;
   Duration _runningTime = Duration.zero;
 
-  nextShackle({required bool hasBird}) {
+  void nextShackle({required bool hasBird}) {
     _shackles.insert(0, hasBird);
     if (_shackles.length > maxSize) {
       _shackles.removeAt(_shackles.length - 1);
@@ -180,12 +182,4 @@ class ShackleConveyor implements LinkedSystem, TimeProcessor {
 
   @override
   late SizeInMeters sizeWhenFacingNorth = shape.size;
-
-  void transferBird() {
-    if (hasBirdToHang) {
-      throw Exception('Cant transfer a bird if there is one already. '
-          'First check if its empty with canReceiveBird.');
-    }
-    hasBirdToHang = true;
-  }
 }

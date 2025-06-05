@@ -17,7 +17,7 @@ class BrandBuilder extends ModuleVariantBuilder {
   late final List<ModuleVariantBuilder> children = [
     meyn,
     angliaAutoFlow,
-    marel
+    marel,
   ];
 
   List<ModuleVariant> buildAll() {
@@ -32,26 +32,27 @@ class BrandBuilder extends ModuleVariantBuilder {
 
 class MeynBuilder extends ModuleVariantBuilder {
   MeynBuilder({super.parent})
-      : super(values: ModuleVariantValues(brand: Brand.meyn));
+    : super(values: ModuleVariantValues(brand: Brand.meyn));
 
   late final grandeDrawer = GrandeDrawerBuilder(parent: this);
   late final classicDrawer = ClassicDrawerBuilder(parent: this);
   late final evo = EvoBuilder(parent: this);
   late final omnia = ModuleVariantLeafBuilder(
-      parent: this,
-      values: ModuleVariantValues(
-        family: 'Omnia',
-        birdType: BirdType.turkey,
-        footprint: const SizeInMeters(xInMeters: 1.35, yInMeters: 2.43),
-        compartment: CompartmentWithDoor(birdFloorSpaceInSquareMeters: 2.1),
-        levels: 3,
-        compartmentsPerLevel: 2,
-        headSpaceInMeters: 0.38,
-        totalHeightInMeters: 1.404,
-        camHeightInMeters: 0.059,
-        frameMaterial: ModuleFrameMaterial.stainlessSteel,
-        weightWithoutBirdsInKiloGram: 420,
-      ));
+    parent: this,
+    values: ModuleVariantValues(
+      family: 'Omnia',
+      birdType: BirdType.turkey,
+      footprint: const SizeInMeters(xInMeters: 1.35, yInMeters: 2.43),
+      compartment: CompartmentWithDoor(birdFloorSpaceInSquareMeters: 2.1),
+      levels: 3,
+      compartmentsPerLevel: 2,
+      headSpaceInMeters: 0.38,
+      totalHeightInMeters: 1.404,
+      camHeightInMeters: 0.059,
+      frameMaterial: ModuleFrameMaterial.stainlessSteel,
+      weightWithoutBirdsInKiloGram: 420,
+    ),
+  );
 
   /// TODO MaxiloadTwin
 

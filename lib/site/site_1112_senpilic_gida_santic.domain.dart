@@ -23,92 +23,98 @@ import 'site.dart';
 
 class SenpelicSite extends Site {
   SenpelicSite()
-      : super(
-          meynLayoutNumber: 1112,
-          organizationName: 'Senpilic Gida San.Tic A.S.',
-          city: 'Kavak/Samsun',
-          country: 'Turkey',
-          productDefinitions: SenpelicProductDefinitions(),
-        );
+    : super(
+        meynLayoutNumber: 1112,
+        organizationName: 'Senpilic Gida San.Tic A.S.',
+        city: 'Kavak/Samsun',
+        country: 'Turkey',
+        productDefinitions: SenpelicProductDefinitions(),
+      );
 }
 
 class SenpelicProductDefinitions extends DelegatingList<ProductDefinition> {
   static final maxBirdWeight = 2.8.kilo.grams;
   static const summerLoadPercentage = 90;
-  static final minLoadDensity =
-      LoadDensity.eec64_432(maxBirdWeight, summerLoadPercentage);
+  static final minLoadDensity = LoadDensity.eec64_432(
+    maxBirdWeight,
+    summerLoadPercentage,
+  );
 
   SenpelicProductDefinitions()
-      : super([
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [AreaWithRowUnloader(productDefinition)],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 9000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m1
-                      .c2
-                      .l4
-                      .gs
-                      .build()
-                      .withBirdsPerCompartment(22),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m1
-                      .c2
-                      .l4
-                      .gs
-                      .build()
-                      .withBirdsPerCompartment(22),
-                })
-              ]),
-          ProductDefinition(
-              areaFactory: (ProductDefinition productDefinition) =>
-                  [AreaWithColumnUnloader(productDefinition)],
-              birdType: 'Chicken',
-              lineSpeedInShacklesPerHour: 15000,
-              lineShacklePitchInInches: 6,
-              casRecipe: const CasRecipe.standardChickenRecipe(),
-              truckRows: [
-                TruckRow({
-                  PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c2
-                      .l4
-                      .gs
-                      .build()
-                      .withBirdsPerCompartment(22),
-                  PositionWithinModuleGroup.firstTop: BrandBuilder()
-                      .meyn
-                      .grandeDrawer
-                      .m4
-                      .c2
-                      .l4
-                      .gs
-                      .build()
-                      .withBirdsPerCompartment(22),
-                })
-              ]),
-        ]);
+    : super([
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            AreaWithRowUnloader(productDefinition),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 9000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m1
+                  .c2
+                  .l4
+                  .gs
+                  .build()
+                  .withBirdsPerCompartment(22),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m1
+                  .c2
+                  .l4
+                  .gs
+                  .build()
+                  .withBirdsPerCompartment(22),
+            }),
+          ],
+        ),
+        ProductDefinition(
+          areaFactory: (ProductDefinition productDefinition) => [
+            AreaWithColumnUnloader(productDefinition),
+          ],
+          birdType: 'Chicken',
+          lineSpeedInShacklesPerHour: 15000,
+          lineShacklePitchInInches: 6,
+          casRecipe: const CasRecipe.standardChickenRecipe(),
+          truckRows: [
+            TruckRow({
+              PositionWithinModuleGroup.firstBottom: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c2
+                  .l4
+                  .gs
+                  .build()
+                  .withBirdsPerCompartment(22),
+              PositionWithinModuleGroup.firstTop: BrandBuilder()
+                  .meyn
+                  .grandeDrawer
+                  .m4
+                  .c2
+                  .l4
+                  .gs
+                  .build()
+                  .withBirdsPerCompartment(22),
+            }),
+          ],
+        ),
+      ]);
 }
 
 class AreaWithRowUnloader extends LiveBirdHandlingArea {
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
   AreaWithRowUnloader(ProductDefinition productDefinition)
-      : super(
-          lineName: 'With Row Unloader',
-          productDefinition: productDefinition,
-        );
+    : super(
+        lineName: 'With Row Unloader',
+        productDefinition: productDefinition,
+      );
   @override
   void createSystemsAndLinks() {
     systems.startDirection = const CompassDirection.west();
@@ -119,7 +125,6 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     );
 
     var bufferIn1 = ModuleBufferAngleTransferInFeed(
-      // FIXME LoadingForkLiftTruck expects a ModuleLoadingConveyor
       area: this,
       moduleOutDirection: Direction.clockWise,
     );
@@ -137,7 +142,9 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
       diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedIn: true),
+          direction: const CompassDirection.east(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.south()),
       ],
     );
@@ -156,11 +163,15 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     var mc3 = ModuleConveyor(area: this);
 
     var mc4 = ModuleConveyor(area: this);
-    var modulePreWasher =
-        ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
+    var modulePreWasher = ModuleWasherConveyor(
+      area: this,
+      lengthInMeters: 5.5 / 2,
+    );
 
-    var moduleMainWasher =
-        ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
+    var moduleMainWasher = ModuleWasherConveyor(
+      area: this,
+      lengthInMeters: 5.5 / 2,
+    );
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
       drawersInDirection: Direction.clockWise,
@@ -228,55 +239,67 @@ class AreaWithRowUnloader extends LiveBirdHandlingArea {
     );
 
     var conveyor0 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor2 = DrawerConveyorStraight(
-        lengthInMeters: 3,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 3,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var hangingConveyor = DrawerHangingConveyor(
-        productDefinition: productDefinition,
-        hangers: 11, // TODO 11 hangers for 15000?
-        metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
-        allDrawers: drawers);
+      productDefinition: productDefinition,
+      hangers: 11, // TODO 11 hangers for 15000?
+      metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
+      allDrawers: drawers,
+    );
 
     var conveyor3 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 1);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 1,
+    );
 
     var taraDrawerWeigher = DrawerWeighingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor4 = DrawerTurningConveyor();
 
     var soaker = DrawerSoakingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor5 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 4);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 4,
+    );
 
     var washer = DrawerWashingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor6 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 3.6);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 3.6,
+    );
 
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor9 = DrawerConveyorStraight(
-        lengthInMeters: 2.9,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 2.9,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var drawerLoaderLift = DrawerLoaderLift(area: this);
 
@@ -304,10 +327,10 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
   AreaWithColumnUnloader(ProductDefinition productDefinition)
-      : super(
-          lineName: 'With Column Unloader',
-          productDefinition: productDefinition,
-        );
+    : super(
+        lineName: 'With Column Unloader',
+        productDefinition: productDefinition,
+      );
   @override
   void createSystemsAndLinks() {
     systems.startDirection = const CompassDirection.west();
@@ -335,7 +358,9 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
         TurnPosition(
-            direction: const CompassDirection.east(), reverseFeedIn: true),
+          direction: const CompassDirection.east(),
+          reverseFeedIn: true,
+        ),
         TurnPosition(direction: const CompassDirection.south()),
       ],
     );
@@ -353,11 +378,15 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var mc3 = ModuleConveyor(area: this);
     var mc4 = ModuleConveyor(area: this);
-    var modulePreWasher =
-        ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
+    var modulePreWasher = ModuleWasherConveyor(
+      area: this,
+      lengthInMeters: 5.5 / 2,
+    );
 
-    var moduleMainWasher =
-        ModuleWasherConveyor(area: this, lengthInMeters: 5.5 / 2);
+    var moduleMainWasher = ModuleWasherConveyor(
+      area: this,
+      lengthInMeters: 5.5 / 2,
+    );
     var moduleDrawerLoader = ModuleDrawerLoader(
       area: this,
       drawersInDirection: Direction.clockWise,
@@ -423,51 +452,62 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     );
 
     var conveyor1 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor2 = DrawerConveyorStraight(
-        lengthInMeters: 3,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 3,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var hangingConveyor = DrawerHangingConveyor(
-        productDefinition: productDefinition,
-        hangers: 11, // TODO 11 hangers for 15000?
-        metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
-        allDrawers: drawers);
+      productDefinition: productDefinition,
+      hangers: 11, // TODO 11 hangers for 15000?
+      metersPerSecondOfFirstConveyor: drawerConveyorSpeedInMeterPerSecond,
+      allDrawers: drawers,
+    );
 
     var conveyor3 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 1);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 1,
+    );
 
     var taraDrawerWeigher = DrawerWeighingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor4 = DrawerTurningConveyor();
 
     var soaker = DrawerSoakingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor5 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 9.5);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 9.5,
+    );
 
     var washer = DrawerWashingConveyor(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor6 = DrawerConveyorStraight(
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-        lengthInMeters: 3.6);
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+      lengthInMeters: 3.6,
+    );
 
     var conveyor7 = DrawerTurningConveyor();
 
     var conveyor8 = DrawerConveyor90Degrees(
-        direction: Direction.clockWise,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      direction: Direction.clockWise,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var conveyor9 = DrawerConveyorStraight(
-        lengthInMeters: 1.4,
-        metersPerSecond: drawerConveyorSpeedInMeterPerSecond);
+      lengthInMeters: 1.4,
+      metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
     var drawerLoaderLift = DrawerLoaderLift(area: this);
 

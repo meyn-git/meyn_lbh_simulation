@@ -29,11 +29,15 @@ class RoutePainter extends CustomPainter {
 
     var sizePerMeter = size.width / route.size.xInMeters;
     final path = Path()
-      ..moveTo(route.points[0].xInMeters * sizePerMeter,
-          route.points[0].yInMeters * sizePerMeter);
+      ..moveTo(
+        route.points[0].xInMeters * sizePerMeter,
+        route.points[0].yInMeters * sizePerMeter,
+      );
     for (int i = 1; i < route.points.length; i++) {
-      path.lineTo(route.points[i].xInMeters * sizePerMeter,
-          route.points[i].yInMeters * sizePerMeter);
+      path.lineTo(
+        route.points[i].xInMeters * sizePerMeter,
+        route.points[i].yInMeters * sizePerMeter,
+      );
     }
     canvas.drawPath(path, routePaint);
   }

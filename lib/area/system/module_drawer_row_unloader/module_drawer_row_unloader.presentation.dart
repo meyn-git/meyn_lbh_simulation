@@ -8,8 +8,9 @@ import 'package:meyn_lbh_simulation/theme.presentation.dart';
 
 class ModuleDrawerRowUnloaderPainter extends ShapePainter {
   ModuleDrawerRowUnloaderPainter(
-      ModuleDrawerRowUnloader deStacker, LiveBirdsHandlingTheme theme)
-      : super(shape: deStacker.shape, theme: theme);
+    ModuleDrawerRowUnloader deStacker,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: deStacker.shape, theme: theme);
 }
 
 class ModuleDrawerRowUnloaderShape extends CompoundShape {
@@ -19,10 +20,10 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
   late final OffsetInMeters centerToDrawersOutLink;
   late final CompassDirection centerToFeedOutConveyorInLink;
   late final CompassDirection drawersOutLinkDirectionToOtherLink;
-  late final OffsetInMeters centerToModuleGroupOutLink =
-      centerToConveyorCenter.addY(feedOutConveyorLengthInMeters * -0.5);
-  late final OffsetInMeters centerToModuleGroupInLink =
-      centerToConveyorCenter.addY(feedOutConveyorLengthInMeters * 0.5);
+  late final OffsetInMeters centerToModuleGroupOutLink = centerToConveyorCenter
+      .addY(feedOutConveyorLengthInMeters * -0.5);
+  late final OffsetInMeters centerToModuleGroupInLink = centerToConveyorCenter
+      .addY(feedOutConveyorLengthInMeters * 0.5);
   late final List<OffsetInMeters> centerToLiftConveyorDrawerCenters = [];
 
   ModuleDrawerRowUnloaderShape(ModuleDrawerRowUnloader unloader) {
@@ -30,17 +31,22 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
     var southEastLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
     var southWestLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
     var northWestLeg = Box(xInMeters: 0.3, yInMeters: 0.3);
-    var liftFrame =
-        Box(xInMeters: 1.661, yInMeters: feedOutConveyorLengthInMeters);
+    var liftFrame = Box(
+      xInMeters: 1.661,
+      yInMeters: feedOutConveyorLengthInMeters,
+    );
     var westConveyorFrame = Box(
-        xInMeters: ModuleConveyorShape.frameWidthInMeters,
-        yInMeters: feedOutConveyorLengthInMeters);
+      xInMeters: ModuleConveyorShape.frameWidthInMeters,
+      yInMeters: feedOutConveyorLengthInMeters,
+    );
     var conveyor = Box(
-        xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
-        yInMeters: feedOutConveyorLengthInMeters);
+      xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
+      yInMeters: feedOutConveyorLengthInMeters,
+    );
     var eastConveyorFrame = Box(
-        xInMeters: ModuleConveyorShape.frameWidthInMeters,
-        yInMeters: feedOutConveyorLengthInMeters);
+      xInMeters: ModuleConveyorShape.frameWidthInMeters,
+      yInMeters: feedOutConveyorLengthInMeters,
+    );
     var pusher = Box(xInMeters: 2.15, yInMeters: drawerHandlingLengthInMeters);
 
     link(liftFrame.centerCenter, conveyor.centerCenter);
@@ -65,7 +71,8 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
     centerToConveyorCenter =
         topLefts[conveyor]! + conveyor.centerCenter - centerCenter;
     var yDrawers = DrawerVariant.lengthInMeters * unloader.drawersPerRow * 1.1;
-    var yFromCenterInMeters = yDrawers /
+    var yFromCenterInMeters =
+        yDrawers /
         unloader.drawersPerRow *
         0.5 *
         unloader.drawerOutDirection.sign *
@@ -73,22 +80,25 @@ class ModuleDrawerRowUnloaderShape extends CompoundShape {
     var yDistanceBetweenDrawersInMeters =
         yDrawers / unloader.drawersPerRow * unloader.drawerOutDirection.sign;
     for (int i = 0; i < unloader.drawersPerRow; i++) {
-      centerToLiftConveyorDrawerCenters.add(centerToConveyorCenter
-          .addY(yFromCenterInMeters)
-          .addY(yDistanceBetweenDrawersInMeters * i));
+      centerToLiftConveyorDrawerCenters.add(
+        centerToConveyorCenter
+            .addY(yFromCenterInMeters)
+            .addY(yDistanceBetweenDrawersInMeters * i),
+      );
     }
   }
 }
 
 class ModuleDrawerRowUnloaderReceiverPainter extends ShapePainter {
   ModuleDrawerRowUnloaderReceiverPainter(
-      ModuleDrawerRowUnloaderReceiver receiver, LiveBirdsHandlingTheme theme)
-      : super(shape: receiver.shape, theme: theme);
+    ModuleDrawerRowUnloaderReceiver receiver,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: receiver.shape, theme: theme);
 }
 
 class ModuleDrawerRowUnloaderReceiverShape extends CompoundShape {
   static const double widthInMeters = 2.5;
-//  static const double moduleConveyorLengthInMeters = ;
+  //  static const double moduleConveyorLengthInMeters = ;
   final double feedOutConveyorLengthInMeters = widthInMeters + 0.2 + 0.9;
 
   late final OffsetInMeters centerToConveyorCenter;
@@ -108,12 +118,14 @@ class ModuleDrawerRowUnloaderReceiverShape extends CompoundShape {
   late final OffsetInMeters centerToFeedOutConveyorInLink;
 
   ModuleDrawerRowUnloaderReceiverShape(
-      ModuleDrawerRowUnloaderReceiver receiver) {
+    ModuleDrawerRowUnloaderReceiver receiver,
+  ) {
     var cover1 = Box(xInMeters: widthInMeters, yInMeters: 0.79);
     var cover2 = Box(xInMeters: widthInMeters, yInMeters: 1.5);
     var drawerConveyor = InvisibleBox(
-        xInMeters: feedOutConveyorLengthInMeters,
-        yInMeters: DrawerVariant.lengthInMeters);
+      xInMeters: feedOutConveyorLengthInMeters,
+      yInMeters: DrawerVariant.lengthInMeters,
+    );
     var platform = Box(xInMeters: widthInMeters, yInMeters: 0.975);
 
     link(cover1.topCenter, cover2.bottomCenter);
@@ -148,17 +160,19 @@ class ModuleDrawerRowUnloaderReceiverShape extends CompoundShape {
 
     for (int i = 0; i < receiver.drawersPerRow; i++) {
       var x = xStart + drawerPitch * i;
-      centerToReceivingConveyorDrawerCenters.add(OffsetInMeters(
-            xInMeters: x,
-            yInMeters: yDrawerCenterStart,
-          ) -
-          centerCenter);
-      centerToCrossOverConveyorDrawerCenters.add(OffsetInMeters(
-            xInMeters: x,
-            yInMeters: (topLefts[drawerConveyor]! + drawerConveyor.centerCenter)
-                .yInMeters,
-          ) -
-          centerCenter);
+      centerToReceivingConveyorDrawerCenters.add(
+        OffsetInMeters(xInMeters: x, yInMeters: yDrawerCenterStart) -
+            centerCenter,
+      );
+      centerToCrossOverConveyorDrawerCenters.add(
+        OffsetInMeters(
+              xInMeters: x,
+              yInMeters:
+                  (topLefts[drawerConveyor]! + drawerConveyor.centerCenter)
+                      .yInMeters,
+            ) -
+            centerCenter,
+      );
     }
   }
 }

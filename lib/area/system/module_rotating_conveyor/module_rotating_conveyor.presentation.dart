@@ -8,9 +8,10 @@ import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/shape.presentation.dart';
 
 class ModuleRotatingConveyorPainter extends ShapePainter {
-  ModuleRotatingConveyorPainter(ModuleRotatingConveyor moduleRotatingConveyor,
-      LiveBirdsHandlingTheme theme)
-      : super(shape: moduleRotatingConveyor.shape, theme: theme);
+  ModuleRotatingConveyorPainter(
+    ModuleRotatingConveyor moduleRotatingConveyor,
+    LiveBirdsHandlingTheme theme,
+  ) : super(shape: moduleRotatingConveyor.shape, theme: theme);
 }
 
 class ModuleRotatingConveyorShape extends CompoundShape {
@@ -19,8 +20,10 @@ class ModuleRotatingConveyorShape extends CompoundShape {
   late final OffsetInMeters centerToModuleInLink;
   late final OffsetInMeters centerToModuleOutLink;
 
-  late final OffsetInMeters centerToModuleGroupLinkNorth =
-      OffsetInMeters(xInMeters: 0, yInMeters: diameterInMeters * -0.5);
+  late final OffsetInMeters centerToModuleGroupLinkNorth = OffsetInMeters(
+    xInMeters: 0,
+    yInMeters: diameterInMeters * -0.5,
+  );
 
   OffsetInMeters centerToModuleGroupLink(CompassDirection direction) =>
       centerToModuleGroupLinkNorth.rotate(direction);
@@ -29,19 +32,24 @@ class ModuleRotatingConveyorShape extends CompoundShape {
     var frameLength = _frameLength(moduleRotatingConveyor);
     var rotationFrame = Circle(diameterInMeters: 2);
     var frameEast = Box(
-        xInMeters: ModuleConveyorShape.frameWidthInMeters,
-        yInMeters: frameLength);
+      xInMeters: ModuleConveyorShape.frameWidthInMeters,
+      yInMeters: frameLength,
+    );
     var conveyor = Box(
-        xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
-        yInMeters: frameLength);
+      xInMeters: ModuleConveyorShape.conveyorWidthInMeters,
+      yInMeters: frameLength,
+    );
     var frameWest = Box(
-        xInMeters: ModuleConveyorShape.frameWidthInMeters,
-        yInMeters: frameLength);
+      xInMeters: ModuleConveyorShape.frameWidthInMeters,
+      yInMeters: frameLength,
+    );
     var motor = Box(xInMeters: 0.3, yInMeters: 0.4);
 
     diameterInMeters = moduleRotatingConveyor.diameter.inMeters;
-    var fullSize =
-        InvisibleBox(xInMeters: diameterInMeters, yInMeters: diameterInMeters);
+    var fullSize = InvisibleBox(
+      xInMeters: diameterInMeters,
+      yInMeters: diameterInMeters,
+    );
 
     link(fullSize.centerCenter, conveyor.centerCenter);
     link(conveyor.centerLeft, frameWest.centerRight);
@@ -54,7 +62,8 @@ class ModuleRotatingConveyorShape extends CompoundShape {
   }
 
   double _frameLength(ModuleRotatingConveyor moduleRotatingConveyor) {
-    var width = ModuleConveyorShape.conveyorWidthInMeters +
+    var width =
+        ModuleConveyorShape.conveyorWidthInMeters +
         ModuleConveyorShape.frameWidthInMeters * 2;
     const gap = 0.1;
     var diameter = moduleRotatingConveyor.diameter.inMeters;

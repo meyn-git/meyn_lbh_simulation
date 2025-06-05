@@ -22,14 +22,16 @@ class DrawerConveyorStraightPainter extends DrawerConveyorPainter {
   final LiveBirdsHandlingTheme theme;
 
   DrawerConveyorStraightPainter(
-      DrawerConveyorStraight drawerConveyor, this.theme)
-      : systemProtrudesInMeters = drawerConveyor.systemProtrudesInMeters,
-        sizeWhenFacingNorth = drawerConveyor.sizeWhenFacingNorth;
+    DrawerConveyorStraight drawerConveyor,
+    this.theme,
+  ) : systemProtrudesInMeters = drawerConveyor.systemProtrudesInMeters,
+      sizeWhenFacingNorth = drawerConveyor.sizeWhenFacingNorth;
 
-  DrawerConveyorStraightPainter.withSizes(
-      {required this.systemProtrudesInMeters,
-      required this.sizeWhenFacingNorth,
-      required this.theme});
+  DrawerConveyorStraightPainter.withSizes({
+    required this.systemProtrudesInMeters,
+    required this.sizeWhenFacingNorth,
+    required this.theme,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -108,7 +110,10 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
   }
 
   positionOnCircle(
-      Offset circleCenter, double radius, CompassDirection rotation) {
+    Offset circleCenter,
+    double radius,
+    CompassDirection rotation,
+  ) {
     var dx = sin(rotation.toRadians()) * radius;
     var dy = -cos(rotation.toRadians()) * radius;
     var centerToCirclePoint = Offset(dx, dy);
@@ -117,6 +122,6 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
 
   Offset _circleCenter(Size size) =>
       drawerConveyor.direction == Direction.clockWise
-          ? Offset(size.width, size.height)
-          : Offset(0, size.height);
+      ? Offset(size.width, size.height)
+      : Offset(0, size.height);
 }

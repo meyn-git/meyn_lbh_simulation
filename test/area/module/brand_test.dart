@@ -30,10 +30,14 @@ void main() {
               .builderHierarchy()
               .map((builder) => builder.runtimeType.toString())
               .join('.');
-          Execute.assertion.forCondition(true).failWith('Exception: $e\n'
-              'StackTrace: $trace\n'
-              'BuilderHierarchy: $builderHierarchy\n'
-              'Values: ${leafBuilder.populateValues()}');
+          Execute.assertion
+              .forCondition(true)
+              .failWith(
+                'Exception: $e\n'
+                'StackTrace: $trace\n'
+                'BuilderHierarchy: $builderHierarchy\n'
+                'Values: ${leafBuilder.populateValues()}',
+              );
         }
       });
     }

@@ -20,23 +20,26 @@ class ForkLiftTruckRoutes {
   static const double straightAtTurnPointInMeter = 1;
   static const double straightAfterTurnPointInMeter = 10;
 
-  ForkLiftTruckRoutes(
-      {required this.beforeConveyorToAboveConveyor,
-      required this.aboveConveyorToBeforeConveyor,
-      required this.beforeConveyorToTurnPoint,
-      required this.turnPointToInToTruck,
-      required this.inTruckToTurnPoint,
-      required this.turnPointToBeforeConveyor});
+  ForkLiftTruckRoutes({
+    required this.beforeConveyorToAboveConveyor,
+    required this.aboveConveyorToBeforeConveyor,
+    required this.beforeConveyorToTurnPoint,
+    required this.turnPointToInToTruck,
+    required this.inTruckToTurnPoint,
+    required this.turnPointToBeforeConveyor,
+  });
 
-  ForkLiftTruckRoutes.forLoadingForkLiftTruck(
-      {required LoadingForkLiftTruck forkLiftTruck,
-      required Direction turnAtConveyor,
-      required Direction turnAtTruck}) {
+  ForkLiftTruckRoutes.forLoadingForkLiftTruck({
+    required LoadingForkLiftTruck forkLiftTruck,
+    required Direction turnAtConveyor,
+    required Direction turnAtTruck,
+  }) {
     var moduleLoadingConveyor = forkLiftTruck.modulesOut.linkedTo!.system;
 
     if (moduleLoadingConveyor is! ModuleLoadingConveyorInterface) {
       throw Exception(
-          '${forkLiftTruck.name} should be linked to a ModuleLoadingConveyorInterface');
+        '${forkLiftTruck.name} should be linked to a ModuleLoadingConveyorInterface',
+      );
     }
 
     var area = moduleLoadingConveyor.area;
@@ -46,11 +49,15 @@ class ForkLiftTruckRoutes {
         .rotationOf(moduleLoadingConveyor)
         .rotate(moduleLoadingConveyor.modulesIn.directionToOtherLink.degrees)
         .opposite;
-    var conveyorLinkPosition = layout.positionOnSystem(moduleLoadingConveyor,
-        moduleLoadingConveyor.modulesIn.offsetFromCenterWhenFacingNorth);
-    var forkLiftTruckAboveConveyorPosition = conveyorLinkPosition +
-        forkLiftTruck.shape.centerToFrontForkCariage
-            .rotate(infeedDirection.opposite);
+    var conveyorLinkPosition = layout.positionOnSystem(
+      moduleLoadingConveyor,
+      moduleLoadingConveyor.modulesIn.offsetFromCenterWhenFacingNorth,
+    );
+    var forkLiftTruckAboveConveyorPosition =
+        conveyorLinkPosition +
+        forkLiftTruck.shape.centerToFrontForkCariage.rotate(
+          infeedDirection.opposite,
+        );
 
     var moduleGroupFootPrint =
         area.productDefinition.truckRows.first.footprintOnSystem;
@@ -94,14 +101,16 @@ class ForkLiftTruckRoutes {
     ];
   }
 
-  ForkLiftTruckRoutes.forUnLoadingForkLiftTruck(
-      {required UnLoadingForkLiftTruck forkLiftTruck,
-      required Direction turnAtConveyor,
-      required Direction turnAtTruck}) {
+  ForkLiftTruckRoutes.forUnLoadingForkLiftTruck({
+    required UnLoadingForkLiftTruck forkLiftTruck,
+    required Direction turnAtConveyor,
+    required Direction turnAtTruck,
+  }) {
     var moduleUnLoadingConveyor = forkLiftTruck.modulesIn.linkedTo!.system;
     if (moduleUnLoadingConveyor is! ModuleUnLoadingConveyorInterface) {
       throw Exception(
-          '${forkLiftTruck.name} should be linked to a ModuleUnLoadingConveyorInterface');
+        '${forkLiftTruck.name} should be linked to a ModuleUnLoadingConveyorInterface',
+      );
     }
 
     var area = moduleUnLoadingConveyor.area;
@@ -112,11 +121,15 @@ class ForkLiftTruckRoutes {
         .rotate(moduleUnLoadingConveyor.modulesOut.directionToOtherLink.degrees)
         .opposite;
 
-    var conveyorLinkPosition = layout.positionOnSystem(moduleUnLoadingConveyor,
-        moduleUnLoadingConveyor.modulesOut.offsetFromCenterWhenFacingNorth);
-    var forkLiftTruckAboveConveyorPosition = conveyorLinkPosition +
-        forkLiftTruck.shape.centerToFrontForkCariage
-            .rotate(outfeedDirection.opposite);
+    var conveyorLinkPosition = layout.positionOnSystem(
+      moduleUnLoadingConveyor,
+      moduleUnLoadingConveyor.modulesOut.offsetFromCenterWhenFacingNorth,
+    );
+    var forkLiftTruckAboveConveyorPosition =
+        conveyorLinkPosition +
+        forkLiftTruck.shape.centerToFrontForkCariage.rotate(
+          outfeedDirection.opposite,
+        );
 
     var moduleGroupFootPrint =
         area.productDefinition.truckRows.first.footprintOnSystem;
@@ -160,20 +173,23 @@ class ForkLiftTruckRoutes {
     ];
   }
 
-  _beforeConveyorToAboveConveyor(CompassDirection startDirection,
-          VehicleRoute aboveConveyorToBeforeConveyor) =>
-      VehicleRoute(
-              routeStartDirection: startDirection,
-              startPoint: aboveConveyorToBeforeConveyor.points.last)
-          .addStraight(aboveConveyorToBeforeConveyor.lengthInMeters);
+  _beforeConveyorToAboveConveyor(
+    CompassDirection startDirection,
+    VehicleRoute aboveConveyorToBeforeConveyor,
+  ) => VehicleRoute(
+    routeStartDirection: startDirection,
+    startPoint: aboveConveyorToBeforeConveyor.points.last,
+  ).addStraight(aboveConveyorToBeforeConveyor.lengthInMeters);
 
-  VehicleRoute _aboveConveyorToBeforeConveyor(CompassDirection startDirection,
-          OffsetInMeters startPoint, SizeInMeters moduleGroupFootPrint) =>
-      VehicleRoute(
-              routeStartDirection: startDirection.opposite,
-              startPoint: startPoint,
-              vehicleDirection: VehicleDirection.reverse)
-          .addStraight(moduleGroupFootPrint.yInMeters * 1.5);
+  VehicleRoute _aboveConveyorToBeforeConveyor(
+    CompassDirection startDirection,
+    OffsetInMeters startPoint,
+    SizeInMeters moduleGroupFootPrint,
+  ) => VehicleRoute(
+    routeStartDirection: startDirection.opposite,
+    startPoint: startPoint,
+    vehicleDirection: VehicleDirection.reverse,
+  ).addStraight(moduleGroupFootPrint.yInMeters * 1.5);
 
   VehicleRoute _beforeConveyorToTurnPoint(
     Direction turnAtConveyor,
@@ -181,32 +197,36 @@ class ForkLiftTruckRoutes {
     VehicleRoute aboveConveyorToBeforeConveyor,
   ) =>
       VehicleRoute(
-        routeStartDirection: aboveConveyorToBeforeConveyor.lastDirection,
-        startPoint: aboveConveyorToBeforeConveyor.points.last,
-        vehicleDirection: VehicleDirection.reverse,
-      )
+            routeStartDirection: aboveConveyorToBeforeConveyor.lastDirection,
+            startPoint: aboveConveyorToBeforeConveyor.points.last,
+            vehicleDirection: VehicleDirection.reverse,
+          )
           .addCurve(forkLiftTurnRadiusInMeter, turnAtConveyor.sign * 90)
           .addStraight(straightAtTurnPointInMeter);
 
   VehicleRoute _turnPointToInToTruck(
-          Direction turnAtConveyor, VehicleRoute aboveConveyorToTurnPoint) =>
+    Direction turnAtConveyor,
+    VehicleRoute aboveConveyorToTurnPoint,
+  ) =>
       VehicleRoute(
-              routeStartDirection:
-                  aboveConveyorToTurnPoint.lastDirection.opposite,
-              startPoint: aboveConveyorToTurnPoint.points.last)
+            routeStartDirection:
+                aboveConveyorToTurnPoint.lastDirection.opposite,
+            startPoint: aboveConveyorToTurnPoint.points.last,
+          )
           .addStraight(straightAtTurnPointInMeter)
           .addCurve(forkLiftTurnRadiusInMeter, turnAtConveyor.sign * 90)
           .addStraight(straightAfterTurnPointInMeter);
 
   VehicleRoute _inTruckToTurnPoint(
-          Direction turnAtTruck,
-          SizeInMeters moduleGroupFootPrint,
-          VehicleRoute turnPointToInToTruck) =>
+    Direction turnAtTruck,
+    SizeInMeters moduleGroupFootPrint,
+    VehicleRoute turnPointToInToTruck,
+  ) =>
       VehicleRoute(
-        routeStartDirection: turnPointToInToTruck.lastDirection.opposite,
-        startPoint: turnPointToInToTruck.points.last,
-        vehicleDirection: VehicleDirection.reverse,
-      )
+            routeStartDirection: turnPointToInToTruck.lastDirection.opposite,
+            startPoint: turnPointToInToTruck.points.last,
+            vehicleDirection: VehicleDirection.reverse,
+          )
           .addStraight(moduleGroupFootPrint.yInMeters)
           .addCurve(forkLiftTurnRadiusInMeter, turnAtTruck.sign * 90)
           .addStraight(straightAtTurnPointInMeter);
@@ -217,8 +237,9 @@ class ForkLiftTruckRoutes {
     required VehicleRoute beforeConveyorToAboveConveyor,
   }) =>
       VehicleRoute(
-              routeStartDirection: inTruckToTurnPoint.lastDirection.opposite,
-              startPoint: inTruckToTurnPoint.points.last)
+            routeStartDirection: inTruckToTurnPoint.lastDirection.opposite,
+            startPoint: inTruckToTurnPoint.points.last,
+          )
           .addStraight(straightAtTurnPointInMeter)
           .addCurve(forkLiftTurnRadiusInMeter, turnAtTruck.sign * 90)
           .addToPoint(beforeConveyorToAboveConveyor.points.first);
@@ -226,17 +247,17 @@ class ForkLiftTruckRoutes {
 
 class ForkLiftSpeedProfile extends SpeedProfile {
   const ForkLiftSpeedProfile()
-      : super(
+    : super(
+        /// The typical speed of a forklift truck varies based on its type and surroundings,
+        /// but generally indoors for safety reasons, often around 8 km/h (2.2 m/s),
+        /// as forklifts need to maneuver precisely and avoid accidents in confined spaces.
+        maxSpeed: 8000 / 3600,
 
-            /// The typical speed of a forklift truck varies based on its type and surroundings,
-            /// but generally indoors for safety reasons, often around 8 km/h (2.2 m/s),
-            /// as forklifts need to maneuver precisely and avoid accidents in confined spaces.
-            maxSpeed: 8000 / 3600,
-
-            /// The acceleration and deceleration of a forklift truck carrying a load of 2400 kg
-            /// are generally limited due to safety and stability concerns.
-            /// Typical values for a loaded forklift are
-            /// between 0.5 to 1 m/s². We use a low value to compensate for fork positioning
-            acceleration: 0.5,
-            deceleration: 0.5);
+        /// The acceleration and deceleration of a forklift truck carrying a load of 2400 kg
+        /// are generally limited due to safety and stability concerns.
+        /// Typical values for a loaded forklift are
+        /// between 0.5 to 1 m/s². We use a low value to compensate for fork positioning
+        acceleration: 0.5,
+        deceleration: 0.5,
+      );
 }

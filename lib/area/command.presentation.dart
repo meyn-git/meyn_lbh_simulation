@@ -26,15 +26,14 @@ abstract class Commandable {
 class RemoveFromMonitorPanel extends Command {
   final Object objectToMonitor;
   RemoveFromMonitorPanel(this.objectToMonitor)
-      : super.dynamic(
-            name: () => 'Stop monitoring',
-            icon: () => Icons.delete,
-            visible: () => GetIt.instance
-                .get<Player>()
-                .objectsToMonitor
-                .contains(objectToMonitor),
-            action: () => GetIt.instance
-                .get<Player>()
-                .objectsToMonitor
-                .remove(objectToMonitor));
+    : super.dynamic(
+        name: () => 'Stop monitoring',
+        icon: () => Icons.delete,
+        visible: () => GetIt.instance.get<Player>().objectsToMonitor.contains(
+          objectToMonitor,
+        ),
+        action: () => GetIt.instance.get<Player>().objectsToMonitor.remove(
+          objectToMonitor,
+        ),
+      );
 }

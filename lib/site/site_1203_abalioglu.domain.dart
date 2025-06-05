@@ -11,7 +11,7 @@ import 'package:meyn_lbh_simulation/area/system/module_cas/module_cas.domain.dar
 import 'package:meyn_lbh_simulation/area/system/module_conveyor/module_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_de_stacker/module_de_stacker.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_drawer_loader/module_drawer_loader.domain.dart';
-import 'package:meyn_lbh_simulation/area/system/module_drawer_column_unloader/module_drawer_column_unloader.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_drawer_row_unloader/module_drawer_row_unloader.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_rotating_conveyor/module_rotating_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_stacker/module_stacker.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.domain.dart';
@@ -21,36 +21,32 @@ import 'package:meyn_lbh_simulation/area/system/drawer_conveyor/drawer_conveyor.
 
 import 'site.dart';
 
-class KeskinogluSite extends Site {
-  KeskinogluSite()
+class AbaliogluSite extends Site {
+  AbaliogluSite()
     : super(
-        meynLayoutNumber:
-            0000, //old plant is 8117 this is a new greenfield and has no layout number yet.
-        organizationName: 'Keskinoglu',
-        city:
-            '?', //old plant is 8117 this is a new greenfield and address is unknown fot now.
+        meynLayoutNumber: 1203,
+        organizationName: 'Abalioglu',
+        city: 'Maksutuşağı	Kahramanmaraş',
         country: 'Turkey',
-        productDefinitions: KeskinogluProductDefinitions(),
+        productDefinitions: AbaliogluProductDefinitions(),
       );
 }
 
-class KeskinogluProductDefinitions extends DelegatingList<ProductDefinition> {
-  static const int shacklesPerHour = 15000;
-  static final maxBirdWeight = 3.kilo.grams;
+class AbaliogluProductDefinitions extends DelegatingList<ProductDefinition> {
+  static final maxBirdWeight = 2.kilo.grams;
   static const summerLoadPercentage = 90;
-  static final loadDensity = LoadDensity.eec64_432(
+  static final minLoadDensity = LoadDensity.eec64_432(
     maxBirdWeight,
     summerLoadPercentage,
   );
-
-  KeskinogluProductDefinitions()
+  AbaliogluProductDefinitions()
     : super([
         ProductDefinition(
           areaFactory: (ProductDefinition productDefinition) => [
-            AreaWithColumnUnloader(productDefinition),
+            AreaWithRowUnloader(productDefinition),
           ],
           birdType: 'Chicken',
-          lineSpeedInShacklesPerHour: shacklesPerHour,
+          lineSpeedInShacklesPerHour: 12000,
           lineShacklePitchInInches: 6,
           casRecipe: const CasRecipe.standardChickenRecipe(),
           truckRows: [
@@ -63,7 +59,7 @@ class KeskinogluProductDefinitions extends DelegatingList<ProductDefinition> {
                   .l4
                   .gs
                   .build()
-                  .withLoadDensity(loadDensity, maxBirdWeight),
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
               PositionWithinModuleGroup.firstTop: BrandBuilder()
                   .meyn
                   .grandeDrawer
@@ -72,16 +68,16 @@ class KeskinogluProductDefinitions extends DelegatingList<ProductDefinition> {
                   .l4
                   .gs
                   .build()
-                  .withLoadDensity(loadDensity, maxBirdWeight),
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
             }),
           ],
         ),
         ProductDefinition(
           areaFactory: (ProductDefinition productDefinition) => [
-            AreaWithColumnUnloader(productDefinition),
+            AreaWithRowUnloader(productDefinition),
           ],
           birdType: 'Chicken',
-          lineSpeedInShacklesPerHour: shacklesPerHour,
+          lineSpeedInShacklesPerHour: 15000,
           lineShacklePitchInInches: 6,
           casRecipe: const CasRecipe.standardChickenRecipe(),
           truckRows: [
@@ -89,66 +85,32 @@ class KeskinogluProductDefinitions extends DelegatingList<ProductDefinition> {
               PositionWithinModuleGroup.firstBottom: BrandBuilder()
                   .meyn
                   .grandeDrawer
-                  .m1
+                  .m4
                   .c2
                   .l4
                   .gs
                   .build()
-                  .withLoadDensity(loadDensity, maxBirdWeight),
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
               PositionWithinModuleGroup.firstTop: BrandBuilder()
                   .meyn
                   .grandeDrawer
-                  .m1
+                  .m4
                   .c2
                   .l5
                   .gs
                   .build()
-                  .withLoadDensity(loadDensity, maxBirdWeight),
-            }),
-          ],
-        ),
-        ProductDefinition(
-          areaFactory: (ProductDefinition productDefinition) => [
-            AreaWithColumnUnloader(productDefinition),
-          ],
-          birdType: 'Chicken',
-          lineSpeedInShacklesPerHour: shacklesPerHour,
-          lineShacklePitchInInches: 6,
-          casRecipe: const CasRecipe.standardChickenRecipe(),
-          truckRows: [
-            TruckRow({
-              PositionWithinModuleGroup.firstBottom: BrandBuilder()
-                  .meyn
-                  .grandeDrawer
-                  .m1
-                  .c2
-                  .l5
-                  .gs
-                  .build()
-                  .withLoadDensity(loadDensity, maxBirdWeight),
-              PositionWithinModuleGroup.firstTop: BrandBuilder()
-                  .meyn
-                  .grandeDrawer
-                  .m1
-                  .c2
-                  .l5
-                  .gs
-                  .build()
-                  .withLoadDensity(loadDensity, maxBirdWeight),
+                  .withLoadDensity(minLoadDensity, maxBirdWeight),
             }),
           ],
         ),
       ]);
 }
 
-class AreaWithColumnUnloader extends LiveBirdHandlingArea {
+class AreaWithRowUnloader extends LiveBirdHandlingArea {
   final drawerConveyorSpeedInMeterPerSecond = 0.7;
 
-  AreaWithColumnUnloader(ProductDefinition productDefinition)
-    : super(
-        lineName: 'With Column Unloader',
-        productDefinition: productDefinition,
-      );
+  AreaWithRowUnloader(ProductDefinition productDefinition)
+    : super(lineName: 'Line1', productDefinition: productDefinition);
   @override
   void createSystemsAndLinks() {
     systems.startDirection = const CompassDirection.west();
@@ -158,34 +120,32 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       moduleBirdExitDirection: ModuleBirdExitDirection.left,
     );
 
-    var loadingConveyor = ModuleLoadingConveyor(area: this);
+    var mlc = ModuleLoadingConveyor(area: this);
 
     var mrc1 = ModuleRotatingConveyor(
       area: this,
       diameter: ModuleRotatingConveyorDiameter.short,
       turnPositions: [
-        TurnPosition(direction: const CompassDirection.north()),
         TurnPosition(
-          direction: const CompassDirection.south(),
-          reverseFeedOut: true,
+          direction: const CompassDirection.east(),
+          reverseFeedIn: true,
         ),
+        TurnPosition(direction: const CompassDirection.south()),
       ],
     );
 
-    var mc1 = ModuleConveyor(area: this);
-    var mc2 = ModuleConveyor(area: this);
-
     var deStacker = ModuleDeStacker(area: this);
 
-    var mc3 = ModuleConveyor(area: this);
+    var mc1 = ModuleConveyor(area: this);
 
-    var drawerUnloader = ModuleDrawerColumnUnloader(
+    var drawerUnloader = ModuleDrawerRowUnloader(
       area: this,
       drawerOutDirection: Direction.clockWise,
     );
 
-    var mc4 = ModuleConveyor(area: this);
-    var mc5 = ModuleConveyor(area: this);
+    var mc2 = ModuleConveyor(area: this);
+
+    var mc3 = ModuleConveyor(area: this);
     var modulePreWasher = ModuleWasherConveyor(
       area: this,
       lengthInMeters: 5.5 / 2,
@@ -202,9 +162,6 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var stacker = ModuleStacker(area: this);
 
-    var mc6 = ModuleConveyor(area: this);
-    var mc7 = ModuleConveyor(area: this);
-
     var mrc2 = ModuleRotatingConveyor(
       area: this,
       diameter: ModuleRotatingConveyorDiameter.short,
@@ -214,37 +171,37 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
       ],
     );
 
-    var unloadingConveyor = ModuleUnLoadingConveyor(area: this);
+    var muc = ModuleUnLoadingConveyor(area: this);
 
     var unLoadingForkLiftTruck = UnLoadingForkLiftTruck(area: this);
 
-    systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
-    systems.link(loadingConveyor.modulesOut, mrc1.modulesIns[0]);
-    systems.link(mrc1.modulesOuts[1], mc1.modulesIn);
-    systems.link(mc1.modulesOut, mc2.modulesIn);
-    systems.link(mc2.modulesOut, deStacker.modulesIn);
-    systems.link(deStacker.modulesOut, mc3.modulesIn);
-    systems.link(mc3.modulesOut, drawerUnloader.modulesIn);
-    systems.link(drawerUnloader.modulesOut, mc4.modulesIn);
-    systems.link(mc4.modulesOut, mc5.modulesIn);
-    systems.link(mc5.modulesOut, modulePreWasher.modulesIn);
+    // systems.link(loadingForkLiftTruck.modulesOut, loadingConveyor.modulesIn);
+    // systems.link(loadingConveyor.modulesOut, deStacker.modulesIn);
+    systems.link(loadingForkLiftTruck.modulesOut, mlc.modulesIn);
+    systems.link(mlc.modulesOut, mrc1.modulesIns[0]);
+    systems.link(mrc1.modulesOuts[1], deStacker.modulesIn);
+    systems.link(deStacker.modulesOut, mc1.modulesIn);
+    systems.link(mc1.modulesOut, drawerUnloader.modulesIn);
+    systems.link(drawerUnloader.modulesOut, mc2.modulesIn);
+    systems.link(mc2.modulesOut, mc3.modulesIn);
+    systems.link(mc3.modulesOut, modulePreWasher.modulesIn);
     systems.link(modulePreWasher.modulesOut, moduleMainWasher.modulesIn);
     systems.link(moduleMainWasher.modulesOut, moduleDrawerLoader.modulesIn);
     systems.link(moduleDrawerLoader.modulesOut, stacker.modulesIn);
-    systems.link(stacker.modulesOut, mc6.modulesIn);
-    systems.link(mc6.modulesOut, mc7.modulesIn);
-    systems.link(mc7.modulesOut, mrc2.modulesIns[0]);
-    systems.link(mrc2.modulesOuts[1], unloadingConveyor.modulesIn);
-    systems.link(
-      unloadingConveyor.modulesOut,
-      unLoadingForkLiftTruck.modulesIn,
-    );
+    systems.link(stacker.modulesOut, mrc2.modulesIns[0]);
+    systems.link(mrc2.modulesOuts[1], muc.modulesIn);
+    systems.link(muc.modulesOut, unLoadingForkLiftTruck.modulesIn);
 
     // drawers
 
-    var drawerUnloaderLift = DrawerUnloaderLift(area: this);
+    var drawerUnloaderLift = ModuleDrawerRowUnloaderReceiver(
+      area: this,
+      drawerOutDirection: Direction.counterClockWise,
+      crossOverFeedOutMetersPerSecond: drawerConveyorSpeedInMeterPerSecond,
+    );
 
-    var grossDrawerWeigher = DrawerWeighingConveyor(
+    var conveyor0 = DrawerConveyor90Degrees(
+      direction: Direction.clockWise,
       metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 
@@ -282,7 +239,7 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
 
     var conveyor5 = DrawerConveyorStraight(
       metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
-      lengthInMeters: 9.5,
+      lengthInMeters: 4,
     );
 
     var washer = DrawerWashingConveyor(
@@ -302,15 +259,15 @@ class AreaWithColumnUnloader extends LiveBirdHandlingArea {
     );
 
     var conveyor9 = DrawerConveyorStraight(
-      lengthInMeters: 1.4,
+      lengthInMeters: 2.9,
       metersPerSecond: drawerConveyorSpeedInMeterPerSecond,
     );
 
     var drawerLoaderLift = DrawerLoaderLift(area: this);
 
     systems.link(drawerUnloader.drawersOut, drawerUnloaderLift.drawersIn);
-    systems.link(drawerUnloaderLift.drawerOut, grossDrawerWeigher.drawerIn);
-    systems.link(grossDrawerWeigher.drawerOut, conveyor1.drawerIn);
+    systems.link(drawerUnloaderLift.drawerOut, conveyor0.drawerIn);
+    systems.link(conveyor0.drawerOut, conveyor1.drawerIn);
     systems.link(conveyor1.drawerOut, conveyor2.drawerIn);
     systems.link(conveyor2.drawerOut, hangingConveyor.drawerIn);
     systems.link(hangingConveyor.drawerOut, conveyor3.drawerIn);
