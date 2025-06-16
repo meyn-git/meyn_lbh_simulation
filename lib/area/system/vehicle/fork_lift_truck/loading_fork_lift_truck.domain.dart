@@ -103,7 +103,7 @@ class LoadingForkLiftTruck extends VehicleStateMachine implements LinkedSystem {
     var moduleGroundSurface =
         area.productDefinition.truckRows.first.footprintOnSystem;
     var direction = routes.turnPointToInToTruck.lastDirection;
-    var offset = shape.centerToFrontForkCariage
+    var offset = shape.centerToFrontForkCarriage
         .addY(moduleGroundSurface.yInMeters * -0.5)
         .rotate(direction);
     return FixedAreaPosition(routes.turnPointToInToTruck.points.last + offset);

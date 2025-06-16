@@ -16,7 +16,7 @@ ThemeData createTheme(Brightness brightness) => ThemeData(
 /// You can override the [LiveBirdsHandlingTheme]
 /// by adding the following to the [ThemeData]:
 ///
-/// LiveBirdsHandlingStyle: <ThemeExtension<dynamic>>[
+/// LiveBirdsHandlingStyle: &lt;ThemeExtension&lt;dynamic&gt;&gt;[
 ///   AreaPanelStyle(
 ///       machineColor: Colors.black,
 ///       withLiveBirdsColor: Colors.green,
@@ -47,7 +47,9 @@ class LiveBirdsHandlingTheme extends ThemeExtension<LiveBirdsHandlingTheme> {
   LiveBirdsHandlingTheme.fromMainTheme(ThemeData theme)
     : this(
         backGroundColor: theme.scaffoldBackgroundColor,
-        machineColor: theme.colorScheme.onSurface.withOpacity(0.8),
+        machineColor: theme.colorScheme.onSurface.withAlpha(
+          (255.0 * 0.8).round(),
+        ),
         withAwakeBirdsColor: Colors.green,
         withBirdsBeingStunnedColor: Colors.orange,
         withStunnedBirdsColor: Colors.red,

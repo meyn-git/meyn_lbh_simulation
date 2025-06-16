@@ -12,12 +12,12 @@ import 'package:meyn_lbh_simulation/area/name.domain.domain.dart';
 import 'package:meyn_lbh_simulation/area/object_details.domain.dart';
 import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 
-abstract class System implements Namable, Commandable, Detailable {}
+abstract class System implements Namable, Commandable, DetailProvider {}
 
 abstract class VisibleSystem extends System {
   //TODO AreaPosition position
 
-  //TODO CompasDirection direction
+  //TODO CompassDirection direction
 }
 
 abstract class LinkedSystem extends VisibleSystem {
@@ -345,7 +345,7 @@ class Durations {
 
   Durations({required this.maxSize});
 
-  add(Duration? duration) {
+  void add(Duration? duration) {
     if (duration == null) {
       return;
     }

@@ -286,7 +286,7 @@ class ModuleCasStart implements System, TimeProcessor {
     //assumption
     var maximumTransportCasToUnloaderInSeconds = 3 * 60.0;
     var casStunCycleInSeconds = area.productDefinition.casRecipe!
-        .totalDurationWithoutModuleTransport()
+        .totalDurationStunStagesAndExhaust()
         .inSeconds;
 
     var maximumBufferInSeconds =

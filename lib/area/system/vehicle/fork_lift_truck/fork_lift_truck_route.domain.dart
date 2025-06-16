@@ -45,7 +45,7 @@ class ForkLiftTruckRoutes {
     var area = moduleLoadingConveyor.area;
     var layout = area.layout;
 
-    var infeedDirection = layout
+    var feedInDirection = layout
         .rotationOf(moduleLoadingConveyor)
         .rotate(moduleLoadingConveyor.modulesIn.directionToOtherLink.degrees)
         .opposite;
@@ -55,20 +55,20 @@ class ForkLiftTruckRoutes {
     );
     var forkLiftTruckAboveConveyorPosition =
         conveyorLinkPosition +
-        forkLiftTruck.shape.centerToFrontForkCariage.rotate(
-          infeedDirection.opposite,
+        forkLiftTruck.shape.centerToFrontForkCarriage.rotate(
+          feedInDirection.opposite,
         );
 
     var moduleGroupFootPrint =
         area.productDefinition.truckRows.first.footprintOnSystem;
 
     aboveConveyorToBeforeConveyor = _aboveConveyorToBeforeConveyor(
-      infeedDirection,
+      feedInDirection,
       forkLiftTruckAboveConveyorPosition,
       moduleGroupFootPrint,
     );
     beforeConveyorToAboveConveyor = _beforeConveyorToAboveConveyor(
-      infeedDirection,
+      feedInDirection,
       aboveConveyorToBeforeConveyor,
     );
     beforeConveyorToTurnPoint = _beforeConveyorToTurnPoint(
@@ -116,7 +116,7 @@ class ForkLiftTruckRoutes {
     var area = moduleUnLoadingConveyor.area;
     var layout = area.layout;
 
-    var outfeedDirection = layout
+    var feedOutDirection = layout
         .rotationOf(moduleUnLoadingConveyor)
         .rotate(moduleUnLoadingConveyor.modulesOut.directionToOtherLink.degrees)
         .opposite;
@@ -127,20 +127,20 @@ class ForkLiftTruckRoutes {
     );
     var forkLiftTruckAboveConveyorPosition =
         conveyorLinkPosition +
-        forkLiftTruck.shape.centerToFrontForkCariage.rotate(
-          outfeedDirection.opposite,
+        forkLiftTruck.shape.centerToFrontForkCarriage.rotate(
+          feedOutDirection.opposite,
         );
 
     var moduleGroupFootPrint =
         area.productDefinition.truckRows.first.footprintOnSystem;
 
     aboveConveyorToBeforeConveyor = _aboveConveyorToBeforeConveyor(
-      outfeedDirection,
+      feedOutDirection,
       forkLiftTruckAboveConveyorPosition,
       moduleGroupFootPrint,
     );
     beforeConveyorToAboveConveyor = _beforeConveyorToAboveConveyor(
-      outfeedDirection,
+      feedOutDirection,
       aboveConveyorToBeforeConveyor,
     );
     beforeConveyorToTurnPoint = _beforeConveyorToTurnPoint(
@@ -173,7 +173,7 @@ class ForkLiftTruckRoutes {
     ];
   }
 
-  _beforeConveyorToAboveConveyor(
+  VehicleRoute _beforeConveyorToAboveConveyor(
     CompassDirection startDirection,
     VehicleRoute aboveConveyorToBeforeConveyor,
   ) => VehicleRoute(

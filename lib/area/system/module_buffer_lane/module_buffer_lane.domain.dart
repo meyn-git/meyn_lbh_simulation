@@ -1,8 +1,11 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
+import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
 import 'package:meyn_lbh_simulation/area/link.domain.dart';
+import 'package:meyn_lbh_simulation/area/module/module.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/speed_profile.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/state_machine.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/command.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/shape.presentation.dart';
@@ -10,11 +13,8 @@ import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/unloading_fork_lift_truck.domain.dart';
 import 'package:user_command/user_command.dart';
 
-import '../../area.domain.dart';
-import '../../module/module.domain.dart';
-import '../state_machine.domain.dart';
-
-abstract class ModuleBufferSystem extends StateMachine implements LinkedSystem {
+abstract class ModuleBufferSection extends StateMachine
+    implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final SpeedProfile conveyorSpeedProfile;
 
@@ -23,7 +23,7 @@ abstract class ModuleBufferSystem extends StateMachine implements LinkedSystem {
 
   Shape get shape;
 
-  ModuleBufferSystem({required this.area, SpeedProfile? conveyorSpeedProfile})
+  ModuleBufferSection({required this.area, SpeedProfile? conveyorSpeedProfile})
     : conveyorSpeedProfile =
           conveyorSpeedProfile ??
           area.productDefinition.speedProfiles.moduleConveyor,
@@ -49,10 +49,10 @@ abstract class ModuleBufferSystem extends StateMachine implements LinkedSystem {
     offsetFromCenterWhenSystemFacingNorth: OffsetInMeters.zero,
   );
 
-  Map<Type, State<ModuleBufferSystem> Function()> get nextState;
+  Map<Type, State<ModuleBufferSection> Function()> get nextState;
 }
 
-class ModuleBufferConveyor extends ModuleBufferSystem {
+class ModuleBufferConveyor extends ModuleBufferSection {
   @override
   late final ModuleGroupInLink modulesIn = ModuleGroupInLink(
     place: moduleGroupPlace,
@@ -76,7 +76,7 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
   String get name => 'ModuleBufferConveyor$seqNr';
 
   @override
-  final Map<Type, State<ModuleBufferSystem> Function()> nextState = {
+  final Map<Type, State<ModuleBufferSection> Function()> nextState = {
     WaitToFeedIn: () => FeedIn(),
     FeedIn: () => WaitToFeedOut(),
     WaitToFeedOut: () => FeedOut(),
@@ -96,7 +96,7 @@ class ModuleBufferConveyor extends ModuleBufferSystem {
   );
 }
 
-abstract class ModuleBufferAngleTransferSystem extends ModuleBufferSystem {
+abstract class ModuleBufferAngleTransferSystem extends ModuleBufferSection {
   final Direction moduleOutDirection;
   final Duration upDuration;
   final Duration downDuration;
@@ -153,7 +153,7 @@ class ModuleBufferAngleTransferInFeed extends ModuleBufferAngleTransferSystem
   ///TODO add frame left or right based on [moduleOutDirection]
 
   @override
-  final Map<Type, State<ModuleBufferSystem> Function()> nextState = {
+  final Map<Type, State<ModuleBufferSection> Function()> nextState = {
     WaitToFeedIn: () => FeedIn(),
     FeedIn: () => Down(),
     Down: () => WaitToFeedOut(),
@@ -220,7 +220,7 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem
   ///TODO add frame left or right based on [moduleOutDirection]
 
   @override
-  final Map<Type, State<ModuleBufferSystem> Function()> nextState = {
+  final Map<Type, State<ModuleBufferSection> Function()> nextState = {
     WaitToFeedIn: () => FeedIn(),
     FeedIn: () => Up(),
     Up: () => WaitToFeedOut(),
@@ -244,7 +244,7 @@ class ModuleBufferAngleTransferOutFeed extends ModuleBufferAngleTransferSystem
   }
 }
 
-class WaitToFeedIn extends State<ModuleBufferSystem>
+class WaitToFeedIn extends State<ModuleBufferSection>
     implements ModuleTransportStartedListener {
   var transportStarted = false;
 
@@ -252,7 +252,7 @@ class WaitToFeedIn extends State<ModuleBufferSystem>
   String get name => 'WaitToFeedIn';
 
   @override
-  State<ModuleBufferSystem>? nextState(ModuleBufferSystem system) {
+  State<ModuleBufferSection>? nextState(ModuleBufferSection system) {
     if (transportStarted) {
       return system.nextState[WaitToFeedIn]!();
     }
@@ -265,14 +265,14 @@ class WaitToFeedIn extends State<ModuleBufferSystem>
   }
 }
 
-class FeedIn extends State<ModuleBufferSystem>
+class FeedIn extends State<ModuleBufferSection>
     implements ModuleTransportCompletedListener {
   @override
   String get name => 'FeedIn';
   bool transportCompleted = false;
 
   @override
-  State<ModuleBufferSystem>? nextState(ModuleBufferSystem system) {
+  State<ModuleBufferSection>? nextState(ModuleBufferSection system) {
     if (transportCompleted) {
       return system.nextState[FeedIn]!();
     }
@@ -285,26 +285,26 @@ class FeedIn extends State<ModuleBufferSystem>
   }
 }
 
-class WaitToFeedOut extends State<ModuleBufferSystem> {
+class WaitToFeedOut extends State<ModuleBufferSection> {
   @override
   String get name => 'WaitToFeedOut';
 
   @override
-  State<ModuleBufferSystem>? nextState(ModuleBufferSystem system) {
+  State<ModuleBufferSection>? nextState(ModuleBufferSection system) {
     if (neighborCanFeedIn(system) && !_moduleGroupAtDestination(system)) {
       return system.nextState[WaitToFeedOut]!();
     }
     return null;
   }
 
-  bool neighborCanFeedIn(ModuleBufferSystem conveyor) =>
+  bool neighborCanFeedIn(ModuleBufferSection conveyor) =>
       conveyor.modulesOut.linkedTo!.canFeedIn();
 
-  bool _moduleGroupAtDestination(ModuleBufferSystem conveyor) =>
+  bool _moduleGroupAtDestination(ModuleBufferSection conveyor) =>
       conveyor.moduleGroupPlace.moduleGroup!.destination == conveyor;
 }
 
-class FeedOut extends State<ModuleBufferSystem>
+class FeedOut extends State<ModuleBufferSection>
     implements ModuleTransportCompletedListener {
   bool transportCompleted = false;
 
@@ -312,7 +312,7 @@ class FeedOut extends State<ModuleBufferSystem>
   String get name => 'FeedOut';
 
   @override
-  void onStart(ModuleBufferSystem system) {
+  void onStart(ModuleBufferSection system) {
     var transportedModuleGroup = system.moduleGroupPlace.moduleGroup!;
     transportedModuleGroup.position = BetweenModuleGroupPlaces.forModuleOutLink(
       system.modulesOut,
@@ -320,7 +320,7 @@ class FeedOut extends State<ModuleBufferSystem>
   }
 
   @override
-  State<ModuleBufferSystem>? nextState(ModuleBufferSystem system) {
+  State<ModuleBufferSection>? nextState(ModuleBufferSection system) {
     if (transportCompleted) {
       return system.nextState[FeedOut]!();
     }
@@ -333,7 +333,7 @@ class FeedOut extends State<ModuleBufferSystem>
   }
 }
 
-class Up extends DurationState<ModuleBufferSystem> {
+class Up extends DurationState<ModuleBufferSection> {
   Up()
     : super(
         durationFunction: (system) =>
@@ -345,7 +345,7 @@ class Up extends DurationState<ModuleBufferSystem> {
   String get name => 'Up';
 }
 
-class Down extends DurationState<ModuleBufferSystem> {
+class Down extends DurationState<ModuleBufferSection> {
   Down()
     : super(
         durationFunction: (system) =>

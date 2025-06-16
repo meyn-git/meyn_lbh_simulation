@@ -126,7 +126,7 @@ class AreaPanelState extends State<AreaPanel> implements UpdateListener {
 
   @override
   void onUpdate() {
-    /// TODO can we refresh diferently so we do not need to refresh everything AreaPanelState.onUpDate
+    /// TODO can we refresh differently so we do not need to refresh everything AreaPanelState.onUpDate
     setState(() {
       if (player.scenario != null) {
         player.scenario!.area.onUpdateToNextPointInTime(player.jump);
@@ -172,9 +172,10 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
 
   SizeInMeters sizeOfVehicle(Vehicle vehicle) => vehicle.shape.size;
 
-  Offset topLeftOfSystem(system, lengthPerMeter) => system is Vehicle
+  Offset topLeftOfSystem(VisibleSystem system, double lengthPerMeter) =>
+      system is Vehicle
       ? topLeftOfVehicle(system, lengthPerMeter)
-      : topLeftOfLinkedSystem(system, lengthPerMeter);
+      : topLeftOfLinkedSystem(system as LinkedSystem, lengthPerMeter);
 
   Offset topLeftOfLinkedSystem(LinkedSystem system, double lengthPerMeter) =>
       area.layout.topLeftWhenFacingNorthOf(system).toOffset() * lengthPerMeter;
@@ -185,12 +186,6 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
       lengthPerMeter;
 
   void _layoutAndPositionModuleGroups(double lengthPerMeter) {
-    // var moduleType =
-    //     MeynGrandeDrawerChicken4Level(); //TODO get from modulegroup
-    // var moduleDimensions = moduleType.dimensions;
-    // var moduleSize = Size(moduleDimensions.widthShortSide.defaultValue,
-    //         moduleDimensions.lengthLongSide.defaultValue) *
-    //     lengthPerMeter;
     for (var moduleGroup in area.moduleGroups) {
       var moduleSize = moduleGroup.shape.size.toSize() * lengthPerMeter;
       layoutChild(moduleGroup, BoxConstraints.tight(moduleSize));
@@ -216,7 +211,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   Offset _drawerOffset(GrandeDrawer drawer, double lengthPerMeter) =>
       (drawer.position.topLeft(area.layout)).toOffset() * lengthPerMeter;
 
-  void _layoutAndPositionMarkers(lengthPerMeter) {
+  void _layoutAndPositionMarkers(double lengthPerMeter) {
     Size size = const Size(1, 1);
     for (var marker in area.markers) {
       layoutChild(marker, BoxConstraints.tight(size));
@@ -245,7 +240,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
   //   return Size(childSide, childSide);
   // }
 
-  _lengthPerMeter(Size size) =>
+  double _lengthPerMeter(Size size) =>
       area.layout.size.xInMeters < area.layout.size.yInMeters
       ? size.height / area.layout.size.yInMeters
       : size.width / area.layout.size.xInMeters;
@@ -261,7 +256,7 @@ class AreaWidgetDelegate extends MultiChildLayoutDelegate {
     return topLeft.toOffset() * lengthPerMeter;
   }
 
-  // TODO only when nessasary
+  // TODO only when necessary
   @override
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) => true;
 }

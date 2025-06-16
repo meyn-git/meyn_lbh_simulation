@@ -26,7 +26,7 @@ class ModuleGroupWidget extends StatelessWidget {
   }
 }
 
-monitor(ModuleGroup moduleGroup) {
+void monitor(ModuleGroup moduleGroup) {
   var player = GetIt.instance<Player>();
   List<Object> objectsToMonitor = [moduleGroup];
   player.objectsToMonitor.addAll(objectsToMonitor);
@@ -108,7 +108,7 @@ class ModuleCompartmentShape extends Shape {
     //TODO paintText(canvas, Size(sizePerMeter*0.5, sizePerMeter*0.2), moduleGroup.le)
   }
 
-  Color color(theme) {
+  Color color(LiveBirdsHandlingTheme theme) {
     switch (moduleGroup.contents) {
       case BirdContents.noBirds:
         return theme.withoutBirdsColor;

@@ -12,7 +12,7 @@ class TruckShape extends TrailerPullerShape {
   @override
   late double centerToHitch;
   @override
-  late double centerToAxcelCenterInMeters;
+  late double centerToAxleCenterInMeters;
 
   @override
   late List<OffsetInMeters> centerToModuleGroupCenters;
@@ -45,8 +45,8 @@ class TruckShape extends TrailerPullerShape {
         (topLefts[leftWheels.first]! + leftWheels.first.centerLeft).yInMeters;
     var topToBackAxcel =
         (topLefts[leftWheels.last]! + leftWheels.last.centerLeft).yInMeters;
-    centerToAxcelCenterInMeters = (topToBackAxcel - topToFrontAxcel) / 2;
-    var topToAxcelCenter = topToFrontAxcel + centerToAxcelCenterInMeters;
+    centerToAxleCenterInMeters = (topToBackAxcel - topToFrontAxcel) / 2;
+    var topToAxcelCenter = topToFrontAxcel + centerToAxleCenterInMeters;
     var lengthToAdd =
         topToAxcelCenter * 2 -
         (topLefts[cargoFloor]! + cargoFloor.bottomCenter).yInMeters;

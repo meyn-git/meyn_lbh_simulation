@@ -72,7 +72,7 @@ class _PlayerPageState extends State<PlayerPage> {
     );
   }
 
-  buildSpeedButton() {
+  SpeedDropDownButton buildSpeedButton() {
     return SpeedDropDownButton(player);
   }
 

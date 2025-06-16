@@ -2,7 +2,7 @@ import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/area/name.domain.domain.dart';
 import 'package:meyn_lbh_simulation/area/object_details.domain.dart';
 
-abstract class StateMachine implements TimeProcessor, Detailable, Namable {
+abstract class StateMachine implements TimeProcessor, DetailProvider, Namable {
   /// A sequence number for when there are multiple [StateMachineCell] implementations of the same type
   State currentState;
 
@@ -61,7 +61,7 @@ abstract class State<T extends StateMachine> {
 }
 
 abstract class DurationState<T extends StateMachine> extends State<T>
-    implements Detailable {
+    implements DetailProvider {
   final Duration Function(T) durationFunction;
   final State<T> Function(T) nextStateFunction;
   Duration? _remainingDuration;
@@ -72,7 +72,7 @@ abstract class DurationState<T extends StateMachine> extends State<T>
     required this.nextStateFunction,
   });
 
-  Duration get remainingDuration => _remainingDuration ?? _startDuration;
+  Duration get remainingDuration => _remainingDuration ?? Duration(hours: 24);
   // 0 = starting
   // in between  = in between starting and completed
   // 1 = completed

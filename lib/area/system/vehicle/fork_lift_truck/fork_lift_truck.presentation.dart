@@ -21,9 +21,9 @@ class UnLoadingForkLiftTruckPainter extends ShapePainter {
 
 class ForkLiftTruckShape extends VehicleShape {
   late OffsetInMeters centerToModuleGroupCenter;
-  late OffsetInMeters centerToFrontForkCariage;
+  late OffsetInMeters centerToFrontForkCarriage;
   @override
-  late double centerToAxcelCenterInMeters;
+  late double centerToAxleCenterInMeters;
 
   //TODO set with constructor parameter
   var moduleGroupLengthInMeters = 2.43;
@@ -73,8 +73,8 @@ class ForkLiftTruckShape extends VehicleShape {
         (topLefts[frontLeftWheel]! + frontLeftWheel.centerLeft).yInMeters;
     var topToBackAxcel =
         (topLefts[backLeftWheel]! + backLeftWheel.centerLeft).yInMeters;
-    centerToAxcelCenterInMeters = (topToBackAxcel - topToFrontAxcel) / 2;
-    var topToAxcelCenter = topToFrontAxcel + centerToAxcelCenterInMeters;
+    centerToAxleCenterInMeters = (topToBackAxcel - topToFrontAxcel) / 2;
+    var topToAxcelCenter = topToFrontAxcel + centerToAxleCenterInMeters;
     var lengthToAdd =
         topToAxcelCenter * 2 - (topLefts[body]! + body.bottomCenter).yInMeters;
     var paddingToMoveCenterPoint = InvisibleBox(
@@ -89,10 +89,10 @@ class ForkLiftTruckShape extends VehicleShape {
     // link(paddingToMoveCenterPoint.bottomCenter, outline.bottomCenter);
     // link(outline.centerCenter, circle.centerCenter);
 
-    centerToFrontForkCariage =
+    centerToFrontForkCarriage =
         (topLefts[forkCarriage]! + forkCarriage.topCenter) - centerCenter;
 
-    centerToModuleGroupCenter = centerToFrontForkCariage.addY(
+    centerToModuleGroupCenter = centerToFrontForkCarriage.addY(
       moduleGroupLengthInMeters * -0.55,
     );
   }

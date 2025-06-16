@@ -85,12 +85,12 @@ Duration moduleTransportDuration(
   var distanceInMeters =
       source.distanceToFeedOutInMeters + destination.distanceToFeedInInMeters;
   var duration = conveyorSpeedProfile.durationOfDistance(distanceInMeters);
-  print(
-    '${source.system.name}-${destination.system.name}: '
-    '${source.distanceToFeedOutInMeters} + '
-    '${destination.distanceToFeedInInMeters} ='
-    ' $distanceInMeters m = ${(duration.inMilliseconds / 1000)} s',
-  );
+  // print(
+  //   '${source.system.name}-${destination.system.name}: '
+  //   '${source.distanceToFeedOutInMeters} + '
+  //   '${destination.distanceToFeedInInMeters} ='
+  //   ' $distanceInMeters m = ${(duration.inMilliseconds / 1000)} s',
+  // );
 
   return duration;
 }

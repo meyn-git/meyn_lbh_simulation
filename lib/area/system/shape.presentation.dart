@@ -314,7 +314,7 @@ abstract class CompoundShape extends Shape {
   Map<Shape, OffsetInMeters> topLefts = {};
   CompoundShape();
 
-  link(ShapeTopLeftOffset anchor1, anchor2) {
+  void link(ShapeTopLeftOffset anchor1, anchor2) {
     if (!topLefts.keys.contains(anchor1.shape)) {
       topLefts[anchor1.shape] = topLefts.isEmpty
           ? OffsetInMeters.zero
@@ -336,7 +336,7 @@ abstract class CompoundShape extends Shape {
     _calculateSize();
   }
 
-  _calculateSize() {
+  void _calculateSize() {
     var left = 0.0;
     var top = 0.0;
     for (var shape in topLefts.keys) {

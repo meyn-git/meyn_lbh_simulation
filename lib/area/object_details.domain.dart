@@ -88,7 +88,7 @@ class ObjectDetails {
     if (propertyValue is Duration) {
       return _formattedDuration(propertyValue);
     }
-    if (propertyValue is Detailable) {
+    if (propertyValue is DetailProvider) {
       return propertyValue.objectDetails.toString();
     }
     if (propertyValue is ObjectDetails) {
@@ -109,6 +109,6 @@ class ObjectDetails {
       propertyValue.toString().split('.').last;
 }
 
-abstract class Detailable implements Namable {
+abstract class DetailProvider implements Namable {
   ObjectDetails get objectDetails;
 }

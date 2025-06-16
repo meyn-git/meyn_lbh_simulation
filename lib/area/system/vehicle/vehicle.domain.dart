@@ -69,22 +69,21 @@ abstract class Drive<T extends VehicleStateMachine> extends State<T> {
           route.lengthInMeters *
           elapsed.inMilliseconds /
           duration.inMilliseconds;
-      var centerToAxcelCenterInMeters =
-          vehicle.shape.centerToAxcelCenterInMeters;
-      var frontAxcelPosition = route.pointAlongRoute(
+      var centerToAxleCenterInMeters = vehicle.shape.centerToAxleCenterInMeters;
+      var frontAxlePosition = route.pointAlongRoute(
         traveledInMeters +
-            (centerToAxcelCenterInMeters * route.vehicleDirection.sign * -1),
+            (centerToAxleCenterInMeters * route.vehicleDirection.sign * -1),
       );
-      var backAxcelPosition = route.pointAlongRoute(
+      var backAxlePosition = route.pointAlongRoute(
         traveledInMeters +
-            (centerToAxcelCenterInMeters * route.vehicleDirection.sign),
+            (centerToAxleCenterInMeters * route.vehicleDirection.sign),
       );
 
-      var betweenAxcels = backAxcelPosition - frontAxcelPosition;
-      var centerPosition = (backAxcelPosition + frontAxcelPosition) * 0.5;
+      var betweenAxle = backAxlePosition - frontAxlePosition;
+      var centerPosition = (backAxlePosition + frontAxlePosition) * 0.5;
 
       vehicle.position = FixedAreaPosition(centerPosition);
-      var radians = betweenAxcels.directionInRadians;
+      var radians = betweenAxle.directionInRadians;
       vehicle.direction = CompassDirection(radians * 180 ~/ pi);
 
       for (var place in vehicle.moduleGroupPlaces) {

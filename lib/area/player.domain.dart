@@ -32,7 +32,7 @@ class Player {
   set scenario(Scenario? scenario) {
     _scenario = scenario;
     if (scenario != null) {
-      Iterable<Detailable> shackleConveyors = scenario.area.systems
+      Iterable<DetailProvider> shackleConveyors = scenario.area.systems
           .whereType<ShackleConveyor>();
       if (shackleConveyors.isEmpty) {
         shackleConveyors = scenario.area.systems
@@ -46,7 +46,7 @@ class Player {
 
   int get speed => _speed;
 
-  set speed(speed) {
+  set speed(int speed) {
     if (_speed <= maxSpeed) {
       _speed = speed;
       updateTimer();

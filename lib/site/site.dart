@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
 import 'package:meyn_lbh_simulation/site/scenario.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_0000_keskinoglu.domain.dart';
+import 'package:meyn_lbh_simulation/site/site_0000_module_tunnel_stunner.dart';
 import 'package:meyn_lbh_simulation/site/site_1112_senpilic_gida_santic.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_1203_abalioglu.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_4054_taravis_sarvar.domain.dart';
@@ -57,7 +58,7 @@ abstract class Site {
 
   /// converts the [meynLayoutNumber] to a 4 digit string
   /// (with optional leading 0's)
-  get meynLayoutCode => meynLayoutNumber.toString().padLeft(4, '0');
+  String get meynLayoutCode => meynLayoutNumber.toString().padLeft(4, '0');
 
   @override
   String toString() {
@@ -68,6 +69,7 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
     : super([
+        ModuleTunnelStunnerSite(),
         AbaliogluSite(),
         IndrolSite(),
         FloridaSite(),

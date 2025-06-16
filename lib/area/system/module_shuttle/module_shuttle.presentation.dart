@@ -1,5 +1,5 @@
 import 'package:meyn_lbh_simulation/area/direction.domain.dart';
-import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_shuttle.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/shape.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/system.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/vehicle.presentation.dart';
@@ -83,5 +83,5 @@ class ModuleShuttleCarrierShape extends VehicleShape {
   }
 
   @override
-  double get centerToAxcelCenterInMeters => widthInMeters / 2;
+  double get centerToAxleCenterInMeters => widthInMeters / 2;
 }

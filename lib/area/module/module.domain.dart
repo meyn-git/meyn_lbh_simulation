@@ -26,7 +26,7 @@ import 'package:user_command/user_command.dart';
 /// E.g. a stack of 2 modules, or 2 modules side by side or 2 stacks of modules
 
 class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
-    implements TimeProcessor, Detailable, ModuleVariantBase, Commandable {
+    implements TimeProcessor, DetailProvider, ModuleVariantBase, Commandable {
   @override
   late final BirdType birdType = modules.first.variant.birdType;
 
@@ -230,7 +230,7 @@ class ModuleGroup extends DelegatingMap<PositionWithinModuleGroup, Module>
       keys.contains(PositionWithinModuleGroup.secondBottom) &&
           keys.contains(PositionWithinModuleGroup.secondTop);
 
-  isBeingTransportedTo(LinkedSystem system) =>
+  bool isBeingTransportedTo(LinkedSystem system) =>
       position is BetweenModuleGroupPlaces &&
       (position as BetweenModuleGroupPlaces).destination.system == system;
 
@@ -285,7 +285,7 @@ class FixedAreaPosition implements AreaPosition {
   OffsetInMeters center(_) => _center;
 }
 
-class AtModuleGroupPlace implements AreaPosition, Detailable {
+class AtModuleGroupPlace implements AreaPosition, DetailProvider {
   final ModuleGroupPlace place;
   OffsetInMeters? _center;
 
@@ -315,7 +315,7 @@ class AtModuleGroupPlace implements AreaPosition, Detailable {
 }
 
 class BetweenModuleGroupPlaces
-    implements AreaPosition, TimeProcessor, Detailable {
+    implements AreaPosition, TimeProcessor, DetailProvider {
   late ModuleGroup moduleGroup;
   final ModuleGroupPlace source;
   final ModuleGroupPlace destination;
@@ -441,7 +441,7 @@ abstract class ModuleTransportStartedListener {
   );
 }
 
-class Module implements Detailable, Commandable {
+class Module implements DetailProvider, Commandable {
   final ModuleVariant variant;
   final int sequenceNumber;
   int nrOfBirds;
@@ -644,7 +644,7 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
   /// Creates a new [systemPositionsWithModules] map for all [ModuleGroup]s
   /// that are at a [LinkedSystem] position.
   /// We only do this once per update cycle for performance.
-  updateSystemPositionsWithModuleGroups() {
+  void updateSystemPositionsWithModuleGroups() {
     systemPositionsWithModules.clear();
     for (var moduleGroup in this) {
       if (moduleGroup.position is AtModuleGroupPlace) {
@@ -679,7 +679,7 @@ class ModuleGroups extends DelegatingList<ModuleGroup> {
   }
 }
 
-/// A [System] that creathas multiple [ModuleGroupPlace]s with new [ModuleGroup]s. e.g.:
+/// A [System] that creates multiple [ModuleGroupPlace]s with new [ModuleGroup]s. e.g.:
 /// * [BoxTruck]
 /// * [Trailer]
 /// * [LairageArea]

@@ -1,6 +1,6 @@
 import 'package:process_run/shell.dart';
 
-main() async {
+void main() async {
   var shell = Shell(commentVerbose: true);
   await shell.run('''
     # Build web files

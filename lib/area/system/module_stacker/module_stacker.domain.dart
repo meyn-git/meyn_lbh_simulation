@@ -218,7 +218,7 @@ class DecideAfterModuleGroupFeedIn extends State<ModuleStacker> {
         (moduleSequenceNumberModulo4 == 1 || moduleSequenceNumberModulo4 == 2);
   }
 
-  modulesAreAlreadyStacked(ModuleStacker stacker) =>
+  bool modulesAreAlreadyStacked(ModuleStacker stacker) =>
       stacker.onConveyorPlace.moduleGroup!.isStacked;
 
   bool skipModuleBecauseItHasTooManyLevelsToBePlacedInTop(

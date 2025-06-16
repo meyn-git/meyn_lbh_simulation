@@ -8,7 +8,7 @@ class AuthorizationService {
   final List<User> _users = UserFactory().createAll();
   User? _loggedInUser;
 
-  get isAdmin => _loggedInUser == null ? false : _loggedInUser!.isAdmin;
+  bool get isAdmin => _loggedInUser == null ? false : _loggedInUser!.isAdmin;
 
   List<Site> get sitesThatCanBeViewed =>
       _loggedInUser?.sitesThatCanBeViewed ?? <Site>[];
@@ -51,13 +51,13 @@ class AuthorizationService {
     player.scenario = null;
   }
 
-  static userNameForSite(Site site) =>
+  static String userNameForSite(Site site) =>
       _removeAllAfterFirstSpace(site.organizationName.trim().toLowerCase());
 
   static String _removeAllAfterFirstSpace(String siteName) =>
       siteName.replaceAll(RegExp(r"\s[^]*"), "");
 
-  static passwordForSite(Site site) => site.meynLayoutCode.trim();
+  static String passwordForSite(Site site) => site.meynLayoutCode.trim();
 }
 
 class LoginException implements Exception {

@@ -3,7 +3,7 @@ import 'package:meyn_lbh_simulation/area/module/brand.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_buffer_lane/module_buffer_lane.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_de_stacker/module_de_stacker.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_rotating_conveyor/module_rotating_conveyor.domain.dart';
-import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_shuttle.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_stacker/module_stacker.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_tilter/module_tilter_dump_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_washer/module_washer.domain.dart';

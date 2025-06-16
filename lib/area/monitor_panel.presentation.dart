@@ -71,7 +71,7 @@ class MonitorTile extends StatelessWidget {
       ),
       tileColor: Theme.of(
         context,
-      ).liveBirdsHandling.machineColor.withOpacity(0.2),
+      ).liveBirdsHandling.machineColor.withAlpha((255.0 * 0.2).round()),
       title: Text(name),
       subtitle: subTitleWidget,
     );
@@ -89,9 +89,10 @@ class MonitorTile extends StatelessWidget {
     }
   }
 
-  Widget? get subTitleWidget =>
-      objectToMonitor is Detailable ? Text(subTitle, softWrap: false) : null;
+  Widget? get subTitleWidget => objectToMonitor is DetailProvider
+      ? Text(subTitle, softWrap: false)
+      : null;
 
   String get subTitle =>
-      (objectToMonitor as Detailable).objectDetails.propertiesToString(0);
+      (objectToMonitor as DetailProvider).objectDetails.propertiesToString(0);
 }

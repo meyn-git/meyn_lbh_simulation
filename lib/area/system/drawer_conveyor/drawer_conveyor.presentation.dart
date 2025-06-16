@@ -109,7 +109,7 @@ class DrawerConveyor90DegreePainter extends DrawerConveyorPainter {
     }
   }
 
-  positionOnCircle(
+  Offset positionOnCircle(
     Offset circleCenter,
     double radius,
     CompassDirection rotation,

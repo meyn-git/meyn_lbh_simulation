@@ -31,7 +31,7 @@ class ModuleTilterDumpConveyorShape extends Shape {
     _paintBirdsOnReceivingConveyor(canvas, theme, offset, sizePerMeter);
   }
 
-  _paintReceivingConveyor(
+  void _paintReceivingConveyor(
     Canvas canvas,
     LiveBirdsHandlingTheme theme,
     OffsetInMeters offset,
@@ -51,14 +51,14 @@ class ModuleTilterDumpConveyorShape extends Shape {
     );
   }
 
-  _paintBirdsOnReceivingConveyor(
+  void _paintBirdsOnReceivingConveyor(
     Canvas canvas,
     LiveBirdsHandlingTheme theme,
     OffsetInMeters offset,
     double sizePerMeter,
   ) {
     var birdPaint = Paint();
-    birdPaint.color = theme.machineColor.withOpacity(0.5);
+    birdPaint.color = theme.machineColor.withAlpha((255.0 * 0.5).round());
     birdPaint.style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTRB(

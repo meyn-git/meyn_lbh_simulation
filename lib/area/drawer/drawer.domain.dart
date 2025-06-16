@@ -166,11 +166,11 @@ class BetweenDrawerPlaces implements DrawerPositionAndSize, TimeProcessor {
 }
 
 abstract class DrawerTransportStartedListener {
-  onDrawerTransportStarted(BetweenDrawerPlaces betweenDrawerPlaces);
+  void onDrawerTransportStarted(BetweenDrawerPlaces betweenDrawerPlaces);
 }
 
 abstract class DrawerTransportCompletedListener {
-  onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces);
+  void onDrawerTransportCompleted(BetweenDrawerPlaces betweenDrawerPlaces);
 }
 
 class AtDrawerPlace implements DrawerPositionAndSize {

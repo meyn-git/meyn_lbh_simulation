@@ -98,7 +98,7 @@ class DrawerLoaderLift extends StateMachine implements LinkedSystem {
   List<GrandeDrawer> get drawersToFeedOut => drawerLiftPlaces
       .getRange(1, drawerLiftPlaces.length)
       .map((e) => e.drawer)
-      .whereNotNull()
+      .nonNulls
       .toList();
 
   bool get canFeedOutDrawers =>
@@ -304,7 +304,7 @@ class CompletedFeedOutDrawers extends DrawersFeedOutState {
 }
 
 class SimultaneouslyFeedInAndFeedOutDrawers extends State<DrawerLoaderLift>
-    implements DrawerTransportCompletedListener, Detailable {
+    implements DrawerTransportCompletedListener, DetailProvider {
   DrawerFeedInState drawerFeedInState = WaitingToFeedInDrawer();
   DrawersFeedOutState drawersFeedOutState = WaitingToFeedOutDrawers();
   GrandeDrawer? drawerToFeedIn;

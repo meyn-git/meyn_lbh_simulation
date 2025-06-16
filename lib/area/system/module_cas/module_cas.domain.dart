@@ -92,7 +92,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
   }
 
   ///Called by [ModuleCasStart]
-  start() {
+  void start() {
     if (currentState is WaitForStart) {
       (currentState as WaitForStart).start();
     } else {
@@ -128,7 +128,7 @@ class ModuleCas extends StateMachine implements LinkedSystem {
     durationUntilCanFeedOut: () => durationUntilCanFeedOut,
   );
 
-  get durationUntilCanFeedOut {
+  Duration get durationUntilCanFeedOut {
     if (currentState is OpenSlideDoor) {
       return (currentState as OpenSlideDoor).remainingDuration;
     }
@@ -163,57 +163,84 @@ class ModuleCas extends StateMachine implements LinkedSystem {
 }
 
 class CasRecipe {
-  final List<Duration> stunStageDurations;
+  final List<CasRecipeStage> stages;
   final Duration exhaustDuration;
 
-  const CasRecipe(this.stunStageDurations, this.exhaustDuration);
+  const CasRecipe(this.stages, this.exhaustDuration);
 
   const CasRecipe.standardChickenRecipe()
     : this(const [
-        Duration(seconds: 60), //18%
-        Duration(seconds: 60), //28%
-        Duration(seconds: 60), //33%
-        Duration(seconds: 60), //38%
-        Duration(seconds: 120), //67%
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 18),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 28),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 33),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 38),
+        CasRecipeStage(duration: Duration(seconds: 120), co2Percentage: 62),
       ], const Duration(seconds: 30));
 
   const CasRecipe.standardTurkeyRecipe()
     : this(const [
-        Duration(seconds: 40), //22%
-        Duration(seconds: 40), //34%
-        Duration(seconds: 40), //43%
-        Duration(seconds: 120), //67%
+        CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 22),
+        CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 34),
+        CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 43),
+        CasRecipeStage(duration: Duration(seconds: 120), co2Percentage: 67),
       ], const Duration(seconds: 30));
 
   const CasRecipe.turkeyRecipeAtIndrolAtInstallation()
     : this(const [
-        Duration(seconds: 35), //35%
-        Duration(seconds: 35), //43%
-        Duration(seconds: 30), //58%
-        Duration(seconds: 110), //72%
+        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 35),
+        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 43),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 58),
+        CasRecipeStage(duration: Duration(seconds: 110), co2Percentage: 72),
       ], const Duration(seconds: 30));
 
   //info from Maurizio on site @ 2024-09-18
   const CasRecipe.femaleTurkeyRecipeAtIndrol()
     : this(const [
-        Duration(seconds: 35), //32%
-        Duration(seconds: 35), //38%
-        Duration(seconds: 30), //43%
-        Duration(seconds: 110), //72%
+        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 32),
+        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 38),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 43),
+        CasRecipeStage(duration: Duration(seconds: 110), co2Percentage: 72),
       ], const Duration(seconds: 30));
 
   //info from Maurizio on site @ 2024-09-18
   const CasRecipe.maleTurkeyRecipeAtIndrol()
     : this(const [
-        Duration(seconds: 30), //32%
-        Duration(seconds: 30), //38%
-        Duration(seconds: 70), //72%
-        Duration(seconds: 100), //82%
+        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 32),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 38),
+        CasRecipeStage(duration: Duration(seconds: 70), co2Percentage: 43),
+        CasRecipeStage(duration: Duration(seconds: 100), co2Percentage: 82),
       ], const Duration(seconds: 30));
 
-  Duration totalDurationWithoutModuleTransport() =>
-      stunStageDurations.fold(Duration(), (sum, element) => sum + element) +
-      exhaustDuration;
+  Duration totalDurationStunStages() =>
+      stages.fold(Duration(), (sum, element) => sum + element.duration);
+
+  Duration totalDurationStunStagesAndExhaust() =>
+      totalDurationStunStages() + exhaustDuration;
+
+  List<int> co2Percentages(int secondsFromStart, int durationInSeconds) {
+    final result = <int>[];
+    int end = secondsFromStart + durationInSeconds;
+    int stageStart = 0;
+
+    for (final stage in stages) {
+      int stageEnd = stageStart + stage.duration.inSeconds;
+      // If the stage overlaps with the requested interval
+      if (stageEnd > secondsFromStart && stageStart < end) {
+        // Determine the overlap range
+        int overlapStart = stageStart < secondsFromStart
+            ? secondsFromStart
+            : stageStart;
+        int overlapEnd = stageEnd > end ? end : stageEnd;
+        int overlapDuration = overlapEnd - overlapStart;
+        for (int i = 0; i < overlapDuration; i++) {
+          result.add(stage.co2Percentage);
+        }
+      }
+      stageStart = stageEnd;
+      if (stageStart >= end) break;
+    }
+    return result;
+  }
 }
 
 class CheckIfEmpty extends DurationState<ModuleCas> {
@@ -248,6 +275,13 @@ class WaitToFeedIn extends State<ModuleCas>
   void onModuleTransportStarted(_) {
     transportStarted = true;
   }
+}
+
+class CasRecipeStage {
+  final Duration duration;
+  final int co2Percentage;
+
+  const CasRecipeStage({required this.duration, required this.co2Percentage});
 }
 
 class FeedIn extends State<ModuleCas>
@@ -342,7 +376,7 @@ class StunStage extends DurationState<ModuleCas> {
 
   StunStage(this.stageNumber)
     : super(
-        durationFunction: (cas) => findDuration(cas),
+        durationFunction: (cas) => findCasRecipeStage(cas).duration,
         nextStateFunction: (cas) => findNextStage(cas, stageNumber),
       );
 
@@ -354,14 +388,13 @@ class StunStage extends DurationState<ModuleCas> {
     }
   }
 
-  static int numberOfStages(ModuleCas cas) =>
-      cas.recipe.stunStageDurations.length;
+  static int numberOfStages(ModuleCas cas) => cas.recipe.stages.length;
 
-  static findDuration(ModuleCas cas) {
+  static CasRecipeStage findCasRecipeStage(ModuleCas cas) {
     var currentState = cas.currentState;
     if (currentState is StunStage) {
       var currentStageNumber = currentState.stageNumber;
-      return cas.recipe.stunStageDurations[currentStageNumber - 1];
+      return cas.recipe.stages[currentStageNumber - 1];
     }
     throw Exception('Unknown StunStage duration');
   }

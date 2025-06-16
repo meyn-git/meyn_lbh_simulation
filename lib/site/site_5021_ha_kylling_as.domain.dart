@@ -98,11 +98,14 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
 class NksCasRecipe extends CasRecipe {
   NksCasRecipe()
     : super(const [
-        Duration(seconds: 60), //18%
-        Duration(seconds: 60), //28%
-        Duration(seconds: 60), //33%
-        Duration(seconds: 60), //38%
-        Duration(seconds: 120 - 32), //67%
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 18),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 28),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 33),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 38),
+        CasRecipeStage(
+          duration: Duration(seconds: 120 - 32),
+          co2Percentage: 67,
+        ),
       ], const Duration(seconds: 30));
 }
 

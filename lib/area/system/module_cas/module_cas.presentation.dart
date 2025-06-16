@@ -13,7 +13,7 @@ class ModuleCasShape extends CompoundShape {
   late final Box cabin;
   late final Box moduleDoor;
   late final CompassDirection gasDuctsDirection;
-  late final _cabinBottomToModuleGroupInOutLink;
+  late final double _cabinBottomToModuleGroupInOutLink;
 
   ModuleCasShape(ModuleCas cas) {
     var truckRowFootprint =

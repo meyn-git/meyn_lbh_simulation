@@ -49,7 +49,7 @@ class ShackleConveyorShape extends Shape {
   @override
   double get yInMeters => 5;
 
-  _paintLine(
+  void _paintLine(
     Canvas canvas,
     LiveBirdsHandlingTheme theme,
     OffsetInMeters offset,

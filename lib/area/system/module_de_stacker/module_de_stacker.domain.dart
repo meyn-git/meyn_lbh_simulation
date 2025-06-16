@@ -46,7 +46,7 @@ class ModuleDeStacker extends StateMachine implements LinkedSystem {
            conveyorSpeed ?? area.productDefinition.speedProfiles.moduleConveyor,
        super(initialState: CheckIfEmpty());
 
-  /// normaly used for rectangular containers (2 or more columns of compartments)
+  /// normally used for rectangular containers (2 or more columns of compartments)
   late ModuleGroupPlace onConveyorPlace = ModuleGroupPlace(
     system: this,
     offsetFromCenterWhenSystemFacingNorth: shape.centerToConveyorCenter,
@@ -140,7 +140,8 @@ class CheckIfEmpty extends DurationState<ModuleDeStacker> {
   String get name => 'CheckIfEmpty';
 }
 
-class MoveLift extends DurationState<ModuleDeStacker> implements Detailable {
+class MoveLift extends DurationState<ModuleDeStacker>
+    implements DetailProvider {
   final LiftPosition goToPosition;
 
   MoveLift(this.goToPosition, State<ModuleDeStacker> nextState)
@@ -184,13 +185,10 @@ class DecideAfterSimultaneousFeedOutFeedIn extends State<ModuleDeStacker> {
 
   @override
   State<ModuleDeStacker>? nextState(ModuleDeStacker deStacker) {
-    if (feedFirstStackToNextDestackerAndSecondStackToCenter(deStacker)) {
+    if (feedFirstStackToNextDeStackerAndSecondStackToCenter(deStacker)) {
       return WaitToFeedOutFirstStackAndTransportSecondStackToCenter();
     }
     if (feedOutBottomModule(deStacker)) {
-      if (deStacker.modulesOut.place.moduleGroup == null) {
-        print('Something went wrong!???');
-      }
       return WaitToFeedOut();
     }
     if (simultaneousFeedOutFeedIn(deStacker)) {
@@ -216,7 +214,9 @@ class DecideAfterSimultaneousFeedOutFeedIn extends State<ModuleDeStacker> {
   bool simultaneousFeedOutFeedIn(ModuleDeStacker deStacker) =>
       deStacker.onConveyorPlace.moduleGroup!.numberOfModules == 1;
 
-  bool feedFirstStackToNextDestackerAndSecondStackToCenter(deStacker) =>
+  bool feedFirstStackToNextDeStackerAndSecondStackToCenter(
+    ModuleDeStacker deStacker,
+  ) =>
       deStacker.nextSystem is ModuleDeStacker &&
       deStacker.onConveyorPlace.moduleGroup!.stackNumbers.length > 1;
 

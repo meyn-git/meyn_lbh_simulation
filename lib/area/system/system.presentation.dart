@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meyn_lbh_simulation/area/system/drawer_conveyor/drawer_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/area.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_cas_tunnel/module_cas_tunnel.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_cas_tunnel/module_cas_tunnel.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_loading_conveyor/module_loading_conveyor.presentation.dart';
-import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.domain.dart';
-import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_suttle.presentation.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_shuttle.domain.dart';
+import 'package:meyn_lbh_simulation/area/system/module_shuttle/module_shuttle.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.domain.dart';
 import 'package:meyn_lbh_simulation/area/system/module_unloading_conveyor/module_unloading_conveyor.presentation.dart';
 import 'package:meyn_lbh_simulation/area/system/vehicle/fork_lift_truck/loading_fork_lift_truck.domain.dart';
@@ -62,13 +64,13 @@ class SystemWidget extends StatelessWidget {
       onPointerDown: (_) => monitor(system),
       child: RotationTransition(
         turns: AlwaysStoppedAnimation(layout.rotationOf(system).toFraction()),
-        //TODO fix so that it is not continously creating new painers
+        //TODO fix so that it is not continuously creating new painters
         child: CustomPaint(painter: createSystemPainter(system, theme)),
       ),
     );
   }
 
-  monitor(VisibleSystem system) {
+  void monitor(VisibleSystem system) {
     var player = GetIt.instance<Player>();
     var systems = player.scenario!.area.systems;
     List<Object> objectsToMonitor = [
@@ -78,11 +80,11 @@ class SystemWidget extends StatelessWidget {
     player.objectsToMonitor.addAll(objectsToMonitor);
   }
 
-  List<Detailable> relatedObjectsToMonitor(
+  List<DetailProvider> relatedObjectsToMonitor(
     List<System> systems,
     VisibleSystem selectedSystem,
   ) {
-    var relatedObjects = <Detailable>[];
+    var relatedObjects = <DetailProvider>[];
     if (selectedSystem is ModuleCas) {
       relatedObjects.addAll(systems.whereType<ModuleCasStart>());
     }
@@ -132,6 +134,9 @@ CustomPainter createSystemPainter(
   if (system is ModuleCas) {
     return ModuleCasPainter(system, theme);
   }
+  if (system is ModuleCasTunnelSection) {
+    return ModuleCasTunnelSectionPainter(system, theme);
+  }
   if (system is ModuleStacker) {
     return ModuleStackerPainter(system, theme);
   }
@@ -163,8 +168,8 @@ CustomPainter createSystemPainter(
     return ModuleWasherConveyorPainter(system, theme);
   }
 
-  if (system is ModuleBufferSystem) {
-    return ModuleBufferSystemPainter(system, theme);
+  if (system is ModuleBufferSection) {
+    return ModuleBufferSectionPainter(system, theme);
   }
 
   if (system is ShackleConveyor) {

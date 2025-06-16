@@ -112,7 +112,7 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
     implements
         ModuleTransportStartedListener,
         ModuleTransportCompletedListener,
-        Detailable {
+        DetailProvider {
   late final feedInStateMachine = FeedInStateMachine(this);
   late final feedOutStateMachine = FeedOutStateMachine(this);
   final ModuleGroupInLink modulesIn;
@@ -147,11 +147,11 @@ class SimultaneousFeedOutFeedInModuleGroup<STATE_MACHINE extends StateMachine>
                       .whenFeedInIsCompletedAndFeedOutIsCompleted &&
               feedOutStateMachine.currentState is FeedOutCompleted);
 
-  static bool canFeedIn(currentState) =>
+  static bool canFeedIn(State currentState) =>
       (currentState is SimultaneousFeedOutFeedInModuleGroup) &&
       currentState.feedInStateMachine.currentState is WaitToFeedIn;
 
-  static Duration durationUntilCanFeedOut(currentState) =>
+  static Duration durationUntilCanFeedOut(State currentState) =>
       (currentState is SimultaneousFeedOutFeedInModuleGroup) &&
           currentState.feedOutStateMachine.currentState is WaitToFeedOut
       ? Duration.zero
