@@ -133,8 +133,8 @@ abstract class ModuleCasTunnelLift extends ModuleCasTunnelSection {
   ModuleCasTunnelLift({
     required super.area,
     super.conveyorSpeedProfile,
-    this.upDuration = const Duration(seconds: 4),
-    this.downDuration = const Duration(seconds: 4),
+    this.upDuration = defaultUpOrDownDuration,
+    this.downDuration = defaultUpOrDownDuration,
     required this.moduleOutDirection,
   });
 }

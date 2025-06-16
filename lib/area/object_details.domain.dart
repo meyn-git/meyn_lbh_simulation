@@ -80,24 +80,28 @@ class ObjectDetails {
   }
 
   String _formattedPropertyValue(dynamic propertyValue) {
-    if (propertyValue is Iterable) {
-      return propertyValue
-          .map((element) => _formattedPropertyValue(element))
-          .join('\n');
+    try {
+      if (propertyValue is Iterable) {
+        return propertyValue
+            .map((element) => _formattedPropertyValue(element))
+            .join('\n');
+      }
+      if (propertyValue is Duration) {
+        return _formattedDuration(propertyValue);
+      }
+      if (propertyValue is DetailProvider) {
+        return propertyValue.objectDetails.toString();
+      }
+      if (propertyValue is ObjectDetails) {
+        return propertyValue.propertiesToString(1);
+      }
+      if (propertyValue is Enum) {
+        return _formattedEnum(propertyValue);
+      }
+      return propertyValue.toString();
+    } catch (_) {
+      return '?';
     }
-    if (propertyValue is Duration) {
-      return _formattedDuration(propertyValue);
-    }
-    if (propertyValue is DetailProvider) {
-      return propertyValue.objectDetails.toString();
-    }
-    if (propertyValue is ObjectDetails) {
-      return propertyValue.propertiesToString(1);
-    }
-    if (propertyValue is Enum) {
-      return _formattedEnum(propertyValue);
-    }
-    return propertyValue.toString();
   }
 
   String _formattedDuration(Duration duration) {

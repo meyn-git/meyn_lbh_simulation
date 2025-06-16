@@ -72,21 +72,23 @@ abstract class DurationState<T extends StateMachine> extends State<T>
     required this.nextStateFunction,
   });
 
-  Duration get remainingDuration => _remainingDuration ?? Duration(hours: 24);
+  Duration get remainingDuration => _remainingDuration ?? _startDuration;
   // 0 = starting
   // in between  = in between starting and completed
   // 1 = completed
   double get completedFraction =>
       1 - (_remainingDuration!.inMicroseconds / _startDuration.inMicroseconds);
 
-  @override
-  void onStart(T stateMachine) {
+  void init(T stateMachine) {
     _startDuration = durationFunction(stateMachine);
     _remainingDuration = _startDuration;
   }
 
   @override
   void onUpdateToNextPointInTime(T stateMachine, Duration jump) {
+    if (_remainingDuration == null) {
+      init(stateMachine);
+    }
     _remainingDuration = remainingDuration - jump;
     if (_remainingDuration! < Duration.zero) {
       _remainingDuration = Duration.zero;
