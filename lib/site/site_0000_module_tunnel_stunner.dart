@@ -56,7 +56,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
           PositionWithinModuleGroup.firstBottom: BrandBuilder()
               .meyn
               .grandeDrawer
-              .m1
+              .m4
               .c2
               .l4
               .gs
@@ -65,7 +65,7 @@ class ProductDefinitions extends DelegatingList<ProductDefinition> {
           PositionWithinModuleGroup.firstTop: BrandBuilder()
               .meyn
               .grandeDrawer
-              .m1
+              .m4
               .c2
               .l5
               .gs

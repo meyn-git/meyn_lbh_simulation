@@ -19,11 +19,21 @@ abstract class ModuleCasTunnelSection extends StateMachine
     implements LinkedSystem {
   final LiveBirdHandlingArea area;
   final SpeedProfile conveyorSpeedProfile;
+  final double internalCabinHeightInMeters = 1.7; //assumption
+  late final double cabinVolumeInM3 =
+      shape.size.xInMeters * shape.size.xInMeters * internalCabinHeightInMeters;
 
   @override
   late List<Command> commands = [RemoveFromMonitorPanel(this)];
 
   Shape get shape;
+
+  late final configuration = ModuleCasTunnelConfiguration(area);
+
+  late final int sectionNumber = this is ModuleCasTunnelInFeedLift
+      ? 0
+      : (modulesIn.linkedTo!.system as ModuleCasTunnelSection).sectionNumber +
+            1;
 
   ModuleCasTunnelSection({
     required this.area,
@@ -31,7 +41,7 @@ abstract class ModuleCasTunnelSection extends StateMachine
   }) : conveyorSpeedProfile =
            conveyorSpeedProfile ??
            area.productDefinition.speedProfiles.moduleConveyor,
-       super(initialState: WaitToFeedIn());
+       super(initialState: WaitToFeedIn(InitialCo2Value()));
 
   ModuleGroupInLink get modulesIn;
 
@@ -55,11 +65,43 @@ abstract class ModuleCasTunnelSection extends StateMachine
 
   Map<Type, State<ModuleCasTunnelSection> Function()> get nextState;
 
-  late final configuration = ModuleCasTunnelConfiguration(area);
-
   Duration get minimumCycleDuration;
 
   Duration get noneStunDurationPerCycle;
+
+  Co2ConcentrationProvider get co2ConcentrationProvider =>
+      (currentState as ModuleCasTunnelState).co2ConcentrationProvider;
+
+  double get co2ConcentrationActual =>
+      co2ConcentrationProvider.co2Concentration();
+
+  double get co2ConcentrationSetPoint => configuration
+      .sectionConfigurations[sectionNumber]
+      .co2ConcentrationSetPoint;
+
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    super.onUpdateToNextPointInTime(jump);
+    if (co2ConcentrationProvider is TimeProcessor) {
+      (co2ConcentrationProvider as TimeProcessor).onUpdateToNextPointInTime(
+        jump,
+      );
+    }
+    if (co2ConcentrationProvider is InitialCo2Value) {
+      (co2ConcentrationProvider as InitialCo2Value).init(this);
+    }
+  }
+
+  @override
+  ObjectDetails get objectDetails => super.objectDetails
+      .appendProperty(
+        'co2Actual',
+        '${(co2ConcentrationActual * 100).toStringAsFixed(1)}% (${co2ConcentrationProvider.name})',
+      )
+      .appendProperty(
+        'co2SetPoint',
+        '${(co2ConcentrationSetPoint * 100).toStringAsFixed(1)}%',
+      );
 }
 
 class ModuleCasTunnelMiddleSection extends ModuleCasTunnelSection {
@@ -83,15 +125,19 @@ class ModuleCasTunnelMiddleSection extends ModuleCasTunnelSection {
   );
 
   @override
-  String get name => 'ModuleBufferConveyor$seqNr';
+  late final String name = 'ModuleCasTunnelMiddleSection$seqNr';
 
   @override
-  final Map<Type, State<ModuleCasTunnelSection> Function()> nextState = {
-    WaitToFeedIn: () => FeedIn(),
-    FeedIn: () => WaitToStunBirds(),
-    WaitToStunBirds: () => WaitToFeedOut(),
-    WaitToFeedOut: () => FeedOut(),
-    FeedOut: () => WaitToFeedIn(),
+  late final Map<Type, State<ModuleCasTunnelSection> Function()> nextState = {
+    WaitToFeedIn: () =>
+        FeedIn(FeedInToChamber(this, ModuleTransportFractionCompleted(this))),
+    FeedIn: () =>
+        WaitToStunBirds(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    WaitToStunBirds: () =>
+        WaitToFeedOut(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    WaitToFeedOut: () =>
+        FeedOut(FeedOutOfChamber(this, ModuleTransportFractionCompleted(this))),
+    FeedOut: () => WaitToFeedIn(ControlCo2(this, ControlCo2Mode.increaseOnly)),
   };
 
   ModuleCasTunnelMiddleSection({
@@ -121,6 +167,53 @@ class ModuleCasTunnelMiddleSection extends ModuleCasTunnelSection {
   @override
   late final Duration noneStunDurationPerCycle =
       (feedInDuration + feedOutDuration) * 0.5;
+}
+
+ModuleGroup _findModuleGroupBeingTransportedToOrFrom(
+  ModuleCasTunnelSection section,
+) => section.area.moduleGroups.firstWhere((m) {
+  if (m.position is BetweenModuleGroupPlaces &&
+      ((m.position as BetweenModuleGroupPlaces).destination.system == section ||
+          (m.position as BetweenModuleGroupPlaces).source.system == section)) {
+    return true;
+  }
+  if (m.position is AtModuleGroupPlace &&
+      (m.position as AtModuleGroupPlace).place.system == section) {
+    return true;
+  }
+  return false;
+});
+
+class ModuleTransportFractionCompleted implements FractionCompletedProvider {
+  final ModuleGroup moduleGroup;
+
+  ModuleTransportFractionCompleted(ModuleCasTunnelSection section)
+    : moduleGroup = _findModuleGroupBeingTransportedToOrFrom(section);
+
+  @override
+  double fractionCompleted() => moduleGroup.position is BetweenModuleGroupPlaces
+      ? (moduleGroup.position as BetweenModuleGroupPlaces).completedFraction
+      : 1;
+}
+
+class DurationStateFractionCompleted implements FractionCompletedProvider {
+  final ModuleCasTunnelSection section;
+
+  DurationStateFractionCompleted(this.section);
+
+  @override
+  double fractionCompleted() {
+    if (section.currentState is! DurationState) {
+      return 0;
+    }
+    try {
+      var completedFraction =
+          (section.currentState as DurationState).completedFraction;
+      return completedFraction;
+    } catch (e) {
+      return 0;
+    }
+  }
 }
 
 abstract class ModuleCasTunnelLift extends ModuleCasTunnelSection {
@@ -167,7 +260,7 @@ class ModuleCasTunnelInFeedLift extends ModuleCasTunnelLift {
   );
 
   @override
-  String get name => 'ModuleCasTunnelInFeedLift$seqNr';
+  late final String name = 'ModuleCasTunnelInFeedLift$seqNr';
 
   @override
   late final Shape shape = Box(
@@ -181,14 +274,19 @@ class ModuleCasTunnelInFeedLift extends ModuleCasTunnelLift {
 
   @override
   late final Map<Type, State<ModuleCasTunnelSection> Function()> nextState = {
-    WaitToFeedIn: () => FeedIn(),
-    FeedIn: () => WaitOnNextStartInterval(),
-    WaitOnNextStartInterval: () => Down(),
-    Down: () => WaitToStunBirds(),
-    WaitToStunBirds: () => WaitToFeedOut(),
-    WaitToFeedOut: () => FeedOut(),
-    FeedOut: () => Up(),
-    Up: () => WaitToFeedIn(),
+    WaitToFeedIn: () => FeedIn(ControlCo2(this, ControlCo2Mode.increaseOnly)),
+    FeedIn: () =>
+        WaitOnNextStartInterval(ControlCo2(this, ControlCo2Mode.increaseOnly)),
+    WaitOnNextStartInterval: () =>
+        Down(FeedInToChamber(this, DurationStateFractionCompleted(this))),
+    Down: () =>
+        WaitToStunBirds(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    WaitToStunBirds: () =>
+        WaitToFeedOut(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    WaitToFeedOut: () =>
+        FeedOut(FeedOutOfChamber(this, ModuleTransportFractionCompleted(this))),
+    FeedOut: () => Up(ControlCo2(this, ControlCo2Mode.increaseOnly)),
+    Up: () => WaitToFeedIn(ControlCo2(this, ControlCo2Mode.increaseOnly)),
   };
 
   ModuleCasTunnelInFeedLift({
@@ -222,10 +320,9 @@ class ModuleCasTunnelInFeedLift extends ModuleCasTunnelLift {
   }
 
   @override
-  ObjectDetails get objectDetails => super.objectDetails.appendProperty(
-    'durationSinceLastStart',
-    durationSinceLastStart,
-  );
+  ObjectDetails get objectDetails => super.objectDetails
+      .appendProperty('durationSinceLastStart', durationSinceLastStart)
+      .appendObjectDetails(configuration.objectDetails);
 
   bool get isFirstModule => _isFirstModule;
 
@@ -237,9 +334,10 @@ class ModuleCasTunnelInFeedLift extends ModuleCasTunnelLift {
   }
 }
 
-class WaitOnNextStartInterval extends State<ModuleCasTunnelSection> {
+class WaitOnNextStartInterval extends State<ModuleCasTunnelSection>
+    implements ModuleCasTunnelState {
   @override
-  String get name => 'WaitOnNextStartInterval';
+  final String name = 'WaitOnNextStartInterval';
 
   @override
   State<ModuleCasTunnelSection>? nextState(ModuleCasTunnelSection section) {
@@ -252,6 +350,11 @@ class WaitOnNextStartInterval extends State<ModuleCasTunnelSection> {
     }
     return null;
   }
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
+
+  WaitOnNextStartInterval(this.co2ConcentrationProvider);
 }
 
 class ModuleCasTunnelOutFeedLift extends ModuleCasTunnelLift {
@@ -285,7 +388,7 @@ class ModuleCasTunnelOutFeedLift extends ModuleCasTunnelLift {
   );
 
   @override
-  String get name => 'ModuleCasTunnelOutFeedLift$seqNr';
+  late final String name = 'ModuleCasTunnelOutFeedLift$seqNr';
 
   @override
   late final Shape shape = Box(
@@ -299,13 +402,19 @@ class ModuleCasTunnelOutFeedLift extends ModuleCasTunnelLift {
 
   @override
   late final Map<Type, State<ModuleCasTunnelSection> Function()> nextState = {
-    WaitToFeedIn: () => FeedIn(),
-    FeedIn: () => WaitToStunBirds(),
-    WaitToStunBirds: () => Up(),
-    Up: () => WaitToFeedOut(),
-    WaitToFeedOut: () => FeedOut(),
-    FeedOut: () => Down(),
-    Down: () => WaitToFeedIn(),
+    WaitToFeedIn: () =>
+        FeedIn(FeedInToChamber(this, ModuleTransportFractionCompleted(this))),
+    FeedIn: () =>
+        WaitToStunBirds(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    WaitToStunBirds: () =>
+        Up(FeedOutOfChamber(this, DurationStateFractionCompleted(this))),
+    Up: () =>
+        WaitToFeedOut(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    WaitToFeedOut: () =>
+        FeedOut(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    FeedOut: () => Down(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
+    Down: () =>
+        WaitToFeedIn(ControlCo2(this, ControlCo2Mode.increaseOrDecrease)),
   };
 
   ModuleCasTunnelOutFeedLift({
@@ -326,9 +435,7 @@ class ModuleCasTunnelOutFeedLift extends ModuleCasTunnelLift {
   }
 
   @override
-  ObjectDetails get objectDetails => ObjectDetails(name)
-      .appendProperty('currentState', currentState)
-      .appendObjectDetails(configuration.objectDetails)
+  ObjectDetails get objectDetails => super.objectDetails
       .appendProperty('stunDurationOfLastModule', stunDurationOfLastModule)
       .appendProperty(
         'module speed',
@@ -361,11 +468,11 @@ class ModuleCasTunnelOutFeedLift extends ModuleCasTunnelLift {
 }
 
 class WaitToFeedIn extends State<ModuleCasTunnelSection>
-    implements ModuleTransportStartedListener {
+    implements ModuleTransportStartedListener, ModuleCasTunnelState {
   var transportStarted = false;
 
   @override
-  String get name => 'WaitToFeedIn';
+  final String name = 'WaitToFeedIn';
 
   @override
   State<ModuleCasTunnelSection>? nextState(ModuleCasTunnelSection system) {
@@ -379,12 +486,17 @@ class WaitToFeedIn extends State<ModuleCasTunnelSection>
   void onModuleTransportStarted(_) {
     transportStarted = true;
   }
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
+
+  WaitToFeedIn(this.co2ConcentrationProvider);
 }
 
 class FeedIn extends State<ModuleCasTunnelSection>
-    implements ModuleTransportCompletedListener {
+    implements ModuleTransportCompletedListener, ModuleCasTunnelState {
   @override
-  String get name => 'FeedIn';
+  final String name = 'FeedIn';
   bool transportCompleted = false;
 
   @override
@@ -392,6 +504,7 @@ class FeedIn extends State<ModuleCasTunnelSection>
     if (transportCompleted) {
       return system.nextState[FeedIn]!();
     }
+
     return null;
   }
 
@@ -399,11 +512,17 @@ class FeedIn extends State<ModuleCasTunnelSection>
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
+
+  FeedIn(this.co2ConcentrationProvider);
 }
 
-class WaitToFeedOut extends State<ModuleCasTunnelSection> {
+class WaitToFeedOut extends State<ModuleCasTunnelSection>
+    implements ModuleCasTunnelState {
   @override
-  String get name => 'WaitToFeedOut';
+  final String name = 'WaitToFeedOut';
 
   @override
   State<ModuleCasTunnelSection>? nextState(ModuleCasTunnelSection system) {
@@ -418,14 +537,19 @@ class WaitToFeedOut extends State<ModuleCasTunnelSection> {
 
   bool _moduleGroupAtDestination(ModuleCasTunnelSection conveyor) =>
       conveyor.moduleGroupPlace.moduleGroup!.destination == conveyor;
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
+
+  WaitToFeedOut(this.co2ConcentrationProvider);
 }
 
 class FeedOut extends State<ModuleCasTunnelSection>
-    implements ModuleTransportCompletedListener {
+    implements ModuleTransportCompletedListener, ModuleCasTunnelState {
   bool transportCompleted = false;
 
   @override
-  String get name => 'FeedOut';
+  final String name = 'FeedOut';
 
   @override
   void onStart(ModuleCasTunnelSection system) {
@@ -447,10 +571,16 @@ class FeedOut extends State<ModuleCasTunnelSection>
   void onModuleTransportCompleted(_) {
     transportCompleted = true;
   }
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
+
+  FeedOut(this.co2ConcentrationProvider);
 }
 
-class Up extends DurationState<ModuleCasTunnelSection> {
-  Up()
+class Up extends DurationState<ModuleCasTunnelSection>
+    implements ModuleCasTunnelState {
+  Up(this.co2ConcentrationProvider)
     : super(
         durationFunction: (system) =>
             (system as ModuleCasTunnelLift).upDuration,
@@ -465,11 +595,15 @@ class Up extends DurationState<ModuleCasTunnelSection> {
   }
 
   @override
-  String get name => 'Up';
+  final String name = 'Up';
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
 }
 
-class Down extends DurationState<ModuleCasTunnelSection> {
-  Down()
+class Down extends DurationState<ModuleCasTunnelSection>
+    implements ModuleCasTunnelState {
+  Down(this.co2ConcentrationProvider)
     : super(
         durationFunction: (system) =>
             (system as ModuleCasTunnelLift).downDuration,
@@ -477,18 +611,22 @@ class Down extends DurationState<ModuleCasTunnelSection> {
       );
 
   @override
-  String get name => 'Down';
+  final String name = 'Down';
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
 }
 
-class WaitToStunBirds extends DurationState<ModuleCasTunnelSection> {
-  WaitToStunBirds()
+class WaitToStunBirds extends DurationState<ModuleCasTunnelSection>
+    implements ModuleCasTunnelState {
+  WaitToStunBirds(this.co2ConcentrationProvider)
     : super(
         durationFunction: calculateRemainingStunDuration,
         nextStateFunction: (system) => system.nextState[WaitToStunBirds]!(),
       );
 
   @override
-  String get name => 'WaitToStunBirds';
+  final String name = 'WaitToStunBirds';
 
   static Duration calculateRemainingStunDuration(
     ModuleCasTunnelSection system,
@@ -499,6 +637,9 @@ class WaitToStunBirds extends DurationState<ModuleCasTunnelSection> {
         ? Duration.zero
         : remainingDuration;
   }
+
+  @override
+  final Co2ConcentrationProvider co2ConcentrationProvider;
 }
 
 class ModuleCasTunnelConfiguration implements DetailProvider {
@@ -571,7 +712,7 @@ class ModuleCasTunnelConfiguration implements DetailProvider {
     for (var section in tunnelSections()) {
       var sectionStunDuration =
           durationPerSection - section.noneStunDurationPerCycle;
-      var co2Percentages = casRecipe.co2Percentages(
+      var co2Percentages = casRecipe.co2Concentrations(
         stunDurationSoFar.inSeconds,
         sectionStunDuration.inSeconds,
       );
@@ -581,7 +722,7 @@ class ModuleCasTunnelConfiguration implements DetailProvider {
       sectionConfigs.add(
         ModuleCasTunnelSectionConfiguration(
           effectiveStunDuration: sectionStunDuration,
-          co2Concentration: co2Concentration,
+          co2ConcentrationSetPoint: co2Concentration,
         ),
       );
       stunDurationSoFar = stunDurationSoFar + sectionStunDuration;
@@ -595,7 +736,7 @@ class ModuleCasTunnelConfiguration implements DetailProvider {
   }
 
   @override
-  String get name => 'ModuleCasTunnelConfiguration';
+  final String name = 'ModuleCasTunnelConfiguration';
 
   @override
   late final ObjectDetails objectDetails = ObjectDetails(name)
@@ -644,15 +785,288 @@ class ModuleCasTunnelConfiguration implements DetailProvider {
 
 class ModuleCasTunnelSectionConfiguration {
   final Duration effectiveStunDuration;
-  final double co2Concentration;
+  // 0=0%, 0.5=50%, 1=100%
+  final double co2ConcentrationSetPoint;
 
   ModuleCasTunnelSectionConfiguration({
     required this.effectiveStunDuration,
-    required this.co2Concentration,
+    required this.co2ConcentrationSetPoint,
   });
 
   @override
   String toString() {
-    return '(duration: ${effectiveStunDuration.inMinutes}:${(effectiveStunDuration.inSeconds % 60).toString().padLeft(2, '0')}, co2: ${co2Concentration.toStringAsFixed(2)}%)';
+    return '(duration: ${effectiveStunDuration.inMinutes}:'
+        '${(effectiveStunDuration.inSeconds % 60).toString().padLeft(2, '0')}'
+        ', co2: ${(co2ConcentrationSetPoint * 100).toStringAsFixed(1)}%)';
+  }
+}
+
+abstract class ModuleCasTunnelState {
+  Co2ConcentrationProvider get co2ConcentrationProvider;
+}
+
+/// for all variables:
+/// section1 = where module transport will start
+/// section2 = where module transport will end
+class Co2ConcentrationDuringTransport {
+  late final double section1VolumeInM3;
+  late final double section1Co2ConcentrationAtStart;
+  late final double section1Co2ConcentrationAtEnd;
+
+  late final double section2VolumeInM3;
+  late final double section2Co2ConcentrationAtStart;
+  late final double section2Co2ConcentrationAtEnd;
+
+  late final double moduleGroupVolumeInM3;
+  late final ModuleGroup moduleGroup;
+
+  Co2ConcentrationDuringTransport.feedingIn(ModuleCasTunnelSection section) {
+    var previousSystem = section.modulesIn.linkedTo!.system;
+    if (previousSystem is ModuleCasTunnelSection) {
+      section1VolumeInM3 = previousSystem.cabinVolumeInM3;
+      section1Co2ConcentrationAtStart = previousSystem.co2ConcentrationActual;
+    } else {
+      section1VolumeInM3 = section.cabinVolumeInM3;
+      section1Co2ConcentrationAtStart = 0;
+    }
+
+    section2VolumeInM3 = section.cabinVolumeInM3;
+    section2Co2ConcentrationAtStart = section.co2ConcentrationActual;
+
+    initRemainingFields(section);
+  }
+
+  Co2ConcentrationDuringTransport.feedingOut(ModuleCasTunnelSection section) {
+    section1VolumeInM3 = section.cabinVolumeInM3;
+    section1Co2ConcentrationAtStart = section.co2ConcentrationActual;
+
+    var nextSystem = section.modulesOut.linkedTo!.system;
+    if (nextSystem is ModuleCasTunnelSection) {
+      section2VolumeInM3 = nextSystem.cabinVolumeInM3;
+      section2Co2ConcentrationAtStart = nextSystem.co2ConcentrationActual;
+    } else {
+      section2VolumeInM3 = section.cabinVolumeInM3;
+      section2Co2ConcentrationAtStart = 0;
+    }
+
+    initRemainingFields(section);
+  }
+
+  void initRemainingFields(ModuleCasTunnelSection section) {
+    moduleGroup = _findModuleGroupBeingTransportedToOrFrom(section);
+
+    var moduleGroupBirdVolume =
+        moduleGroup.numberOfBirds *
+        0.003; // lets assume 1 chicken = 3 kg = 3 liter
+    if (moduleGroup.length != 1) {
+      throw Exception('Only one module per group supported for now');
+    }
+    var module = moduleGroup.values.first;
+    if (module.variant.family != 'Grande Drawer') {
+      throw Exception('Only grande drawer supported for now');
+    }
+    var levels = module.variant.levels;
+    var nrOfDrawers = module.variant.compartmentsPerLevel * levels;
+    const double aytavDrawerWeightInKg = 18.7;
+    var weightOfDrawersInKg = aytavDrawerWeightInKg * nrOfDrawers;
+    var deadSpaceFactor =
+        1.1; // assumption 10% dead space, e.g. inside profiles
+    const densityStainlessSteelInKgPerM3 = 8000;
+    var moduleGroupFrameVolume =
+        (module.variant.weightWithoutBirdsInKiloGram! - weightOfDrawersInKg) /
+        densityStainlessSteelInKgPerM3 *
+        deadSpaceFactor;
+    const double densityOfHdpeInKgPerM3 = 950;
+    var moduleGroupDrawerVolume =
+        weightOfDrawersInKg / densityOfHdpeInKgPerM3 * deadSpaceFactor;
+    moduleGroupVolumeInM3 =
+        moduleGroupBirdVolume +
+        moduleGroupFrameVolume +
+        moduleGroupDrawerVolume;
+
+    // var section1VolumeCo2InM3 =
+    //     section1VolumeInM3 * section1Co2ConcentrationAtStart;
+    // var section2VolumeCo2InM3 =
+    //     section2VolumeInM3 * section2Co2ConcentrationAtStart;
+
+    var section1RemainingVolumeCo2InM3 =
+        section1Co2ConcentrationAtStart *
+        (section1VolumeInM3 - moduleGroupVolumeInM3);
+    var section2RemainingVolumeCo2InM3 =
+        section2Co2ConcentrationAtStart *
+        (section2VolumeInM3 - moduleGroupVolumeInM3);
+    var gasExchangeCo2Average =
+        (moduleGroupVolumeInM3 * section1Co2ConcentrationAtStart +
+            moduleGroupVolumeInM3 * section2Co2ConcentrationAtStart) /
+        (2 * moduleGroupVolumeInM3);
+
+    section1Co2ConcentrationAtEnd =
+        (section1RemainingVolumeCo2InM3 +
+            gasExchangeCo2Average * moduleGroupVolumeInM3) /
+        section1VolumeInM3;
+    section2Co2ConcentrationAtEnd =
+        (section2RemainingVolumeCo2InM3 +
+            gasExchangeCo2Average * moduleGroupVolumeInM3) /
+        section2VolumeInM3;
+  }
+
+  double calculateSection1Co2Concentration(double fractionCompleted) =>
+      ((section1Co2ConcentrationAtEnd - section1Co2ConcentrationAtStart) *
+          fractionCompleted) +
+      section1Co2ConcentrationAtStart;
+
+  double calculateSection2Co2Concentration(double fractionCompleted) =>
+      ((section2Co2ConcentrationAtEnd - section2Co2ConcentrationAtStart) *
+          fractionCompleted) +
+      section2Co2ConcentrationAtStart;
+
+  //double get transportCompletedFraction => (moduleGroup.position as BetweenModuleGroupPlaces).completedFraction;
+
+  // ModuleGroup _findModuleGroup(
+  //   ModuleCasTunnelSection section,
+  //   ModuleGroups moduleGroups,
+  // ) {
+  //   for (var moduleGroup in moduleGroups) {
+  //     if (moduleGroup.position is BetweenModuleGroupPlaces &&
+  //             (moduleGroup.position as BetweenModuleGroupPlaces)
+  //                     .source
+  //                     .system ==
+  //                 section ||
+  //         (moduleGroup.position as BetweenModuleGroupPlaces)
+  //                 .destination
+  //                 .system ==
+  //             section) {
+  //       return moduleGroup;
+  //     }
+  //     if (moduleGroup.position is AtModuleGroupPlace &&
+  //         (moduleGroup.position as AtModuleGroupPlace).place.system ==
+  //             section) {
+  //       return moduleGroup;
+  //     }
+  //   }
+  //   throw Exception(
+  //     'Could not find Module Group going to or from ${section.name}',
+  //   );
+  // }
+}
+
+abstract class Co2ConcentrationProvider {
+  String get name;
+
+  double co2Concentration();
+}
+
+class FeedInToChamber implements Co2ConcentrationProvider {
+  @override
+  final String name = 'FeedIn';
+
+  final Co2ConcentrationDuringTransport co2ConcentrationDuringTransport;
+  final FractionCompletedProvider fractionCompletedProvider;
+
+  FeedInToChamber(
+    ModuleCasTunnelSection section,
+    this.fractionCompletedProvider,
+  ) : co2ConcentrationDuringTransport =
+          Co2ConcentrationDuringTransport.feedingIn(section);
+
+  @override
+  double co2Concentration() =>
+      co2ConcentrationDuringTransport.calculateSection2Co2Concentration(
+        max(fractionCompletedProvider.fractionCompleted(), 0.01),
+      );
+}
+
+abstract class FractionCompletedProvider {
+  /// returns a value between 0 (start) and 1(completed)
+  double fractionCompleted();
+}
+
+class FeedOutOfChamber implements Co2ConcentrationProvider {
+  @override
+  final String name = 'FeedOut';
+
+  final Co2ConcentrationDuringTransport co2ConcentrationDuringTransport;
+  final FractionCompletedProvider fractionCompletedProvider;
+
+  FeedOutOfChamber(
+    ModuleCasTunnelSection section,
+    this.fractionCompletedProvider,
+  ) : co2ConcentrationDuringTransport =
+          Co2ConcentrationDuringTransport.feedingOut(section);
+
+  @override
+  double co2Concentration() =>
+      co2ConcentrationDuringTransport.calculateSection1Co2Concentration(
+        max(fractionCompletedProvider.fractionCompleted(), 0.01),
+      );
+}
+
+class ControlCo2 implements Co2ConcentrationProvider, TimeProcessor {
+  @override
+  late final String name = 'ControlCO2${mode.name}';
+
+  Duration _elapsed = Duration.zero;
+
+  /// 0.001 = 0.1% per sec = 1% per 10 seconds
+  final double co2FillSpeedInPercentPerSecond = 0.001;
+  late final Duration _duration = Duration(
+    microseconds: max(
+      (_co2ConcentrationBegin - _co2ConcentrationEnd).abs() ~/
+          (co2FillSpeedInPercentPerSecond / 1_000_000),
+      1,
+    ),
+  );
+  late final double _co2ConcentrationBegin;
+  late final double _co2ConcentrationEnd;
+  final ControlCo2Mode mode;
+
+  ControlCo2(ModuleCasTunnelSection section, this.mode)
+    : _co2ConcentrationBegin = section.co2ConcentrationActual,
+      _co2ConcentrationEnd = section.co2ConcentrationSetPoint {
+    assert(!section.co2ConcentrationActual.isNaN);
+  }
+
+  double get fractionCompleted =>
+      _elapsed.inMicroseconds / _duration.inMicroseconds;
+
+  @override
+  double co2Concentration() =>
+      _co2ConcentrationEnd < _co2ConcentrationBegin &&
+          mode == ControlCo2Mode.increaseOnly
+      ? _co2ConcentrationBegin
+      : (_co2ConcentrationEnd - _co2ConcentrationBegin) * fractionCompleted +
+            _co2ConcentrationBegin;
+
+  @override
+  void onUpdateToNextPointInTime(Duration jump) {
+    _elapsed = _elapsed + jump;
+    if (_elapsed > _duration) {
+      _elapsed = _duration;
+    }
+  }
+}
+
+enum ControlCo2Mode {
+  /// CO2 can only be increased by injecting CO2(almost 100%)
+  increaseOnly,
+
+  /// CO2 can be increased by injecting CO2(almost 100%)
+  /// or decreased by injecting atmospheric air containing O2(21%) and N2(78%)
+  increaseOrDecrease,
+}
+
+class InitialCo2Value implements Co2ConcentrationProvider {
+  bool get isInitialized => _co2ConcentrationSetPoint != 0;
+
+  @override
+  double co2Concentration() => _co2ConcentrationSetPoint;
+
+  @override
+  String get name => 'Init';
+
+  double _co2ConcentrationSetPoint = 0;
+
+  void init(ModuleCasTunnelSection section) {
+    _co2ConcentrationSetPoint = section.co2ConcentrationSetPoint;
   }
 }

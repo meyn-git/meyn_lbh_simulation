@@ -170,45 +170,60 @@ class CasRecipe {
 
   const CasRecipe.standardChickenRecipe()
     : this(const [
-        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 18),
-        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 28),
-        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 33),
-        CasRecipeStage(duration: Duration(seconds: 60), co2Percentage: 38),
-        CasRecipeStage(duration: Duration(seconds: 120), co2Percentage: 62),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Concentration: 0.18),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Concentration: 0.28),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Concentration: 0.33),
+        CasRecipeStage(duration: Duration(seconds: 60), co2Concentration: 0.38),
+        CasRecipeStage(
+          duration: Duration(seconds: 120),
+          co2Concentration: 0.62,
+        ),
       ], const Duration(seconds: 30));
 
   const CasRecipe.standardTurkeyRecipe()
     : this(const [
-        CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 22),
-        CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 34),
-        CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 43),
-        CasRecipeStage(duration: Duration(seconds: 120), co2Percentage: 67),
+        CasRecipeStage(duration: Duration(seconds: 40), co2Concentration: 0.22),
+        CasRecipeStage(duration: Duration(seconds: 40), co2Concentration: 0.34),
+        CasRecipeStage(duration: Duration(seconds: 40), co2Concentration: 0.43),
+        CasRecipeStage(
+          duration: Duration(seconds: 120),
+          co2Concentration: 0.67,
+        ),
       ], const Duration(seconds: 30));
 
   const CasRecipe.turkeyRecipeAtIndrolAtInstallation()
     : this(const [
-        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 35),
-        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 43),
-        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 58),
-        CasRecipeStage(duration: Duration(seconds: 110), co2Percentage: 72),
+        CasRecipeStage(duration: Duration(seconds: 35), co2Concentration: 0.35),
+        CasRecipeStage(duration: Duration(seconds: 35), co2Concentration: 0.43),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Concentration: 0.58),
+        CasRecipeStage(
+          duration: Duration(seconds: 110),
+          co2Concentration: 0.72,
+        ),
       ], const Duration(seconds: 30));
 
   //info from Maurizio on site @ 2024-09-18
   const CasRecipe.femaleTurkeyRecipeAtIndrol()
     : this(const [
-        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 32),
-        CasRecipeStage(duration: Duration(seconds: 35), co2Percentage: 38),
-        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 43),
-        CasRecipeStage(duration: Duration(seconds: 110), co2Percentage: 72),
+        CasRecipeStage(duration: Duration(seconds: 35), co2Concentration: 0.32),
+        CasRecipeStage(duration: Duration(seconds: 35), co2Concentration: 0.38),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Concentration: 0.43),
+        CasRecipeStage(
+          duration: Duration(seconds: 110),
+          co2Concentration: 0.72,
+        ),
       ], const Duration(seconds: 30));
 
   //info from Maurizio on site @ 2024-09-18
   const CasRecipe.maleTurkeyRecipeAtIndrol()
     : this(const [
-        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 32),
-        CasRecipeStage(duration: Duration(seconds: 30), co2Percentage: 38),
-        CasRecipeStage(duration: Duration(seconds: 70), co2Percentage: 43),
-        CasRecipeStage(duration: Duration(seconds: 100), co2Percentage: 82),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Concentration: 0.32),
+        CasRecipeStage(duration: Duration(seconds: 30), co2Concentration: 0.38),
+        CasRecipeStage(duration: Duration(seconds: 70), co2Concentration: 0.43),
+        CasRecipeStage(
+          duration: Duration(seconds: 100),
+          co2Concentration: 0.82,
+        ),
       ], const Duration(seconds: 30));
 
   Duration totalDurationStunStages() =>
@@ -217,8 +232,8 @@ class CasRecipe {
   Duration totalDurationStunStagesAndExhaust() =>
       totalDurationStunStages() + exhaustDuration;
 
-  List<int> co2Percentages(int secondsFromStart, int durationInSeconds) {
-    final result = <int>[];
+  List<double> co2Concentrations(int secondsFromStart, int durationInSeconds) {
+    final result = <double>[];
     int end = secondsFromStart + durationInSeconds;
     int stageStart = 0;
 
@@ -233,7 +248,7 @@ class CasRecipe {
         int overlapEnd = stageEnd > end ? end : stageEnd;
         int overlapDuration = overlapEnd - overlapStart;
         for (int i = 0; i < overlapDuration; i++) {
-          result.add(stage.co2Percentage);
+          result.add(stage.co2Concentration);
         }
       }
       stageStart = stageEnd;
@@ -279,9 +294,14 @@ class WaitToFeedIn extends State<ModuleCas>
 
 class CasRecipeStage {
   final Duration duration;
-  final int co2Percentage;
 
-  const CasRecipeStage({required this.duration, required this.co2Percentage});
+  /// 0=0% 0.5=50% 1=100%
+  final double co2Concentration;
+
+  const CasRecipeStage({
+    required this.duration,
+    required this.co2Concentration,
+  });
 }
 
 class FeedIn extends State<ModuleCas>

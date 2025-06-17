@@ -31,10 +31,10 @@ class DabeSite extends Site {
 }
 
 const dabeCasRecipe = CasRecipe([
-  CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 22),
-  CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 36),
-  CasRecipeStage(duration: Duration(seconds: 40), co2Percentage: 43),
-  CasRecipeStage(duration: Duration(seconds: 165), co2Percentage: 67),
+  CasRecipeStage(duration: Duration(seconds: 40), co2Concentration: 0.22),
+  CasRecipeStage(duration: Duration(seconds: 40), co2Concentration: 0.36),
+  CasRecipeStage(duration: Duration(seconds: 40), co2Concentration: 0.43),
+  CasRecipeStage(duration: Duration(seconds: 165), co2Concentration: 0.67),
 ], Duration(seconds: 10));
 
 /// Dabe:                       ModuleGroup = 2x 6 compartment module

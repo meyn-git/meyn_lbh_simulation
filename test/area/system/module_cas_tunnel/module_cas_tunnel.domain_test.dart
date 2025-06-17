@@ -220,30 +220,24 @@ void main() {
           config.sectionConfigurations[0].effectiveStunDuration.should.be(
             Duration(minutes: 1, seconds: 57, microseconds: 411_667),
           );
-          config.sectionConfigurations[0].co2Concentration.should.beCloseTo(
-            22.871,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[0].co2ConcentrationSetPoint.should
+              .beCloseTo(0.228, delta: 0.001);
         });
         test('sectionConfigurations[1] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[1].effectiveStunDuration.should.be(
             Duration(minutes: 2, seconds: 13, microseconds: 651_667),
           );
-          config.sectionConfigurations[1].co2Concentration.should.beCloseTo(
-            37.323,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[1].co2ConcentrationSetPoint.should
+              .beCloseTo(0.373, delta: 0.001);
         });
         test('sectionConfigurations[2] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[2].effectiveStunDuration.should.be(
             Duration(minutes: 1, seconds: 48, microseconds: 936_667),
           );
-          config.sectionConfigurations[2].co2Concentration.should.beCloseTo(
-            62,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[2].co2ConcentrationSetPoint.should
+              .beCloseTo(0.619, delta: 0.001);
         });
       });
       group('7920 b/h, 176 birds/mod, 45 modules/h, 7 sections', () {
@@ -273,70 +267,56 @@ void main() {
           config.sectionConfigurations[0].effectiveStunDuration.should.be(
             Duration(seconds: 41, microseconds: 039_286),
           );
-          config.sectionConfigurations[0].co2Concentration.should.beCloseTo(
-            18.0,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[0].co2ConcentrationSetPoint.should
+              .beCloseTo(0.179, delta: 0.001);
         });
         test('sectionConfigurations[1] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[1].effectiveStunDuration.should.be(
             Duration(seconds: 57, microseconds: 279_286),
           );
-          config.sectionConfigurations[1].co2Concentration.should.beCloseTo(
-            24.666,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[1].co2ConcentrationSetPoint.should
+              .beCloseTo(0.246, delta: 0.001);
         });
         test('sectionConfigurations[2] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[2].effectiveStunDuration.should.be(
             Duration(seconds: 57, microseconds: 279_286),
           );
-          config.sectionConfigurations[2].co2Concentration.should.beCloseTo(
-            31.070,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[2].co2ConcentrationSetPoint.should
+              .beCloseTo(0.310, delta: 0.001);
         });
         test('sectionConfigurations[3] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[3].effectiveStunDuration.should.be(
             Duration(seconds: 57, microseconds: 279_286),
           );
-          config.sectionConfigurations[3].co2Concentration.should.beCloseTo(
-            35.807,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[3].co2ConcentrationSetPoint.should
+              .beCloseTo(0.358, delta: 0.001);
         });
         test('sectionConfigurations[4] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[4].effectiveStunDuration.should.be(
             Duration(seconds: 57, microseconds: 279_286),
           );
-          config.sectionConfigurations[4].co2Concentration.should.beCloseTo(
-            50.210,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[4].co2ConcentrationSetPoint.should
+              .beCloseTo(0.502, delta: 0.001);
         });
         test('sectionConfigurations[5] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[5].effectiveStunDuration.should.be(
             Duration(seconds: 57, microseconds: 279_286),
           );
-          config.sectionConfigurations[5].co2Concentration.should.beCloseTo(
-            62,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[5].co2ConcentrationSetPoint.should
+              .beCloseTo(0.62, delta: 0.001);
         });
         test('sectionConfigurations[6] should have a valid value', () {
           final config = ModuleCasTunnelConfiguration(area);
           config.sectionConfigurations[6].effectiveStunDuration.should.be(
             Duration(seconds: 32, microseconds: 564_286),
           );
-          config.sectionConfigurations[6].co2Concentration.should.beCloseTo(
-            62,
-            delta: 0.001,
-          );
+          config.sectionConfigurations[6].co2ConcentrationSetPoint.should
+              .beCloseTo(0.619, delta: 0.001);
         });
       });
     });
