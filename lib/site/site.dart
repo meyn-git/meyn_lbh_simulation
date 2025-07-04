@@ -9,6 +9,7 @@ import 'package:meyn_lbh_simulation/site/site_4054_taravis_sarvar.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_4649_gut_bergmark.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_5021_ha_kylling_as.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_5246_nortura_haerland.domain.dart';
+import 'package:meyn_lbh_simulation/site/site_5768_lonki.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_5836_van_der_linden.domain.dart';
 import 'package:meyn_lbh_simulation/site/site_5959_schildermans.dart';
 import 'package:meyn_lbh_simulation/site/site_7524_florida_spain.domain.dart';
@@ -69,6 +70,7 @@ abstract class Site {
 class Sites extends DelegatingList<Site> {
   Sites()
     : super([
+        LonkiSite(),
         ModuleTunnelStunnerSite(),
         AbaliogluSite(),
         IndrolSite(),
